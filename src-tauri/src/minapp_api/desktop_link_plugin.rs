@@ -6,6 +6,11 @@ use tauri::{
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
 };
 
+#[cfg(target_os = "linux")]
+use tokio::fs;
+#[cfg(target_os = "linux")]
+use tokio::io::AsyncWriteExt;
+
 #[tauri::command]
 async fn create<R: Runtime>(
     window: Window<R>,
@@ -33,11 +38,12 @@ async fn create<R: Runtime>(
         min_app_name,
         min_app_id,
         icon_file.to_string_lossy().to_string(),
-    );
+    )
+    .await;
 }
 
 #[cfg(target_os = "windows")]
-fn run_create(
+async fn run_create(
     prog_path: String,
     min_app_name: String,
     min_app_id: String,
@@ -62,6 +68,74 @@ fn run_create(
     let res = link.create_lnk(dest_file);
     if res.is_err() {
         return Err(res.err().unwrap().to_string());
+    }
+
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+async fn run_create(
+    prog_path: String,
+    min_app_name: String,
+    min_app_id: String,
+    icon_path: String,
+) -> Result<(), String> {
+    let app_link_file = dirs::home_dir();
+    if app_link_file.is_none() {
+        return Err("no home dir".into());
+    }
+    let mut app_link_file = app_link_file.unwrap();
+    app_link_file.push(".local");
+    app_link_file.push("share");
+    app_link_file.push("applications");
+    app_link_file.push(format!("{}.desktop", &min_app_name));
+
+    let mut content = String::from("");
+    content.push_str("[Desktop Entry]\n");
+    content.push_str("Version=1.0\n");
+    content.push_str("Name=");
+    content.push_str(&min_app_name);
+    content.push_str("\n");
+
+    let exec = format!("Exec={} startMinApp  {}", &prog_path, &min_app_id);
+    content.push_str(&exec);
+    content.push_str("\n");
+
+    content.push_str("Categories=Utility;\n");
+    content.push_str("Type=Application\n");
+
+    let icon = format!("Icon={}", &icon_path);
+    content.push_str(&icon);
+    content.push_str("\n");
+
+    for dest_file in &(vec![app_link_file]) {
+        if dest_file.exists() {
+            let res = fs::remove_file(dest_file).await;
+            if res.is_err() {
+                return Err(res.err().unwrap().to_string());
+            }
+        }
+        if let Some(parent_path) = dest_file.parent() {
+            if !parent_path.exists() {
+                let res = fs::create_dir_all(parent_path).await;
+                if res.is_err() {
+                    return Err(res.err().unwrap().to_string());
+                }
+            }
+        }
+        let f = fs::File::options()
+            .create(true)
+            .write(true)
+            .open(dest_file)
+            .await;
+        if f.is_err() {
+            return Err(f.err().unwrap().to_string());
+        }
+        let mut f = f.unwrap();
+        let res = f.write_all(content.as_bytes()).await;
+        if res.is_err() {
+            return Err(res.err().unwrap().to_string());
+        }
     }
 
     Ok(())

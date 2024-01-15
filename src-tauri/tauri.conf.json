@@ -161,7 +161,8 @@
           "**",
           "**/.env",
           "**/.simple_dev.json",
-          "$HOME/.linksaas/**"
+          "$HOME/.linksaas/**",
+          "$HOME/.local/**"
         ]
       }
     },
