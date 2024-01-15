@@ -80,6 +80,13 @@ async fn run_create(
     min_app_id: String,
     icon_path: String,
 ) -> Result<(), String> {
+    let desktop_file = dirs::desktop_dir();
+    if desktop_file.is_none() {
+        return Err("no desktop dir".into());
+    }
+    let mut desktop_file = desktop_file.unwrap();
+    desktop_file.push(format!("{}.desktop", &min_app_name));
+
     let app_link_file = dirs::home_dir();
     if app_link_file.is_none() {
         return Err("no home dir".into());
@@ -108,7 +115,7 @@ async fn run_create(
     content.push_str(&icon);
     content.push_str("\n");
 
-    for dest_file in &(vec![app_link_file]) {
+    for dest_file in &(vec![desktop_file, app_link_file]) {
         if dest_file.exists() {
             let res = fs::remove_file(dest_file).await;
             if res.is_err() {
