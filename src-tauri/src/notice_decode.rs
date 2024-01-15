@@ -339,12 +339,19 @@ pub mod client {
     pub struct ShowGlobalServerSettingNotice {}
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(rename_all = "snake_case")]
+    pub struct StartMinAppNotice {
+        pub min_app_id: String,
+    }
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     pub enum Notice {
         WrongSessionNotice(WrongSessionNotice),
         SwitchUserNotice(SwitchUserNotice),
         GitPostHookNotice(GitPostHookNotice),
         LocalProxyStopNotice(LocalProxyStopNotice),
         ShowGlobalServerSettingNotice(ShowGlobalServerSettingNotice),
+        StartMinAppNotice(StartMinAppNotice),
     }
 }
 
@@ -412,5 +419,13 @@ pub fn new_local_proxy_stop_notice() -> NoticeMessage {
 pub fn new_show_global_server_setting_notice() -> NoticeMessage {
     return NoticeMessage::ClientNotice(client::Notice::ShowGlobalServerSettingNotice(
         client::ShowGlobalServerSettingNotice {},
+    ));
+}
+
+pub fn new_start_min_app_notice(min_app_id: String) -> NoticeMessage {
+    return NoticeMessage::ClientNotice(client::Notice::StartMinAppNotice(
+        client::StartMinAppNotice {
+            min_app_id: min_app_id,
+        },
     ));
 }

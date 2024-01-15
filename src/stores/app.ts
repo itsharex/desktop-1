@@ -127,6 +127,19 @@ class AppStore {
       this._onLeave = null;
     });
   }
+
+  // 打开微应用
+  private _openMinAppId = "";
+
+  get openMinAppId() {
+    return this._openMinAppId;
+  }
+
+  set openMinAppId(val: string) {
+    runInAction(() => {
+      this._openMinAppId = val;
+    });
+  }
 }
 
 export default AppStore;

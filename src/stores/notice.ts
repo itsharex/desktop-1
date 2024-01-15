@@ -192,13 +192,13 @@ class NoticeStore {
       if (curProject == undefined) {
         return;
       }
-      await curProject.chat_store.onNewMsg(notice.NewMsgNotice.chat_group_id,notice.NewMsgNotice.chat_msg_id);
-    } else if(notice.UpdateMsgNotice != undefined){
+      await curProject.chat_store.onNewMsg(notice.NewMsgNotice.chat_group_id, notice.NewMsgNotice.chat_msg_id);
+    } else if (notice.UpdateMsgNotice != undefined) {
       const curProject = this.rootStore.projectStore.getProject(notice.UpdateMsgNotice.project_id);
       if (curProject == undefined) {
         return;
       }
-      await curProject.chat_store.onUpdateMsg(notice.UpdateMsgNotice.chat_group_id,notice.UpdateMsgNotice.chat_msg_id);
+      await curProject.chat_store.onUpdateMsg(notice.UpdateMsgNotice.chat_group_id, notice.UpdateMsgNotice.chat_msg_id);
     }
   }
 
@@ -251,6 +251,14 @@ class NoticeStore {
       await this.rootStore.appStore.loadLocalProxy();
     } else if (notice.ShowGlobalServerSettingNotice !== undefined) {
       this.rootStore.appStore.showGlobalServerModal = true;
+    } else if (notice.StartMinAppNotice !== undefined) {
+      await appWindow.show();
+      await appWindow.unminimize();
+      await appWindow.setAlwaysOnTop(true);
+      setTimeout(() => {
+        appWindow.setAlwaysOnTop(false);
+      }, 200);
+      this.rootStore.appStore.openMinAppId = notice.StartMinAppNotice.min_app_id;
     }
   }
 
