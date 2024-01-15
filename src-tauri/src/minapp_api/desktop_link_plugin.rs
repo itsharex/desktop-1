@@ -148,6 +148,16 @@ async fn run_create(
     Ok(())
 }
 
+#[cfg(target_os = "macos")]
+async fn run_create(
+    _prog_path: String,
+    _min_app_name: String,
+    _min_app_id: String,
+    _icon_path: String,
+) -> Result<(), String> {
+    Err("not support".into())
+}
+
 pub struct DesktopLinkPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
