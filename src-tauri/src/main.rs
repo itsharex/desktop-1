@@ -14,8 +14,8 @@ mod project_cloud_api;
 mod project_comm_api;
 mod project_content_api;
 mod project_mgr_api;
-mod pubres_api;
 mod project_misc_api;
+mod pubres_api;
 
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
@@ -291,18 +291,19 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 2 && args[1] == "postHook" {
         cmd_post_hook = true;
-    }
+    } 
 
     if local_api::is_instance_run() {
         if cmd_post_hook {
             local_api::call_git_post_hook();
-        }
+        } 
         return;
     }
 
     if cmd_post_hook {
         return;
     }
+
     let tray_menu = SystemTrayMenu::new()
         .add_item(CustomMenuItem::new("switch_user", "切换用户").disabled())
         .add_item(CustomMenuItem::new("set_global_server", "设置全局服务器"))
@@ -434,7 +435,9 @@ fn main() {
         .plugin(project_misc_api::events_subscribe_api_plugin::EventsSubscribeApiPlugin::new())
         .plugin(admin_auth_api_plugin::AdminAuthApiPlugin::new())
         .plugin(project_comm_api::project_admin_api_plugin::ProjectAdminApiPlugin::new())
-        .plugin(project_comm_api::project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new())
+        .plugin(
+            project_comm_api::project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new(),
+        )
         .plugin(user_admin_api_plugin::UserAdminApiPlugin::new())
         .plugin(client_cfg_admin_api_plugin::ClientCfgAdminApiPlugin::new())
         .plugin(project_comm_api::events_admin_api_plugin::EventsAdminApiPlugin::new())
@@ -442,7 +445,6 @@ fn main() {
         .plugin(minapp_api::min_app_fs_plugin::MinAppFsPlugin::new())
         .plugin(minapp_api::min_app_shell_plugin::MinAppShellPlugin::new())
         .plugin(minapp_api::min_app_store_plugin::MinAppStorePlugin::new())
-        .plugin(minapp_api::desktop_link_plugin::DesktopLinkPlugin::new())
         .plugin(project_mgr_api::project_requirement_api_plugin::ProjectRequirementApiPlugin::new())
         .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
         .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
@@ -522,7 +524,7 @@ fn main() {
         })
         .build(tauri::generate_context!())
         .expect("error while building  tauri application");
-    app.run(|app_handle, event| match event {
+    app.run(move |app_handle, event| match event {
         tauri::RunEvent::Updater(updater_event) => {
             let win = app_handle.get_window("main");
             match updater_event {

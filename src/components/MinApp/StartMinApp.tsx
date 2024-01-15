@@ -36,6 +36,9 @@ const StartMinApp = () => {
             title: `${appInfo.base_info.app_name}(微应用)`,
             path: path,
         }, appInfo?.app_perm);
+
+        //清空openMinAppId
+        appStore.openMinAppId = "";
     };
 
     const preOpenUserApp = async () => {
@@ -76,9 +79,6 @@ const StartMinApp = () => {
         }
         //打开应用
         await preOpenUserApp();
-
-        //清空openMinAppId
-        appStore.openMinAppId = "";
     };
 
     const loadAppInfo = async () => {
@@ -105,16 +105,18 @@ const StartMinApp = () => {
         }
     }, [appStore.openMinAppId]);
 
-    return (<>
-        {showDownload != null && (
-            <DownloadProgressModal fsId={showDownload.fsId} fileId={showDownload.fileId}
-                onCancel={() => setShowDownload(null)}
-                onOk={() => {
-                    setShowDownload(null);
-                    openUserApp(showDownload.fsId, showDownload.fileId);
-                }} />
-        )}
-    </>);
+    return (
+        <div>
+            {showDownload != null && (
+                <DownloadProgressModal fsId={showDownload.fsId} fileId={showDownload.fileId}
+                    onCancel={() => setShowDownload(null)}
+                    onOk={() => {
+                        setShowDownload(null);
+                        openUserApp(showDownload.fsId, showDownload.fileId);
+                    }} />
+            )}
+        </div>
+    );
 };
 
 export default observer(StartMinApp);

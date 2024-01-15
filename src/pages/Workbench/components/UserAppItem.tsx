@@ -9,7 +9,6 @@ import { GLOBAL_APPSTORE_FS_ID } from '@/api/fs';
 import StoreStatusModal from "@/components/MinApp/StoreStatusModal";
 import AsyncImage from "@/components/AsyncImage";
 import type { AppInfo } from "@/api/appstore";
-import { create as create_desktop_link } from "@/api/desktop_link";
 
 interface UserAppItemProps {
     appInfo: AppInfo;
@@ -28,9 +27,9 @@ const UserAppItem: React.FC<UserAppItemProps> = (props) => {
             return "";
         }
         if (appStore.isOsWindows) {
-            return `https://fs.localhost/${GLOBAL_APPSTORE_FS_ID}/${fileId}`;
+            return `https://fs.localhost/${GLOBAL_APPSTORE_FS_ID}/${fileId}/icon.png`;
         } else {
-            return `fs://localhost/${GLOBAL_APPSTORE_FS_ID}/${fileId}`;
+            return `fs://localhost/${GLOBAL_APPSTORE_FS_ID}/${fileId}/icon.png`;
         }
     };
 
@@ -45,11 +44,6 @@ const UserAppItem: React.FC<UserAppItemProps> = (props) => {
         <Card title={props.appInfo.base_info.app_name} bordered={false} extra={
             <Popover content={
                 <Space direction="vertical" style={{ padding: "10px 10px" }}>
-                    <Button type="link" onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        create_desktop_link(props.appInfo.base_info.app_name, props.appInfo.app_id, props.appInfo.base_info.icon_file_id).then(() => message.info("创建成功"));
-                    }}>放到系统桌面</Button>
                     <Button type="link" onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();

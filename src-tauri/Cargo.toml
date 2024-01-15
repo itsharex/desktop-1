@@ -69,9 +69,6 @@ url = "2.2.2"
 uuid = {version = "0.8", features = ["serde", "v4"] }
 walkdir = "2.3.2"
 
-[target.'cfg(windows)'.dependencies]
-mslnk = "0.1.8"
-
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
