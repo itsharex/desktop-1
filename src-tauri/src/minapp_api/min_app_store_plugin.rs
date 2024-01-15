@@ -16,7 +16,7 @@ use crate::user_api_plugin::{decrypt, encrypt};
 #[derive(Default)]
 pub struct StoreMap(pub Mutex<HashMap<String, sled::Db>>);
 
-fn open_db(label: String) -> Result<sled::Db, String> {
+fn open_db(user_id: &str, label: String) -> Result<sled::Db, String> {
     let path = crate::get_minapp_dir();
     if path.is_none() {
         return Err("no minapp store dir".into());
@@ -24,6 +24,7 @@ fn open_db(label: String) -> Result<sled::Db, String> {
     let path = path.unwrap();
     let mut path = std::path::PathBuf::from(&path);
     let min_app_id = label.replace("minApp:", "");
+    path.push(user_id);
     path.push(min_app_id);
     let path = path.to_str().unwrap();
     let db = sled::open(&path);
@@ -38,7 +39,12 @@ pub async fn start_store<R: Runtime>(
     app_handle: AppHandle<R>,
     label: String,
 ) -> Result<(), String> {
-    let db = open_db(label.clone());
+    let mut user_id = crate::user_api_plugin::get_user_id(app_handle.clone()).await;
+    if &user_id == "" {
+        let all_user = "all".into();
+        user_id.clone_from(&all_user);
+    }
+    let db = open_db(&user_id, label.clone());
     if db.is_err() {
         return Err(db.err().unwrap());
     }
@@ -71,7 +77,7 @@ pub async fn set_data<R: Runtime>(
     let db_map = app_handle.state::<StoreMap>().inner();
     let mut db_map = db_map.0.lock().await;
     if let Some(db) = db_map.get_mut(label) {
-        let value = encrypt(app_handle.clone(), value, true).await;
+        let value = encrypt(app_handle.clone(), value, false).await;
         if value.is_err() {
             return Err(value.err().unwrap());
         }
@@ -105,7 +111,7 @@ pub async fn get_data<R: Runtime>(
         }
         let res = res.unwrap();
         let value = res.to_vec();
-        return decrypt(app_handle.clone(), value, true).await;
+        return decrypt(app_handle.clone(), value, false).await;
     }
     return Err("no data".into());
 }
@@ -146,7 +152,7 @@ pub async fn list_all<R: Runtime>(
             let key = key.to_vec();
 
             let value = value.to_vec();
-            let value = decrypt(app_handle.clone(), value, true).await;
+            let value = decrypt(app_handle.clone(), value, false).await;
             if value.is_err() {
                 return Err(value.err().unwrap());
             }
@@ -176,7 +182,12 @@ pub async fn clear_data<R: Runtime>(
         }
         let _ = db.flush();
     } else {
-        let db = open_db(label.clone());
+        let mut user_id = crate::user_api_plugin::get_user_id(app_handle.clone()).await;
+        if &user_id == "" {
+            let all_user = "all".into();
+            user_id.clone_from(&all_user);
+        }
+        let db = open_db(&user_id, label.clone());
         if db.is_err() {
             return Err(db.err().unwrap());
         }
@@ -212,7 +223,12 @@ pub async fn get_status<R: Runtime>(
             key_count: count,
         });
     } else {
-        let db = open_db(label.clone());
+        let mut user_id = crate::user_api_plugin::get_user_id(app_handle.clone()).await;
+        if &user_id == "" {
+            let all_user = "all".into();
+            user_id.clone_from(&all_user);
+        }
+        let db = open_db(&user_id, label.clone());
         if db.is_err() {
             return Err(db.err().unwrap());
         }
