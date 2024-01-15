@@ -442,6 +442,7 @@ fn main() {
         .plugin(minapp_api::min_app_fs_plugin::MinAppFsPlugin::new())
         .plugin(minapp_api::min_app_shell_plugin::MinAppShellPlugin::new())
         .plugin(minapp_api::min_app_store_plugin::MinAppStorePlugin::new())
+        .plugin(minapp_api::desktop_link_plugin::DesktopLinkPlugin::new())
         .plugin(project_mgr_api::project_requirement_api_plugin::ProjectRequirementApiPlugin::new())
         .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
         .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
