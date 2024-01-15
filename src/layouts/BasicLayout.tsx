@@ -14,6 +14,7 @@ import Toolbar from '../components/Toolbar';
 import style from './style.module.less';
 import LoginModal from '@/pages/User/LoginModal';
 import GlobalServerModal from '@/components/GlobalSetting/GlobalServerModal';
+import StartMinApp from '@/components/MinApp/StartMinApp';
 
 const { Content } = Layout;
 
@@ -55,6 +56,7 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
       </Layout>
       {userStore.showUserLogin && <LoginModal />}
       {appStore.showGlobalServerModal && <GlobalServerModal />}
+      {appStore.openMinAppId != "" && <StartMinApp />}
     </Layout>
   );
 };

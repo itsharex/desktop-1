@@ -187,12 +187,17 @@ export namespace client {
 
   export type ShowGlobalServerSettingNotice = {};
 
+  export type StartMinAppNotice = {
+    min_app_id: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     SwitchUserNotice?: SwitchUserNotice;
     GitPostHookNotice?: GitPostHookNotice;
     LocalProxyStopNotice?: LocalProxyStopNotice;
     ShowGlobalServerSettingNotice?: ShowGlobalServerSettingNotice;
+    StartMinAppNotice?: StartMinAppNotice;
   };
 }
 

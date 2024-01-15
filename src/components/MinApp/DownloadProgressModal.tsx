@@ -67,6 +67,7 @@ const DownloadProgressModal: React.FC<DownloadProgressModalProps> = (props) => {
     };
 
     useEffect(() => {
+        console.log("aaaaaaaaaaaaa");
         const trackId = uniqId();
         runDownload(trackId);
         const unListenFn = listen('downloadFile_' + trackId, (ev) => {

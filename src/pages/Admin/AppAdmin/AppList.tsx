@@ -96,9 +96,9 @@ const AppList = () => {
                 let iconUrl = "";
                 if (row.base_info.icon_file_id != "") {
                     if (appStore.isOsWindows) {
-                        iconUrl = `https://fs.localhost/${GLOBAL_APPSTORE_FS_ID}/${row.base_info.icon_file_id}/x.png`;
+                        iconUrl = `https://fs.localhost/${GLOBAL_APPSTORE_FS_ID}/${row.base_info.icon_file_id}/icon.png`;
                     } else {
-                        iconUrl = `fs://localhost/${GLOBAL_APPSTORE_FS_ID}/${row.base_info.icon_file_id}/x.png`;
+                        iconUrl = `fs://localhost/${GLOBAL_APPSTORE_FS_ID}/${row.base_info.icon_file_id}/icon.png`;
                     }
                 }
                 return (
