@@ -6,7 +6,7 @@ use tauri::{
     AppHandle, Invoke, Manager, PageLoadPayload, Runtime, Window,
 };
 
-use crate::project_tool_api_plugin::ProjectLinksaasYml;
+use crate::project_misc_api::project_tool_api_plugin::ProjectLinksaasYml;
 
 mod event_api;
 mod issue_api;
