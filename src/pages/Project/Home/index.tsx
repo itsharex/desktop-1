@@ -158,6 +158,18 @@ const ProjectHome = () => {
         entryStore.sysEntryList = res.entry_list;
     };
 
+    const calcFolderInfoWidth = () => {
+        let subWidth = 400;
+        if (appStore.focusMode == false) {
+            subWidth += 200;
+        }
+        if (projectStore.showChatAndComment) {
+            subWidth += 300;
+        }
+        console.log("xxxxx", subWidth);
+        return `calc(100vw - ${subWidth}px)`;
+    };
+
     const entryOrFolderList = (
         <List rowKey="id" dataSource={entryStore.entryOrFolderList} grid={{ gutter: 16 }}
             renderItem={item => (
@@ -376,7 +388,7 @@ const ProjectHome = () => {
                             )}
                             {activeKey == "folder" && (
                                 <Space>
-                                    <div style={{ width: appStore.focusMode ? "calc(100vw - 400px)" : "calc(100vw - 600px)", overflow: "hidden", height: "30px" }}>
+                                    <div style={{ width: calcFolderInfoWidth(), overflow: "hidden", height: "30px" }}>
                                         <Breadcrumb>
                                             <Breadcrumb.Item>
                                                 <Button type="link" disabled={entryStore.curFolderId == ""}
