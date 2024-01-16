@@ -120,28 +120,6 @@ const Toolbar: React.FC = observer(() => {
         badge={projectStore.curProject?.project_status.undone_bug_count || 0}
       />
 
-      {projectStore.curProject?.setting.disable_api_collection != true && (
-        <>
-          <Divider />
-          <Item
-            id="apicoll"
-            pathname={pathname}
-            title="接口集合"
-          />
-        </>
-      )}
-
-      {projectStore.curProject?.setting.disable_data_anno != true && (
-        <>
-          <Divider />
-          <Item
-            id="dataanno"
-            pathname={pathname}
-            title="数据标注"
-          />
-        </>
-      )}
-
       <Divider />
       <Item
         id="record"

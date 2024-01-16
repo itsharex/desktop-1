@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { SAVE_WIDGET_NOTICE, type WidgetProps } from './common';
-import type { ApiCollInfo, API_COLL_TYPE } from "@/api/api_collection";
-import { API_COLL_GRPC, API_COLL_OPENAPI, list as list_api_coll } from "@/api/api_collection";
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import EditorWrap from '../components/EditorWrap';
 import { Button, List, Modal } from 'antd';
@@ -11,6 +9,8 @@ import { useStores } from '@/hooks';
 import { appWindow } from "@tauri-apps/api/window";
 import { observer, useLocalObservable } from 'mobx-react';
 import { runInAction } from 'mobx';
+import { API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, list as list_entry } from '@/api/project_entry';
+import type { EntryInfo, API_COLL_TYPE } from '@/api/project_entry';
 
 // 为了防止编辑器出错，WidgetData结构必须保存稳定
 export interface WidgetData {
@@ -64,19 +64,29 @@ const EditApiCollRef: React.FC<WidgetProps> = observer((props) => {
     }));
 
     const [showModal, setShowModal] = useState(false);
-    const [apiCollInfoList, setApiCollInfoList] = useState<ApiCollInfo[]>([]);
+    const [apiCollInfoList, setApiCollInfoList] = useState<EntryInfo[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
     const loadApiCollInfoList = async () => {
-        const res = await request(list_api_coll({
+        const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            filter_by_watch: false,
+            list_param: {
+                filter_by_watch: false,
+                filter_by_tag_id: false,
+                tag_id_list: [],
+                filter_by_keyword: false,
+                keyword: "",
+                filter_by_mark_remove: true,
+                mark_remove: false,
+                filter_by_entry_type: true,
+                entry_type_list: [ENTRY_TYPE_API_COLL],
+            },
             offset: PAGE_SIZE * curPage,
             limit: PAGE_SIZE,
         }));
-        setApiCollInfoList(res.info_list);
+        setApiCollInfoList(res.entry_list);
         setTotalCount(res.total_count);
     };
 
@@ -139,24 +149,24 @@ const EditApiCollRef: React.FC<WidgetProps> = observer((props) => {
                             e.preventDefault();
                             setShowModal(false);
                         }}>
-                        <List rowKey="api_coll_id" dataSource={apiCollInfoList}
+                        <List rowKey="entry_id" dataSource={apiCollInfoList}
                             pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1) }}
                             renderItem={item => (
-                                <List.Item key={item.api_coll_id}>
+                                <List.Item key={item.entry_id}>
                                     <div style={{ display: "flex" }}>
-                                        <div style={{ width: "150px" }}>{item.name}</div>
+                                        <div style={{ width: "150px" }}>{item.entry_title}</div>
                                         <div style={{ width: "150px" }}>
-                                            {item.api_coll_type == API_COLL_GRPC && "GRPC"}
-                                            {item.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
+                                            {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
+                                            {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
                                         </div>
-                                        <div style={{ width: "150px" }}>{item.default_addr}</div>
+                                        <div style={{ width: "150px" }}>{item.extra_info.ExtraApiCollInfo?.default_addr ?? ""}</div>
                                         <div><a onClick={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
-                                            localStore.setApiCollId(item.api_coll_id);
-                                            localStore.setName(item.name);
-                                            localStore.setDefaultAddr(item.default_addr);
-                                            localStore.setApiCollType(item.api_coll_type);
+                                            localStore.setApiCollId(item.entry_id);
+                                            localStore.setName(item.entry_title);
+                                            localStore.setDefaultAddr(item.extra_info.ExtraApiCollInfo?.default_addr ?? "");
+                                            localStore.setApiCollType(item.extra_info.ExtraApiCollInfo?.api_coll_type ?? 0);
                                             setShowModal(false);
                                         }}>选择</a></div>
                                     </div>

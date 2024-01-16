@@ -1,34 +1,17 @@
 import { invoke } from '@tauri-apps/api/tauri';
-
-export type ANNO_TYPE = number;
-
-export const ANNO_TYPE_AUDIO_CLASSIFI: ANNO_TYPE = 0;
-export const ANNO_TYPE_AUDIO_SEG: ANNO_TYPE = 1;
-export const ANNO_TYPE_AUDIO_TRANS: ANNO_TYPE = 2;
-export const ANNO_TYPE_AUDIO_SEG_TRANS: ANNO_TYPE = 3;
-export const ANNO_TYPE_IMAGE_CLASSIFI: ANNO_TYPE = 10;
-export const ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT: ANNO_TYPE = 11;
-export const ANNO_TYPE_IMAGE_BRUSH_SEG: ANNO_TYPE = 12;
-export const ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT: ANNO_TYPE = 13;
-export const ANNO_TYPE_IMAGE_KEYPOINT: ANNO_TYPE = 14;
-export const ANNO_TYPE_IMAGE_POLYGON_SEG: ANNO_TYPE = 15;
-export const ANNO_TYPE_TEXT_CLASSIFI: ANNO_TYPE = 20;
-export const ANNO_TYPE_TEXT_NER: ANNO_TYPE = 21;
-export const ANNO_TYPE_TEXT_SUMMARY: ANNO_TYPE = 22;
+import {
+    ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS,
+    ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG,
+    ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT,
+    ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY,
+    type ANNO_PROJECT_TYPE
+} from './project_entry';
 
 
 export type BaseAnnoProjectInfo = {
-    name: string;
-    anno_type: ANNO_TYPE;
     desc: string;
     config: string;
     predict_url: string;
-};
-
-export type WatchUser = {
-    member_user_id: string;
-    display_name: string;
-    logo_uri: string;
 };
 
 export type AnnoProjectInfo = {
@@ -40,17 +23,6 @@ export type AnnoProjectInfo = {
     member_count: number;
     my_done_count: number;
     my_task_count: number;
-    create_time: number;
-    create_user_id: string;
-    create_display_name: string;
-    create_logo_uri: string;
-    update_time: number;
-    update_user_id: string;
-    update_display_name: string;
-    update_logo_uri: string;
-
-    my_watch: boolean;
-    watch_user_list: WatchUser[];
 };
 
 export type ResourceInfo = {
@@ -95,21 +67,6 @@ export type RemoveRequest = {
 export type RemoveResponse = {
     code: number;
     err_msg: string;
-};
-
-export type ListRequest = {
-    session_id: string;
-    project_id: string;
-    filter_by_watch: boolean;
-    offset: number;
-    limit: number;
-};
-
-export type ListResponse = {
-    code: number;
-    err_msg: string;
-    total_count: number;
-    info_list: AnnoProjectInfo[];
 };
 
 export type GetRequest = {
@@ -193,15 +150,6 @@ export async function remove(request: RemoveRequest): Promise<RemoveResponse> {
     });
 }
 
-//列出标注项目
-export async function list(request: ListRequest): Promise<ListResponse> {
-    const cmd = 'plugin:data_anno_project_api|list';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<ListResponse>(cmd, {
-        request,
-    });
-}
-
 //获取单个标注项目信息
 export async function get(request: GetRequest): Promise<GetResponse> {
     const cmd = 'plugin:data_anno_project_api|get';
@@ -239,19 +187,19 @@ export async function list_resource(request: ListResourceRequest): Promise<ListR
 }
 
 //是否是音频标注
-export function isAnnoAudio(annoType: ANNO_TYPE): boolean {
-    return [ANNO_TYPE_AUDIO_CLASSIFI, ANNO_TYPE_AUDIO_SEG, ANNO_TYPE_AUDIO_TRANS, ANNO_TYPE_AUDIO_SEG_TRANS].includes(annoType);
+export function isAnnoAudio(annoType: ANNO_PROJECT_TYPE): boolean {
+    return [ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS].includes(annoType);
 }
 
 //是否是图像标注
-export function isAnnoImage(annoType: ANNO_TYPE): boolean {
-    return [ANNO_TYPE_IMAGE_CLASSIFI, ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT, ANNO_TYPE_IMAGE_BRUSH_SEG,
-        ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_TYPE_IMAGE_KEYPOINT, ANNO_TYPE_IMAGE_POLYGON_SEG].includes(annoType);
+export function isAnnoImage(annoType: ANNO_PROJECT_TYPE): boolean {
+    return [ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG,
+        ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG].includes(annoType);
 }
 
 //是否是文本标注
-export function isAnnoText(annoType: ANNO_TYPE): boolean {
-    return [ANNO_TYPE_TEXT_CLASSIFI, ANNO_TYPE_TEXT_NER, ANNO_TYPE_TEXT_SUMMARY].includes(annoType);
+export function isAnnoText(annoType: ANNO_PROJECT_TYPE): boolean {
+    return [ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY].includes(annoType);
 }
 
 //导出资源

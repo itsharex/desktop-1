@@ -11,7 +11,7 @@ import { readTextFile } from '@tauri-apps/api/fs';
 import YAML from 'yaml';
 import { EditOutlined } from "@ant-design/icons";
 import CommentEntry from "@/components/CommentEntry";
-import { COMMENT_TARGET_API_COLL } from "@/api/project_comment";
+import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
 
 const SwaggerPage = () => {
     const location = useLocation();
@@ -82,7 +82,7 @@ const SwaggerPage = () => {
         <Card bodyStyle={{ height: "calc(100vh - 40px)", overflowY: "auto" }} extra={
             <div style={{ height: "30px", display: "flex", justifyContent: "flex-end" }}>
                 <Space>
-                    <CommentEntry projectId={projectId} targetType={COMMENT_TARGET_API_COLL}
+                    <CommentEntry projectId={projectId} targetType={COMMENT_TARGET_ENTRY}
                         targetId={apiCollId} myUserId={userId} myAdmin={canAdminStr == "true"}
                         defaultOpen={showCommentStr == "true"} />
                     {spec !== null && (

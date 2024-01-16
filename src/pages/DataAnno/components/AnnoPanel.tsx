@@ -3,7 +3,7 @@ import * as dataAnnoTaskApi from "@/api/data_anno_task";
 import { request } from "@/utils/request";
 import { get_session } from "@/api/user";
 import { Button, Card, Modal, Popover, Space, message } from "antd";
-import type { ANNO_TYPE } from "@/api/data_anno_project";
+import type { ANNO_PROJECT_TYPE } from "@/api/project_entry";
 import { isAnnoText, isAnnoAudio, isAnnoImage } from "@/api/data_anno_project";
 import { MoreOutlined } from "@ant-design/icons";
 import CodeEditor from '@uiw/react-textarea-code-editor';
@@ -14,7 +14,7 @@ import { useSize } from "ahooks";
 export interface AnnoPanelProps {
     projectId: string;
     annoProjectId: string;
-    annoType: ANNO_TYPE;
+    annoType: ANNO_PROJECT_TYPE;
     config: string;
     predictUrl: string;
     fsId: string;

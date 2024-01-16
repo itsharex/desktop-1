@@ -10,12 +10,13 @@ import { write_file, set_file_owner, FILE_OWNER_TYPE_DATA_ANNO } from "@/api/fs"
 import { get_session } from "@/api/user";
 import { request } from "@/utils/request";
 import { readTextFile } from '@tauri-apps/api/fs';
+import type { ANNO_PROJECT_TYPE } from "@/api/project_entry";
 
 
 export interface AddResourceModalProps {
     projectId: string;
     annoProjectId: string;
-    annoType: dataAnnoPrjApi.ANNO_TYPE;
+    annoType: ANNO_PROJECT_TYPE;
     fsId: string;
     onCancel: () => void;
     onOk: () => void;

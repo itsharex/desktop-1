@@ -12,7 +12,9 @@ import MemberPanel from "./components/MemberPanel";
 import AnnoPanel from "./components/AnnoPanel";
 import SettingPanel from "./components/SettingPanel";
 import CommentEntry from "@/components/CommentEntry";
-import { COMMENT_TARGET_DATA_ANNO } from "@/api/project_comment";
+import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
+import type { EntryInfo } from "@/api/project_entry";
+import { get as get_entry } from "@/api/project_entry";
 
 const DataAnnoDetail = () => {
     const location = useLocation();
@@ -24,6 +26,7 @@ const DataAnnoDetail = () => {
     const showCommentStr = (urlParams.get("showComment") ?? "false").toLocaleLowerCase();
     const fsId = urlParams.get("fsId") ?? "";
 
+    const [entryInfo, setEntryInfo] = useState<EntryInfo | null>(null);
     const [annoProjectInfo, setAnnoProjectInfo] = useState<dataAnnoPrjApi.AnnoProjectInfo | null>(null);
     const [activeKey, setActiveKey] = useState("");
 
@@ -37,12 +40,19 @@ const DataAnnoDetail = () => {
 
     const loadAnnoProjectInfo = async () => {
         const sessionId = await get_session();
-        const res = await request(dataAnnoPrjApi.get({
+        const entryRes = await request(get_entry({
+            session_id: sessionId,
+            project_id: projectId,
+            entry_id: annoProjectId,
+        }));
+
+        const annoRes = await request(dataAnnoPrjApi.get({
             session_id: sessionId,
             project_id: projectId,
             anno_project_id: annoProjectId,
         }));
-        setAnnoProjectInfo(res.info);
+        setEntryInfo(entryRes.entry);
+        setAnnoProjectInfo(annoRes.info);
     };
 
     const adjustActiveKey = () => {
@@ -94,7 +104,7 @@ const DataAnnoDetail = () => {
 
     return (
         <div style={{ backgroundColor: "white" }}>
-            {annoProjectInfo != null && (
+            {entryInfo != null && annoProjectInfo != null && (
                 <Tabs type="card" activeKey={activeKey} onChange={key => {
                     setActiveKey(key);
                     setMemberInfoList([]);
@@ -106,7 +116,7 @@ const DataAnnoDetail = () => {
                     tabBarStyle={{ height: "50px" }} tabBarExtraContent={
                         <div style={{ marginRight: "20px" }}>
                             <Space>
-                                <CommentEntry projectId={projectId} targetType={COMMENT_TARGET_DATA_ANNO}
+                                <CommentEntry projectId={projectId} targetType={COMMENT_TARGET_ENTRY}
                                     targetId={annoProjectId} myUserId={userId} myAdmin={adminStr == "true"}
                                     defaultOpen={showCommentStr == "true"} />
 
@@ -143,7 +153,7 @@ const DataAnnoDetail = () => {
                             <div className={s.panel_wrap}>
                                 {activeKey == "myTodo" && (
                                     <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                        annoType={annoProjectInfo.base_info.anno_type} predictUrl={annoProjectInfo.base_info.predict_url}
+                                        annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} predictUrl={annoProjectInfo.base_info.predict_url}
                                         config={annoProjectInfo.base_info.config} done={false}
                                         onChange={() => loadAnnoProjectInfo()} />
                                 )}
@@ -155,7 +165,7 @@ const DataAnnoDetail = () => {
                             <div className={s.panel_wrap}>
                                 {activeKey == "myDone" && (
                                     <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                        annoType={annoProjectInfo.base_info.anno_type} predictUrl={annoProjectInfo.base_info.predict_url}
+                                        annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} predictUrl={annoProjectInfo.base_info.predict_url}
                                         config={annoProjectInfo.base_info.config} done={true}
                                         onChange={() => loadAnnoProjectInfo()} />
                                 )}
@@ -168,7 +178,7 @@ const DataAnnoDetail = () => {
                                 <div className={s.panel_wrap}>
                                     {activeKey == "audit" && auditMemberUserId != "" && (
                                         <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                            annoType={annoProjectInfo.base_info.anno_type} predictUrl={annoProjectInfo.base_info.predict_url}
+                                            annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} predictUrl={annoProjectInfo.base_info.predict_url}
                                             config={annoProjectInfo.base_info.config} done={true}
                                             memberUserId={auditMemberUserId}
                                             onChange={() => loadAnnoProjectInfo()} />
@@ -195,7 +205,7 @@ const DataAnnoDetail = () => {
                                 <div className={s.panel_wrap}>
                                     {activeKey == "adminResource" && (
                                         <ResourcePanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                            annoType={annoProjectInfo.base_info.anno_type} showAddModal={showAddResourceModal}
+                                            annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} showAddModal={showAddResourceModal}
                                             onChange={resourceCount => {
                                                 if (annoProjectInfo.resource_count != resourceCount) {
                                                     setAnnoProjectInfo({ ...annoProjectInfo, resource_count: resourceCount });
@@ -210,8 +220,8 @@ const DataAnnoDetail = () => {
                     )}
                     <Tabs.TabPane tab="标注设置" key="setting">
                         <div className={s.panel_wrap}>
-                            {activeKey == "setting" && (
-                                <SettingPanel projectId={projectId} annoProjectInfo={annoProjectInfo} admin={adminStr == "true"}
+                            {activeKey == "setting" && entryInfo != null && annoProjectInfo != null && (
+                                <SettingPanel projectId={projectId} entryInfo={entryInfo} annoProjectInfo={annoProjectInfo} admin={adminStr == "true"}
                                     onChange={() => loadAnnoProjectInfo()} />
                             )}
                         </div>

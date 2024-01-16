@@ -119,16 +119,10 @@ export type IdeaEvCfg = {
 };
 
 export type DataAnnoEvCfg = {
-    create_anno_project: boolean;
-    remove_anno_project: boolean;
     add_anno_member: boolean;
     remove_anno_member: boolean;
 };
 
-export type ApiCollectionEvCfg = {
-    create: boolean;
-    remove: boolean;
-}
 
 export type AtomgitEvCfg = {
     push: boolean;
@@ -159,7 +153,6 @@ export type EventCfg = {
     code_ev_cfg: CodeEvCfg;
     idea_ev_cfg: IdeaEvCfg;
     data_anno_ev_cfg: DataAnnoEvCfg;
-    api_collection_ev_cfg: ApiCollectionEvCfg;
     atomgit_ev_cfg: AtomgitEvCfg;
     entry_ev_cfg: EntryEvCfg;
     harbor_ev_cfg: HarborEvCfg;
@@ -255,16 +248,8 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
     }
     if (cfg.data_anno_ev_cfg == undefined || cfg.data_anno_ev_cfg == null) {
         cfg.data_anno_ev_cfg = {
-            create_anno_project: false,
-            remove_anno_project: false,
             add_anno_member: false,
             remove_anno_member: false,
-        };
-    }
-    if (cfg.api_collection_ev_cfg == undefined || cfg.api_collection_ev_cfg == null) {
-        cfg.api_collection_ev_cfg = {
-            create: false,
-            remove: false,
         };
     }
     if (cfg.atomgit_ev_cfg == undefined || cfg.atomgit_ev_cfg == null) {
@@ -354,16 +339,8 @@ export async function list(request: ListRequest): Promise<ListResponse> {
         }
         if (info.event_cfg.data_anno_ev_cfg == undefined || info.event_cfg.data_anno_ev_cfg == null) {
             info.event_cfg.data_anno_ev_cfg = {
-                create_anno_project: false,
-                remove_anno_project: false,
                 add_anno_member: false,
                 remove_anno_member: false,
-            };
-        }
-        if (info.event_cfg.api_collection_ev_cfg == undefined || info.event_cfg.api_collection_ev_cfg == null) {
-            info.event_cfg.api_collection_ev_cfg = {
-                create: false,
-                remove: false,
             };
         }
     }

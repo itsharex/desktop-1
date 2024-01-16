@@ -2,7 +2,6 @@ import { Form, Modal, Checkbox, Select, Input, message } from "antd";
 import React, { useState } from "react";
 import { observer } from 'mobx-react';
 import {
-    apiCollectionEvOptionList,
     calcCodeEvCfg,
     calcDataAnnoEvCfg,
     calcExtEvCfg,
@@ -21,7 +20,6 @@ import {
     issueEvOptionList,
     projectEvOptionList,
     requirementEvOptionList,
-    calcApiCollectionEvCfg,
     calcAtomgitEvCfg,
     atomgitEvOptionList,
     calcEntryEvCfg,
@@ -102,9 +100,6 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
     const [dataAnnoEvCfgCheckAll, setDataAnnoEvCfgCheckAll] = useState(false);
     const [dataAnnoEvCfgIndeterminate, setDataAnnoEvCfgIndeterminate] = useState(false);
 
-    const [apiCollectionEvCfgCheckAll, setApiCollectionEvCfgCheckAll] = useState(false);
-    const [apiCollectionEvCfgIndeterminate, setApiCollectionEvCfgIndeterminate] = useState(false);
-
     const [entryEvCfgCheckAll, setEntryEvCfgCheckAll] = useState(false);
     const [entryEvCfgIndeterminate, setEntryEvCfgIndeterminate] = useState(false);
 
@@ -141,7 +136,6 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
                 code_ev_cfg: calcCodeEvCfg(formValue.codeEvCfg),
                 idea_ev_cfg: calcIdeaEvCfg(formValue.ideaEvCfg),
                 data_anno_ev_cfg: calcDataAnnoEvCfg(formValue.dataAnnoEvCfg),
-                api_collection_ev_cfg: calcApiCollectionEvCfg(formValue.apiCollectionEvCfg),
                 entry_ev_cfg: calcEntryEvCfg(formValue.entryEvCfg),
                 harbor_ev_cfg: calcHarborEvCfg(formValue.harborEvCfg),
             },
@@ -510,33 +504,6 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
                             }
                         }} />
                     </Form.Item>
-
-                    <Form.Item label={<Checkbox indeterminate={apiCollectionEvCfgIndeterminate} checked={apiCollectionEvCfgCheckAll} onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setApiCollectionEvCfgIndeterminate(false);
-                        if (apiCollectionEvCfgCheckAll) {
-                            setApiCollectionEvCfgCheckAll(false);
-                            form.setFieldValue("apiCollectionEvCfg", []);
-                        } else {
-                            setApiCollectionEvCfgCheckAll(true);
-                            form.setFieldValue("apiCollectionEvCfg", apiCollectionEvOptionList.map(item => item.value));
-                        }
-                    }}>接口集合事件</Checkbox>} name="apiCollectionEvCfg">
-                        <Checkbox.Group options={apiCollectionEvOptionList} onChange={values => {
-                            if (values.length == 0) {
-                                setApiCollectionEvCfgCheckAll(false);
-                                setApiCollectionEvCfgIndeterminate(false);
-                            } else if (values.length == apiCollectionEvOptionList.length) {
-                                setApiCollectionEvCfgCheckAll(true);
-                                setApiCollectionEvCfgIndeterminate(false);
-                            } else {
-                                setApiCollectionEvCfgCheckAll(false);
-                                setApiCollectionEvCfgIndeterminate(true);
-                            }
-                        }} />
-                    </Form.Item>
-
                 </Form>
             </div>
         </Modal>

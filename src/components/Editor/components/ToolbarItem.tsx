@@ -308,7 +308,6 @@ interface ContentWidgetProps {
 }
 
 const ContentWidget = observer((props: ContentWidgetProps) => {
-  const projectStore = useStores('projectStore');
   const commands = useCommands();
 
   const items = [];
@@ -354,7 +353,7 @@ const ContentWidget = observer((props: ContentWidgetProps) => {
       }
     ],
   };
-  if (props.projectId !== "" && projectStore.curProject?.setting.disable_api_collection == false) {
+  if (props.projectId !== "") {
     designItems.children.push({
       key: WIDGET_TYPE_API_COLL_REF,
       label: "引用接口集合",

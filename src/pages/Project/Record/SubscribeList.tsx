@@ -17,7 +17,7 @@ import {
     genIssueEvCfgValues, genProjectEvCfgValues, genRequirementEvCfgValues,
     giteeEvOptionList, gitlabEvOptionList, issueEvOptionList, projectEvOptionList,
     requirementEvOptionList, ideaEvOptionList, genIdeaEvCfgValues, dataAnnoEvOptionList, genDataAnnoEvCfgValues,
-    apiCollectionEvOptionList, genApiCollectionEvCfgValues, atomgitEvOptionList, genAtomgitEvCfgValues, genEntryEvCfgValues, entryEvOptionList, genHarborEvCfgValues, harborEvOptionList
+    atomgitEvOptionList, genAtomgitEvCfgValues, genEntryEvCfgValues, entryEvOptionList, genHarborEvCfgValues, harborEvOptionList
 } from "./components/constants";
 import UpdateSubscribeModal from "./components/UpdateSubscribeModal";
 import Dropdown from "antd/lib/dropdown";
@@ -169,9 +169,6 @@ const SubscribeList = () => {
                                         </Form.Item>
                                         <Form.Item label="数据标注事件">
                                             <Checkbox.Group options={dataAnnoEvOptionList} value={genDataAnnoEvCfgValues(item.event_cfg.data_anno_ev_cfg)} disabled={true} />
-                                        </Form.Item>
-                                        <Form.Item label="接口集合事件">
-                                            <Checkbox.Group options={apiCollectionEvOptionList} value={genApiCollectionEvCfgValues(item.event_cfg.api_collection_ev_cfg)} disabled={true} />
                                         </Form.Item>
                                     </Form>
                                 </Card>

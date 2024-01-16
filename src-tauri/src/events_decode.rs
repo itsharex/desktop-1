@@ -657,60 +657,18 @@ pub mod data_anno {
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
     pub enum Event {
-        CreateAnnoProjectEvent(events_data_anno::CreateAnnoProjectEvent),
-        RemoveAnnoProjectEvent(events_data_anno::RemoveAnnoProjectEvent),
         AddAnnoMemberEvent(events_data_anno::AddAnnoMemberEvent),
         RemoveAnnoMemberEvent(events_data_anno::RemoveAnnoMemberEvent),
     }
 
     pub fn decode_event(data: &Any) -> Option<Event> {
-        if data.type_url == events_data_anno::CreateAnnoProjectEvent::type_url() {
-            if let Ok(ev) = events_data_anno::CreateAnnoProjectEvent::decode(data.value.as_slice())
-            {
-                return Some(Event::CreateAnnoProjectEvent(ev));
-            }
-        } else if data.type_url == events_data_anno::RemoveAnnoProjectEvent::type_url() {
-            if let Ok(ev) = events_data_anno::RemoveAnnoProjectEvent::decode(data.value.as_slice())
-            {
-                return Some(Event::RemoveAnnoProjectEvent(ev));
-            }
-        } else if data.type_url == events_data_anno::AddAnnoMemberEvent::type_url() {
+        if data.type_url == events_data_anno::AddAnnoMemberEvent::type_url() {
             if let Ok(ev) = events_data_anno::AddAnnoMemberEvent::decode(data.value.as_slice()) {
                 return Some(Event::AddAnnoMemberEvent(ev));
             }
         } else if data.type_url == events_data_anno::RemoveAnnoMemberEvent::type_url() {
             if let Ok(ev) = events_data_anno::RemoveAnnoMemberEvent::decode(data.value.as_slice()) {
                 return Some(Event::RemoveAnnoMemberEvent(ev));
-            }
-        }
-        None
-    }
-}
-
-pub mod api_collection {
-    use prost::Message;
-    use proto_gen_rust::events_api_collection;
-    use proto_gen_rust::google::protobuf::Any;
-    use proto_gen_rust::TypeUrl;
-
-    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
-    pub enum Event {
-        CreateApiCollectionEvent(events_api_collection::CreateApiCollectionEvent),
-        RemoveApiCollectionEvent(events_api_collection::RemoveApiCollectionEvent),
-    }
-
-    pub fn decode_event(data: &Any) -> Option<Event> {
-        if data.type_url == events_api_collection::CreateApiCollectionEvent::type_url() {
-            if let Ok(ev) =
-                events_api_collection::CreateApiCollectionEvent::decode(data.value.as_slice())
-            {
-                return Some(Event::CreateApiCollectionEvent(ev));
-            }
-        } else if data.type_url == events_api_collection::RemoveApiCollectionEvent::type_url() {
-            if let Ok(ev) =
-                events_api_collection::RemoveApiCollectionEvent::decode(data.value.as_slice())
-            {
-                return Some(Event::RemoveApiCollectionEvent(ev));
             }
         }
         None
@@ -827,7 +785,6 @@ pub enum EventMessage {
     CodeEvent(code::Event),
     IdeaEvent(idea::Event),
     DataAnnoEvent(data_anno::Event),
-    ApiCollectionEvent(api_collection::Event),
     AtomgitEvent(atomgit::Event),
     EntryEvent(entry::Event),
     HarborEvent(harbor::Event),
@@ -866,9 +823,6 @@ pub fn decode_event(data: &Any) -> Option<EventMessage> {
     }
     if let Some(ret) = data_anno::decode_event(data) {
         return Some(EventMessage::DataAnnoEvent(ret));
-    }
-    if let Some(ret) = api_collection::decode_event(data) {
-        return Some(EventMessage::ApiCollectionEvent(ret));
     }
     if let Some(ret) = atomgit::decode_event(data) {
         return Some(EventMessage::AtomgitEvent(ret));

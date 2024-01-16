@@ -375,34 +375,6 @@ const ideaEventList: EventDesc[] = [
 
 const dataAnnoEventList: EventDesc[] = [
     {
-        id: "CreateAnnoProjectEvent",
-        name: "创建标注项目",
-        attrList: [
-            {
-                key: "anno_project_id",
-                desc: "标注项目ID",
-            },
-            {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-        ],
-    },
-    {
-        id: "RemoveAnnoProjectEvent",
-        name: "删除标注项目",
-        attrList: [
-            {
-                key: "anno_project_id",
-                desc: "标注项目ID",
-            },
-            {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-        ],
-    },
-    {
         id: "AddAnnoMemberEvent",
         name: "新增标注成员",
         attrList: [
@@ -443,45 +415,6 @@ const dataAnnoEventList: EventDesc[] = [
             {
                 key: "member_display_name",
                 desc: "成员名称",
-            },
-        ],
-    },
-];
-
-const apiCollectionEventList: EventDesc[] = [
-    {
-        id: "CreateApiCollectionEvent",
-        name: "创建接口集合",
-        attrList: [
-            {
-                key: "api_coll_id",
-                desc: "接口集合ID",
-            },
-            {
-                key: "api_coll_type",
-                desc: "接口集合类型",
-            },
-            {
-                key: "name",
-                desc: "接口集合名称",
-            },
-        ],
-    },
-    {
-        id: "RemoveApiCollectionEvent",
-        name: "删除接口集合",
-        attrList: [
-            {
-                key: "api_coll_id",
-                desc: "接口集合ID",
-            },
-            {
-                key: "api_coll_type",
-                desc: "接口集合类型",
-            },
-            {
-                key: "name",
-                desc: "接口集合名称",
             },
         ],
     },
@@ -2848,9 +2781,4 @@ export const eventGroupList: EventGroup[] = [
         name: "数据标注",
         eventDescList: dataAnnoEventList,
     },
-    {
-        id: "ApiCollectionEvent",
-        name: "接口集合",
-        eventDescList: apiCollectionEventList,
-    }
 ];

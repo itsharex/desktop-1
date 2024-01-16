@@ -16,8 +16,7 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
 
 
     const [disableExtEvent, setDisableExtEvent] = useState(projectStore.curProject?.setting.disable_ext_event ?? false);
-    const [disableDataAnno, setDisableDataAnno] = useState(projectStore.curProject?.setting.disable_data_anno ?? false);
-    const [disableApiCollection, setDisableApiCollection] = useState(projectStore.curProject?.setting.disable_api_collection ?? false);
+
 
     const [hideProjectInfo, setHideProjectInfo] = useState(projectStore.curProject?.setting.hide_project_info ?? false);
     const [hideBulletin, setHideBulletin] = useState(projectStore.curProject?.setting.hide_bulletin ?? false);
@@ -27,8 +26,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
 
     const resetConfig = () => {
         setDisableExtEvent(projectStore.curProject?.setting.disable_ext_event ?? false);
-        setDisableDataAnno(projectStore.curProject?.setting.disable_data_anno ?? false);
-        setDisableApiCollection(projectStore.curProject?.setting.disable_api_collection ?? false);
 
         setHideProjectInfo(projectStore.curProject?.setting.hide_project_info ?? false);
         setHideBulletin(projectStore.curProject?.setting.hide_bulletin ?? false);
@@ -46,8 +43,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
             setting: {
                 ...projectStore.curProject.setting,
                 disable_ext_event: disableExtEvent,
-                disable_data_anno: disableDataAnno,
-                disable_api_collection: disableApiCollection,
                 hide_project_info: hideProjectInfo,
                 hide_bulletin: hideBulletin,
                 hide_extra_info: hideExtraInfo,
@@ -86,16 +81,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
             <Form labelCol={{ span: 5 }} disabled={projectStore.isClosed || !projectStore.isAdmin}>
                 <Form.Item label="右侧工具栏">
                     <Space direction="vertical">
-                        <Checkbox checked={disableApiCollection} onChange={e => {
-                            e.stopPropagation();
-                            setDisableApiCollection(e.target.checked);
-                            setHasChange(true);
-                        }}>关闭接口集合入口</Checkbox>
-                        <Checkbox checked={disableDataAnno} onChange={e => {
-                            e.stopPropagation();
-                            setDisableDataAnno(e.target.checked);
-                            setHasChange(true);
-                        }}>关闭数据标注入口</Checkbox>
                         <Checkbox checked={disableExtEvent} onChange={e => {
                             e.stopPropagation();
                             setDisableExtEvent(e.target.checked);
