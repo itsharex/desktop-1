@@ -7,7 +7,9 @@ import { useStores } from "@/hooks";
 import type { ENTRY_TYPE, ListParam, EntryInfo, EntryOrFolderInfo, FolderPathItem, FolderInfo } from "@/api/project_entry";
 import {
     list as list_entry, list_sys as list_sys_entry, list_sub_entry, list_sub_folder, get_folder_path,
-    ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE
+    ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE,
+    ENTRY_TYPE_API_COLL,
+    ENTRY_TYPE_DATA_ANNO
 } from "@/api/project_entry";
 import { request } from "@/utils/request";
 import { CreditCardFilled, FilterTwoTone } from "@ant-design/icons";
@@ -353,33 +355,16 @@ const ProjectHome = () => {
                             {activeKey != "folder" && (
                                 <Form layout="inline">
                                     <Form.Item className={s.seg_wrap} label="内容类型">
-                                        <Segmented options={[
-                                            {
-                                                label: "全部",
-                                                value: ENTRY_TYPE_NULL,
-                                            },
-                                            {
-                                                label: "工作计划",
-                                                value: ENTRY_TYPE_SPRIT,
-                                            },
-                                            {
-                                                label: "文档",
-                                                value: ENTRY_TYPE_DOC,
-                                            },
-                                            {
-                                                label: "静态网页",
-                                                value: ENTRY_TYPE_PAGES,
-                                            },
-                                            {
-                                                label: "信息面板",
-                                                value: ENTRY_TYPE_BOARD,
-                                            },
-                                            {
-                                                label: "文件",
-                                                value: ENTRY_TYPE_FILE,
-                                            }
-
-                                        ]} value={entryType} onChange={value => setEntryType(value.valueOf() as number)} />
+                                        <Select value={entryType} onChange={value => setEntryType(value)} style={{ width: "100px" }}>
+                                            <Select.Option value={ENTRY_TYPE_NULL}>全部</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_SPRIT}>工作计划</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_DOC}>文档</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_PAGES}>静态网页</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_BOARD}>信息面板</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_FILE}>文件</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_API_COLL}>接口集合</Select.Option>
+                                            <Select.Option value={ENTRY_TYPE_DATA_ANNO}>数据标注</Select.Option>
+                                        </Select>
                                     </Form.Item>
                                     <Form.Item label="只看我的关注">
                                         <Switch checked={filterByWatch} onChange={value => setFilterByWatch(value)} />
