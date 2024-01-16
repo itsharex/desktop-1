@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import s from "./index.module.less";
 import { observer } from 'mobx-react';
-import { Breadcrumb, Button, Card, Divider, Dropdown, Form, Input, List, Segmented, Select, Space, Switch, Tabs } from "antd";
+import { Breadcrumb, Button, Card, Divider, Dropdown, Form, Input, List, Select, Space, Switch, Tabs } from "antd";
 import { useHistory } from "react-router-dom";
 import { useStores } from "@/hooks";
 import type { ENTRY_TYPE, ListParam, EntryInfo, EntryOrFolderInfo, FolderPathItem, FolderInfo } from "@/api/project_entry";

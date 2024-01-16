@@ -1,9 +1,9 @@
-import { Button, Checkbox, DatePicker, Form, Input, Modal, Progress, Radio, Tag, message } from "antd";
+import { Button, Checkbox, DatePicker, Form, Input, Modal, Progress, Radio, Select, Tag, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { EntryInfo, ExtraFileInfo } from "@/api/project_entry";
-import { get as get_entry, update_title, update_perm, update_tag, update_extra_info, ENTRY_TYPE_SPRIT, ISSUE_LIST_ALL, ISSUE_LIST_LIST, ISSUE_LIST_KANBAN, ENTRY_TYPE_PAGES, ENTRY_TYPE_FILE } from "@/api/project_entry";
+import { get as get_entry, update_title, update_perm, update_tag, update_extra_info, ENTRY_TYPE_SPRIT, ISSUE_LIST_ALL, ISSUE_LIST_LIST, ISSUE_LIST_KANBAN, ENTRY_TYPE_PAGES, ENTRY_TYPE_FILE, ENTRY_TYPE_API_COLL, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM } from "@/api/project_entry";
 import { request } from "@/utils/request";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import s from "./UpdateEntryModal.module.less";
@@ -15,6 +15,10 @@ import { FILE_OWNER_TYPE_FILE, FILE_OWNER_TYPE_PAGES, get_file_name, set_file_ow
 import type { FsProgressEvent } from '@/api/fs';
 import { listen } from '@tauri-apps/api/event';
 import { FolderOpenOutlined } from "@ant-design/icons";
+import type { GrpcExtraInfo, OpenApiExtraInfo } from "@/api/api_collection";
+import { get_rpc, update_rpc, get_open_api, update_open_api } from "@/api/api_collection";
+import type { CustomExtraInfo } from "@/api/http_custom";
+import { get_custom, update_custom } from "@/api/http_custom";
 
 const UpdateEntryModal = () => {
     const userStore = useStores('userStore');
@@ -37,6 +41,10 @@ const UpdateEntryModal = () => {
     const [localFilePath, setLocalFilePath] = useState("");
     const [uploadFileTraceId, setUploadFileTraceId] = useState("");
 
+    const [grpcExtraInfo, setGrpcExtraInfo] = useState<GrpcExtraInfo | null>(null);
+    const [openApiExtraInfo, setOpenApiExtraInfo] = useState<OpenApiExtraInfo | null>(null);
+    const [customExtraInfo, setCustomExtraInfo] = useState<CustomExtraInfo | null>(null);
+
     const loadEntryInfo = async () => {
         const res = await request(get_entry({
             session_id: userStore.sessionId,
@@ -45,6 +53,30 @@ const UpdateEntryModal = () => {
         }));
         setEntryInfo(res.entry);
         setTagIdList(res.entry.tag_list.map(tag => tag.tag_id));
+        if (res.entry.entry_type == ENTRY_TYPE_API_COLL) {
+            if (res.entry.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC) {
+                const res2 = await request(get_rpc({
+                    session_id: userStore.sessionId,
+                    project_id: projectStore.curProjectId,
+                    api_coll_id: entryStore.editEntryId,
+                }));
+                setGrpcExtraInfo(res2.extra_info);
+            } else if (res.entry.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI) {
+                const res2 = await request(get_open_api({
+                    session_id: userStore.sessionId,
+                    project_id: projectStore.curProjectId,
+                    api_coll_id: entryStore.editEntryId,
+                }));
+                setOpenApiExtraInfo(res2.extra_info);
+            } else if (res.entry.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM) {
+                const res2 = await request(get_custom({
+                    session_id: userStore.sessionId,
+                    project_id: projectStore.curProjectId,
+                    api_coll_id: entryStore.editEntryId,
+                }));
+                setCustomExtraInfo(res2.extra_info);
+            }
+        }
     };
 
     const checkDayValid = (day: Moment): boolean => {
@@ -194,6 +226,39 @@ const UpdateEntryModal = () => {
                     entry_id: entryInfo.entry_id,
                     extra_info: entryInfo.extra_info,
                 }));
+            }
+
+            if (entryInfo.entry_type == ENTRY_TYPE_API_COLL) {
+                if (entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC) {
+                    if (grpcExtraInfo != null) {
+                        await request(update_rpc({
+                            session_id: userStore.sessionId,
+                            project_id: projectStore.curProjectId,
+                            api_coll_id: grpcExtraInfo.api_coll_id,
+                            proto_file_id: grpcExtraInfo.proto_file_id,
+                            secure: grpcExtraInfo.secure,
+                        }));
+                    }
+                } else if (entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI) {
+                    if (openApiExtraInfo != null) {
+                        await request(update_open_api({
+                            session_id: userStore.sessionId,
+                            project_id: projectStore.curProjectId,
+                            api_coll_id: openApiExtraInfo.api_coll_id,
+                            proto_file_id: openApiExtraInfo.proto_file_id,
+                            net_protocol: openApiExtraInfo.net_protocol,
+                        }));
+                    }
+                } else if (entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM) {
+                    if (customExtraInfo != null) {
+                        await request(update_custom({
+                            session_id: userStore.sessionId,
+                            project_id: projectStore.curProjectId,
+                            api_coll_id: customExtraInfo.api_coll_id,
+                            net_protocol: customExtraInfo.net_protocol,
+                        }));
+                    }
+                }
             }
         }
         message.info("修改成功");
@@ -498,6 +563,80 @@ const UpdateEntryModal = () => {
                                 <Form.Item label="上传进度">
                                     <Progress percent={uploadRatio} />
                                 </Form.Item>
+                            )}
+                        </>
+                    )}
+                    {entryInfo.entry_type == ENTRY_TYPE_API_COLL && (
+                        <>
+                            <Form.Item label="接口类型">
+                                {entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC接口"}
+                                {entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI接口"}
+                                {entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
+                            </Form.Item>
+                            {entryInfo.extra_info.ExtraApiCollInfo !== undefined && (
+                                <>
+                                    <Form.Item label="服务地址" help={
+                                        <>
+                                            {entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && entryInfo.extra_info.ExtraApiCollInfo.default_addr !== "" && entryInfo.extra_info.ExtraApiCollInfo.default_addr.split(":").length != 2 && (
+                                                <span style={{ color: "red" }}>请输入 地址:端口</span>
+                                            )}
+                                        </>
+                                    }>
+                                        <Input value={entryInfo.extra_info.ExtraApiCollInfo.default_addr} onChange={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setEntryInfo({
+                                                ...entryInfo, extra_info: {
+                                                    ExtraApiCollInfo: {
+                                                        ...entryInfo.extra_info.ExtraApiCollInfo!,
+                                                        default_addr: e.target.value.trim(),
+                                                    }
+                                                }
+                                            });
+                                            setExtraChanged(true);
+                                        }} />
+                                    </Form.Item>
+                                    {entryInfo.extra_info.ExtraApiCollInfo.api_coll_type == API_COLL_GRPC && grpcExtraInfo != null && (
+                                        <Form.Item label="安全模式(tls)">
+                                            <Checkbox checked={grpcExtraInfo.secure} onChange={e => {
+                                                e.stopPropagation();
+                                                setGrpcExtraInfo({
+                                                    ...grpcExtraInfo,
+                                                    secure: e.target.checked,
+                                                });
+                                                setExtraChanged(true);
+                                            }} />
+                                        </Form.Item>
+                                    )}
+                                    {entryInfo.extra_info.ExtraApiCollInfo.api_coll_type == API_COLL_OPENAPI && openApiExtraInfo != null && (
+                                        <Form.Item label="网络协议">
+                                            <Select value={openApiExtraInfo.net_protocol} onChange={value => {
+                                                setOpenApiExtraInfo({
+                                                    ...openApiExtraInfo,
+                                                    net_protocol: value,
+                                                });
+                                                setExtraChanged(true);
+                                            }}>
+                                                <Select.Option value="http">http</Select.Option>
+                                                <Select.Option value="https">https</Select.Option>
+                                            </Select>
+                                        </Form.Item>
+                                    )}
+                                    {entryInfo.extra_info.ExtraApiCollInfo.api_coll_type == API_COLL_CUSTOM && customExtraInfo != null && (
+                                        <Form.Item label="网络协议">
+                                            <Select value={customExtraInfo.net_protocol} onChange={value => {
+                                                setCustomExtraInfo({
+                                                    ...customExtraInfo,
+                                                    net_protocol: value,
+                                                });
+                                                setExtraChanged(true);
+                                            }}>
+                                                <Select.Option value="http">http</Select.Option>
+                                                <Select.Option value="https">https</Select.Option>
+                                            </Select>
+                                        </Form.Item>
+                                    )}
+                                </>
                             )}
                         </>
                     )}

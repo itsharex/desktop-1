@@ -27,7 +27,6 @@ export type RemoveResponse = {
 export type CreateRpcRequest = {
     session_id: string;
     project_id: string;
-    name: string;
     default_addr: string;
     proto_file_id: string;
     secure: boolean;
@@ -70,7 +69,6 @@ export type UpdateRpcResponse = {
 export type CreateOpenApiRequest = {
     session_id: string;
     project_id: string;
-    name: string;
     default_addr: string;
     proto_file_id: string;
     net_protocol: string;

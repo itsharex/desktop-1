@@ -216,16 +216,17 @@ const DataAnnoDetail = () => {
                                     )}
                                 </div>
                             </Tabs.TabPane>
+                            <Tabs.TabPane tab="标注设置" key="setting">
+                                <div className={s.panel_wrap}>
+                                    {activeKey == "setting" && entryInfo != null && annoProjectInfo != null && (
+                                        <SettingPanel projectId={projectId} entryInfo={entryInfo} annoProjectInfo={annoProjectInfo} admin={adminStr == "true"}
+                                            onChange={() => loadAnnoProjectInfo()} />
+                                    )}
+                                </div>
+                            </Tabs.TabPane>
                         </>
                     )}
-                    <Tabs.TabPane tab="标注设置" key="setting">
-                        <div className={s.panel_wrap}>
-                            {activeKey == "setting" && entryInfo != null && annoProjectInfo != null && (
-                                <SettingPanel projectId={projectId} entryInfo={entryInfo} annoProjectInfo={annoProjectInfo} admin={adminStr == "true"}
-                                    onChange={() => loadAnnoProjectInfo()} />
-                            )}
-                        </div>
-                    </Tabs.TabPane>
+
                 </Tabs>
             )}
 

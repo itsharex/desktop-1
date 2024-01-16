@@ -216,7 +216,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   }, [tab, keyword, myWatch, curPage]);
 
   useEffect(() => {
-    if (["doc", "board", "sprit"].includes(tab) == false) {
+    if (["doc", "board", "sprit", "apicoll", "dataanno"].includes(tab) == false) {
       return;
     }
     let entryType = ENTRY_TYPE_DOC;
@@ -246,6 +246,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       offset: curPage * PAGE_SIZE,
       limit: PAGE_SIZE,
     })).then((res) => {
+      console.log(res);
       if (tab == "doc") {
         setDocList(res.entry_list);
       } else if (tab == "board") {
