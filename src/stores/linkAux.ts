@@ -20,12 +20,11 @@ import {
 } from '@/utils/constant';
 import { open } from '@tauri-apps/api/shell';
 import { uniqId } from '@/utils/utils';
-import type { API_COLL_TYPE } from '@/api/api_collection';
-import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI } from '@/api/api_collection';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
-import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD } from "@/api/project_entry";
-import { get as get_api_coll } from "@/api/api_collection";
-import { message } from 'antd';
+import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
+import type { API_COLL_TYPE } from "@/api/project_entry";
+
+
 /*
  * 用于统一管理链接跳转以及链接直接传递数据
  */
@@ -455,30 +454,27 @@ class LinkAuxStore {
         await this.goToLink(new LinkDocInfo("", entryLink.projectId, entryLink.entryId), history);
       } else if (res.entry.entry_type == ENTRY_TYPE_BOARD) {
         await this.goToLink(new LinkBoardInfo("", entryLink.projectId, entryLink.entryId), history);
+      } else if (res.entry.entry_type == ENTRY_TYPE_API_COLL) {
+        await this.goToLink(new LinkApiCollInfo("", entryLink.projectId, entryLink.entryId), history);
+      } else if (res.entry.entry_type == ENTRY_TYPE_DATA_ANNO) {
+        await this.goToLink(new LinkDataAnnoInfo("", entryLink.projectId, entryLink.entryId), history);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_API_COLL) {
       const apiCollLink = link as LinkApiCollInfo;
       if (this.rootStore.projectStore.curProjectId != apiCollLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(apiCollLink.projectId);
       }
-      if (this.rootStore.projectStore.curProject?.setting.disable_api_collection == true) {
-        message.error("已关闭接口集合功能");
-        return;
-      }
-      const res = await request(get_api_coll({
+      const res = await request(get_entry({
         session_id: this.rootStore.userStore.sessionId,
         project_id: apiCollLink.projectId,
-        api_coll_id: apiCollLink.apiCollId,
+        entry_id: apiCollLink.apiCollId,
       }));
-      await this.openApiCollPage(res.info.api_coll_id, res.info.name + "(只读模式)", res.info.api_coll_type, res.info.default_addr, false, this.rootStore.projectStore.isAdmin, apiCollLink.showComment);
+      await this.openApiCollPage(res.entry.entry_id, res.entry.entry_title + "(只读模式)", res.entry.extra_info.ExtraApiCollInfo?.api_coll_type ?? 0,
+        res.entry.extra_info.ExtraApiCollInfo?.default_addr ?? "", false, this.rootStore.projectStore.isAdmin, apiCollLink.showComment);
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DATA_ANNO) {
       const dataAnnoLink = link as LinkDataAnnoInfo;
       if (this.rootStore.projectStore.curProjectId != dataAnnoLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(dataAnnoLink.projectId);
-      }
-      if (this.rootStore.projectStore.curProject?.setting.disable_data_anno == true) {
-        message.error("已关闭数据标注功能");
-        return;
       }
       await this.openAnnoProjectPage(dataAnnoLink.annoProjectId, dataAnnoLink.linkContent, dataAnnoLink.showComment);
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
@@ -607,22 +603,6 @@ class LinkAuxStore {
       return;
     }
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/access"));
-  }
-
-  //跳转到数据标注
-  goToDataAnnoList(history: History) {
-    if (this.rootStore.projectStore.curProject?.setting.disable_data_anno == true) {
-      return;
-    }
-    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/dataanno"));
-  }
-
-  //跳转到接口集合
-  goToApiCollectionList(history: History) {
-    if (this.rootStore.projectStore.curProject?.setting.disable_api_collection == true) {
-      return;
-    }
-    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/apicoll"));
   }
 
   //跳转到知识点列表

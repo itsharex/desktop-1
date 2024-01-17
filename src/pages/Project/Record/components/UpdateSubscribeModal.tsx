@@ -4,9 +4,7 @@ import { update as update_subscribe } from '@/api/events_subscribe';
 import { Checkbox, Form, Input, Modal } from "antd";
 import { useStores } from "@/hooks";
 import {
-    apiCollectionEvOptionList,
     atomgitEvOptionList,
-    calcApiCollectionEvCfg,
     calcAtomgitEvCfg,
     calcCodeEvCfg,
     calcDataAnnoEvCfg,
@@ -23,7 +21,6 @@ import {
     dataAnnoEvOptionList,
     entryEvOptionList,
     extEvOptionList,
-    genApiCollectionEvCfgValues,
     genAtomgitEvCfgValues,
     genCodeEvCfgValues,
     genDataAnnoEvCfgValues,
@@ -121,10 +118,6 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
     const [dataAnnoEvCfgCheckAll, setDataAnnoEvCfgCheckAll] = useState(dataAnnoEvCfgValues.length == dataAnnoEvOptionList.length);
     const [dataAnnoEvCfgIndeterminate, setDataAnnoEvCfgIndeterminate] = useState(dataAnnoEvCfgValues.length > 0 && dataAnnoEvCfgValues.length < dataAnnoEvOptionList.length);
 
-    const apiCollectionEvCfgValues = genApiCollectionEvCfgValues(props.subscribe.event_cfg.api_collection_ev_cfg);
-    const [apiCollectionEvCfgCheckAll, setApiCollectionEvCfgCheckAll] = useState(apiCollectionEvCfgValues.length == apiCollectionEvOptionList.length);
-    const [apiCollectionEvCfgIndeterminate, setApiCollectionEvCfgIndeterminate] = useState(apiCollectionEvCfgValues.length > 0 && apiCollectionEvCfgValues.length < apiCollectionEvOptionList.length);
-
     const entryEvCfgValues = genEntryEvCfgValues(props.subscribe.event_cfg.entry_ev_cfg);
     const [entryEvCfgCheckAll, setEntryEvCfgCheckAll] = useState(entryEvCfgValues.length == entryEvOptionList.length);
     const [entryEvCfgIndeterminate, setEntryEvCfgIndeterminate] = useState(entryEvCfgValues.length > 0 && entryEvCfgValues.length < entryEvOptionList.length);
@@ -151,7 +144,6 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                 code_ev_cfg: calcCodeEvCfg(formValue.codeEvCfg),
                 idea_ev_cfg: calcIdeaEvCfg(formValue.ideaEvCfg),
                 data_anno_ev_cfg: calcDataAnnoEvCfg(formValue.dataAnnoEvCfg),
-                api_collection_ev_cfg: calcApiCollectionEvCfg(formValue.apiCollectionEvCfg),
                 entry_ev_cfg: calcEntryEvCfg(formValue.entryEvCfg),
                 harbor_ev_cfg: calcHarborEvCfg(formValue.harborEvCfg),
             },
@@ -181,7 +173,6 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                     "codeEvCfg": codeEvCfgValues,
                     "ideaEvCfg": ideaEvCfgValues,
                     "dataAnnoEvCfg": dataAnnoEvCfgValues,
-                    "apiCollectionEvCfg": apiCollectionEvCfgValues,
                     "entryEvCfg": entryEvCfgValues,
                     "harborEvCfg": harborEvCfgValues,
                 }}>
@@ -491,32 +482,6 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                             } else {
                                 setDataAnnoEvCfgCheckAll(false);
                                 setDataAnnoEvCfgIndeterminate(true);
-                            }
-                        }} />
-                    </Form.Item>
-
-                    <Form.Item label={<Checkbox indeterminate={apiCollectionEvCfgIndeterminate} checked={apiCollectionEvCfgCheckAll} onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setApiCollectionEvCfgIndeterminate(false);
-                        if (apiCollectionEvCfgCheckAll) {
-                            setApiCollectionEvCfgCheckAll(false);
-                            form.setFieldValue("apiCollectionEvCfg", []);
-                        } else {
-                            setApiCollectionEvCfgCheckAll(true);
-                            form.setFieldValue("apiCollectionEvCfg", apiCollectionEvOptionList.map(item => item.value));
-                        }
-                    }}>接口集合事件</Checkbox>} name="apiCollectionEvCfg">
-                        <Checkbox.Group options={apiCollectionEvOptionList} onChange={values => {
-                            if (values.length == 0) {
-                                setApiCollectionEvCfgCheckAll(false);
-                                setApiCollectionEvCfgIndeterminate(false);
-                            } else if (values.length == apiCollectionEvOptionList.length) {
-                                setApiCollectionEvCfgCheckAll(true);
-                                setApiCollectionEvCfgIndeterminate(false);
-                            } else {
-                                setApiCollectionEvCfgCheckAll(false);
-                                setApiCollectionEvCfgIndeterminate(true);
                             }
                         }} />
                     </Form.Item>

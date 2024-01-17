@@ -21,8 +21,8 @@ export type Setting = {
   // disable_server_agent: boolean;
   disable_ext_event: boolean;
   // disable_app_store: boolean;
-  disable_data_anno: boolean;
-  disable_api_collection: boolean;
+  // disable_data_anno: boolean;
+  // disable_api_collection: boolean;
   // disable_code_comment: boolean;
   // disable_ci_cd: boolean;
 

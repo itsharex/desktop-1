@@ -82,30 +82,6 @@ async fn remove<R: Runtime>(
     }
 }
 
-#[tauri::command]
-async fn list<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: ListRequest,
-) -> Result<ListResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = DataAnnoProjectApiClient::new(chan.unwrap());
-    match client.list(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == list_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("list".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
 
 #[tauri::command]
 async fn get<R: Runtime>(
@@ -271,7 +247,6 @@ impl<R: Runtime> DataAnnoProjectApiPlugin<R> {
                 create,
                 update,
                 remove,
-                list,
                 get,
                 add_resource,
                 remove_resource,

@@ -2,7 +2,7 @@ import type { CheckboxOptionType } from 'antd';
 import type {
     ProjectEvCfg, ExtEvCfg,
     GiteeEvCfg, GitlabEvCfg, IssueEvCfg,
-    RequirementEvCfg, CodeEvCfg, IdeaEvCfg, DataAnnoEvCfg, ApiCollectionEvCfg, AtomgitEvCfg, EntryEvCfg, HarborEvCfg
+    RequirementEvCfg, CodeEvCfg, IdeaEvCfg, DataAnnoEvCfg, AtomgitEvCfg, EntryEvCfg, HarborEvCfg
 } from '@/api/events_subscribe';
 
 export const projectEvOptionList: CheckboxOptionType[] = [
@@ -1047,14 +1047,6 @@ export const genIdeaEvCfgValues = (cfg: IdeaEvCfg): string[] => {
 
 export const dataAnnoEvOptionList: CheckboxOptionType[] = [
     {
-        label: "创建标注项目",
-        value: "create_anno_project",
-    },
-    {
-        label: "删除标注项目",
-        value: "remove_anno_project",
-    },
-    {
         label: "增加标注成员",
         value: "add_anno_member",
     },
@@ -1066,8 +1058,6 @@ export const dataAnnoEvOptionList: CheckboxOptionType[] = [
 
 export const calcDataAnnoEvCfg = (values: string[] | undefined): DataAnnoEvCfg => {
     const ret: DataAnnoEvCfg = {
-        create_anno_project: false,
-        remove_anno_project: false,
         add_anno_member: false,
         remove_anno_member: false,
     };
@@ -1075,11 +1065,7 @@ export const calcDataAnnoEvCfg = (values: string[] | undefined): DataAnnoEvCfg =
         return ret;
     }
     values.forEach(value => {
-        if (value == "create_anno_project") {
-            ret.create_anno_project = true;
-        } else if (value == "remove_anno_project") {
-            ret.remove_anno_project = true;
-        } else if (value == "add_anno_member") {
+        if (value == "add_anno_member") {
             ret.add_anno_member = true;
         } else if (value == "remove_anno_member") {
             ret.remove_anno_member = true;
@@ -1090,12 +1076,6 @@ export const calcDataAnnoEvCfg = (values: string[] | undefined): DataAnnoEvCfg =
 
 export const genDataAnnoEvCfgValues = (cfg: DataAnnoEvCfg): string[] => {
     const retList: string[] = [];
-    if (cfg.create_anno_project) {
-        retList.push("create_anno_project");
-    }
-    if (cfg.remove_anno_project) {
-        retList.push("remove_anno_project");
-    }
     if (cfg.add_anno_member) {
         retList.push("add_anno_member");
     }
@@ -1104,47 +1084,6 @@ export const genDataAnnoEvCfgValues = (cfg: DataAnnoEvCfg): string[] => {
     }
     return retList;
 };
-
-export const apiCollectionEvOptionList: CheckboxOptionType[] = [
-    {
-        label: "创建接口集合",
-        value: "create",
-    },
-    {
-        label: "删除接口集合",
-        value: "remove",
-    }
-];
-
-export const calcApiCollectionEvCfg = (values: string[] | undefined): ApiCollectionEvCfg => {
-    const ret: ApiCollectionEvCfg = {
-        create: false,
-        remove: false,
-    };
-    if (values == undefined) {
-        return ret;
-    }
-    values.forEach(value => {
-        if (value == "create") {
-            ret.create = true;
-        } else if (value == "remove") {
-            ret.remove = true;
-        }
-    });
-    return ret;
-};
-
-export const genApiCollectionEvCfgValues = (cfg: ApiCollectionEvCfg): string[] => {
-    const retList: string[] = [];
-    if (cfg.create) {
-        retList.push("create");
-    }
-    if (cfg.remove) {
-        retList.push("remove");
-    }
-    return retList;
-};
-
 
 export const atomgitEvOptionList: CheckboxOptionType[] = [
     {

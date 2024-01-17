@@ -6,8 +6,8 @@ export const WATCH_TARGET_REQUIRE_MENT: WATCH_TARGET_TYPE = 1;  //项目需求
 export const WATCH_TARGET_TASK: WATCH_TARGET_TYPE = 2;          //任务
 export const WATCH_TARGET_BUG: WATCH_TARGET_TYPE = 3;           //缺陷
 // export const WATCH_TARGET_CI_CD: WATCH_TARGET_TYPE = 4;         // CI/CD
-export const WATCH_TARGET_API_COLL: WATCH_TARGET_TYPE = 5;      // API集合
-export const WATCH_TARGET_DATA_ANNO: WATCH_TARGET_TYPE = 6;     // 数据标注
+// export const WATCH_TARGET_API_COLL: WATCH_TARGET_TYPE = 5;      // API集合
+// export const WATCH_TARGET_DATA_ANNO: WATCH_TARGET_TYPE = 6;     // 数据标注
   
 
   

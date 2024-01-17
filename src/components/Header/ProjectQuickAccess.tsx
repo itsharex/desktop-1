@@ -30,11 +30,7 @@ const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
 const MENU_KEY_SHOW_LOCAL_API_DEBUG = "localApi.debug.show";
-const MENU_KEY_SHOW_TOOL_BAR_API_COLLECTION = "toolbar.apiColl.show";
-const MENU_KEY_SHOW_TOOL_BAR_DATA_ANNO = "toolbar.dataAnno.show";
 const MENU_KEY_LAYOUT_PREFIX = "layout.";
-const MENU_KEY_LAYOUT_TOOLBAR_API_COLLECTION = "layout.toolbar.apicoll";
-const MENU_KEY_LAYOUT_TOOLBAR_DATA_ANNO = "layout.toolbar.dataanno";
 const MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT = "layout.toolbar.extev";
 const MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO = "layout.overview.prjinfo";
 const MENU_KEY_LAYOUT_OVERVIEW_BULLETIN = "layout.overview.bulletin";
@@ -67,14 +63,6 @@ const ProjectQuickAccess = () => {
                     key: "layout.toolbar",
                     label: "右侧工具栏",
                     children: [
-                        {
-                            key: MENU_KEY_LAYOUT_TOOLBAR_API_COLLECTION,
-                            label: `${projectStore.curProject?.setting.disable_api_collection == true ? "打开" : "关闭"}接口集合`
-                        },
-                        {
-                            key: MENU_KEY_LAYOUT_TOOLBAR_DATA_ANNO,
-                            label: `${projectStore.curProject?.setting.disable_data_anno == true ? "打开" : "关闭"}数据标注`
-                        },
                         {
                             key: MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT,
                             label: `${projectStore.curProject?.setting.disable_ext_event == true ? "打开" : "关闭"}外部事件接入`
@@ -209,18 +197,7 @@ const ProjectQuickAccess = () => {
                 }
             ],
         });
-        if (projectStore.curProject?.setting.disable_api_collection != true) {
-            tmpItems.push({
-                key: MENU_KEY_SHOW_TOOL_BAR_API_COLLECTION,
-                label: "接口集合",
-            });
-        }
-        if (projectStore.curProject?.setting.disable_data_anno != true) {
-            tmpItems.push({
-                key: MENU_KEY_SHOW_TOOL_BAR_DATA_ANNO,
-                label: "数据标注",
-            });
-        }
+
         tmpItems.push({
             key: "event",
             label: "研发行为",
@@ -285,11 +262,7 @@ const ProjectQuickAccess = () => {
             return;
         }
         const newSetting = { ...projectStore.curProject.setting };
-        if (key == MENU_KEY_LAYOUT_TOOLBAR_API_COLLECTION) {
-            newSetting.disable_api_collection = !projectStore.curProject.setting.disable_api_collection;
-        } else if (key == MENU_KEY_LAYOUT_TOOLBAR_DATA_ANNO) {
-            newSetting.disable_data_anno = !projectStore.curProject.setting.disable_data_anno;
-        } else if (key == MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT) {
+        if (key == MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT) {
             newSetting.disable_ext_event = !projectStore.curProject.setting.disable_ext_event;
         } else if (key == MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO) {
             newSetting.hide_project_info = !projectStore.curProject.setting.hide_project_info;
@@ -358,12 +331,6 @@ const ProjectQuickAccess = () => {
                 break;
             case MENU_KEY_SHOW_LOCAL_API_DEBUG:
                 await openApiConsole();
-                break;
-            case MENU_KEY_SHOW_TOOL_BAR_API_COLLECTION:
-                linkAuxStore.goToApiCollectionList(history);
-                break;
-            case MENU_KEY_SHOW_TOOL_BAR_DATA_ANNO:
-                linkAuxStore.goToDataAnnoList(history);
                 break;
             case MENU_KEY_ENTRY_CREATE_SPRIT:
                 entryStore.createEntryType = ENTRY_TYPE_SPRIT;

@@ -1,5 +1,5 @@
 import React from "react";
-import { ENTRY_TYPE_SPRIT, type EntryInfo } from "@/api/project_entry";
+import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_SPRIT, type EntryInfo } from "@/api/project_entry";
 import { Descriptions, Space } from "antd";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
@@ -30,6 +30,33 @@ const EntryPopover = (props: EntryPopoverProps) => {
                             ))}
                         </Descriptions.Item>
                     </>
+                )}
+                {props.entryInfo.entry_type == ENTRY_TYPE_API_COLL && (
+                    <>
+                        <Descriptions.Item label="接口类型">
+                            {props.entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC接口"}
+                            {props.entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI接口"}
+                            {props.entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="默认地址">{props.entryInfo.extra_info.ExtraApiCollInfo?.default_addr ?? ""}</Descriptions.Item>
+                    </>
+                )}
+                {props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO && (
+                    <Descriptions.Item label="标注类型">
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_CLASSIFI && "音频分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG && "音频分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_TRANS && "音频翻译"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG_TRANS && "音频分段翻译"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CLASSIFI && "图像分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BRUSH_SEG && "画笔分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_KEYPOINT && "图像关键点"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_POLYGON_SEG && "多边形分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_CLASSIFI && "文本分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER && "文本命名实体识别"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY && "文本摘要"}
+                    </Descriptions.Item>
                 )}
                 <Descriptions.Item label="修改权限">
                     {props.entryInfo.entry_perm.update_for_all && "全体成员可更新"}

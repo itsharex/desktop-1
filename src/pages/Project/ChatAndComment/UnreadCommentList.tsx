@@ -3,13 +3,13 @@ import { observer } from 'mobx-react';
 import { Table } from "antd";
 import {
     type UnReadInfo, list_un_read,
-    COMMENT_TARGET_ENTRY, COMMENT_TARGET_REQUIRE_MENT, COMMENT_TARGET_TASK, COMMENT_TARGET_BUG, COMMENT_TARGET_API_COLL, COMMENT_TARGET_DATA_ANNO
+    COMMENT_TARGET_ENTRY, COMMENT_TARGET_REQUIRE_MENT, COMMENT_TARGET_TASK, COMMENT_TARGET_BUG
 } from "@/api/project_comment";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import type { ColumnsType } from 'antd/lib/table';
 import CommentModal from "@/components/CommentEntry/CommentModal";
-import { LinkApiCollInfo, LinkBugInfo, LinkDataAnnoInfo, LinkEntryInfo, LinkRequirementInfo, LinkTaskInfo } from "@/stores/linkAux";
+import {LinkBugInfo, LinkEntryInfo, LinkRequirementInfo, LinkTaskInfo } from "@/stores/linkAux";
 import { useHistory } from "react-router-dom";
 
 const PAGE_SIZE = 10;
@@ -48,8 +48,6 @@ const UnreadCommentList = () => {
                     {row.target_type == COMMENT_TARGET_REQUIRE_MENT && "需求"}
                     {row.target_type == COMMENT_TARGET_TASK && "任务"}
                     {row.target_type == COMMENT_TARGET_BUG && "缺陷"}
-                    {row.target_type == COMMENT_TARGET_API_COLL && "接口集合"}
-                    {row.target_type == COMMENT_TARGET_DATA_ANNO && "数据标注"}
                 </span>
             ),
         },
@@ -68,10 +66,6 @@ const UnreadCommentList = () => {
                             linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_BUG) {
                             linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
-                        } else if (row.target_type == COMMENT_TARGET_API_COLL) {
-                            linkAuxStore.goToLink(new LinkApiCollInfo("", projectStore.curProjectId, row.target_id, true), history);
-                        } else if (row.target_type == COMMENT_TARGET_DATA_ANNO) {
-                            linkAuxStore.goToLink(new LinkDataAnnoInfo("", projectStore.curProjectId, row.target_id, true), history);
                         }
                     }}>{row.title}</a>
             ),
