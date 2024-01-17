@@ -15,7 +15,7 @@ import { request } from '@/utils/request';
 import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
-import { COMMENT_TARGET_API_COLL, COMMENT_TARGET_DATA_ANNO, type COMMENT_TARGET_TYPE } from '@/api/project_comment';
+import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -95,15 +95,7 @@ class NoticeStore {
   }
 
   private async forwardCommentNotice(targetType: COMMENT_TARGET_TYPE, targetId: string, notice: NoticeType.comment.AllNotice) {
-    let forward = false;
-    if (targetType == COMMENT_TARGET_API_COLL) {
-      forward = true;
-    } else if (targetType == COMMENT_TARGET_DATA_ANNO) {
-      forward = true;
-    }
-    if (forward == false) {
-      return;
-    }
+    //只有独立窗口的需要转发
     const winList = await getAllWindow();
     for (const win of winList) {
       if (win.label.includes(targetId)) {
@@ -192,13 +184,13 @@ class NoticeStore {
       if (curProject == undefined) {
         return;
       }
-      await curProject.chat_store.onNewMsg(notice.NewMsgNotice.chat_group_id,notice.NewMsgNotice.chat_msg_id);
-    } else if(notice.UpdateMsgNotice != undefined){
+      await curProject.chat_store.onNewMsg(notice.NewMsgNotice.chat_group_id, notice.NewMsgNotice.chat_msg_id);
+    } else if (notice.UpdateMsgNotice != undefined) {
       const curProject = this.rootStore.projectStore.getProject(notice.UpdateMsgNotice.project_id);
       if (curProject == undefined) {
         return;
       }
-      await curProject.chat_store.onUpdateMsg(notice.UpdateMsgNotice.chat_group_id,notice.UpdateMsgNotice.chat_msg_id);
+      await curProject.chat_store.onUpdateMsg(notice.UpdateMsgNotice.chat_group_id, notice.UpdateMsgNotice.chat_msg_id);
     }
   }
 
@@ -251,6 +243,14 @@ class NoticeStore {
       await this.rootStore.appStore.loadLocalProxy();
     } else if (notice.ShowGlobalServerSettingNotice !== undefined) {
       this.rootStore.appStore.showGlobalServerModal = true;
+    } else if (notice.StartMinAppNotice !== undefined) {
+      await appWindow.show();
+      await appWindow.unminimize();
+      await appWindow.setAlwaysOnTop(true);
+      setTimeout(() => {
+        appWindow.setAlwaysOnTop(false);
+      }, 200);
+      this.rootStore.appStore.openMinAppId = notice.StartMinAppNotice.min_app_id;
     }
   }
 

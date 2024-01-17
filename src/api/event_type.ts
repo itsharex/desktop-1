@@ -13,7 +13,6 @@ import { type AllCodeEvent, get_code_simple_content } from './events/code';
 import { type AllRequirementEvent, get_requirement_simple_content } from './events/requirement';
 import { type AllDataAnnoEvent, get_data_anno_simple_content } from './events/data_anno';
 import { type AllIdeaEvent, get_idea_simple_content } from './events/idea';
-import { type AllApiCollectionEvent, get_api_collection_simple_content } from './events/api_collection';
 import { type AllAtomgitEvent, get_atomgit_simple_content } from './events/atomgit';
 import { type AllEntryEvent, get_entry_simple_content } from './events/entry';
 import { type AllHarborEvent, get_harbor_simple_content } from './events/harbor';
@@ -39,7 +38,6 @@ export class AllEvent {
   CodeEvent?: AllCodeEvent;
   IdeaEvent?: AllIdeaEvent;
   DataAnnoEvent?: AllDataAnnoEvent;
-  ApiCollectionEvent?: AllApiCollectionEvent;
   AtomgitEvent?: AllAtomgitEvent;
   EntryEvent?: AllEntryEvent;
   HarborEvent?: AllHarborEvent;
@@ -66,8 +64,6 @@ export function get_simple_content(ev: PluginEvent, skip_prj_name: boolean): Lin
     return get_idea_simple_content(ev, skip_prj_name, ev.event_data.IdeaEvent);
   } else if (ev.event_data.DataAnnoEvent !== undefined) {
     return get_data_anno_simple_content(ev, skip_prj_name, ev.event_data.DataAnnoEvent);
-  } else if (ev.event_data.ApiCollectionEvent !== undefined) {
-    return get_api_collection_simple_content(ev, skip_prj_name, ev.event_data.ApiCollectionEvent);
   } else if (ev.event_data.AtomgitEvent !== undefined) {
     return get_atomgit_simple_content(ev, skip_prj_name, ev.event_data.AtomgitEvent);
   } else if (ev.event_data.EntryEvent !== undefined) {

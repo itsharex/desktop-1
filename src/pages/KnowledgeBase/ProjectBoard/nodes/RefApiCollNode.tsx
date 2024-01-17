@@ -5,12 +5,13 @@ import { start_update_content, type Node as BoardNode, keep_update_content, end_
 import NodeWrap from "./NodeWrap";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
-import { get as get_apicoll, list as list_apicoll, type ApiCollInfo, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM } from "@/api/api_collection";
 import { Descriptions, Empty, Modal, Table } from "antd";
 import Pagination from "@/components/Pagination";
 import type { ColumnsType } from "antd/lib/table";
 import { useHistory } from "react-router-dom";
 import { LinkApiCollInfo } from "@/stores/linkAux";
+import type { EntryInfo } from "@/api/project_entry";
+import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, list as list_entry, get as get_entry } from "@/api/project_entry";
 
 const PAGE_SIZE = 10;
 
@@ -25,21 +26,38 @@ const SelectApiCollModal = (props: SelectApiCollModalProps) => {
     const entryStore = useStores('entryStore');
     const boardStore = useStores('boardStore');
 
-    const [apiCollList, setApiCollList] = useState<ApiCollInfo[]>([]);
+    const [apiCollList, setApiCollList] = useState<EntryInfo[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
 
     const loadApiCollList = async () => {
-        const res = await request(list_apicoll({
+        // const res = await request(list_apicoll({
+        //     session_id: userStore.sessionId,
+        //     project_id: projectStore.curProjectId,
+        //     filter_by_watch: false,
+        //     offset: PAGE_SIZE * curPage,
+        //     limit: PAGE_SIZE,
+        // }));
+        const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            filter_by_watch: false,
+            list_param: {
+                filter_by_watch: false,
+                filter_by_tag_id: false,
+                tag_id_list: [],
+                filter_by_keyword: false,
+                keyword: "",
+                filter_by_mark_remove: true,
+                mark_remove: false,
+                filter_by_entry_type: true,
+                entry_type_list: [ENTRY_TYPE_API_COLL],
+            },
             offset: PAGE_SIZE * curPage,
             limit: PAGE_SIZE,
         }));
         setTotalCount(res.total_count);
-        setApiCollList(res.info_list);
+        setApiCollList(res.entry_list);
     };
 
     const updateApiCollId = async (apiCollId: string) => {
@@ -59,25 +77,25 @@ const SelectApiCollModal = (props: SelectApiCollModalProps) => {
         props.onClose();
     };
 
-    const columns: ColumnsType<ApiCollInfo> = [
+    const columns: ColumnsType<EntryInfo> = [
         {
             title: "名称",
             width: 200,
-            render: (_, row: ApiCollInfo) => (
+            render: (_, row: EntryInfo) => (
                 <a onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    updateApiCollId(row.api_coll_id);
-                }}>{row.name}</a>
+                    updateApiCollId(row.entry_id);
+                }}>{row.entry_title}</a>
             ),
         },
         {
             title: "接口类型",
-            render: (_, row: ApiCollInfo) => (
+            render: (_, row: EntryInfo) => (
                 <>
-                    {row.api_coll_type == API_COLL_GRPC && "GRPC"}
-                    {row.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
-                    {row.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
+                    {row.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
+                    {row.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
+                    {row.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
                 </>
             ),
         }
@@ -148,15 +166,15 @@ const RefApiCollNode = (props: NodeProps<BoardNode>) => {
     const linkAuxStore = useStores('linkAuxStore');
 
     const [showModal, setShowModal] = useState(false);
-    const [apiCollInfo, setApiCollInfo] = useState<ApiCollInfo | null>(null);
+    const [apiCollInfo, setApiCollInfo] = useState<EntryInfo | null>(null);
 
     const loadApiCollInfo = async (apiCollId: string) => {
-        const res = await request(get_apicoll({
+        const res = await request(get_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            api_coll_id: apiCollId,
+            entry_id: apiCollId,
         }));
-        setApiCollInfo(res.info);
+        setApiCollInfo(res.entry);
     };
 
     useEffect(() => {
@@ -174,13 +192,13 @@ const RefApiCollNode = (props: NodeProps<BoardNode>) => {
                     <a onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        linkAuxStore.goToLink(new LinkApiCollInfo("", projectStore.curProjectId, apiCollInfo.api_coll_id), history);
-                    }} style={{ fontSize: "16px", fontWeight: 600 }}>{apiCollInfo.name}</a>
+                        linkAuxStore.goToLink(new LinkApiCollInfo("", projectStore.curProjectId, apiCollInfo.entry_id), history);
+                    }} style={{ fontSize: "16px", fontWeight: 600 }}>{apiCollInfo.entry_title}</a>
                     <Descriptions column={1} labelStyle={{ width: "90px" }}>
                         <Descriptions.Item label="接口类型">
-                            {apiCollInfo.api_coll_type == API_COLL_GRPC && "GRPC"}
-                            {apiCollInfo.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
-                            {apiCollInfo.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
+                            {apiCollInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
+                            {apiCollInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
+                            {apiCollInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
                         </Descriptions.Item>
                     </Descriptions>
                 </div>

@@ -6,11 +6,12 @@ import { request } from "@/utils/request";
 import { get_session } from "@/api/user";
 import { DeleteOutlined } from "@ant-design/icons";
 import AsyncImage from "@/components/AsyncImage";
+import type { ANNO_PROJECT_TYPE } from "@/api/project_entry";
 
 export interface ResourcePanelProps {
     projectId: string;
     annoProjectId: string;
-    annoType: dataAnnoPrjApi.ANNO_TYPE;
+    annoType: ANNO_PROJECT_TYPE;
     showAddModal: boolean;
     fsId: string;
     onChange: (resourceCount: number) => void;

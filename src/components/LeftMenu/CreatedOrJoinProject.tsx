@@ -83,7 +83,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       }
 
       //创建默认目录
-      for (const folderTitle of ["工作计划", "文档", "静态网页", "信息面板", "文件"]) {
+      for (const folderTitle of ["工作计划", "文档", "静态网页", "信息面板", "文件", "接口集合", "数据标注"]) {
         await request(create_folder({
           session_id: userStore.sessionId,
           project_id: res.project_id,

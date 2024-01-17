@@ -7,19 +7,14 @@ import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import IssueList from "./IssueList";
 import type { ENTRY_TYPE, EntryInfo } from "@/api/project_entry";
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import type { ColumnsType, ColumnType } from 'antd/lib/table';
 import { EditTag } from "@/components/EditCell/EditTag";
 import moment from 'moment';
 import { useHistory } from "react-router-dom";
-import { LinkApiCollInfo, LinkDataAnnoInfo, LinkEntryInfo, LinkRequirementInfo } from "@/stores/linkAux";
-import type { Tab } from "rc-tabs/lib/interface";
+import { LinkEntryInfo, LinkRequirementInfo } from "@/stores/linkAux";
 import type { RequirementInfo } from "@/api/project_requirement";
 import { REQ_SORT_UPDATE_TIME, list_requirement } from "@/api/project_requirement";
-import type { ApiCollInfo } from "@/api/api_collection";
-import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, list as list_api_coll } from "@/api/api_collection";
-import type { AnnoProjectInfo } from "@/api/data_anno_project";
-import { ANNO_TYPE_AUDIO_CLASSIFI, ANNO_TYPE_AUDIO_SEG, ANNO_TYPE_AUDIO_SEG_TRANS, ANNO_TYPE_AUDIO_TRANS, ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT, ANNO_TYPE_IMAGE_BRUSH_SEG, ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_TYPE_IMAGE_CLASSIFI, ANNO_TYPE_IMAGE_KEYPOINT, ANNO_TYPE_IMAGE_POLYGON_SEG, ANNO_TYPE_TEXT_CLASSIFI, ANNO_TYPE_TEXT_NER, ANNO_TYPE_TEXT_SUMMARY, list as list_data_anno } from "@/api/data_anno_project";
 import PagesModal from "@/pages/Project/Home/components/PagesModal";
 import FileModal from "@/pages/Project/Home/components/FileModal";
 
@@ -347,171 +342,12 @@ const WatchRequirementList = () => {
     );
 };
 
-const WatchApiCollList = () => {
-    const history = useHistory();
-
-    const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
-    const linkAuxStore = useStores('linkAuxStore');
-
-    const [apiCollList, setApiCollList] = useState([] as ApiCollInfo[]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [curPage, setCurPage] = useState(0);
-
-    const loadApiCollList = async () => {
-        const res = await request(list_api_coll({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            filter_by_watch: true,
-            offset: curPage * PAGE_SIZE,
-            limit: PAGE_SIZE,
-        }));
-        setTotalCount(res.total_count);
-        setApiCollList(res.info_list);
-    };
-
-    const columns: ColumnsType<ApiCollInfo> = [
-        {
-            title: "名称",
-            width: 150,
-            render: (_, row: ApiCollInfo) => (
-                <a onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    linkAuxStore.goToLink(new LinkApiCollInfo("", projectStore.curProjectId, row.api_coll_id), history);
-                }}>{row.name}</a>
-            ),
-        },
-        {
-            title: "类型",
-            width: 150,
-            render: (_, row) => (
-                <>
-                    {row.api_coll_type == API_COLL_GRPC && "GRPC"}
-                    {row.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
-                    {row.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
-                </>
-            ),
-        },
-        {
-            title: "服务地址",
-            width: 200,
-            dataIndex: "default_addr",
-        },
-        {
-            title: "创建者",
-            dataIndex: "create_display_name",
-            width: 100,
-        }
-    ];
-
-    useEffect(() => {
-        loadApiCollList();
-    }, [curPage]);
-
-    return (
-        <Table rowKey="api_coll_id" dataSource={apiCollList} columns={columns}
-            pagination={{
-                current: curPage + 1,
-                pageSize: PAGE_SIZE,
-                total: totalCount,
-                onChange: page => setCurPage(page - 1),
-                hideOnSinglePage: true,
-            }} style={{ minHeight: "200px" }} />
-    );
-};
-
-const WatchDataAnnoList = () => {
-    const history = useHistory();
-
-    const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
-    const linkAuxStore = useStores('linkAuxStore');
-
-    const [dataAnnoList, setDataAnnoList] = useState([] as AnnoProjectInfo[]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [curPage, setCurPage] = useState(0);
-
-    const loadDataAnnoList = async () => {
-        const res = await request(list_data_anno({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            filter_by_watch: true,
-            offset: curPage * PAGE_SIZE,
-            limit: PAGE_SIZE,
-        }));
-        setTotalCount(res.total_count);
-        setDataAnnoList(res.info_list);
-    };
-
-    const columns: ColumnsType<AnnoProjectInfo> = [
-        {
-            title: "名称",
-            width: 250,
-            render: (_, row: AnnoProjectInfo) => (
-                <a onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    linkAuxStore.goToLink(new LinkDataAnnoInfo("", projectStore.curProjectId, row.anno_project_id), history);
-                }}>{row.base_info.name}</a>
-            ),
-        },
-        {
-            title: "标注类型",
-            width: 150,
-            render: (_, row: AnnoProjectInfo) => (
-                <>
-                    {row.base_info.anno_type == ANNO_TYPE_AUDIO_CLASSIFI && "音频分类"}
-                    {row.base_info.anno_type == ANNO_TYPE_AUDIO_SEG && "音频分割"}
-                    {row.base_info.anno_type == ANNO_TYPE_AUDIO_TRANS && "音频翻译"}
-                    {row.base_info.anno_type == ANNO_TYPE_AUDIO_SEG_TRANS && "音频分段翻译"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_CLASSIFI && "图像分类"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_BRUSH_SEG && "画笔分割"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_KEYPOINT && "图像关键点"}
-                    {row.base_info.anno_type == ANNO_TYPE_IMAGE_POLYGON_SEG && "多边形分割"}
-                    {row.base_info.anno_type == ANNO_TYPE_TEXT_CLASSIFI && "文本分类"}
-                    {row.base_info.anno_type == ANNO_TYPE_TEXT_NER && "文本命名实体识别"}
-                    {row.base_info.anno_type == ANNO_TYPE_TEXT_SUMMARY && "文本摘要"}
-                </>
-            ),
-        },
-        {
-            title: "任务数",
-            width: 100,
-            render: (_, row: AnnoProjectInfo) => `${row.done_task_count}/${row.all_task_count}`,
-        },
-        {
-            title: "创建者",
-            dataIndex: "create_display_name",
-            width: 100,
-        }
-    ];
-
-    useEffect(() => {
-        loadDataAnnoList();
-    }, [curPage]);
-
-    return (
-        <Table rowKey="anno_project_id" dataSource={dataAnnoList} columns={columns}
-            pagination={{
-                current: curPage + 1,
-                pageSize: PAGE_SIZE,
-                total: totalCount,
-                onChange: page => setCurPage(page - 1),
-                hideOnSinglePage: true,
-            }} style={{ minHeight: "200px" }} />
-    );
-};
 
 const MyWatchPanel = () => {
-    const projectStore = useStores('projectStore');
-
     const [activeKey, setActiveKey] = useState("watchSprit");
 
     const getTabItems = () => {
-        const items: Tab[] = [
+        return [
             {
                 key: "watchSprit",
                 label: "工作计划",
@@ -600,34 +436,29 @@ const MyWatchPanel = () => {
                     </>
                 ),
             },
-        ];
-        if (projectStore.curProject?.setting.disable_api_collection == false) {
-            items.push({
+            {
                 key: "watchApiColl",
                 label: "接口集合",
                 children: (
                     <>
                         {activeKey == "watchApiColl" && (
-                            <WatchApiCollList />
+                            <WatchEntryList entryType={ENTRY_TYPE_API_COLL} />
                         )}
                     </>
                 ),
-            });
-        }
-        if (projectStore.curProject?.setting.disable_data_anno == false) {
-            items.push({
+            },
+            {
                 key: "watchDataAnno",
                 label: "数据标注",
                 children: (
                     <>
                         {activeKey == "watchDataAnno" && (
-                            <WatchDataAnnoList />
+                            <WatchEntryList entryType={ENTRY_TYPE_DATA_ANNO} />
                         )}
                     </>
                 ),
-            });
-        }
-        return items;
+            }
+        ];
     };
 
     return (

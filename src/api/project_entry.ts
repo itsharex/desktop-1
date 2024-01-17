@@ -6,12 +6,38 @@ export const ENTRY_TYPE_DOC: ENTRY_TYPE = 1;
 export const ENTRY_TYPE_PAGES: ENTRY_TYPE = 2;
 export const ENTRY_TYPE_BOARD: ENTRY_TYPE = 3;
 export const ENTRY_TYPE_FILE: ENTRY_TYPE = 4;
+export const ENTRY_TYPE_API_COLL: ENTRY_TYPE = 5;
+export const ENTRY_TYPE_DATA_ANNO: ENTRY_TYPE = 6;
 export const ENTRY_TYPE_NULL: ENTRY_TYPE = 999;
 
 export type ISSUE_LIST_TYPE = number;
 export const ISSUE_LIST_ALL: ISSUE_LIST_TYPE = 0;
 export const ISSUE_LIST_LIST: ISSUE_LIST_TYPE = 1;
 export const ISSUE_LIST_KANBAN: ISSUE_LIST_TYPE = 2;
+
+export type API_COLL_TYPE = number;
+export const API_COLL_GRPC: API_COLL_TYPE = 0;
+export const API_COLL_OPENAPI: API_COLL_TYPE = 1;
+export const API_COLL_CUSTOM: API_COLL_TYPE = 2;
+
+
+export type ANNO_PROJECT_TYPE = number;
+export const ANNO_PROJECT_AUDIO_CLASSIFI: ANNO_PROJECT_TYPE = 0;
+export const ANNO_PROJECT_AUDIO_SEG: ANNO_PROJECT_TYPE = 1;
+export const ANNO_PROJECT_AUDIO_TRANS: ANNO_PROJECT_TYPE = 2;
+export const ANNO_PROJECT_AUDIO_SEG_TRANS: ANNO_PROJECT_TYPE = 3;
+
+export const ANNO_PROJECT_IMAGE_CLASSIFI: ANNO_PROJECT_TYPE = 10;
+export const ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT: ANNO_PROJECT_TYPE = 11;
+export const ANNO_PROJECT_IMAGE_BRUSH_SEG: ANNO_PROJECT_TYPE = 12;
+export const ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT: ANNO_PROJECT_TYPE = 13;
+export const ANNO_PROJECT_IMAGE_KEYPOINT: ANNO_PROJECT_TYPE = 14;
+export const ANNO_PROJECT_IMAGE_POLYGON_SEG: ANNO_PROJECT_TYPE = 15;
+
+export const ANNO_PROJECT_TEXT_CLASSIFI: ANNO_PROJECT_TYPE = 20;
+export const ANNO_PROJECT_TEXT_NER: ANNO_PROJECT_TYPE = 21;
+export const ANNO_PROJECT_TEXT_SUMMARY: ANNO_PROJECT_TYPE = 22;
+
 
 export type EntryTag = {
     tag_id: string;
@@ -44,11 +70,21 @@ export type ExtraFileInfo = {
     file_name: string;
 };
 
+export type ExtraApiCollInfo = {
+    api_coll_type: API_COLL_TYPE;
+    default_addr: string;
+};
+
+export type ExtraDataAnnoInfo = {
+    anno_type: ANNO_PROJECT_TYPE;
+};
 
 export type ExtraInfo = {
     ExtraSpritInfo?: ExtraSpritInfo;
     ExtraPagesInfo?: ExtraPagesInfo;
     ExtraFileInfo?: ExtraFileInfo;
+    ExtraApiCollInfo?: ExtraApiCollInfo;
+    ExtraDataAnnoInfo?: ExtraDataAnnoInfo;
 };
 
 export type WatchUser = {

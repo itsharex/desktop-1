@@ -1,4 +1,4 @@
-use crate::notice_decode::new_git_post_hook_notice;
+use crate::notice_decode::{new_git_post_hook_notice, new_start_min_app_notice};
 use async_trait::async_trait;
 use local_api_rust::server::MakeService;
 use proto_gen_rust::events_api::{EventRefType, EventType};
@@ -71,13 +71,13 @@ pub struct Server<C> {
 use local_api_rust::models::{
     ErrInfo, IssueInfo, ProjectProjectIdBugAllGet200Response,
     ProjectProjectIdCodeCommentCommentThreadIdPut200Response,
-    ProjectProjectIdCodeCommentCommentThreadIdPutRequest,
-    ProjectProjectIdEventGet200Response, ProjectProjectIdTaskAllGet200Response,
-    ProjectProjectIdTaskRecordTaskIdDependGet200Response,
+    ProjectProjectIdCodeCommentCommentThreadIdPutRequest, ProjectProjectIdEventGet200Response,
+    ProjectProjectIdTaskAllGet200Response, ProjectProjectIdTaskRecordTaskIdDependGet200Response,
 };
 use local_api_rust::{
-    Api, HelloGetResponse, ProjectGetResponse, ProjectProjectIdBugAllGetResponse,
-    ProjectProjectIdBugMyGetResponse, ProjectProjectIdBugRecordBugIdEventsGetResponse,
+    Api, HelloGetResponse, MinappGetResponse, ProjectGetResponse,
+    ProjectProjectIdBugAllGetResponse, ProjectProjectIdBugMyGetResponse,
+    ProjectProjectIdBugRecordBugIdEventsGetResponse,
     ProjectProjectIdBugRecordBugIdShortNoteGetResponse,
     ProjectProjectIdBugRecordBugIdShowGetResponse,
     ProjectProjectIdCodeCommentCommentThreadIdCommentIdDeleteResponse,
@@ -132,6 +132,36 @@ where
             println!("{}", err);
         }
         return Ok(ShowGetResponse::Status200 {
+            body: json!({}),
+            access_control_allow_origin: Some("*".into()),
+        });
+    }
+
+    /// 显示微应用
+    async fn minapp_get(
+        &self,
+        minapp_id: String,
+        _context: &C,
+    ) -> Result<MinappGetResponse, ApiError> {
+        let win = self.app.get_window("main");
+        if win.is_none() {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("无法找到主窗口".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let win = win.unwrap();
+        if let Err(_) = win.emit("notice", new_start_min_app_notice(minapp_id)) {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("发送消息失败".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        return Ok(MinappGetResponse::Status200 {
             body: json!({}),
             access_control_allow_origin: Some("*".into()),
         });

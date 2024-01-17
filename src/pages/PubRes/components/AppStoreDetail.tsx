@@ -8,30 +8,23 @@ import { request } from "@/utils/request";
 import { CommentOutlined, DownloadOutlined, HeartTwoTone, LeftOutlined } from "@ant-design/icons";
 import AppPermPanel from "@/pages/Admin/AppAdmin/components/AppPermPanel";
 import { ReadOnlyEditor } from "@/components/Editor";
-import { GLOBAL_APPSTORE_FS_ID, get_cache_file } from '@/api/fs';
-import { check_unpark, get_min_app_path, start as start_app } from '@/api/min_app';
 import { list as list_user_app, add as add_user_app, remove as remove_user_app } from "@/api/user_app";
 import { open as open_shell } from '@tauri-apps/api/shell';
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
-import DownloadProgressModal from "@/components/MinApp/DownloadProgressModal";
 
 const PAGE_SIZE = 10;
 
-interface DownloadInfo {
-    fsId: string;
-    fileId: string;
-}
+
 
 const AppStoreDetail = () => {
-
+    const appStore = useStores('appStore');
     const userStore = useStores('userStore');
     const pubResStore = useStores('pubResStore');
 
     const [myAppIdList, setMyAppIdList] = useState<string[]>([]);
 
     const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
-    const [showDownload, setShowDownload] = useState<DownloadInfo | null>(null);
     const [commentContent, setCommentContent] = useState("");
 
     const [commentList, setCommentList] = useState<AppComment[]>([]);
@@ -113,47 +106,6 @@ const AppStoreDetail = () => {
         setAppInfo({ ...appInfo, install_count: appInfo.install_count + 1 });
         pubResStore.incAppDataVersion();
     };
-
-    const openUserApp = async (fsId: string, fileId: string) => {
-        if (appInfo == null) {
-            return;
-        }
-
-        const path = await get_min_app_path(fsId, fileId);
-        await start_app({
-            project_id: "",
-            project_name: "",
-            member_user_id: userStore.userInfo.userId,
-            member_display_name: userStore.userInfo.displayName,
-            token_url: "",
-            label: "minApp:" + appInfo.app_id,
-            title: `${appInfo.base_info.app_name}(微应用)`,
-            path: path,
-        }, appInfo?.app_perm);
-    };
-
-    const preOpenUserApp = async () => {
-        //检查文件是否已经下载
-        const res = await get_cache_file(GLOBAL_APPSTORE_FS_ID, appInfo?.file_id ?? "", "content.zip");
-        if (res.exist_in_local == false) {
-            setShowDownload({
-                fsId: GLOBAL_APPSTORE_FS_ID,
-                fileId: appInfo?.file_id ?? "",
-            });
-            return;
-        }
-        //检查是否已经解压zip包
-        const ok = await check_unpark(GLOBAL_APPSTORE_FS_ID, appInfo?.file_id ?? "");
-        if (!ok) {
-            setShowDownload({
-                fsId: GLOBAL_APPSTORE_FS_ID,
-                fileId: appInfo?.file_id ?? "",
-            });
-            return;
-        }
-        //打开微应用
-        await openUserApp(GLOBAL_APPSTORE_FS_ID, appInfo?.file_id ?? "");
-    }
 
     const removeUserApp = async () => {
         if (appInfo == null) {
@@ -245,7 +197,7 @@ const AppStoreDetail = () => {
                                 }} onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    preOpenUserApp();
+                                    appStore.openMinAppId = pubResStore.showAppId;
                                 }}>运行应用</Dropdown.Button>
                             )}
                             {myAppIdList.includes(appInfo.app_id) == false && (
@@ -326,14 +278,7 @@ const AppStoreDetail = () => {
                     </Card>
                 </List.Item>
             )} pagination={{ current: curPage + 1, pageSize: PAGE_SIZE, total: totalCount, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }} />
-            {showDownload != null && (
-                <DownloadProgressModal fsId={showDownload.fsId} fileId={showDownload.fileId}
-                    onCancel={() => setShowDownload(null)}
-                    onOk={() => {
-                        setShowDownload(null);
-                        openUserApp(showDownload.fsId, showDownload.fileId);
-                    }} />
-            )}
+            
             {removeCommentInfo != null && (
                 <Modal open title="删除评论"
                     okText="删除" okButtonProps={{ danger: true }}

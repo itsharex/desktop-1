@@ -8,47 +8,23 @@ use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
 mod admin_auth_api_plugin;
-mod api_collection_api_plugin;
-mod appstore_admin_api_plugin;
-mod appstore_api_plugin;
+mod group_api;
+mod minapp_api;
+mod project_cloud_api;
+mod project_comm_api;
+mod project_content_api;
+mod project_mgr_api;
+mod project_misc_api;
+mod pubres_api;
+
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
-mod data_anno_project_api_plugin;
-mod data_anno_task_api_plugin;
-mod docker_template_admin_api_plugin;
-mod docker_template_api_plugin;
-mod events_admin_api_plugin;
-mod events_api_plugin;
 mod events_decode;
-mod events_subscribe_api_plugin;
-mod external_events_api_plugin;
 mod fs_api_plugin;
 mod helper;
-mod http_custom_api_plugin;
 mod image_utils;
 mod local_api;
-mod min_app_fs_plugin;
-mod min_app_plugin;
-mod min_app_shell_plugin;
-mod min_app_store_plugin;
 mod notice_decode;
-mod pages_plugin;
-mod project_admin_api_plugin;
-mod project_alarm_api_plugin;
-mod project_api_plugin;
-mod project_bulletin_api_plugin;
-mod project_chat_api_plugin;
-mod project_code_api_plugin;
-mod project_doc_api_plugin;
-mod project_entry_api_plugin;
-mod project_idea_api_plugin;
-mod project_issue_api_plugin;
-mod project_member_admin_api_plugin;
-mod project_member_api_plugin;
-mod project_requirement_api_plugin;
-mod project_sprit_api_plugin;
-mod project_tool_api_plugin;
-mod short_note_api_plugin;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
@@ -58,20 +34,7 @@ mod my_updater;
 
 mod dev_container_admin_api_plugin;
 mod dev_container_api_plugin;
-mod group_admin_api_plugin;
-mod group_api_plugin;
-mod group_member_api_plugin;
-mod group_post_admin_api_plugin;
-mod group_post_api_plugin;
-mod k8s_proxy_api_plugin;
 mod local_repo_plugin;
-mod net_proxy_api_plugin;
-mod project_board_api_plugin;
-mod project_comment_api_plugin;
-mod project_watch_api_plugin;
-mod pub_search_api_plugin;
-mod swarm_proxy_api_plugin;
-mod trace_proxy_api_plugin;
 
 use std::time::Duration;
 use tauri::http::ResponseBuilder;
@@ -328,18 +291,19 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 2 && args[1] == "postHook" {
         cmd_post_hook = true;
-    }
+    } 
 
     if local_api::is_instance_run() {
         if cmd_post_hook {
             local_api::call_git_post_hook();
-        }
+        } 
         return;
     }
 
     if cmd_post_hook {
         return;
     }
+
     let tray_menu = SystemTrayMenu::new()
         .add_item(CustomMenuItem::new("switch_user", "切换用户").disabled())
         .add_item(CustomMenuItem::new("set_global_server", "设置全局服务器"))
@@ -376,8 +340,10 @@ fn main() {
                 let app_handle = win.app_handle();
                 let label = String::from(win.label());
                 tauri::async_runtime::spawn(async move {
-                    min_app_plugin::clear_by_close(app_handle.clone(), label.clone()).await;
-                    pages_plugin::clear_by_close(app_handle, label.clone()).await;
+                    minapp_api::min_app_plugin::clear_by_close(app_handle.clone(), label.clone())
+                        .await;
+                    project_content_api::pages_plugin::clear_by_close(app_handle, label.clone())
+                        .await;
                     dev_container_api_plugin::clear_by_close(label.clone()).await;
                 });
             }
@@ -455,60 +421,62 @@ fn main() {
         })
         .system_tray(SystemTray::new().with_menu(tray_menu))
         .plugin(client_cfg_api_plugin::ClientCfgApiPlugin::new())
-        .plugin(project_api_plugin::ProjectApiPlugin::new())
-        .plugin(project_member_api_plugin::ProjectMemberApiPlugin::new())
+        .plugin(project_comm_api::project_api_plugin::ProjectApiPlugin::new())
+        .plugin(project_comm_api::project_member_api_plugin::ProjectMemberApiPlugin::new())
         .plugin(user_api_plugin::UserApiPlugin::new())
-        .plugin(events_api_plugin::EventsApiPlugin::new())
-        .plugin(external_events_api_plugin::ExternalEventsApiPlugin::new())
-        .plugin(project_sprit_api_plugin::ProjectSpritApiPlugin::new())
-        .plugin(project_doc_api_plugin::ProjectDocApiPlugin::new())
-        .plugin(project_issue_api_plugin::ProjectIssueApiPlugin::new())
+        .plugin(project_comm_api::events_api_plugin::EventsApiPlugin::new())
+        .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
+        .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())
+        .plugin(project_content_api::project_doc_api_plugin::ProjectDocApiPlugin::new())
+        .plugin(project_mgr_api::project_issue_api_plugin::ProjectIssueApiPlugin::new())
         .plugin(fs_api_plugin::FsApiPlugin::new())
-        .plugin(short_note_api_plugin::ShortNoteApiPlugin::new())
+        .plugin(project_misc_api::short_note_api_plugin::ShortNoteApiPlugin::new())
         .plugin(local_api::LocalApiPlugin::new())
-        .plugin(events_subscribe_api_plugin::EventsSubscribeApiPlugin::new())
+        .plugin(project_misc_api::events_subscribe_api_plugin::EventsSubscribeApiPlugin::new())
         .plugin(admin_auth_api_plugin::AdminAuthApiPlugin::new())
-        .plugin(project_admin_api_plugin::ProjectAdminApiPlugin::new())
-        .plugin(project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new())
+        .plugin(project_comm_api::project_admin_api_plugin::ProjectAdminApiPlugin::new())
+        .plugin(
+            project_comm_api::project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new(),
+        )
         .plugin(user_admin_api_plugin::UserAdminApiPlugin::new())
         .plugin(client_cfg_admin_api_plugin::ClientCfgAdminApiPlugin::new())
-        .plugin(events_admin_api_plugin::EventsAdminApiPlugin::new())
-        .plugin(min_app_plugin::MinAppPlugin::new())
-        .plugin(min_app_fs_plugin::MinAppFsPlugin::new())
-        .plugin(min_app_shell_plugin::MinAppShellPlugin::new())
-        .plugin(min_app_store_plugin::MinAppStorePlugin::new())
-        .plugin(project_requirement_api_plugin::ProjectRequirementApiPlugin::new())
-        .plugin(appstore_api_plugin::AppstoreApiPlugin::new())
-        .plugin(appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
+        .plugin(project_comm_api::events_admin_api_plugin::EventsAdminApiPlugin::new())
+        .plugin(minapp_api::min_app_plugin::MinAppPlugin::new())
+        .plugin(minapp_api::min_app_fs_plugin::MinAppFsPlugin::new())
+        .plugin(minapp_api::min_app_shell_plugin::MinAppShellPlugin::new())
+        .plugin(minapp_api::min_app_store_plugin::MinAppStorePlugin::new())
+        .plugin(project_mgr_api::project_requirement_api_plugin::ProjectRequirementApiPlugin::new())
+        .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
+        .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
         .plugin(user_app_api_plugin::UserAppApiPlugin::new())
-        .plugin(project_chat_api_plugin::ProjectChatApiPlugin::new())
-        .plugin(project_code_api_plugin::ProjectCodeApiPlugin::new())
-        .plugin(project_idea_api_plugin::ProjectIdeaApiPlugin::new())
-        .plugin(project_tool_api_plugin::ProjectToolApiPlugin::new())
-        .plugin(project_alarm_api_plugin::ProjectAlarmApiPlugin::new())
-        .plugin(project_bulletin_api_plugin::ProjectBulletinApiPlugin::new())
+        .plugin(project_misc_api::project_chat_api_plugin::ProjectChatApiPlugin::new())
+        .plugin(project_misc_api::project_code_api_plugin::ProjectCodeApiPlugin::new())
+        .plugin(project_misc_api::project_idea_api_plugin::ProjectIdeaApiPlugin::new())
+        .plugin(project_misc_api::project_tool_api_plugin::ProjectToolApiPlugin::new())
+        .plugin(project_mgr_api::project_alarm_api_plugin::ProjectAlarmApiPlugin::new())
+        .plugin(project_misc_api::project_bulletin_api_plugin::ProjectBulletinApiPlugin::new())
         .plugin(local_repo_plugin::LocalRepoPlugin::new())
-        .plugin(data_anno_project_api_plugin::DataAnnoProjectApiPlugin::new())
-        .plugin(data_anno_task_api_plugin::DataAnnoTaskApiPlugin::new())
-        .plugin(docker_template_api_plugin::DockerTemplateApiPlugin::new())
-        .plugin(docker_template_admin_api_plugin::DockerTemplateAdminApiPlugin::new())
-        .plugin(api_collection_api_plugin::ApiCollectionApiPlugin::new())
-        .plugin(pub_search_api_plugin::PubSearchApiPlugin::new())
-        .plugin(http_custom_api_plugin::HttpCustomApiPlugin::new())
-        .plugin(project_entry_api_plugin::ProjectEntryApiPlugin::new())
-        .plugin(project_watch_api_plugin::ProjectWatchApiPlugin::new())
-        .plugin(project_comment_api_plugin::ProjectCommentApiPlugin::new())
-        .plugin(pages_plugin::PagesPlugin::new())
-        .plugin(project_board_api_plugin::ProjectBoardApiPlugin::new())
-        .plugin(group_api_plugin::GroupApiPlugin::new())
-        .plugin(group_member_api_plugin::GroupMemberApiPlugin::new())
-        .plugin(group_post_api_plugin::GroupPostApiPlugin::new())
-        .plugin(group_admin_api_plugin::GroupAdminApiPlugin::new())
-        .plugin(group_post_admin_api_plugin::GroupPostAdminApiPlugin::new())
-        .plugin(k8s_proxy_api_plugin::K8sProxyApiPlugin::new())
-        .plugin(swarm_proxy_api_plugin::SwarmProxyApiPlugin::new())
-        .plugin(trace_proxy_api_plugin::TraceProxyApiPlugin::new())
-        .plugin(net_proxy_api_plugin::NetProxyApiPlugin::new())
+        .plugin(project_content_api::data_anno_project_api_plugin::DataAnnoProjectApiPlugin::new())
+        .plugin(project_content_api::data_anno_task_api_plugin::DataAnnoTaskApiPlugin::new())
+        .plugin(pubres_api::docker_template_api_plugin::DockerTemplateApiPlugin::new())
+        .plugin(pubres_api::docker_template_admin_api_plugin::DockerTemplateAdminApiPlugin::new())
+        .plugin(project_content_api::api_collection_api_plugin::ApiCollectionApiPlugin::new())
+        .plugin(pubres_api::pub_search_api_plugin::PubSearchApiPlugin::new())
+        .plugin(project_content_api::http_custom_api_plugin::HttpCustomApiPlugin::new())
+        .plugin(project_content_api::project_entry_api_plugin::ProjectEntryApiPlugin::new())
+        .plugin(project_misc_api::project_watch_api_plugin::ProjectWatchApiPlugin::new())
+        .plugin(project_misc_api::project_comment_api_plugin::ProjectCommentApiPlugin::new())
+        .plugin(project_content_api::pages_plugin::PagesPlugin::new())
+        .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
+        .plugin(group_api::group_api_plugin::GroupApiPlugin::new())
+        .plugin(group_api::group_member_api_plugin::GroupMemberApiPlugin::new())
+        .plugin(group_api::group_post_api_plugin::GroupPostApiPlugin::new())
+        .plugin(group_api::group_admin_api_plugin::GroupAdminApiPlugin::new())
+        .plugin(group_api::group_post_admin_api_plugin::GroupPostAdminApiPlugin::new())
+        .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())
+        .plugin(project_cloud_api::swarm_proxy_api_plugin::SwarmProxyApiPlugin::new())
+        .plugin(project_cloud_api::trace_proxy_api_plugin::TraceProxyApiPlugin::new())
+        .plugin(project_cloud_api::net_proxy_api_plugin::NetProxyApiPlugin::new())
         .plugin(dev_container_api_plugin::DevContainerApiPlugin::new())
         .plugin(dev_container_admin_api_plugin::DevContainerAdminApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
@@ -556,7 +524,7 @@ fn main() {
         })
         .build(tauri::generate_context!())
         .expect("error while building  tauri application");
-    app.run(|app_handle, event| match event {
+    app.run(move |app_handle, event| match event {
         tauri::RunEvent::Updater(updater_event) => {
             let win = app_handle.get_window("main");
             match updater_event {

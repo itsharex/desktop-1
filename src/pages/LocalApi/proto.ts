@@ -1,23 +1,29 @@
 export const PROTO = `openapi: 3.0.0
 info:
-  version: 0.1.17
+  version: 0.1.18
   title: local-api
   description: local api for linksaas desktop
   contact:
     name: linksaas
     email: panleiming@linksaas.pro
-    url: https://atomgit.com/openlinksaas/local-api
+    url: https://atomgit.com/openlinksaas/local-api-rust
 servers:
   - url: http://localhost:__PORT__
 tags:
   - name: global
     description: 不属于项目范围的接口
+  - name: projectCreate
+    description: 项目中创建任务/缺陷和文档
   - name: projectTask
     description: 项目中任务相关接口
   - name: projectBug
     description: 项目中缺陷相关接口
   - name: projectEvent
     description: 项目中事件相关接口
+  - name: projectMember
+    description: 项目中成员相关接口
+  - name: projectDoc
+    description: 项目中文档相关接口
   - name: projectCodeComment
     description: 项目中的代码评论
   - name: projectTool
@@ -43,6 +49,38 @@ paths:
               schema:
                 type: string
                 example: hello linksaas
+  /minapp:
+    get:
+      tags:
+        - global
+      summary: 显示微应用
+      description: 显示微应用
+      operationId: minappGet
+      parameters:
+        - $ref: '#/components/parameters/MinappId'
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyRes'
+        '500':
+          description: 失败
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
   /project:
     get:
       tags:
@@ -926,6 +964,13 @@ components:
         minimum: 1
       required: true
       description: 列表大小
+    MinappId:
+      in: query
+      name: minappId
+      schema:
+        type: string
+      required: true
+      description: 微应用ID
     Offset:
       in: query
       name: offset
@@ -1310,4 +1355,5 @@ components:
             - low
             - middle
             - high
+
 `;

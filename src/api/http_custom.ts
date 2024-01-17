@@ -63,7 +63,6 @@ export type ApiItemInfo = {
 export type CreateCustomRequest = {
     session_id: string;
     project_id: string;
-    name: string;
     default_addr: string;
     net_protocol: string;
 };

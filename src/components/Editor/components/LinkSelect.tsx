@@ -22,11 +22,7 @@ import classNames from 'classnames';
 import type { RequirementInfo } from '@/api/project_requirement';
 import { list_requirement, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import type { EntryInfo } from "@/api/project_entry";
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
-import type { ApiCollInfo } from "@/api/api_collection";
-import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, list as list_api_coll } from "@/api/api_collection";
-import type { AnnoProjectInfo } from "@/api/data_anno_project";
-import { ANNO_TYPE_AUDIO_CLASSIFI, ANNO_TYPE_AUDIO_SEG, ANNO_TYPE_AUDIO_SEG_TRANS, ANNO_TYPE_AUDIO_TRANS, ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT, ANNO_TYPE_IMAGE_BRUSH_SEG, ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_TYPE_IMAGE_CLASSIFI, ANNO_TYPE_IMAGE_KEYPOINT, ANNO_TYPE_IMAGE_POLYGON_SEG, ANNO_TYPE_TEXT_CLASSIFI, ANNO_TYPE_TEXT_NER, ANNO_TYPE_TEXT_SUMMARY, list as list_data_anno } from "@/api/data_anno_project";
+import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { CheckOutlined } from '@ant-design/icons';
 
 const PAGE_SIZE = 6;
@@ -81,8 +77,8 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   const [docList, setDocList] = useState([] as EntryInfo[]);
   const [spritList, setSpritList] = useState([] as EntryInfo[]);
   const [boardList, setBoardList] = useState([] as EntryInfo[]);
-  const [apiCollList, setApiCollList] = useState([] as ApiCollInfo[]);
-  const [dataAnnoList, setDataAnnoList] = useState([] as AnnoProjectInfo[]);
+  const [apiCollList, setApiCollList] = useState([] as EntryInfo[]);
+  const [dataAnnoList, setDataAnnoList] = useState([] as EntryInfo[]);
   const [externeUrl, setExterneUrl] = useState('');
 
   const [tab, setTab] = useState(defaultTab);
@@ -220,7 +216,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   }, [tab, keyword, myWatch, curPage]);
 
   useEffect(() => {
-    if (["doc", "board", "sprit"].includes(tab) == false) {
+    if (["doc", "board", "sprit", "apicoll", "dataanno"].includes(tab) == false) {
       return;
     }
     let entryType = ENTRY_TYPE_DOC;
@@ -228,6 +224,10 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       entryType = ENTRY_TYPE_BOARD;
     } else if (tab == "sprit") {
       entryType = ENTRY_TYPE_SPRIT;
+    } else if (tab == "apicoll") {
+      entryType = ENTRY_TYPE_API_COLL;
+    } else if (tab == "dataanno") {
+      entryType = ENTRY_TYPE_DATA_ANNO;
     }
     request(list_entry({
       session_id: userStore.sessionId,
@@ -246,12 +246,17 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       offset: curPage * PAGE_SIZE,
       limit: PAGE_SIZE,
     })).then((res) => {
+      console.log(res);
       if (tab == "doc") {
         setDocList(res.entry_list);
       } else if (tab == "board") {
         setBoardList(res.entry_list);
       } else if (tab == "sprit") {
         setSpritList(res.entry_list);
+      } else if (tab == "apicoll") {
+        setApiCollList(res.entry_list);
+      } else if (tab == "dataanno") {
+        setDataAnnoList(res.entry_list);
       }
       setTotalCount(res.total_count);
     });
@@ -282,37 +287,6 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     })
   }, [tab, curPage, myWatch, keyword]);
 
-  useEffect(() => {
-    if (tab != "apicoll") {
-      return;
-    }
-    request(list_api_coll({
-      session_id: userStore.sessionId,
-      project_id: projectStore.curProjectId,
-      filter_by_watch: myWatch,
-      offset: curPage * PAGE_SIZE,
-      limit: PAGE_SIZE,
-    })).then(res => {
-      setTotalCount(res.total_count);
-      setApiCollList(res.info_list);
-    });
-  }, [tab, myWatch, curPage]);
-
-  useEffect(() => {
-    if (tab != "dataanno") {
-      return;
-    }
-    request(list_data_anno({
-      session_id: userStore.sessionId,
-      project_id: projectStore.curProjectId,
-      filter_by_watch: myWatch,
-      offset: curPage * PAGE_SIZE,
-      limit: PAGE_SIZE,
-    })).then(res => {
-      setTotalCount(res.total_count);
-      setDataAnnoList(res.info_list);
-    });
-  }, [tab, myWatch, curPage]);
 
   const renderItemContent = () => {
     if (props.showDoc && tab === 'doc') {
@@ -508,18 +482,18 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="api_coll_id" dataSource={apiCollList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={apiCollList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                props.onOk(new LinkApiCollInfo(item.name, projectStore.curProjectId, item.api_coll_id));
+                props.onOk(new LinkApiCollInfo(item.entry_title, projectStore.curProjectId, item.entry_id));
               }}>
-                {item.api_coll_type == API_COLL_GRPC && "GRPC"}
-                {item.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
-                {item.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
+                {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
+                {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
+                {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
                 :&nbsp;&nbsp;
-                {item.name}
+                {item.entry_title}
               </List.Item>
             )} />
         </Card>
@@ -537,28 +511,28 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="anno_project_id" dataSource={dataAnnoList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={dataAnnoList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                props.onOk(new LinkDataAnnoInfo(item.base_info.name, projectStore.curProjectId, item.anno_project_id));
+                props.onOk(new LinkDataAnnoInfo(item.entry_title, projectStore.curProjectId, item.entry_id));
               }}>
-                {item.base_info.anno_type == ANNO_TYPE_AUDIO_CLASSIFI && "音频分类"}
-                {item.base_info.anno_type == ANNO_TYPE_AUDIO_SEG && "音频分割"}
-                {item.base_info.anno_type == ANNO_TYPE_AUDIO_TRANS && "音频翻译"}
-                {item.base_info.anno_type == ANNO_TYPE_AUDIO_SEG_TRANS && "音频分段翻译"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_CLASSIFI && "图像分类"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_BRUSH_SEG && "画笔分割"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_KEYPOINT && "图像关键点"}
-                {item.base_info.anno_type == ANNO_TYPE_IMAGE_POLYGON_SEG && "多边形分割"}
-                {item.base_info.anno_type == ANNO_TYPE_TEXT_CLASSIFI && "文本分类"}
-                {item.base_info.anno_type == ANNO_TYPE_TEXT_NER && "文本命名实体识别"}
-                {item.base_info.anno_type == ANNO_TYPE_TEXT_SUMMARY && "文本摘要"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_CLASSIFI && "音频分类"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG && "音频分割"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_TRANS && "音频翻译"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG_TRANS && "音频分段翻译"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CLASSIFI && "图像分类"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BRUSH_SEG && "画笔分割"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_KEYPOINT && "图像关键点"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_POLYGON_SEG && "多边形分割"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_CLASSIFI && "文本分类"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER && "文本命名实体识别"}
+                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY && "文本摘要"}
                 :&nbsp;&nbsp;
-                {item.base_info.name}
+                {item.entry_title}
               </List.Item>
             )} />
         </Card>

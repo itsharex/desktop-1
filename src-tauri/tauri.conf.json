@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "linksaas",
-    "version": "0.7.8"
+    "version": "0.7.9"
   },
   "build": {
     "distDir": "../dist",
@@ -161,7 +161,8 @@
           "**",
           "**/.env",
           "**/.simple_dev.json",
-          "$HOME/.linksaas/**"
+          "$HOME/.linksaas/**",
+          "$HOME/.local/**"
         ]
       }
     },

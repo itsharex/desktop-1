@@ -8,9 +8,12 @@ import { get_session } from "@/api/user";
 import { appWindow } from '@tauri-apps/api/window';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { EditOutlined, SaveOutlined, UndoOutlined } from "@ant-design/icons";
+import type { EntryInfo } from "@/api/project_entry";
+import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, update_title } from "@/api/project_entry";
 
 export interface SettingPanelProps {
     projectId: string;
+    entryInfo: EntryInfo;
     annoProjectInfo: dataAnnoPrjApi.AnnoProjectInfo;
     admin: boolean;
     onChange: () => void;
@@ -108,18 +111,18 @@ const SettingPanel = (props: SettingPanelProps) => {
                 labelStyle={{ width: "120px", textAlign: "right", display: "block" }}
                 contentStyle={{ width: "100%", display: "block" }}>
                 <Descriptions.Item label="标注项目名称">
-                    <EditText editable={props.admin} content={props.annoProjectInfo.base_info.name}
+                    <EditText editable={props.admin} content={props.entryInfo.entry_title}
                         onChange={async (value) => {
                             if (value.trim() == "") {
                                 return false;
                             }
                             const sessionId = await get_session();
                             try {
-                                await request(dataAnnoPrjApi.update({
+                                await request(update_title({
                                     session_id: sessionId,
                                     project_id: props.projectId,
-                                    anno_project_id: props.annoProjectInfo.anno_project_id,
-                                    base_info: { ...props.annoProjectInfo.base_info, name: value.trim() },
+                                    entry_id: props.annoProjectInfo.anno_project_id,
+                                    title: value.trim(),
                                 }));
                                 await appWindow.setTitle(`标注项目(${value.trim()})`);
                             } catch (e) {
@@ -132,19 +135,19 @@ const SettingPanel = (props: SettingPanelProps) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="标注类型">
                     <>
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_AUDIO_CLASSIFI && "音频分类"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_AUDIO_SEG && "音频分割"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_AUDIO_TRANS && "音频翻译"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_AUDIO_SEG_TRANS && "音频分段翻译"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_CLASSIFI && "图像分类"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_BRUSH_SEG && "画笔分割"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_KEYPOINT && "图像关键点"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_IMAGE_POLYGON_SEG && "多边形分割"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_TEXT_CLASSIFI && "文本分类"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_TEXT_NER && "文本命名实体识别"}
-                        {props.annoProjectInfo.base_info.anno_type == dataAnnoPrjApi.ANNO_TYPE_TEXT_SUMMARY && "文本摘要"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_CLASSIFI && "音频分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG && "音频分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_TRANS && "音频翻译"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG_TRANS && "音频分段翻译"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CLASSIFI && "图像分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BRUSH_SEG && "画笔分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_KEYPOINT && "图像关键点"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_POLYGON_SEG && "多边形分割"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_CLASSIFI && "文本分类"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER && "文本命名实体识别"}
+                        {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY && "文本摘要"}
                     </>
                 </Descriptions.Item>
                 <Descriptions.Item label="标注项目描述">

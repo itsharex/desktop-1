@@ -23,8 +23,6 @@ import { LinkOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { get_requirement } from '@/api/project_requirement';
 import { get_session } from '@/api/user';
 import { get as get_entry } from "@/api/project_entry";
-import { get as get_api_coll } from "@/api/api_collection";
-import { get as get_data_anno } from "@/api/data_anno_project";
 
 const Link: React.FC<{
   link: LinkInfo;
@@ -113,25 +111,25 @@ const Link: React.FC<{
       setTitle('接口集合:' + link.linkContent);
       const apiCollLink = link as unknown as LinkApiCollInfo;
       const res = await request(
-        get_api_coll({
+        get_entry({
           session_id: sessionId,
           project_id: apiCollLink.projectId,
-          api_coll_id: apiCollLink.apiCollId,
+          entry_id: apiCollLink.apiCollId,
         }));
       if (res) {
-        setTitle('接口集合:' + res.info.name);
+        setTitle('接口集合:' + res.entry.entry_title);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DATA_ANNO) {
       setTitle('数据标注:' + link.linkContent);
       const dataAnnoLink = link as unknown as LinkDataAnnoInfo;
       const res = await request(
-        get_data_anno({
+        get_entry({
           session_id: sessionId,
           project_id: dataAnnoLink.projectId,
-          anno_project_id: dataAnnoLink.annoProjectId,
+          entry_id: dataAnnoLink.annoProjectId,
         }));
       if (res) {
-        setTitle('数据标注:' + res.info.base_info.name);
+        setTitle('数据标注:' + res.entry.entry_title);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as unknown as LinkExterneInfo;

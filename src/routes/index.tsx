@@ -70,10 +70,8 @@ import OverviewLayout from '@/layouts/OverviewLayout';
 import IdeaPage from '@/pages/Idea/IdeaPage';
 import PubRes from '@/pages/PubRes';
 import WorkPlanLayout from '@/layouts/WorkPlanLayout';
-import DataAnnoProjectList from '@/pages/DataAnno/DataAnnoProjectList';
 import TemplateCateList from '@/pages/Admin/DockerTemplateAdmin/TemplateCateList';
 import TemplateList from '@/pages/Admin/DockerTemplateAdmin/TemplateList';
-import ApiCollectionList from '@/pages/ApiCollection/ApiCollectionList';
 import MyWorkLayout from '@/layouts/MyWorkLayout';
 import HomeLayout from '@/layouts/HomeLayout';
 import ProjectManager from '@/pages/ProjectManger';
@@ -189,18 +187,6 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       path: prefix + '/access/view',
       title: '第三方接入详情',
       component: ProjectAccessView,
-      exact: true,
-    },
-    {
-      path: prefix + "/dataanno",
-      title: "数据标注项目列表",
-      component: DataAnnoProjectList,
-      exact: true,
-    },
-    {
-      path: prefix + "/apicoll",
-      title: "接口集合列表",
-      component: ApiCollectionList,
       exact: true,
     },
     {

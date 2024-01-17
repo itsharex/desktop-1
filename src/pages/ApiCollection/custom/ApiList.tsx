@@ -4,7 +4,7 @@ import ApiDetail from "./ApiDetail";
 import { useCustomStores } from "./stores";
 import { observer } from 'mobx-react';
 import CommentEntry from "@/components/CommentEntry";
-import { COMMENT_TARGET_API_COLL } from "@/api/project_comment";
+import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
 
 
 const ApiList = () => {
@@ -39,7 +39,7 @@ const ApiList = () => {
                 }
             })} tabBarExtraContent={
                 <div style={{ marginRight: "20px" }}>
-                    <CommentEntry projectId={store.api.projectId} targetType={COMMENT_TARGET_API_COLL}
+                    <CommentEntry projectId={store.api.projectId} targetType={COMMENT_TARGET_ENTRY}
                         targetId={store.api.apiCollId} myUserId={store.api.userId} myAdmin={store.api.canAdmin}
                         defaultOpen={store.api.showComment} />
                 </div>

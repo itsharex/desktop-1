@@ -5,7 +5,7 @@ import { Tabs } from "antd";
 import { ApiOutlined } from "@ant-design/icons";
 import MethodCall from "./MethodCall";
 import CommentEntry from "@/components/CommentEntry";
-import { COMMENT_TARGET_API_COLL } from "@/api/project_comment";
+import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
 
 
 export interface MethodCallListProps {
@@ -67,7 +67,7 @@ const MethodCallList = (props: MethodCallListProps) => {
                 }
             }} tabBarExtraContent={
                 <div style={{ marginRight: "20px" }}>
-                    <CommentEntry projectId={props.projectId} targetType={COMMENT_TARGET_API_COLL}
+                    <CommentEntry projectId={props.projectId} targetType={COMMENT_TARGET_ENTRY}
                         targetId={props.apiCollId} myUserId={props.userId} myAdmin={props.canAdmin}
                         defaultOpen={props.showComment ?? false} />
                 </div>

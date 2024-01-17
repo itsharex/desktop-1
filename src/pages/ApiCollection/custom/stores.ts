@@ -2,11 +2,10 @@ import React from "react";
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { ApiGroupInfo, ApiItemInfo } from "@/api/http_custom";
 import { get_session } from "@/api/user";
-import type { ApiCollInfo } from "@/api/api_collection";
-import { get as get_coll_info } from "@/api/api_collection";
 import { request } from "@/utils/request";
 import { list_api_item, list_group, get_custom, get_api_item } from "@/api/http_custom";
-
+import type { EntryInfo } from "@/api/project_entry";
+import {get as get_entry} from "@/api/project_entry";
 
 class ApiStore {
     constructor() {
@@ -106,10 +105,10 @@ class ApiStore {
     }
 
     //=======================================================
-    private _apiCollInfo: ApiCollInfo | null = null;
+    private _apiCollInfo: EntryInfo | null = null;
     private _protocol = "https"
 
-    get apiCollInfo(): ApiCollInfo | null {
+    get apiCollInfo(): EntryInfo | null {
         return this._apiCollInfo;
     }
     get protocol(): string {
@@ -117,10 +116,10 @@ class ApiStore {
     }
 
     async loadApiCollInfo() {
-        const res = await request(get_coll_info({
+        const res = await request(get_entry({
             session_id: this._sessionId,
             project_id: this._projectId,
-            api_coll_id: this._apiCollId,
+            entry_id: this._apiCollId,
         }));
         const res2 = await request(get_custom({
             session_id: this._sessionId,
@@ -128,7 +127,7 @@ class ApiStore {
             api_coll_id: this._apiCollId,
         }));
         runInAction(() => {
-            this._apiCollInfo = res.info;
+            this._apiCollInfo = res.entry;
             this._protocol = res2.extra_info.net_protocol;
         });
     }
