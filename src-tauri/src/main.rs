@@ -291,12 +291,12 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 2 && args[1] == "postHook" {
         cmd_post_hook = true;
-    } 
+    }
 
     if local_api::is_instance_run() {
         if cmd_post_hook {
             local_api::call_git_post_hook();
-        } 
+        }
         return;
     }
 
@@ -308,7 +308,8 @@ fn main() {
         .add_item(CustomMenuItem::new("switch_user", "切换用户").disabled())
         .add_item(CustomMenuItem::new("set_global_server", "设置全局服务器"))
         .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(CustomMenuItem::new("devtools", "调试"))
+        .add_item(CustomMenuItem::new("local_api", "本地接口"))
+        .add_item(CustomMenuItem::new("devtools", "调试工具"))
         .add_item(CustomMenuItem::new("show_app", "显示界面"))
         .add_item(CustomMenuItem::new("about", "关于"))
         .add_native_item(SystemTrayMenuItem::Separator)
@@ -378,6 +379,13 @@ fn main() {
                 "devtools" => {
                     let win = app.get_window("main").unwrap();
                     win.open_devtools();
+                }
+                "local_api" => {
+                    let win = app.get_window("main").unwrap();
+                    if let Err(err) = win.emit("notice", notice_decode::new_open_local_api_notice())
+                    {
+                        println!("{:?}", err);
+                    }
                 }
                 "show_app" => {
                     let all_windows = app.windows();

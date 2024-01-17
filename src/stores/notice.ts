@@ -10,12 +10,13 @@ import { LinkBugInfo, LinkTaskInfo } from './linkAux';
 import { isString } from 'lodash';
 import type { History } from 'history';
 import { createBrowserHistory } from 'history';
-import { appWindow, getAll as getAllWindow } from '@tauri-apps/api/window';
+import { WebviewWindow, appWindow, getAll as getAllWindow } from '@tauri-apps/api/window';
 import { request } from '@/utils/request';
 import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
+import { get_port } from '@/api/local_api';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -251,6 +252,28 @@ class NoticeStore {
         appWindow.setAlwaysOnTop(false);
       }, 200);
       this.rootStore.appStore.openMinAppId = notice.StartMinAppNotice.min_app_id;
+    } else if (notice.OpenLocalApiNotice !== undefined) {
+      const port = await get_port();
+
+      const label = "localapi"
+      const view = WebviewWindow.getByLabel(label);
+      if (view != null) {
+        await view.close();
+      }
+      const pos = await appWindow.innerPosition();
+
+      new WebviewWindow(label, {
+        url: `local_api.html?port=${port}`,
+        width: 800,
+        minWidth: 800,
+        height: 600,
+        minHeight: 600,
+        center: true,
+        title: "本地接口调试",
+        resizable: true,
+        x: pos.x + Math.floor(Math.random() * 200),
+        y: pos.y + Math.floor(Math.random() * 200),
+      });
     }
   }
 
