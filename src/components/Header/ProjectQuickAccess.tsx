@@ -7,8 +7,6 @@ import { useStores } from "@/hooks";
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import { useHistory } from "react-router-dom";
 import { LinkIdeaPageInfo } from "@/stores/linkAux";
-import { get_port } from "@/api/local_api";
-import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
 import { request } from "@/utils/request";
 import { update_setting } from '@/api/project';
@@ -29,12 +27,10 @@ const MENU_KEY_CREATE_BUG = "create.bug";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
-const MENU_KEY_SHOW_LOCAL_API_DEBUG = "localApi.debug.show";
 const MENU_KEY_LAYOUT_PREFIX = "layout.";
 const MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT = "layout.toolbar.extev";
 const MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO = "layout.overview.prjinfo";
 const MENU_KEY_LAYOUT_OVERVIEW_BULLETIN = "layout.overview.bulletin";
-const MENU_KEY_LAYOUT_OVERVIEW_EXTRA_INFO = "layout.overview.extrainfo";
 
 const MENU_KEY_ENTRY_CREATE_SPRIT = "project.entry.sprit.create";
 const MENU_KEY_ENTRY_CREATE_DOC = "project.entry.doc.create";
@@ -81,10 +77,6 @@ const ProjectQuickAccess = () => {
                         {
                             key: MENU_KEY_LAYOUT_OVERVIEW_BULLETIN,
                             label: `${projectStore.curProject?.setting.hide_bulletin == true ? "显示" : "隐藏"}项目公告`
-                        },
-                        {
-                            key: MENU_KEY_LAYOUT_OVERVIEW_EXTRA_INFO,
-                            label: `${projectStore.curProject?.setting.hide_extra_info == true ? "显示" : "隐藏"}项目其他信息`
                         },
                     ],
                 }
@@ -219,42 +211,7 @@ const ProjectQuickAccess = () => {
                 label: "查看第三方接入",
             });
         }
-        if (projectStore.curProject?.setting.hide_extra_info != true) {
-            tmpItems.push({
-                key: "localApi",
-                label: "本地接口",
-                children: [
-                    {
-                        key: MENU_KEY_SHOW_LOCAL_API_DEBUG,
-                        label: "调试本地接口",
-                    }
-                ]
-            });
-        }
         setItems(tmpItems);
-    };
-
-    const openApiConsole = async () => {
-        const label = "localapi"
-        const view = WebviewWindow.getByLabel(label);
-        if (view != null) {
-            await view.close();
-        }
-        const res = await get_port();
-        const pos = await appWindow.innerPosition();
-
-        new WebviewWindow(label, {
-            url: `local_api.html?port=${res}`,
-            width: 800,
-            minWidth: 800,
-            height: 600,
-            minHeight: 600,
-            center: true,
-            title: "本地接口调试",
-            resizable: true,
-            x: pos.x + Math.floor(Math.random() * 200),
-            y: pos.y + Math.floor(Math.random() * 200),
-        });
     };
 
     const adjustLayout = async (key: string) => {
@@ -268,10 +225,7 @@ const ProjectQuickAccess = () => {
             newSetting.hide_project_info = !projectStore.curProject.setting.hide_project_info;
         } else if (key == MENU_KEY_LAYOUT_OVERVIEW_BULLETIN) {
             newSetting.hide_bulletin = !projectStore.curProject.setting.hide_bulletin;
-        } else if (key == MENU_KEY_LAYOUT_OVERVIEW_EXTRA_INFO) {
-            newSetting.hide_extra_info = !projectStore.curProject.setting.hide_extra_info;
-        }
-
+        } 
         await request(update_setting({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
@@ -328,9 +282,6 @@ const ProjectQuickAccess = () => {
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS:
                 linkAuxStore.goToExtEventList(history);
-                break;
-            case MENU_KEY_SHOW_LOCAL_API_DEBUG:
-                await openApiConsole();
                 break;
             case MENU_KEY_ENTRY_CREATE_SPRIT:
                 entryStore.createEntryType = ENTRY_TYPE_SPRIT;

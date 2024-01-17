@@ -345,6 +345,10 @@ pub mod client {
     }
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(rename_all = "snake_case")]
+    pub struct OpenLocalApiNotice {}
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     pub enum Notice {
         WrongSessionNotice(WrongSessionNotice),
         SwitchUserNotice(SwitchUserNotice),
@@ -352,6 +356,7 @@ pub mod client {
         LocalProxyStopNotice(LocalProxyStopNotice),
         ShowGlobalServerSettingNotice(ShowGlobalServerSettingNotice),
         StartMinAppNotice(StartMinAppNotice),
+        OpenLocalApiNotice(OpenLocalApiNotice),
     }
 }
 
@@ -427,5 +432,11 @@ pub fn new_start_min_app_notice(min_app_id: String) -> NoticeMessage {
         client::StartMinAppNotice {
             min_app_id: min_app_id,
         },
+    ));
+}
+
+pub fn new_open_local_api_notice()-> NoticeMessage {
+    return NoticeMessage::ClientNotice(client::Notice::OpenLocalApiNotice(
+        client::OpenLocalApiNotice {},
     ));
 }
