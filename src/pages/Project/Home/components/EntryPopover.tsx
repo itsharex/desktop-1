@@ -59,7 +59,7 @@ const EntryPopover = (props: EntryPopoverProps) => {
                     </Descriptions.Item>
                 )}
                 <Descriptions.Item label="修改权限">
-                    {props.entryInfo.entry_perm.update_for_all && "全体成员可更新"}
+                    {props.entryInfo.entry_perm.update_for_all && "全体成员可修改"}
                     {props.entryInfo.entry_perm.update_for_all == false && (
                         props.entryInfo.entry_perm.extra_update_user_id_list.map(userId => memberStore.getMember(userId)).filter(member => member != undefined).map(member => (
                             <div key={member?.member.member_user_id ?? ""} style={{ marginTop: "4px", marginRight: "4px" }}>
