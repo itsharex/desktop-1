@@ -75,7 +75,7 @@ use local_api_rust::models::{
     ProjectProjectIdTaskAllGet200Response, ProjectProjectIdTaskRecordTaskIdDependGet200Response,
 };
 use local_api_rust::{
-    Api, HelloGetResponse, MinappGetResponse, ProjectGetResponse,
+    Api, HelloGetResponse, MinappGetResponse, MinappMinappIdGetResponse, ProjectGetResponse,
     ProjectProjectIdBugAllGetResponse, ProjectProjectIdBugMyGetResponse,
     ProjectProjectIdBugRecordBugIdEventsGetResponse,
     ProjectProjectIdBugRecordBugIdShortNoteGetResponse,
@@ -137,15 +137,72 @@ where
         });
     }
 
+    /// 列出微应用
+    async fn minapp_get(&self, _context: &C) -> Result<MinappGetResponse, ApiError> {
+        let app_id_list = crate::user_app_api_plugin::list().await;
+        if app_id_list.is_err() {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(app_id_list.err().unwrap().to_string()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let app_id_list = app_id_list.unwrap();
+        let app_list = crate::pubres_api::appstore_api_plugin::list_app_by_id(
+            self.app.clone(),
+            proto_gen_rust::appstore_api::ListAppByIdRequest {
+                app_id_list: app_id_list,
+                session_id: "".into(),
+            },
+        )
+        .await;
+        if app_list.is_err() {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(app_list.err().unwrap().to_string()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let app_list = app_list.unwrap();
+        if app_list.code != proto_gen_rust::appstore_api::list_app_by_id_response::Code::Ok as i32 {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(app_list.err_msg),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+
+        let mut ret_list: Vec<local_api_rust::models::MinappInfo> = Vec::new();
+
+        for app in &app_list.app_info_list {
+            let base_info = app.base_info.clone();
+            if base_info.is_none() {
+                continue;
+            }
+            ret_list.push(local_api_rust::models::MinappInfo {
+                minapp_id:Some(app.app_id.clone()),
+                minapp_name:Some(base_info.unwrap().app_name.clone()),
+            })
+        }
+
+        return Ok(MinappGetResponse::Status200 {
+            body: ret_list,
+            access_control_allow_origin: Some("*".into()),
+        });
+    }
+
     /// 显示微应用
-    async fn minapp_get(
+    async fn minapp_minapp_id_get(
         &self,
         minapp_id: String,
         _context: &C,
-    ) -> Result<MinappGetResponse, ApiError> {
+    ) -> Result<MinappMinappIdGetResponse, ApiError> {
         let win = self.app.get_window("main");
         if win.is_none() {
-            return Ok(MinappGetResponse::Status500 {
+            return Ok(MinappMinappIdGetResponse::Status500 {
                 body: ErrInfo {
                     err_msg: Some("无法找到主窗口".into()),
                 },
@@ -154,14 +211,14 @@ where
         }
         let win = win.unwrap();
         if let Err(_) = win.emit("notice", new_start_min_app_notice(minapp_id)) {
-            return Ok(MinappGetResponse::Status500 {
+            return Ok(MinappMinappIdGetResponse::Status500 {
                 body: ErrInfo {
                     err_msg: Some("发送消息失败".into()),
                 },
                 access_control_allow_origin: Some("*".into()),
             });
         }
-        return Ok(MinappGetResponse::Status200 {
+        return Ok(MinappMinappIdGetResponse::Status200 {
             body: json!({}),
             access_control_allow_origin: Some("*".into()),
         });

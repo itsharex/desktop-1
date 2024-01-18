@@ -1,17 +1,19 @@
 export const PROTO = `openapi: 3.0.0
 info:
-  version: 0.1.18
+  version: 0.1.19
   title: local-api
   description: local api for linksaas desktop
   contact:
     name: linksaas
     email: panleiming@linksaas.pro
-    url: https://atomgit.com/openlinksaas/local-api-rust
+    url: https://jihulab.com/linksaas/local-api
 servers:
   - url: http://localhost:__PORT__
 tags:
   - name: global
     description: 不属于项目范围的接口
+  - name: minapp
+    description: 微应用相关接口
   - name: projectCreate
     description: 项目中创建任务/缺陷和文档
   - name: projectTask
@@ -52,10 +54,42 @@ paths:
   /minapp:
     get:
       tags:
-        - global
+        - minapp
+      summary: 列出微应用
+      description: 列出微应用
+      operationId: minappGet
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MinappInfo'
+        '500':
+          description: 失败
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
+  /minapp/{minappId}:
+    get:
+      tags:
+        - minapp
       summary: 显示微应用
       description: 显示微应用
-      operationId: minappGet
+      operationId: minappMinappIdGet
       parameters:
         - $ref: '#/components/parameters/MinappId'
       responses:
@@ -965,7 +999,7 @@ components:
       required: true
       description: 列表大小
     MinappId:
-      in: query
+      in: path
       name: minappId
       schema:
         type: string
@@ -1259,6 +1293,15 @@ components:
           type: integer
           description: 更新时间
           format: int64
+    MinappInfo:
+      type: object
+      properties:
+        minappId:
+          type: string
+          description: 微应用ID
+        minappName:
+          type: string
+          description: 微应用名称
     ProjectInfo:
       type: object
       properties:
@@ -1355,5 +1398,4 @@ components:
             - low
             - middle
             - high
-
 `;
