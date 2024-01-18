@@ -23,6 +23,8 @@ export type AnnoProjectInfo = {
     member_count: number;
     my_done_count: number;
     my_task_count: number;
+
+    is_member: boolean;
 };
 
 export type ResourceInfo = {

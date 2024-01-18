@@ -8,6 +8,7 @@ import Table from "antd/lib/table";
 import { Button, Modal, Space, message } from "antd";
 import { EditNumber } from "@/components/EditCell/EditNumber";
 import AssignTaskModal from "./AssignTaskModal";
+import UserPhoto from "@/components/Portrait/UserPhoto";
 
 
 export interface MemberPanelPrps {
@@ -56,6 +57,12 @@ const MemberPanel = (props: MemberPanelPrps) => {
             title: "成员名称",
             dataIndex: "display_name",
             width: 150,
+            render: (_, row: dataAnnoTaskApi.MemberInfo) => (
+                <Space>
+                    <UserPhoto logoUri={row.logo_uri} style={{ width: "16px", borderRadius: "10px", marginRight: "10px" }} />
+                    {row.display_name}
+                </Space>
+            ),
         },
         {
             title: "完成任务数",
