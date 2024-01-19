@@ -1,6 +1,6 @@
 export const PROTO = `openapi: 3.0.0
 info:
-  version: 0.1.19
+  version: 0.1.20
   title: local-api
   description: local api for linksaas desktop
   contact:
@@ -30,6 +30,8 @@ tags:
     description: 项目中的代码评论
   - name: projectTool
     description: 项目中工具相关接口
+  - name: projectEntry
+    description: 项目中内容相关接口
 paths:
   /hello:
     get:
@@ -536,6 +538,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrInfo'
+  /project/{projectId}/entry/show/{entryId}:
+    get:
+      tags:
+        - projectEntry
+      summary: 打开内容入口
+      description: 打开内容入口
+      operationId: projectProjectIdEntryShowEntryIdGet
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyRes'
+        '500':
+          description: 失败
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
+  /project/{projectId}/entry/{folderId}:
+    get:
+      tags:
+        - projectEntry
+      summary: 列出内容目录和入口
+      description: 列出内容目录和入口
+      operationId: projectProjectIdEntryFolderIdGet
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/FolderId'
+      responses:
+        '200':
+          description: 成功
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntryInfo'
+        '500':
+          description: 失败
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                default: '*'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrInfo'
   /project/{projectId}/event:
     get:
       tags:
@@ -990,6 +1060,20 @@ components:
         type: string
       required: true
       description: 代码评论会话ID
+    EntryId:
+      in: path
+      name: entryId
+      schema:
+        type: string
+      required: true
+      description: 内容入口ID
+    FolderId:
+      in: path
+      name: folderId
+      schema:
+        type: string
+      required: true
+      description: 目录ID
     Limit:
       in: query
       name: limit
@@ -1171,6 +1255,21 @@ components:
           description: 是否可以删除
     EmptyRes:
       type: object
+    EntryInfo:
+      type: object
+      properties:
+        entryOrFolderId:
+          type: string
+          description: 入口或目录ID
+        type:
+          type: string
+          description: 类型
+          enum:
+            - folder
+            - entry
+        title:
+          type: string
+          description: 标题
     ErrInfo:
       type: object
       properties:

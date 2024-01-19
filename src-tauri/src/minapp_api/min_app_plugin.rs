@@ -364,6 +364,9 @@ async fn start<R: Runtime>(
         clear_by_close(app_handle.clone(), request.label.clone()).await;
         return Err(res.err().unwrap().to_string());
     }
+    let new_win = res.unwrap();
+    let _ = new_win.set_always_on_top(true); //skip error check
+    let _ = new_win.set_always_on_top(false); //skip error check
     Ok(())
 }
 
