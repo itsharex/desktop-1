@@ -4,7 +4,7 @@ import { get_session, get_user_id } from "@/api/user";
 import * as dataAnnoPrjApi from "@/api/data_anno_project";
 import * as dataAnnoTaskApi from "@/api/data_anno_task";
 import { request } from "@/utils/request";
-import { Form, Select, Space, Tabs } from "antd";
+import { Empty, Form, Select, Space, Tabs } from "antd";
 import s from "./DataAnnoDetail.module.less";
 import ResourcePanel from "./components/ResourcePanel";
 import Button from "@/components/Button";
@@ -22,7 +22,6 @@ const DataAnnoDetail = () => {
     const urlParams = new URLSearchParams(location.search);
     const projectId = urlParams.get("projectId") ?? "";
     const annoProjectId = urlParams.get("annoProjectId") ?? "";
-    const adminStr = (urlParams.get("admin") ?? "false").toLocaleLowerCase();
     const showCommentStr = (urlParams.get("showComment") ?? "false").toLocaleLowerCase();
     const fsId = urlParams.get("fsId") ?? "";
 
@@ -56,20 +55,23 @@ const DataAnnoDetail = () => {
     };
 
     const adjustActiveKey = () => {
-        if (annoProjectInfo == null) {
+        if (entryInfo == null || annoProjectInfo == null) {
             return;
         }
         const validKeyList = [];
-        if (annoProjectInfo.my_task_count - annoProjectInfo.my_done_count > 0) {
+        if (annoProjectInfo.is_member) {
             validKeyList.push("myTodo");
         }
         if (annoProjectInfo.my_done_count > 0) {
             validKeyList.push("myDone");
         }
-        if (adminStr == "true") {
+        if (entryInfo.can_update) {
             validKeyList.push("adminMember");
             validKeyList.push("adminResource");
             validKeyList.push("setting");
+        }
+        if (annoProjectInfo.is_member == false && entryInfo.can_update == false) {
+            validKeyList.push("forbid");
         }
         if (validKeyList.includes(activeKey)) {
             return;
@@ -100,7 +102,7 @@ const DataAnnoDetail = () => {
 
     useEffect(() => {
         adjustActiveKey();
-    }, [annoProjectInfo]);
+    }, [entryInfo, annoProjectInfo]);
 
     return (
         <div style={{ backgroundColor: "white" }}>
@@ -117,7 +119,7 @@ const DataAnnoDetail = () => {
                         <div style={{ marginRight: "20px" }}>
                             <Space>
                                 <CommentEntry projectId={projectId} targetType={COMMENT_TARGET_ENTRY}
-                                    targetId={annoProjectId} myUserId={userId} myAdmin={adminStr == "true"}
+                                    targetId={annoProjectId} myUserId={userId} myAdmin={entryInfo.can_update}
                                     defaultOpen={showCommentStr == "true"} />
 
                                 {activeKey == "adminMember" && (
@@ -148,14 +150,25 @@ const DataAnnoDetail = () => {
                             </Space>
                         </div>
                     }>
-                    {(annoProjectInfo.my_task_count - annoProjectInfo.my_done_count > 0) && (
+                    {annoProjectInfo.is_member == false && entryInfo.can_update == false && (
+                        <Tabs.TabPane tab="提示" key="forbid">
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="不是标注项目成员" />
+                        </Tabs.TabPane>
+                    )}
+                    {annoProjectInfo.is_member && (
                         <Tabs.TabPane tab={`未完成标注(${annoProjectInfo.my_task_count - annoProjectInfo.my_done_count})`} key="myTodo">
                             <div className={s.panel_wrap}>
                                 {activeKey == "myTodo" && (
-                                    <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                        annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} predictUrl={annoProjectInfo.base_info.predict_url}
-                                        config={annoProjectInfo.base_info.config} done={false}
-                                        onChange={() => loadAnnoProjectInfo()} />
+                                    <>
+                                        {(annoProjectInfo.my_task_count - annoProjectInfo.my_done_count) > 0 && (
+                                            <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
+                                                annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} predictUrl={annoProjectInfo.base_info.predict_url}
+                                                config={annoProjectInfo.base_info.config} done={false}
+                                                onChange={() => loadAnnoProjectInfo()} />
+                                        )}
+
+                                        {(annoProjectInfo.my_task_count - annoProjectInfo.my_done_count) <= 0 && (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无标注任务" />)}
+                                    </>
                                 )}
                             </div>
                         </Tabs.TabPane>
@@ -172,7 +185,7 @@ const DataAnnoDetail = () => {
                             </div>
                         </Tabs.TabPane>
                     )}
-                    {adminStr == "true" && (
+                    {entryInfo.can_update && (
                         <>
                             {annoProjectInfo.done_task_count > 0 && (<Tabs.TabPane tab={`审核`} key="audit">
                                 <div className={s.panel_wrap}>
@@ -219,7 +232,7 @@ const DataAnnoDetail = () => {
                             <Tabs.TabPane tab="标注设置" key="setting">
                                 <div className={s.panel_wrap}>
                                     {activeKey == "setting" && entryInfo != null && annoProjectInfo != null && (
-                                        <SettingPanel projectId={projectId} entryInfo={entryInfo} annoProjectInfo={annoProjectInfo} admin={adminStr == "true"}
+                                        <SettingPanel projectId={projectId} entryInfo={entryInfo} annoProjectInfo={annoProjectInfo} admin={entryInfo.can_update}
                                             onChange={() => loadAnnoProjectInfo()} />
                                     )}
                                 </div>

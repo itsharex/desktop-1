@@ -11,6 +11,7 @@ import { get_alarm_state } from "@/api/project_alarm";
 import { list_key as list_bulletin_key } from "@/api/project_bulletin";
 import { get_un_read_state } from "@/api/project_comment";
 import ProjectChatStore from './project_chat';
+import { type ENTRY_TYPE, ENTRY_TYPE_NULL } from '@/api/project_entry';
 
 export class WebProjectStatus {
   constructor() {
@@ -75,6 +76,7 @@ export default class ProjectStore {
       this.setCodeCommentInfo("", "");
       this.showProjectSetting = null;
       this.showChatAndComment = false;
+      this.homeActiveKey = "folder";
     }
   }
 
@@ -464,5 +466,90 @@ export default class ProjectStore {
       this.curProject?.chat_store.loadGroupMember();
       this.curProject?.chat_store.loadLastMsg();
     }
+  }
+
+  //home相关参数
+  private _homeActiveKey: "folder" | "list" | "close" = "folder";
+  private _homeCurPage = 0;
+  private _homeTotalCount = 0;
+  private _homeKeyword = "";
+  private _homeTagIdList = [] as string[];
+  private _homeEntryType = ENTRY_TYPE_NULL;
+  private _homeFilterByWatch = false;
+
+  get homeActiveKey() {
+    return this._homeActiveKey;
+  }
+
+  set homeActiveKey(val: "folder" | "list" | "close") {
+    runInAction(() => {
+      this._homeActiveKey = val;
+      this._homeCurPage = 0;
+      this._homeTotalCount = 0;
+      this._homeKeyword = "";
+      this._homeTagIdList = [];
+      this._homeEntryType = ENTRY_TYPE_NULL;
+      this._homeFilterByWatch = false;
+    });
+  }
+
+  get homeCurPage() {
+    return this._homeCurPage;
+  }
+
+  set homeCurPage(val: number) {
+    runInAction(() => {
+      this._homeCurPage = val;
+    });
+  }
+
+  get homeTotalCount() {
+    return this._homeTotalCount;
+  }
+
+  set homeTotalCount(val: number) {
+    runInAction(() => {
+      this._homeTotalCount = val;
+    });
+  }
+
+  get homeKeyword() {
+    return this._homeKeyword;
+  }
+
+  set homeKeyword(val: string) {
+    runInAction(() => {
+      this._homeKeyword = val;
+    });
+  }
+
+  get homeTagIdList() {
+    return this._homeTagIdList;
+  }
+
+  set homeTagIdList(val: string[]) {
+    runInAction(() => {
+      this._homeTagIdList = val;
+    });
+  }
+
+  get homeEntryType() {
+    return this._homeEntryType;
+  }
+
+  set homeEntryType(val: ENTRY_TYPE) {
+    runInAction(() => {
+      this._homeEntryType = val;
+    });
+  }
+
+  get homeFilterByWatch() {
+    return this._homeFilterByWatch;
+  }
+
+  set homeFilterByWatch(val: boolean) {
+    runInAction(() => {
+      this._homeFilterByWatch = val;
+    });
   }
 }

@@ -20,7 +20,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
 
     const [hideProjectInfo, setHideProjectInfo] = useState(projectStore.curProject?.setting.hide_project_info ?? false);
     const [hideBulletin, setHideBulletin] = useState(projectStore.curProject?.setting.hide_bulletin ?? false);
-    const [hideExtraInfo, setHideExtraInfo] = useState(projectStore.curProject?.setting.hide_extra_info ?? false);
 
     const [hasChange, setHasChange] = useState(false);
 
@@ -29,12 +28,11 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
 
         setHideProjectInfo(projectStore.curProject?.setting.hide_project_info ?? false);
         setHideBulletin(projectStore.curProject?.setting.hide_bulletin ?? false);
-        setHideExtraInfo(projectStore.curProject?.setting.hide_extra_info ?? false);
         setHasChange(false);
     };
 
     const updateConfig = async () => {
-        if(projectStore.curProject == undefined){
+        if (projectStore.curProject == undefined) {
             return;
         }
         await request(update_setting({
@@ -45,7 +43,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
                 disable_ext_event: disableExtEvent,
                 hide_project_info: hideProjectInfo,
                 hide_bulletin: hideBulletin,
-                hide_extra_info: hideExtraInfo,
             },
         }));
         message.info("保存成功");
@@ -100,14 +97,6 @@ const LayoutSettingPanel: React.FC<PanelProps> = (props) => {
                             setHideBulletin(e.target.checked);
                             setHasChange(true);
                         }}>隐藏项目公告</Checkbox>
-
-
-
-                        <Checkbox checked={hideExtraInfo} onChange={e => {
-                            e.stopPropagation();
-                            setHideExtraInfo(e.target.checked);
-                            setHasChange(true);
-                        }}>隐藏项目其他信息</Checkbox>
                     </Space>
                 </Form.Item>
             </Form>

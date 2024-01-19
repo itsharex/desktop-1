@@ -5,6 +5,7 @@ import { list_member } from "@/api/project_member";
 import { get_session } from "@/api/user";
 import { request } from "@/utils/request";
 import { add_member } from "@/api/data_anno_task";
+import UserPhoto from "@/components/Portrait/UserPhoto";
 
 
 export interface AddMemberModalProps {
@@ -61,7 +62,10 @@ const AddMemberModal = (props: AddMemberModalProps) => {
             <Select value={selMemberUserIdList} style={{ width: "100%" }} mode="multiple"
                 onChange={value => setSelMemberUserIdList(value)}>
                 {memberInfoList.filter(item => props.curMemberUserIdList.includes(item.member_user_id) == false).map(item => (
-                    <Select.Option key={item.member_user_id} value={item.member_user_id}>{item.display_name}</Select.Option>
+                    <Select.Option key={item.member_user_id} value={item.member_user_id}>
+                        <UserPhoto logoUri={item.logo_uri} style={{ width: "16px", borderRadius: "10px", marginRight: "10px" }} />
+                        {item.display_name}
+                        </Select.Option>
                 ))}
             </Select>
         </Modal>

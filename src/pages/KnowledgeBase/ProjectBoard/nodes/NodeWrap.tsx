@@ -6,7 +6,7 @@ import { EditOutlined, FormatPainterFilled, MoreOutlined } from "@ant-design/ico
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import { remove_node, update_node_bg_color } from "@/api/project_board";
-import { CirclePicker } from 'react-color';
+import { SwatchesPicker } from 'react-color';
 
 function ResizeIcon() {
     return (
@@ -77,9 +77,9 @@ const NodeWrap = (props: NodeWrapProps) => {
     };
 
     return (
-        <Card title={props.title} style={{ width: props.width, height: props.height, backgroundColor: props.bgColor }}
+        <Card title={props.title} style={{ width: props.width, height: props.height, backgroundColor: props.bgColor, borderRadius: "10px" }}
             bodyStyle={{ overflow: "scroll", height: props.height - 40 }}
-            headStyle={{borderBottom:"none"}}
+            headStyle={{ borderBottom: "none" }}
             extra={
                 <>
                     {props.canEdit && (
@@ -90,7 +90,7 @@ const NodeWrap = (props: NodeWrapProps) => {
                                 props.onEdit();
                             }}><EditOutlined /></Button>
                             <Popover trigger="hover" placement="top" content={
-                                <CirclePicker onChange={color => updateBgColor(color.hex)} />
+                                <SwatchesPicker onChange={color => updateBgColor(color.hex)} />
                             }>
                                 <FormatPainterFilled />
                             </Popover>

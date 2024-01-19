@@ -191,6 +191,8 @@ export namespace client {
     min_app_id: string;
   };
 
+  export type OpenLocalApiNotice = {};
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     SwitchUserNotice?: SwitchUserNotice;
@@ -198,6 +200,7 @@ export namespace client {
     LocalProxyStopNotice?: LocalProxyStopNotice;
     ShowGlobalServerSettingNotice?: ShowGlobalServerSettingNotice;
     StartMinAppNotice?: StartMinAppNotice;
+    OpenLocalApiNotice?: OpenLocalApiNotice;
   };
 }
 

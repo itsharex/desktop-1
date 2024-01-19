@@ -8,7 +8,7 @@ use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 
 #[tauri::command]
-async fn list() -> Result<Vec<String>, String> {
+pub async fn list() -> Result<Vec<String>, String> {
     let user_dir = crate::get_user_dir();
     if user_dir.is_none() {
         return Err("miss user dir".into());

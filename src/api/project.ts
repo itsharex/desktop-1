@@ -40,7 +40,7 @@ export type Setting = {
   //项目概览页面相关
   hide_project_info: boolean;
   hide_bulletin: boolean;
-  hide_extra_info: boolean;
+  // hide_extra_info: boolean;
 
   // hide_watch_doc: boolean;
   // hide_watch_walk_plan: boolean;

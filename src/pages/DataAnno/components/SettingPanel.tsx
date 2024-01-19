@@ -10,6 +10,9 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 import { EditOutlined, SaveOutlined, UndoOutlined } from "@ant-design/icons";
 import type { EntryInfo } from "@/api/project_entry";
 import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, update_title } from "@/api/project_entry";
+import { list_member, type MemberInfo } from "@/api/project_member";
+import UserPhoto from "@/components/Portrait/UserPhoto";
+import UpdatePermModal from "./UpdatePermModal";
 
 export interface SettingPanelProps {
     projectId: string;
@@ -22,6 +25,9 @@ export interface SettingPanelProps {
 const SettingPanel = (props: SettingPanelProps) => {
     const [config, setConfig] = useState(props.annoProjectInfo.base_info.config);
     const [inEditConfig, setInEditConfig] = useState(false);
+    const [memberInfoList, setMemberInfoList] = useState<MemberInfo[]>([]);
+    const [showPermModal, setShowPermModal] = useState(false);
+
 
     const editorRef = useRef<HTMLDivElement>(null);
     const [instance, setInstance] = useState<any>(null);
@@ -65,6 +71,12 @@ const SettingPanel = (props: SettingPanelProps) => {
         });
     };
 
+    const loadMemberInfoList = async () => {
+        const sessionId = await get_session();
+        const res = await request(list_member(sessionId, props.projectId, false, []));
+        setMemberInfoList(res.member_list);
+    };
+
     const saveConfig = async () => {
         const sessionId = await get_session();
         await request(dataAnnoPrjApi.update({
@@ -104,6 +116,10 @@ const SettingPanel = (props: SettingPanelProps) => {
         }
         initEditor();
     }, [config]);
+
+    useEffect(() => {
+        loadMemberInfoList();
+    }, []);
 
     return (
         <div>
@@ -149,6 +165,25 @@ const SettingPanel = (props: SettingPanelProps) => {
                         {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER && "文本命名实体识别"}
                         {props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY && "文本摘要"}
                     </>
+                </Descriptions.Item>
+                <Descriptions.Item label="修改权限" contentStyle={{ display: "flex", alignItems: "center" }}>
+                    {props.entryInfo.entry_perm.update_for_all == true && "全体成员可修改"}
+                    {props.entryInfo.entry_perm.update_for_all == false && (
+                        <>
+                            {memberInfoList.filter(item => props.entryInfo.entry_perm.extra_update_user_id_list.includes(item.member_user_id)).map(item => (
+                                <div key={item.member_user_id} style={{ marginBottom: "4px", marginRight: "10px" }}>
+                                    <UserPhoto logoUri={item.logo_uri ?? ""} style={{ width: "16px", borderRadius: "10px" }} />
+                                    &nbsp;
+                                    {item.display_name ?? ""}
+                                </div>
+                            ))}
+                        </>
+                    )}
+                    <Button type="link" icon={<EditOutlined />} style={{ lineHeight: "20px" }} onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowPermModal(true);
+                    }} />
                 </Descriptions.Item>
                 <Descriptions.Item label="标注项目描述">
                     <EditTextArea editable={props.admin} content={props.annoProjectInfo.base_info.desc}
@@ -243,6 +278,15 @@ const SettingPanel = (props: SettingPanelProps) => {
                 </Card>
                 <div style={{ flex: 2, marginLeft: "20px" }} ref={editorRef} />
             </div>
+            {showPermModal == true && (
+                <UpdatePermModal projectId={props.projectId} entryPerm={props.entryInfo.entry_perm}
+                    annoProjectId={props.annoProjectInfo.anno_project_id}
+                    onCancel={() => setShowPermModal(false)}
+                    onOk={() => {
+                        props.onChange();
+                        setShowPermModal(false);
+                    }} />
+            )}
         </div>
     )
 };

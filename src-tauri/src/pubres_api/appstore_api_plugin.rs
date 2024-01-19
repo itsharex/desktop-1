@@ -87,7 +87,7 @@ async fn list_app<R: Runtime>(
 }
 
 #[tauri::command]
-async fn list_app_by_id<R: Runtime>(
+pub async fn list_app_by_id<R: Runtime>(
     app_handle: AppHandle<R>,
     request: ListAppByIdRequest,
 ) -> Result<ListAppByIdResponse, String> {

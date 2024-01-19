@@ -656,7 +656,7 @@ class LinkAuxStore {
 
     new WebviewWindow(label, {
       title: `标注项目(${annoName})`,
-      url: `data_anno.html?projectId=${projectStore.curProjectId}&annoProjectId=${annoProjectId}&admin=${projectStore.isAdmin}&fsId=${projectStore.curProject?.data_anno_fs_id ?? ""}&showComment=${showComment}`,
+      url: `data_anno.html?projectId=${projectStore.curProjectId}&annoProjectId=${annoProjectId}&fsId=${projectStore.curProject?.data_anno_fs_id ?? ""}&showComment=${showComment}`,
       width: 1000,
       minWidth: 800,
       height: 800,

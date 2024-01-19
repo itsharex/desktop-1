@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import { Breadcrumb, Button, Card, Divider, Dropdown, Form, Input, List, Select, Space, Switch, Tabs } from "antd";
 import { useHistory } from "react-router-dom";
 import { useStores } from "@/hooks";
-import type { ENTRY_TYPE, ListParam, EntryInfo, EntryOrFolderInfo, FolderPathItem, FolderInfo } from "@/api/project_entry";
+import type { ListParam, EntryInfo, EntryOrFolderInfo, FolderPathItem, FolderInfo } from "@/api/project_entry";
 import {
     list as list_entry, list_sys as list_sys_entry, list_sub_entry, list_sub_folder, get_folder_path,
     ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE,
@@ -12,7 +12,7 @@ import {
     ENTRY_TYPE_DATA_ANNO
 } from "@/api/project_entry";
 import { request } from "@/utils/request";
-import { CreditCardFilled, FilterTwoTone } from "@ant-design/icons";
+import { CreditCardFilled, FilterTwoTone, FolderAddOutlined } from "@ant-design/icons";
 import EntryCard from "./EntryCard";
 import CreateFolderModal from "./components/CreateFolderModal";
 import FolderCard from "./FolderCard";
@@ -29,18 +29,8 @@ const ProjectHome = () => {
     const linkAuxStore = useStores("linkAuxStore");
     const ideaStore = useStores("ideaStore");
 
-    const [totalCount, setTotalCount] = useState(0);
-    const [curPage, setCurPage] = useState(0);
-
     const [dataVersion, setDataVersion] = useState(0); //防止两次加载
 
-    const [keyword, setKeyword] = useState("");
-    const [showFilterBar, setShowFilterBar] = useState(false);
-    const [tagIdList, setTagIdList] = useState<string[]>([]);
-    const [entryType, setEntryType] = useState<ENTRY_TYPE>(ENTRY_TYPE_NULL);
-
-    const [activeKey, setActiveKey] = useState<"folder" | "list" | "close">("folder");
-    const [filterByWatch, setFilterByWatch] = useState(false);
 
     const [sysEntryList, setSysEntryList] = useState<{ id: string; content: string | EntryInfo; }[]>([]);
     const [pathItemList, setPathItemList] = useState([] as FolderPathItem[]);
@@ -65,7 +55,7 @@ const ProjectHome = () => {
     const loadEntryList = async () => {
         const tmpList = [] as EntryOrFolderInfo[];
 
-        if (activeKey == "folder") {
+        if (projectStore.homeActiveKey == "folder") {
             //获取当前路径
             if (entryStore.curFolderId == "") {
                 setPathItemList([]);
@@ -101,32 +91,32 @@ const ProjectHome = () => {
                     value: item,
                 })
             }
-            setTotalCount(0);
+            projectStore.homeTotalCount = 0;
         } else {
             let listParam: ListParam | null = null;
-            if (activeKey == "list") {
+            if (projectStore.homeActiveKey == "list") {
                 listParam = {
-                    filter_by_watch: filterByWatch,
-                    filter_by_tag_id: tagIdList.length > 0,
-                    tag_id_list: tagIdList,
-                    filter_by_keyword: keyword.length > 0,
-                    keyword: keyword,
+                    filter_by_watch: projectStore.homeFilterByWatch,
+                    filter_by_tag_id: projectStore.homeTagIdList.length > 0,
+                    tag_id_list: projectStore.homeTagIdList,
+                    filter_by_keyword: projectStore.homeKeyword.length > 0,
+                    keyword: projectStore.homeKeyword,
                     filter_by_mark_remove: true,
                     mark_remove: false,
-                    filter_by_entry_type: entryType != ENTRY_TYPE_NULL,
-                    entry_type_list: entryType == ENTRY_TYPE_NULL ? [] : [entryType],
+                    filter_by_entry_type: projectStore.homeEntryType != ENTRY_TYPE_NULL,
+                    entry_type_list: projectStore.homeEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.homeEntryType],
                 };
-            } else if (activeKey == "close") {
+            } else if (projectStore.homeActiveKey == "close") {
                 listParam = {
-                    filter_by_watch: filterByWatch,
-                    filter_by_tag_id: tagIdList.length > 0,
-                    tag_id_list: tagIdList,
-                    filter_by_keyword: keyword.length > 0,
-                    keyword: keyword,
+                    filter_by_watch: projectStore.homeFilterByWatch,
+                    filter_by_tag_id: projectStore.homeTagIdList.length > 0,
+                    tag_id_list: projectStore.homeTagIdList,
+                    filter_by_keyword: projectStore.homeKeyword.length > 0,
+                    keyword: projectStore.homeKeyword,
                     filter_by_mark_remove: true,
                     mark_remove: true,
-                    filter_by_entry_type: entryType != ENTRY_TYPE_NULL,
-                    entry_type_list: entryType == ENTRY_TYPE_NULL ? [] : [entryType],
+                    filter_by_entry_type: projectStore.homeEntryType != ENTRY_TYPE_NULL,
+                    entry_type_list: projectStore.homeEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.homeEntryType],
                 };
             }
             if (listParam == null) {
@@ -137,10 +127,10 @@ const ProjectHome = () => {
                 session_id: userStore.sessionId,
                 project_id: projectStore.curProjectId,
                 list_param: listParam,
-                offset: PAGE_SIZE * curPage,
+                offset: PAGE_SIZE * projectStore.homeCurPage,
                 limit: PAGE_SIZE,
             }));
-            setTotalCount(res.total_count);
+            projectStore.homeTotalCount = res.total_count;
             for (const item of res.entry_list) {
                 tmpList.push({
                     id: item.entry_id,
@@ -161,7 +151,7 @@ const ProjectHome = () => {
     };
 
     const calcFolderInfoWidth = () => {
-        let subWidth = 400;
+        let subWidth = 300;
         if (appStore.focusMode == false) {
             subWidth += 200;
         }
@@ -181,38 +171,35 @@ const ProjectHome = () => {
                             onMarkSys={() => {
                                 loadSysEntryList();
                                 loadEntryList();
-                            }} canMove={activeKey == "folder" && projectStore.isAdmin} />
+                            }} canMove={projectStore.homeActiveKey == "folder" && projectStore.isAdmin} />
                     )}
                     {item.is_folder == true && (
-                        <FolderCard folderInfo={item.value as FolderInfo} onRemove={() => loadFolderList()} canMove={activeKey == "folder" && projectStore.isAdmin}
+                        <FolderCard folderInfo={item.value as FolderInfo} onRemove={() => loadFolderList()} canMove={projectStore.homeActiveKey == "folder" && projectStore.isAdmin}
                             onMove={() => loadFolderList()} />
                     )}
                 </List.Item>
-            )} pagination={activeKey == "folder" ? false : { total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }} />
+            )} pagination={projectStore.homeActiveKey == "folder" ? false : { total: projectStore.homeTotalCount, current: projectStore.homeCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.homeCurPage = page - 1, hideOnSinglePage: true }} />
     );
 
     useEffect(() => {
-        if (curPage != 0) {
-            setCurPage(0);
+        if (projectStore.homeCurPage != 0) {
+            projectStore.homeCurPage = 0;
         }
-        if (keyword != "") {
-            setKeyword("");
+        if (projectStore.homeKeyword != "") {
+            projectStore.homeKeyword = "";
         }
-        if (tagIdList.length != 0) {
-            setTagIdList([]);
+        if (projectStore.homeTagIdList.length != 0) {
+            projectStore.homeTagIdList = [];
         }
-        if (entryType != ENTRY_TYPE_NULL) {
-            setEntryType(ENTRY_TYPE_NULL);
-        }
-        if (showFilterBar) {
-            setShowFilterBar(false);
+        if (projectStore.homeEntryType != ENTRY_TYPE_NULL) {
+            projectStore.homeEntryType = ENTRY_TYPE_NULL;
         }
         setDataVersion(oldValue => oldValue + 1);
-    }, [projectStore.curProjectId, entryStore.dataVersion, entryStore.curFolderId, activeKey]);
+    }, [projectStore.curProjectId, entryStore.dataVersion, entryStore.curFolderId, projectStore.homeActiveKey]);
 
     useEffect(() => {
         loadEntryList();
-    }, [curPage, dataVersion, keyword, tagIdList, entryType, filterByWatch]);
+    }, [projectStore.homeCurPage, dataVersion, projectStore.homeKeyword, projectStore.homeTagIdList, projectStore.homeEntryType, projectStore.homeFilterByWatch]);
 
     useEffect(() => {
         loadSysEntryList();
@@ -254,28 +241,13 @@ const ProjectHome = () => {
                 headStyle={{ paddingLeft: "0px" }} bodyStyle={{ padding: "4px 0px" }}
                 bordered={false} extra={
                     <Space size="small">
-                        <Form layout="inline">
-                            <FilterTwoTone style={{ fontSize: "24px", marginRight: "10px" }} />
-                            <Form.Item>
-                                <Input style={{ minWidth: "100px" }} value={keyword} onChange={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setKeyword(e.target.value.trim());
-                                }} placeholder="过滤标题" size="large" allowClear />
-                            </Form.Item>
-                            {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).length > 0 && (
-                                <Form.Item>
-                                    <Select mode="multiple" style={{ minWidth: "100px" }} size="large"
-                                        placeholder="过滤标签"
-                                        allowClear value={tagIdList} onChange={value => setTagIdList(value)}>
-                                        {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).map(item => (
-                                            <Select.Option key={item.tag_id} value={item.tag_id}>
-                                                <div style={{ backgroundColor: item.bg_color, padding: "0px 4px" }}>{item.tag_name}</div></Select.Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            )}
-                        </Form>
+                        {projectStore.homeActiveKey == "folder" && (
+                            <Button type="default" style={{ marginRight: "14px" }} icon={<FolderAddOutlined />} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowCreateFolderModal(true);
+                            }}>创建目录</Button>
+                        )}
                         <Dropdown.Button type="primary" onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
@@ -314,10 +286,10 @@ const ProjectHome = () => {
                         }}>创建内容</Dropdown.Button>
                     </Space>
                 }>
-                <Tabs accessKey={activeKey} onChange={value => {
+                <Tabs activeKey={projectStore.homeActiveKey} onChange={value => {
                     entryStore.curFolderId = "";
                     if (["folder", "list", "close"].includes(value)) {
-                        setActiveKey(value as "list" | "folder" | "close");
+                        projectStore.homeActiveKey = (value as "list" | "folder" | "close");
                     }
                 }}
                     animated tabBarStyle={{ height: "40px" }}
@@ -327,7 +299,7 @@ const ProjectHome = () => {
                             label: <span style={{ fontSize: "16px" }}>目录</span>,
                             children: (
                                 <>
-                                    {activeKey == "folder" && (<>{entryOrFolderList}</>)}
+                                    {projectStore.homeActiveKey == "folder" && (<>{entryOrFolderList}</>)}
                                 </>
                             ),
                         },
@@ -336,7 +308,7 @@ const ProjectHome = () => {
                             label: <span style={{ fontSize: "16px" }}>列表</span>,
                             children: (
                                 <>
-                                    {activeKey == "list" && (<>{entryOrFolderList}</>)}
+                                    {projectStore.homeActiveKey == "list" && (<>{entryOrFolderList}</>)}
                                 </>
                             ),
                         },
@@ -345,17 +317,36 @@ const ProjectHome = () => {
                             label: <span style={{ fontSize: "16px" }}>回收站</span>,
                             children: (
                                 <>
-                                    {activeKey == "close" && (<>{entryOrFolderList}</>)}
+                                    {projectStore.homeActiveKey == "close" && (<>{entryOrFolderList}</>)}
 
                                 </>
                             ),
                         },
                     ]} type="card" tabBarExtraContent={
                         <>
-                            {activeKey != "folder" && (
+                            {projectStore.homeActiveKey != "folder" && (
                                 <Form layout="inline">
+                                    <FilterTwoTone style={{ fontSize: "24px", marginRight: "10px" }} />
+                                    <Form.Item label="过滤标题">
+                                        <Input style={{ minWidth: "100px" }} value={projectStore.homeKeyword} onChange={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            projectStore.homeKeyword = e.target.value.trim();
+                                        }} allowClear />
+                                    </Form.Item>
+                                    {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).length > 0 && (
+                                        <Form.Item label="过滤标签">
+                                            <Select mode="multiple" style={{ minWidth: "100px" }}
+                                                allowClear value={projectStore.homeTagIdList} onChange={value => projectStore.homeTagIdList = value}>
+                                                {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).map(item => (
+                                                    <Select.Option key={item.tag_id} value={item.tag_id}>
+                                                        <div style={{ backgroundColor: item.bg_color, padding: "0px 4px" }}>{item.tag_name}</div></Select.Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    )}
                                     <Form.Item className={s.seg_wrap} label="内容类型">
-                                        <Select value={entryType} onChange={value => setEntryType(value)} style={{ width: "100px" }}>
+                                        <Select value={projectStore.homeEntryType} onChange={value => projectStore.homeEntryType = value} style={{ width: "100px" }}>
                                             <Select.Option value={ENTRY_TYPE_NULL}>全部</Select.Option>
                                             <Select.Option value={ENTRY_TYPE_SPRIT}>工作计划</Select.Option>
                                             <Select.Option value={ENTRY_TYPE_DOC}>文档</Select.Option>
@@ -367,42 +358,37 @@ const ProjectHome = () => {
                                         </Select>
                                     </Form.Item>
                                     <Form.Item label="只看我的关注">
-                                        <Switch checked={filterByWatch} onChange={value => setFilterByWatch(value)} />
+                                        <Switch checked={projectStore.homeFilterByWatch} onChange={value => projectStore.homeFilterByWatch = value} />
                                     </Form.Item>
                                 </Form>
                             )}
-                            {activeKey == "folder" && (
-                                <Space>
-                                    <div style={{ width: calcFolderInfoWidth(), overflow: "hidden", height: "30px" }}>
-                                        <Breadcrumb>
-                                            <Breadcrumb.Item>
-                                                <Button type="link" disabled={entryStore.curFolderId == ""}
+                            {projectStore.homeActiveKey == "folder" && (
+                                <div style={{ width: calcFolderInfoWidth(), overflow: "hidden", height: "30px" }}>
+                                    <Breadcrumb>
+                                        <Breadcrumb.Item>
+                                            <Button type="link" disabled={entryStore.curFolderId == ""}
+                                                style={{ minWidth: 0, padding: "0px 0px" }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    entryStore.curFolderId = "";
+                                                }}>
+                                                根目录
+                                            </Button>
+                                        </Breadcrumb.Item>
+                                        {pathItemList.map(item => (
+                                            <Breadcrumb.Item key={item.folder_id}>
+                                                <Button type="link" disabled={item.folder_id == entryStore.curFolderId}
+                                                    style={{ minWidth: 0, padding: "0px 0px" }}
                                                     onClick={e => {
                                                         e.stopPropagation();
                                                         e.preventDefault();
-                                                        entryStore.curFolderId = "";
-                                                    }}>
-                                                    根目录
-                                                </Button>
+                                                        entryStore.curFolderId = item.folder_id;
+                                                    }}>{item.folder_title}</Button>
                                             </Breadcrumb.Item>
-                                            {pathItemList.map(item => (
-                                                <Breadcrumb.Item key={item.folder_id}>
-                                                    <Button type="link" disabled={item.folder_id == entryStore.curFolderId}
-                                                        onClick={e => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            entryStore.curFolderId = item.folder_id;
-                                                        }}>{item.folder_title}</Button>
-                                                </Breadcrumb.Item>
-                                            ))}
-                                        </Breadcrumb>
-                                    </div>
-                                    <Button type="primary" style={{ marginRight: "14px" }} onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setShowCreateFolderModal(true);
-                                    }}>创建目录</Button>
-                                </Space>
+                                        ))}
+                                    </Breadcrumb>
+                                </div>
                             )}
                         </>
                     } />
