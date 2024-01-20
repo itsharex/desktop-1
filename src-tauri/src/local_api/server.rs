@@ -88,11 +88,11 @@ use local_api_rust::{
     ProjectProjectIdCodeCommentCommentThreadIdCommentIdPostResponse,
     ProjectProjectIdCodeCommentCommentThreadIdGetResponse,
     ProjectProjectIdCodeCommentCommentThreadIdOptionsResponse,
-    ProjectProjectIdCodeCommentCommentThreadIdPutResponse, ProjectProjectIdEntryShowEntryIdGetResponse,
-    ProjectProjectIdEntryFolderIdGetResponse, ProjectProjectIdEventGetResponse,
-    ProjectProjectIdEventOptionsResponse, ProjectProjectIdEventPostResponse,
-    ProjectProjectIdTaskAllGetResponse, ProjectProjectIdTaskMyGetResponse,
-    ProjectProjectIdTaskRecordTaskIdDependGetResponse,
+    ProjectProjectIdCodeCommentCommentThreadIdPutResponse,
+    ProjectProjectIdEntryFolderIdGetResponse, ProjectProjectIdEntryShowEntryIdGetResponse,
+    ProjectProjectIdEventGetResponse, ProjectProjectIdEventOptionsResponse,
+    ProjectProjectIdEventPostResponse, ProjectProjectIdTaskAllGetResponse,
+    ProjectProjectIdTaskMyGetResponse, ProjectProjectIdTaskRecordTaskIdDependGetResponse,
     ProjectProjectIdTaskRecordTaskIdEventsGetResponse,
     ProjectProjectIdTaskRecordTaskIdShortNoteGetResponse,
     ProjectProjectIdTaskRecordTaskIdShowGetResponse,
@@ -1310,6 +1310,9 @@ where
                 entry_or_folder_id: Some(folder.folder_id.clone()),
                 r#type: Some("folder".into()),
                 title: Some(folder.folder_title.clone()),
+                create_user_id: Some(folder.create_user_id.clone()),
+                create_display_name: Some(folder.create_display_name.clone()),
+                create_time: Some(folder.create_time),
             });
         }
 
@@ -1318,6 +1321,9 @@ where
                 entry_or_folder_id: Some(entry.entry_id.clone()),
                 r#type: Some("entry".into()),
                 title: Some(entry.entry_title.clone()),
+                create_user_id: Some(entry.create_user_id.clone()),
+                create_display_name: Some(entry.create_display_name.clone()),
+                create_time: Some(entry.create_time),
             });
         }
 

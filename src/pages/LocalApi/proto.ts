@@ -1183,38 +1183,6 @@ components:
             - high
             - urgent
             - immediate
-    ChannelInfo:
-      type: object
-      properties:
-        channelId:
-          type: string
-          description: 频道ID
-        name:
-          type: string
-          description: 频道名称
-        pubChannel:
-          type: boolean
-          description: 是否是公开频道
-        systemChannel:
-          type: boolean
-          description: 是否是系统频道
-        readonly:
-          type: boolean
-          description: 是否是只读状态
-        closed:
-          type: boolean
-          description: 是否是关闭状态
-        ownerUserId:
-          type: string
-          description: 创建者ID
-        createTime:
-          type: integer
-          description: 创建时间
-          format: int64
-        updateTime:
-          type: integer
-          description: 更新时间
-          format: int64
     CodeCommentInfo:
       type: object
       properties:
@@ -1270,6 +1238,16 @@ components:
         title:
           type: string
           description: 标题
+        createUserId:
+          type: string
+          description: 创建人ID
+        createDisplayName:
+          type: string
+          description: 创建人名称
+        createTime:
+          type: integer
+          description: 创建时间
+          format: int64
     ErrInfo:
       type: object
       properties:
