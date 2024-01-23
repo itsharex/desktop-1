@@ -102,11 +102,14 @@ const CommitAndFileList = () => {
                 </>
             }>
                 <List dataSource={fileList} renderItem={item => (
-                    <List.Item key={`${item.old_file_name}:${item.new_file_name}`} style={{ cursor: "pointer" }}
+                    <List.Item key={`${item.old_file_name}:${item.new_file_name}`}
+                        style={(item.new_content == "" && item.old_content == "") ? { cursor: "default",color:"gray" } : { cursor: "pointer" }}
                         onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
-                            gitProStore.curDiffFile = item;
+                            if (!(item.new_content == "" && item.old_content == "")) {
+                                gitProStore.curDiffFile = item;
+                            }
                         }}>
                         <pre style={{
                             whiteSpace: "pre-wrap", wordWrap: "break-word",
