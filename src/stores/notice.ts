@@ -278,6 +278,12 @@ class NoticeStore {
         y: pos.y + Math.floor(Math.random() * 200),
       });
     } else if (notice.OpenEntryNotice !== undefined) {
+      await appWindow.show();
+      await appWindow.unminimize();
+      await appWindow.setAlwaysOnTop(true);
+      setTimeout(() => {
+        appWindow.setAlwaysOnTop(false);
+      }, 200);
       this.rootStore.linkAuxStore.goToLink(new LinkEntryInfo("", notice.OpenEntryNotice.project_id, notice.OpenEntryNotice.entry_id), this.history);
     }
   }
