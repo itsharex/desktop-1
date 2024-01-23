@@ -535,10 +535,10 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
         const pos = await appWindow.innerPosition();
         new WebviewWindow(label, {
             url: `gitpro.html?id=${encodeURIComponent(repo.id)}`,
-            width: 800,
-            minWidth: 800,
-            height: 600,
-            minHeight: 600,
+            width: 1300,
+            minWidth: 1300,
+            height: 800,
+            minHeight: 800,
             center: true,
             title: `${repo.name}(${repo.path})`,
             resizable: true,

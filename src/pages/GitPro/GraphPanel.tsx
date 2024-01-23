@@ -76,11 +76,11 @@ const GraphPanel = () => {
             bodyStyle={{ display: "flex", flexDirection: "column", padding: "0px 0px" }}
             bordered={false}>
             <Tabs activeKey={activeKey} onChange={key => setActiveKey(key)}
-                tabBarStyle={{ margin: "0px 0px" }}
+                tabBarStyle={{ margin: "0px 0px", backgroundColor: "#ddd", height: "46px" }}
                 items={[
                     {
                         key: "list",
-                        label: "提交列表",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>提交列表</span>,
                         children: (
                             <>
                                 {activeKey == "list" && (
@@ -91,7 +91,7 @@ const GraphPanel = () => {
                     },
                     {
                         key: "graph",
-                        label: "提交图",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>提交图</span>,
                         children: (
                             <>
                                 {activeKey == "graph" && (
@@ -104,7 +104,7 @@ const GraphPanel = () => {
                     {
                         left: (<div style={{ fontSize: "16px", fontWeight: 500, marginRight: "10px" }}>{gitProStore.mainItem.menuExtraValue ?? ""}</div>),
                         right: (
-                            <Space size="middle">
+                            <Space size="middle" style={{ marginRight: "20px" }}>
                                 {gitProStore.mainItem.menuExtraValue == "HEAD" && (
                                     <>
                                         <Button type="link" icon={<DownloadOutlined style={{ fontSize: "22px" }} />} title="拉取(Pull)" disabled />

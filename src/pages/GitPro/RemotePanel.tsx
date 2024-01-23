@@ -145,6 +145,7 @@ const RemotePanel = () => {
     return (
         <Card title={`${gitProStore.mainItem.menuValue}(${gitProStore.mainItem.menuExtraValue})`}
             bodyStyle={{ height: "calc(100vh - 45px)", overflowY: "scroll" }}
+            headStyle={{ backgroundColor: "#ddd" }}
             bordered={false} extra={
                 <Button type="link" icon={<CloudDownloadOutlined style={{ fontSize: "22px" }} />}
                     title="同步远程数据"
