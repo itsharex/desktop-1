@@ -13,6 +13,7 @@ mod issue_api;
 mod notice;
 mod project_api;
 mod project_code_api;
+mod entry_api;
 mod server;
 
 #[derive(Default)]

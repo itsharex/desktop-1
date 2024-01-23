@@ -614,26 +614,39 @@ class LinkAuxStore {
   async openApiCollPage(apiCollId: string, name: string, apiCollType: API_COLL_TYPE, defaultAddr: string, canEdit: boolean, canAdmin: boolean, showComment: boolean = false) {
     const label = `apiColl:${apiCollId}`;
     const pos = await appWindow.innerPosition();
+    let view: WebviewWindow | null = null;
     if (apiCollType == API_COLL_GRPC) {
-      new WebviewWindow(label, {
+      view = new WebviewWindow(label, {
         title: `${name}(GRPC)`,
         url: `api_grpc.html?projectId=${this.rootStore.projectStore.curProjectId}&apiCollId=${apiCollId}&fsId=${this.rootStore.projectStore.curProject?.api_coll_fs_id ?? ""}&remoteAddr=${defaultAddr}&edit=${canEdit}&admin=${canAdmin}&showComment=${showComment}`,
         x: pos.x + Math.floor(Math.random() * 200),
         y: pos.y + Math.floor(Math.random() * 200),
       });
     } else if (apiCollType == API_COLL_OPENAPI) {
-      new WebviewWindow(label, {
+      view = new WebviewWindow(label, {
         title: `${name}(OPENAPI/SWAGGER)`,
         url: `api_swagger.html?projectId=${this.rootStore.projectStore.curProjectId}&apiCollId=${apiCollId}&fsId=${this.rootStore.projectStore.curProject?.api_coll_fs_id ?? ""}&remoteAddr=${defaultAddr}&edit=${canEdit}&admin=${canAdmin}&showComment=${showComment}`,
         x: pos.x + Math.floor(Math.random() * 200),
         y: pos.y + Math.floor(Math.random() * 200),
       });
     } else if (apiCollType == API_COLL_CUSTOM) {
-      new WebviewWindow(label, {
+      view = new WebviewWindow(label, {
         title: `${name}(自定义接口)`,
         url: `api_custom.html?projectId=${this.rootStore.projectStore.curProjectId}&apiCollId=${apiCollId}&remoteAddr=${defaultAddr}&edit=${canEdit}&admin=${canAdmin}&showComment=${showComment}`,
         x: pos.x + Math.floor(Math.random() * 200),
         y: pos.y + Math.floor(Math.random() * 200),
+      });
+    }
+    if (view != null) {
+      view.once('tauri://created', function () {
+        if (view != null) {
+          view.setAlwaysOnTop(true);
+        }
+        setTimeout(() => {
+          if (view != null) {
+            view.setAlwaysOnTop(false);
+          }
+        }, 200);
       });
     }
   }
@@ -654,7 +667,7 @@ class LinkAuxStore {
 
     const projectStore = this.rootStore.projectStore;
 
-    new WebviewWindow(label, {
+    const newView = new WebviewWindow(label, {
       title: `标注项目(${annoName})`,
       url: `data_anno.html?projectId=${projectStore.curProjectId}&annoProjectId=${annoProjectId}&fsId=${projectStore.curProject?.data_anno_fs_id ?? ""}&showComment=${showComment}`,
       width: 1000,
@@ -665,6 +678,10 @@ class LinkAuxStore {
       center: true,
       x: pos.x + Math.floor(Math.random() * 200),
       y: pos.y + Math.floor(Math.random() * 200),
+    });
+    newView.once('tauri://created', function () {
+      newView.setAlwaysOnTop(true);
+      setTimeout(() => { newView.setAlwaysOnTop(false) }, 200);
     });
   };
 

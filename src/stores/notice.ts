@@ -6,7 +6,7 @@ import type { RootStore } from '.';
 import type { ShortNoteEvent } from '@/utils/short_note';
 import { showShortNote } from '@/utils/short_note';
 import { SHORT_NOTE_TASK, SHORT_NOTE_BUG, SHORT_NOTE_MODE_DETAIL, SHORT_NOTE_MODE_SHOW } from '@/api/short_note';
-import { LinkBugInfo, LinkTaskInfo } from './linkAux';
+import { LinkBugInfo, LinkEntryInfo, LinkTaskInfo } from './linkAux';
 import { isString } from 'lodash';
 import type { History } from 'history';
 import { createBrowserHistory } from 'history';
@@ -204,6 +204,9 @@ class NoticeStore {
   }
 
   private async processClientNotice(notice: NoticeType.client.AllNotice) {
+    if (this.rootStore.appStore.inEdit) { //编辑状态下忽略通知
+      return;
+    }
     if (notice.WrongSessionNotice !== undefined) {
       if (this.rootStore.userStore.adminSessionId != "") {
         runInAction(() => {
@@ -274,6 +277,14 @@ class NoticeStore {
         x: pos.x + Math.floor(Math.random() * 200),
         y: pos.y + Math.floor(Math.random() * 200),
       });
+    } else if (notice.OpenEntryNotice !== undefined) {
+      await appWindow.show();
+      await appWindow.unminimize();
+      await appWindow.setAlwaysOnTop(true);
+      setTimeout(() => {
+        appWindow.setAlwaysOnTop(false);
+      }, 200);
+      this.rootStore.linkAuxStore.goToLink(new LinkEntryInfo("", notice.OpenEntryNotice.project_id, notice.OpenEntryNotice.entry_id), this.history);
     }
   }
 

@@ -1,4 +1,6 @@
-use crate::notice_decode::{new_git_post_hook_notice, new_start_min_app_notice};
+use crate::notice_decode::{
+    new_git_post_hook_notice, new_open_entry_notice, new_start_min_app_notice,
+};
 use async_trait::async_trait;
 use local_api_rust::server::MakeService;
 use proto_gen_rust::events_api::{EventRefType, EventType};
@@ -86,10 +88,11 @@ use local_api_rust::{
     ProjectProjectIdCodeCommentCommentThreadIdCommentIdPostResponse,
     ProjectProjectIdCodeCommentCommentThreadIdGetResponse,
     ProjectProjectIdCodeCommentCommentThreadIdOptionsResponse,
-    ProjectProjectIdCodeCommentCommentThreadIdPutResponse, ProjectProjectIdEventGetResponse,
-    ProjectProjectIdEventOptionsResponse, ProjectProjectIdEventPostResponse,
-    ProjectProjectIdTaskAllGetResponse, ProjectProjectIdTaskMyGetResponse,
-    ProjectProjectIdTaskRecordTaskIdDependGetResponse,
+    ProjectProjectIdCodeCommentCommentThreadIdPutResponse,
+    ProjectProjectIdEntryFolderIdGetResponse, ProjectProjectIdEntryShowEntryIdGetResponse,
+    ProjectProjectIdEventGetResponse, ProjectProjectIdEventOptionsResponse,
+    ProjectProjectIdEventPostResponse, ProjectProjectIdTaskAllGetResponse,
+    ProjectProjectIdTaskMyGetResponse, ProjectProjectIdTaskRecordTaskIdDependGetResponse,
     ProjectProjectIdTaskRecordTaskIdEventsGetResponse,
     ProjectProjectIdTaskRecordTaskIdShortNoteGetResponse,
     ProjectProjectIdTaskRecordTaskIdShowGetResponse,
@@ -98,7 +101,7 @@ use local_api_rust::{
 };
 use swagger::ApiError;
 
-use super::ServPort;
+use super::{entry_api, ServPort};
 
 #[async_trait]
 impl<C> Api<C> for Server<C>
@@ -183,8 +186,8 @@ where
                 continue;
             }
             ret_list.push(local_api_rust::models::MinappInfo {
-                minapp_id:Some(app.app_id.clone()),
-                minapp_name:Some(base_info.unwrap().app_name.clone()),
+                minapp_id: Some(app.app_id.clone()),
+                minapp_name: Some(base_info.unwrap().app_name.clone()),
             })
         }
 
@@ -1212,6 +1215,121 @@ where
                 access_control_allow_methods: Some("PUT, GET, POST, DELETE, OPTIONS".into()),
                 access_control_allow_headers: Some("Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials".into()),
                 access_control_allow_credentials: Some("true".into()),
+        });
+    }
+
+    /// 打开内容入口
+    async fn project_project_id_entry_show_entry_id_get(
+        &self,
+        project_id: String,
+        entry_id: String,
+        _context: &C,
+    ) -> Result<ProjectProjectIdEntryShowEntryIdGetResponse, ApiError> {
+        let win = self.app.get_window("main");
+        if win.is_none() {
+            return Ok(ProjectProjectIdEntryShowEntryIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("无法找到主窗口".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let win = win.unwrap();
+        if let Err(_) = win.emit("notice", new_open_entry_notice(project_id, entry_id)) {
+            return Ok(ProjectProjectIdEntryShowEntryIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("发送消息失败".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        return Ok(ProjectProjectIdEntryShowEntryIdGetResponse::Status200 {
+            body: json!({}),
+            access_control_allow_origin: Some("*".into()),
+        });
+    }
+
+    /// 列出内容目录和入口
+    async fn project_project_id_entry_folder_id_get(
+        &self,
+        project_id: String,
+        folder_id: String,
+        _context: &C,
+    ) -> Result<ProjectProjectIdEntryFolderIdGetResponse, ApiError> {
+        let mut parent_folder_id = folder_id;
+        if &parent_folder_id == "__ROOT__" {
+            let root_folder_id = String::from("");
+            parent_folder_id.clone_from(&root_folder_id);
+        }
+        //列出目录
+        let folder_res = entry_api::list_folder(&self.app, &project_id, &parent_folder_id).await;
+        if folder_res.is_err() {
+            return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(folder_res.err().unwrap()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let folder_res = folder_res.unwrap();
+        if folder_res.code
+            != proto_gen_rust::project_entry_api::list_sub_folder_response::Code::Ok as i32
+        {
+            return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(folder_res.err_msg),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        //列出内容入口
+        let entry_res = entry_api::list_entry(&self.app, &project_id, &parent_folder_id).await;
+        if entry_res.is_err() {
+            return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(entry_res.err().unwrap()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let entry_res = entry_res.unwrap();
+        if entry_res.code
+            != proto_gen_rust::project_entry_api::list_sub_entry_response::Code::Ok as i32
+        {
+            return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some(entry_res.err_msg),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        let mut ret_list: Vec<local_api_rust::models::EntryInfo> = Vec::new();
+
+        for folder in &folder_res.folder_list {
+            ret_list.push(local_api_rust::models::EntryInfo {
+                entry_or_folder_id: Some(folder.folder_id.clone()),
+                r#type: Some("folder".into()),
+                title: Some(folder.folder_title.clone()),
+                create_user_id: Some(folder.create_user_id.clone()),
+                create_display_name: Some(folder.create_display_name.clone()),
+                create_time: Some(folder.create_time),
+            });
+        }
+
+        for entry in &entry_res.entry_list {
+            ret_list.push(local_api_rust::models::EntryInfo {
+                entry_or_folder_id: Some(entry.entry_id.clone()),
+                r#type: Some("entry".into()),
+                title: Some(entry.entry_title.clone()),
+                create_user_id: Some(entry.create_user_id.clone()),
+                create_display_name: Some(entry.create_display_name.clone()),
+                create_time: Some(entry.create_time),
+            });
+        }
+
+        return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status200 {
+            body: ret_list,
+            access_control_allow_origin: Some("*".into()),
         });
     }
 }

@@ -193,6 +193,11 @@ export namespace client {
 
   export type OpenLocalApiNotice = {};
 
+  export type OpenEntryNotice = {
+    project_id: string;
+    entry_id: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     SwitchUserNotice?: SwitchUserNotice;
@@ -201,6 +206,7 @@ export namespace client {
     ShowGlobalServerSettingNotice?: ShowGlobalServerSettingNotice;
     StartMinAppNotice?: StartMinAppNotice;
     OpenLocalApiNotice?: OpenLocalApiNotice;
+    OpenEntryNotice?: OpenEntryNotice;
   };
 }
 
