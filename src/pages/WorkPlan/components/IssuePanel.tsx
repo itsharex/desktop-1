@@ -4,8 +4,8 @@ import { Card, Popover, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import Button from "@/components/Button";
 import { EditOutlined, ExclamationCircleOutlined, InfoCircleOutlined, LinkOutlined } from "@ant-design/icons";
-import type { IssueInfo } from "@/api/project_issue";
-import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE } from "@/api/project_issue";
+import type { IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
 import type LinkAuxStore from "@/stores/linkAux";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
 import type { ColumnsType } from 'antd/lib/table';
@@ -16,7 +16,7 @@ import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
 import type { History } from 'history';
 import { useHistory } from "react-router-dom";
 import { EditDate } from "@/components/EditCell/EditDate";
-import { cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems, updateCheckUser, updateEndTime, updateEstimateMinutes, updateExecUser, updateRemainMinutes, updateStartTime } from "@/pages/Issue/components/utils";
+import { cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems, updateCheckUser, updateEndTime, updateEstimateMinutes, updateExecUser, updateProcessStage, updateRemainMinutes, updateStartTime } from "@/pages/Issue/components/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { hourSelectItems } from "@/pages/Issue/components/constant";
 import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
@@ -217,6 +217,40 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 );
             },
         },
+        {
+            title: "处理子阶段",
+            width: 100,
+            align: 'left',
+            dataIndex: "process_stage",
+            render: (_, record: IssueInfo) => (
+              <>
+                {record.state == ISSUE_STATE_PROCESS && (
+                  <EditSelect editable={(!projectStore.isClosed) && (record.exec_user_id == userStore.userInfo.userId)}
+                    curValue={record.process_stage}
+                    itemList={[
+                      {
+                        value: PROCESS_STAGE_TODO,
+                        label: "未开始",
+                        color: "black",
+                      },
+                      {
+                        value: PROCESS_STAGE_DOING,
+                        label: "执行中",
+                        color: "black",
+                      },
+                      {
+                        value: PROCESS_STAGE_DONE,
+                        label: "待检查",
+                        color: "black",
+                      },
+                    ]} showEditIcon={true} allowClear={false}
+                    onChange={async value => {
+                      return await updateProcessStage(userStore.sessionId, record.project_id, record.issue_id, value as PROCESS_STAGE);
+                    }} />
+                )}
+              </>
+            ),
+          },
         {
             title: '处理人',
             dataIndex: 'exec_display_name',

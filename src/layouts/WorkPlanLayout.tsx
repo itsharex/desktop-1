@@ -10,10 +10,22 @@ import { useStores } from '@/hooks';
 
 const WorkPlanLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   const projectStore = useStores('projectStore');
+  const appStore = useStores('appStore');
   const { pathname } = useLocation();
 
+  const calcWidth = () => {
+    let subWidth = 60;
+    if (projectStore.showChatAndComment) {
+      subWidth += 300;
+    }
+    if (appStore.focusMode == false) {
+      subWidth += 200;
+    }
+    return `calc(100vw - ${subWidth}px)`;
+  };
+
   return (
-    <div style={{ width: projectStore.showChatAndComment ? "calc(100vw - 560px)" : "calc(100vw - 260px)" }}>
+    <div style={{ width: calcWidth()}}>
       <WorkPlan />
       {pathname != APP_PROJECT_WORK_PLAN_PATH && (
         <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>

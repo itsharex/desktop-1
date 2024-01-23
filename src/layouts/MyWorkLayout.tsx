@@ -13,7 +13,20 @@ import ProjectMyWork from '@/pages/Project/MyWork';
 
 const MyWorkLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   const projectStore = useStores('projectStore');
+  const appStore = useStores('appStore');
   const { pathname } = useLocation();
+
+  const calcWidth = () => {
+    let subWidth = 60;
+    if (projectStore.showChatAndComment) {
+      subWidth += 300;
+    }
+    if (appStore.focusMode == false) {
+      subWidth += 200;
+    }
+    return `calc(100vw - ${subWidth}px)`;
+  };
+
 
   if (!projectStore.curProjectId) {
     return (
@@ -31,7 +44,7 @@ const MyWorkLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   }
 
   return (
-    <div style={{ width: projectStore.showChatAndComment ? "calc(100vw - 560px)": "calc(100vw - 260px)" }}>
+    <div style={{ width: calcWidth() }}>
       <ProjectMyWork />
       {pathname != APP_PROJECT_MY_WORK_PATH && (
         <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>

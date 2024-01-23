@@ -158,7 +158,6 @@ const ProjectHome = () => {
         if (projectStore.showChatAndComment) {
             subWidth += 300;
         }
-        console.log("xxxxx", subWidth);
         return `calc(100vw - ${subWidth}px)`;
     };
 
