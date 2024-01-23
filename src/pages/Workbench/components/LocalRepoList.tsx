@@ -247,7 +247,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const [commiterList, setCommiterList] = useState<string[]>([]);
 
     const loadCommitList = async (branch: string) => {
-        const commitRes = await list_repo_commit(props.repo.path, branch);
+        const commitRes = await list_repo_commit(props.repo.path, `refs/heads/${branch}`);
         setCommitList(commitRes);
         const tmpList: string[] = [];
         for (const commit of commitRes) {
