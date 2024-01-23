@@ -3,9 +3,10 @@ import { observer } from 'mobx-react';
 import { useGitProStores } from "./stores";
 import GraphCommit from "./components/GraphCommit";
 import DiffFile from "./components/DiffFile";
-import { Button, Card, Checkbox, Form, Input, Modal, Space, message } from "antd";
+import { Button, Card, Checkbox, Form, Input, Modal, Space, Tabs, message } from "antd";
 import { BranchesOutlined, DeleteOutlined, DownloadOutlined, SwapOutlined, UploadOutlined } from "@ant-design/icons";
 import { checkout_branch, create_branch, remove_branch, remove_tag } from "@/api/local_repo";
+import ListCommit from "./components/ListCommit";
 
 const GraphPanel = () => {
     const gitProStore = useGitProStores();
@@ -15,6 +16,8 @@ const GraphPanel = () => {
     const [removeBranchName, setRemoveBranchName] = useState("");
     const [forceRemove, setForceRemove] = useState(false);
     const [removeTagName, setRemoveTagName] = useState("");
+
+    const [activeKey, setActiveKey] = useState("list");
 
     const checkoutBranch = async (branchName: string) => {
         if (gitProStore.repoInfo == null) {
@@ -69,53 +72,83 @@ const GraphPanel = () => {
     };
 
     return (
-        <Card title={gitProStore.mainItem.menuExtraValue ?? ""}
+        <Card
             bodyStyle={{ display: "flex", flexDirection: "column", padding: "0px 0px" }}
-            bordered={false} extra={
-                <Space size="middle">
-                    {gitProStore.mainItem.menuExtraValue == "HEAD" && (
-                        <>
-                            <Button type="link" icon={<DownloadOutlined style={{ fontSize: "22px" }} />} title="拉取(Pull)" disabled />
-                            <Button type="link" icon={<UploadOutlined style={{ fontSize: "22px" }} />} title="推送(Push)" disabled />
-                        </>
-                    )}
-                    {gitProStore.mainItem.menuExtraValue?.startsWith("branch:") && (
-                        <>
-                            {(gitProStore.gitInfo?.head.branch_name ?? "") != (gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length) && (
-                                <Button type="link" icon={<SwapOutlined style={{ fontSize: "22px" }} />} title="切换至分支"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        checkoutBranch((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
-                                    }} />
-                            )}
-                            <Button type="link" icon={<BranchesOutlined style={{ fontSize: "22px" }} />} title="创建分支"
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setSrcBranchName((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
-                                    setDestBranchName("");
-                                }} />
-                            <Button type="link" icon={<DeleteOutlined style={{ fontSize: "22px" }} />} danger title="删除分支"
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setForceRemove(false);
-                                    setRemoveBranchName((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
-                                }} />
-                        </>
-                    )}
-                    {gitProStore.mainItem.menuExtraValue?.startsWith("tag:") && (
-                        <Button type="link" icon={<DeleteOutlined style={{ fontSize: "22px" }} />} danger title="删除标记"
-                            onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setRemoveTagName((gitProStore.mainItem.menuExtraValue ?? "").substring("tag:".length))
-                            }} />
-                    )}
-                </Space>
-            }>
-            <GraphCommit />
+            bordered={false}>
+            <Tabs activeKey={activeKey} onChange={key => setActiveKey(key)}
+                tabBarStyle={{ margin: "0px 0px", backgroundColor: "#ddd", height: "46px" }}
+                items={[
+                    {
+                        key: "list",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>提交列表</span>,
+                        children: (
+                            <>
+                                {activeKey == "list" && (
+                                    <ListCommit />
+                                )}
+                            </>
+                        ),
+                    },
+                    {
+                        key: "graph",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>提交图</span>,
+                        children: (
+                            <>
+                                {activeKey == "graph" && (
+                                    <GraphCommit />
+                                )}
+                            </>
+                        ),
+                    }
+                ]} tabBarExtraContent={
+                    {
+                        left: (<div style={{ fontSize: "16px", fontWeight: 500, marginRight: "10px" }}>{gitProStore.mainItem.menuExtraValue ?? ""}</div>),
+                        right: (
+                            <Space size="middle" style={{ marginRight: "20px" }}>
+                                {gitProStore.mainItem.menuExtraValue == "HEAD" && (
+                                    <>
+                                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "22px" }} />} title="拉取(Pull)" disabled />
+                                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "22px" }} />} title="推送(Push)" disabled />
+                                    </>
+                                )}
+                                {gitProStore.mainItem.menuExtraValue?.startsWith("branch:") && (
+                                    <>
+                                        {(gitProStore.gitInfo?.head.branch_name ?? "") != (gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length) && (
+                                            <Button type="link" icon={<SwapOutlined style={{ fontSize: "22px" }} />} title="切换至分支"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    checkoutBranch((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
+                                                }} />
+                                        )}
+                                        <Button type="link" icon={<BranchesOutlined style={{ fontSize: "22px" }} />} title="创建分支"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setSrcBranchName((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
+                                                setDestBranchName("");
+                                            }} />
+                                        <Button type="link" icon={<DeleteOutlined style={{ fontSize: "22px" }} />} danger title="删除分支"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setForceRemove(false);
+                                                setRemoveBranchName((gitProStore.mainItem.menuExtraValue ?? "").substring("branch:".length));
+                                            }} />
+                                    </>
+                                )}
+                                {gitProStore.mainItem.menuExtraValue?.startsWith("tag:") && (
+                                    <Button type="link" icon={<DeleteOutlined style={{ fontSize: "22px" }} />} danger title="删除标记"
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setRemoveTagName((gitProStore.mainItem.menuExtraValue ?? "").substring("tag:".length))
+                                        }} />
+                                )}
+                            </Space>
+                        ),
+                    }
+                } />
             {gitProStore.curCommit != null && gitProStore.curDiffFile != null && <DiffFile />}
             {srcBranchName != "" && gitProStore.gitInfo != null && (
                 <Modal open title="创建分支"

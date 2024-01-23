@@ -23,7 +23,7 @@ const GitProApp = () => {
 
     return (
         <Layout style={{ height: "100vh" }}>
-            <Layout.Sider theme="light" width={200}>
+            <Layout.Sider  width={200}>
                 <PrimaryPanel />
             </Layout.Sider>
             <Layout.Content style={{ backgroundColor: "white" }}>

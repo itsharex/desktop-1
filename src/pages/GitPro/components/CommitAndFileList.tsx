@@ -53,23 +53,25 @@ const CommitAndFileList = () => {
     return (
         <div style={{ height: gitProStore.curDiffFile == null ? "100vh" : "50vh", overflowY: "scroll", backgroundColor: "white" }}>
             {gitProStore.curCommit != null && typeof gitProStore.curCommit == "object" && (
-                <Card title="提交信息" extra={
-                    <Space>
-                        <Button type="link" title="设置标记" icon={<TagOutlined />} onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setNewTagName("");
-                            setNewTagMsg("");
-                            setShowTagModal(true);
-                        }} />
-                        <Button type="link" icon={<CloseOutlined />} style={{ padding: "0px 0px" }} onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            gitProStore.curCommit = null;
-                            gitProStore.curDiffFile = null;
-                        }} />
-                    </Space>
-                }>
+                <Card title="提交信息"
+                    headStyle={{ backgroundColor: "#ddd" }}
+                    extra={
+                        <Space>
+                            <Button type="link" title="设置标记" icon={<TagOutlined />} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setNewTagName("");
+                                setNewTagMsg("");
+                                setShowTagModal(true);
+                            }} />
+                            <Button type="link" icon={<CloseOutlined />} style={{ padding: "0px 0px" }} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                gitProStore.curCommit = null;
+                                gitProStore.curDiffFile = null;
+                            }} />
+                        </Space>
+                    }>
                     <Descriptions column={1}>
                         <Descriptions.Item label="提交人">
                             {gitProStore.curCommit.committer.name}
@@ -89,24 +91,29 @@ const CommitAndFileList = () => {
                     </Descriptions>
                 </Card>
             )}
-            <Card title="修改文件列表" extra={
-                <>
-                    {gitProStore.mainItem.menuType == "stashList" && (
-                        <Button type="link" icon={<CloseOutlined />} style={{ padding: "0px 0px" }} onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            gitProStore.curCommit = null;
-                            gitProStore.curDiffFile = null;
-                        }} />
-                    )}
-                </>
-            }>
+            <Card title="修改文件列表"
+                headStyle={{ backgroundColor: "#ddd" }}
+                extra={
+                    <>
+                        {gitProStore.mainItem.menuType == "stashList" && (
+                            <Button type="link" icon={<CloseOutlined />} style={{ padding: "0px 0px" }} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                gitProStore.curCommit = null;
+                                gitProStore.curDiffFile = null;
+                            }} />
+                        )}
+                    </>
+                }>
                 <List dataSource={fileList} renderItem={item => (
-                    <List.Item key={`${item.old_file_name}:${item.new_file_name}`} style={{ cursor: "pointer" }}
+                    <List.Item key={`${item.old_file_name}:${item.new_file_name}`}
+                        style={(item.new_content == "" && item.old_content == "") ? { cursor: "default", color: "gray" } : { cursor: "pointer" }}
                         onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
-                            gitProStore.curDiffFile = item;
+                            if (!(item.new_content == "" && item.old_content == "")) {
+                                gitProStore.curDiffFile = item;
+                            }
                         }}>
                         <pre style={{
                             whiteSpace: "pre-wrap", wordWrap: "break-word",
