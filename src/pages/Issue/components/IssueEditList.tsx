@@ -323,7 +323,6 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
             });
           }
         }} showEditIcon={true} />
-
     },
     {
       title: `软件版本`,

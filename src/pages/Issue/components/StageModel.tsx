@@ -10,9 +10,10 @@ import { formConfig } from '@/config/form';
 import { observer } from 'mobx-react';
 import type { ChangeStateRequest, IssueInfo } from '@/api/project_issue';
 import { request } from '@/utils/request';
-import { assign_check_user, assign_exec_user, change_state } from '@/api/project_issue';
+import { assign_check_user, assign_exec_user, change_state, ISSUE_TYPE_TASK } from '@/api/project_issue';
 import { ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK } from '@/api/project_issue';
-
+import { is_empty_doc, useSimpleEditor } from '@/components/Editor';
+import { add_comment, COMMENT_TARGET_BUG, COMMENT_TARGET_TASK } from "@/api/project_comment";
 
 type StageModelProps = ModalProps & {
   issue: IssueInfo;
@@ -27,6 +28,8 @@ const StageModel: FC<StageModelProps> = observer((props) => {
   const projectStore = useStores('projectStore');
   const session_id = userStore.sessionId || '';
   const project_id = projectStore.curProjectId;
+
+  const { editor, editorRef } = useSimpleEditor("请输入备注(可选)");
 
   const updateIssue = async (changeStateReq: ChangeStateRequest, destUserId: string, issueInfo: IssueInfo) => {
     if (issueInfo.state != changeStateReq.state) {
@@ -56,11 +59,45 @@ const StageModel: FC<StageModelProps> = observer((props) => {
         return;
       }
     }
+
+    //处理备注
+    if (editorRef.current == null) {
+      return;
+    }
+    const content = editorRef.current.getContent();
+    if (is_empty_doc(content)) {
+      return;
+    }
+    await request(add_comment({
+      session_id: changeStateReq.session_id,
+      project_id: changeStateReq.project_id,
+      target_type: props.issue.issue_type == ISSUE_TYPE_TASK ? COMMENT_TARGET_TASK : COMMENT_TARGET_BUG,
+      target_id: props.issue.issue_id,
+      content: JSON.stringify(content),
+    }));
   }
 
   const handleOk = async () => {
     form.submit();
     const { stage_item_select_user, stage_item_status } = form.getFieldsValue();
+    if (ISSUE_STATE_PROCESS == stage_item_status) {
+      if (stage_item_select_user == "") {
+        message.error("未指定处理人");
+        return;
+      } else if (stage_item_select_user == props.issue.check_user_id) {
+        message.error("处理人和验收人不能相同");
+        return;
+      }
+    }
+    if (ISSUE_STATE_CHECK == stage_item_status) {
+      if (stage_item_select_user == "") {
+        message.error("未指定验收人");
+        return;
+      } else if (stage_item_select_user == props.issue.exec_user_id) {
+        message.error("验收人和处理人不能相同");
+        return;
+      }
+    }
 
     await updateIssue({
       session_id,
@@ -87,9 +124,8 @@ const StageModel: FC<StageModelProps> = observer((props) => {
       <Form
         form={form}
         {...formConfig.layout}
-      // initialValues={{ stage_item_select_user: details?.check_user_id }}
       >
-        <StageFormItem form={form} details={issue} type={STAGE_FORM_TYPE_ENUM.MODEL} />
+        <StageFormItem form={form} details={issue} type={STAGE_FORM_TYPE_ENUM.MODEL} editor={editor} />
         <div className={s.foooter}>
           <Button key="cancel" ghost onClick={() => onCancel(false)}>
             取消
