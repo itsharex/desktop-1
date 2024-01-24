@@ -1,7 +1,7 @@
 import type { RootStore } from './index';
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { ProjectInfo, TagInfo } from '@/api/project';
-import { list as listProject, get_project as getProject, list_tag, TAG_SCOPRE_ALL } from '@/api/project';
+import { list as listProject, get_project as getProject, list_tag, TAG_SCOPRE_ALL, set_weight } from '@/api/project';
 import { request } from '@/utils/request';
 import type { PROJECT_SETTING_TAB } from '@/utils/constant';
 import { APP_PROJECT_OVERVIEW_PATH } from '@/utils/constant';
@@ -293,6 +293,26 @@ export default class ProjectStore {
         }
       });
     }
+  }
+
+  async updateWeight(projectId: string, weight: number) {
+    await request(set_weight({
+      session_id: this.rootStore.userStore.sessionId,
+      project_id: projectId,
+      weight: weight,
+    }));
+    let tmpList = this._projectList.slice();
+    const index = tmpList.findIndex(item => item.project_id == projectId);
+    if (index == -1) {
+      return;
+    }
+    tmpList[index].my_weight = weight;
+    const tmpProject = tmpList[index];
+    tmpList = tmpList.sort((a, b) => b.my_weight - a.my_weight);
+    runInAction(() => {
+      this._projectList = tmpList;
+      this._projectMap.set(projectId, tmpProject);
+    });
   }
 
   addNewEventCount(projectId: string) {
