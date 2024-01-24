@@ -3,12 +3,11 @@ import { observer } from 'mobx-react';
 import { Card, Popover, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import Button from "@/components/Button";
-import { EditOutlined, ExclamationCircleOutlined, InfoCircleOutlined, LinkOutlined } from "@ant-design/icons";
+import { EditOutlined, ExclamationCircleOutlined, LinkOutlined } from "@ant-design/icons";
 import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
 import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
 import type LinkAuxStore from "@/stores/linkAux";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
-import s from './Panel.module.less';
 import { cancel_link_sprit } from '@/api/project_issue';
 import { request } from "@/utils/request";
 import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
@@ -456,7 +455,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
 
     return (
         <div>
-            {spritStore.allTimeReady == false && <Space className={s.tip}><InfoCircleOutlined />所有任务/缺陷设置好执行人,开始时间，结束时间，预估工时和剩余工时后才能访问 甘特图 和 统计信息。</Space>}
             <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
                 <Table
                     rowKey="issue_id"
