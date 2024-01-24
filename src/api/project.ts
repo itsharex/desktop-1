@@ -98,6 +98,7 @@ export type ProjectInfo = {
   owner_user_id: string;
   owner_display_name: string;
   owner_logo_uri: string;
+  my_weight: number;
   // default_channel_id: string;
   default_role_id: string;
   // channel_fs_id: string;
@@ -241,6 +242,17 @@ export type ListTagResponse = {
   err_msg: string;
   tag_info_list: TagInfo[];
 };
+
+export type SetWeightRequest = {
+  session_id: string;
+  project_id: string;
+  weight: number;
+};
+
+export type SetWeightResponse = {
+  code: number;
+  err_msg: string;
+}
 
 //创建项目
 export async function create(
@@ -415,6 +427,15 @@ export async function list_tag(request: ListTagRequest): Promise<ListTagResponse
   const cmd = 'plugin:project_api|list_tag';
   console.log(`%c${cmd}`, 'color:#0f0;', request);
   return invoke<ListTagResponse>(cmd, {
+    request,
+  });
+}
+
+//设置项目排序权重
+export async function set_weight(request: SetWeightRequest): Promise<SetWeightResponse> {
+  const cmd = 'plugin:project_api|set_weight';
+  console.log(`%c${cmd}`, 'color:#0f0;', request);
+  return invoke<SetWeightResponse>(cmd, {
     request,
   });
 }

@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Space, Table, message } from "antd";
+import { Button, Card, Modal, Space, Table, Tooltip, message } from "antd";
 import React, { useMemo, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
@@ -12,6 +12,8 @@ import { open as open_project, close as close_project, update as update_project 
 import { leave as leave_project } from "@/api/project_member";
 import RemoveProjectModal from "./RemoveProjectModal";
 import { EditText } from "@/components/EditCell/EditText";
+import { EditNumber } from "@/components/EditCell/EditNumber";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ProjectManager = () => {
     const history = useHistory();
@@ -26,7 +28,7 @@ const ProjectManager = () => {
 
     const closeProject = async (projectId: string) => {
         await request(close_project(userStore.sessionId, projectId));
-        message.info("进入只读模式成功");
+        message.info("设为只读成功");
     };
 
     const openProject = async (projectId: string) => {
@@ -78,6 +80,27 @@ const ProjectManager = () => {
             render: (_, row: WebProjectInfo) => row.closed ? "是" : "",
         },
         {
+            title: (
+                <span>
+                    项目权重&nbsp;
+                    <Tooltip title="项目权重(0-999),数值越大排在越前"><InfoCircleOutlined /></Tooltip>
+                </span>
+            ),
+            width: 150,
+            render: (_, row: WebProjectInfo) => (
+                <EditNumber editable value={row.my_weight} showEditIcon fixedLen={0} min={0} max={999}
+                    onChange={async value => {
+                        try{
+                            projectStore.updateWeight(row.project_id,value);
+                        }catch(e){
+                            console.log(e);
+                            return false;
+                        }
+                        return true;
+                    }} />
+            ),
+        },
+        {
             title: "超级管理员",
             width: 150,
             render: (_, row: WebProjectInfo) => (
@@ -104,7 +127,7 @@ const ProjectManager = () => {
                             e.stopPropagation();
                             e.preventDefault();
                             closeProject(row.project_id);
-                        }}>进入只读模式</a>
+                        }}>设为只读</a>
                     )}
                     {row.user_project_perm.can_open && (
                         <a onClick={e => {

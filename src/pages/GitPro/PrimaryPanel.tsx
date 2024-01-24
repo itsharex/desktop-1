@@ -4,7 +4,7 @@ import { Button, Card, Menu, message } from "antd";
 import { useGitProStores } from "./stores";
 import { get_git_info, get_repo_status, list_stash } from "@/api/local_repo";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
-import { ReloadOutlined } from "@ant-design/icons";
+import { BranchesOutlined, ReloadOutlined, TagsOutlined } from "@ant-design/icons";
 
 
 const PrimaryPanel = () => {
@@ -86,10 +86,10 @@ const PrimaryPanel = () => {
                 {
                     label: "分支",
                     key: "branch",
+                    icon: <BranchesOutlined />,
                     children: tmpGitInfo.branch_list.map(item => ({
                         label: item.name,
                         key: `branch:${item.name}`,
-                        style: { backgroundColor: "white"},
                         onClick: () => {
                             gitProStore.mainItem = {
                                 menuType: "gitGraph",
@@ -104,10 +104,10 @@ const PrimaryPanel = () => {
                 {
                     label: "标记",
                     key: "tag",
+                    icon: <TagsOutlined />,
                     children: tmpGitInfo.tag_list.map(item => ({
                         label: item.name,
                         key: `tag:${item.name}`,
-                        style: { backgroundColor: "white" },
                         onClick: () => {
                             gitProStore.mainItem = {
                                 menuType: "gitGraph",
@@ -155,7 +155,8 @@ const PrimaryPanel = () => {
 
     return (
         <div>
-            <Card title="仓库信息" bodyStyle={{ overflowY: "auto", height: "calc(100vh - 40px)", padding: "0px 0px"}}
+            <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>仓库信息</span>} bodyStyle={{ overflowY: "auto", height: "calc(100vh - 40px)", padding: "0px 0px" }}
+                headStyle={{ backgroundColor: "#ddd" }}
                 extra={
                     <Button type="link" icon={<ReloadOutlined />} title="刷新仓库信息" onClick={e => {
                         e.stopPropagation();
@@ -164,8 +165,8 @@ const PrimaryPanel = () => {
                     }} />
                 }>
                 <Menu items={infoItemList} mode="inline" defaultOpenKeys={["branch"]} selectedKeys={[activeKey]}
-                    onSelect={(info) => setActiveKey(info.key)} 
-                    style={{border:"none"}}/>
+                    onSelect={(info) => setActiveKey(info.key)}
+                    style={{ border: "none", backgroundColor: "#fafafa", fontWeight: 700 }} />
             </Card>
         </div>
     );

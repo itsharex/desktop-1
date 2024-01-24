@@ -29,6 +29,7 @@ type StageFormItemProps = FormProps & {
   form: FormInstance<any>;
   type: STAGE_FORM_TYPE_ENUM;
   details: IssueInfo;
+  editor: React.ReactNode;
 };
 
 const StageFormItem: FC<StageFormItemProps> = observer((props) => {
@@ -142,6 +143,9 @@ const StageFormItem: FC<StageFormItemProps> = observer((props) => {
           </div>
         </Form.Item>
         {nextStatus !== ISSUE_STATE_CLOSE && execUserIdRender()}
+        <Form.Item label="备注" className='_projectEditContext'>
+          {props.editor}
+        </Form.Item>
       </div>
     </>
   );

@@ -9,7 +9,9 @@ const DiffFile = () => {
     const gitProStore = useGitProStores();
 
     return (
-        <Card title={`文件对比(${gitProStore.curDiffFile?.old_file_name}=>${gitProStore.curDiffFile?.new_file_name})`} bodyStyle={{ height: "calc(50vh - 45px)", overflowY: "scroll" }}
+        <Card title={`文件对比(${gitProStore.curDiffFile?.old_file_name}=>${gitProStore.curDiffFile?.new_file_name})`} 
+        bodyStyle={{ height: "calc(50vh - 45px)", overflowY: "scroll" }}
+        headStyle={{backgroundColor: "#ddd"}}
             extra={
                 <Button type="link" icon={<CloseOutlined />} style={{ padding: "0px 0px" }} onClick={e => {
                     e.stopPropagation();

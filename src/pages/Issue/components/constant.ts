@@ -28,18 +28,18 @@ export const bugLvSelectItems: EditSelectItem[] = [
 export const taskPrioritySelectItems: EditSelectItem[] = [
     {
         value: issueApi.TASK_PRIORITY_LOW,
-        label: '低',
-        color: '#38CB80',
+        label: '低优先级',
+        color: '#1D85F8',
     },
     {
         value: issueApi.TASK_PRIORITY_MIDDLE,
-        label: '中',
-        color: '#FF8963',
+        label: '正常处理',
+        color: '#06C776',
     },
     {
         value: issueApi.TASK_PRIORITY_HIGH,
-        label: '高',
-        color: '#FF4C30',
+        label: '高度重视',
+        color: '#F99B00',
     },
 ];
 

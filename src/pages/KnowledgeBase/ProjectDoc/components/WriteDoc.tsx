@@ -45,6 +45,17 @@ const WriteDocInner = observer((props: WriteDocInnerProps) => {
     await docStore.loadDoc();
   };
 
+  const calcWidth = () => {
+    let subWidth = 60;
+    if (projectStore.showChatAndComment) {
+      subWidth += 300;
+    }
+    if (appStore.focusMode == false) {
+      subWidth += 200;
+    }
+    return `calc(100vw - ${subWidth}px)`;
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       request(
@@ -95,7 +106,7 @@ const WriteDocInner = observer((props: WriteDocInnerProps) => {
 
   return (
     <Card bordered={false}
-      bodyStyle={{ width: projectStore.showChatAndComment ? "calc(100vw - 570px)" : "calc(100vw - 260px)" }}
+      bodyStyle={{ width: calcWidth() }}
       extra={
         <Space size="large">
           <Button

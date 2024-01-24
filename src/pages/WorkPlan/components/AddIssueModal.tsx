@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import { observer } from 'mobx-react';
 import { Form, Input, Modal, Select, Space, message } from "antd";
-import type { ISSUE_TYPE } from "@/api/project_issue";
-import { ISSUE_TYPE_TASK, ISSUE_TYPE_BUG, create as create_issue, TASK_PRIORITY_LOW, BUG_LEVEL_MINOR, BUG_PRIORITY_LOW, assign_exec_user, assign_check_user, link_sprit, list_by_id } from "@/api/project_issue";
+import type { BUG_LEVEL, BUG_PRIORITY, ISSUE_TYPE, TASK_PRIORITY } from "@/api/project_issue";
+import {
+    ISSUE_TYPE_TASK, ISSUE_TYPE_BUG, create as create_issue, TASK_PRIORITY_LOW, BUG_LEVEL_MINOR, BUG_PRIORITY_LOW,
+    assign_exec_user, assign_check_user, link_sprit, list_by_id,
+    TASK_PRIORITY_MIDDLE,
+    TASK_PRIORITY_HIGH,
+    BUG_PRIORITY_NORMAL,
+    BUG_PRIORITY_HIGH,
+    BUG_PRIORITY_URGENT,
+    BUG_PRIORITY_IMMEDIATE,
+    BUG_LEVEL_MAJOR,
+    BUG_LEVEL_CRITICAL,
+    BUG_LEVEL_BLOCKER
+} from "@/api/project_issue";
 import { useStores } from "@/hooks";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import { request } from "@/utils/request";
@@ -24,7 +36,9 @@ const AddIssueModal = (props: AddIssueModalProps) => {
     const [title, setTitle] = useState("");
     const [execUserId, setExecUserId] = useState("");
     const [checkUserId, setCheckUserId] = useState("");
-
+    const [taskPriority, setTaskPriority] = useState<TASK_PRIORITY>(TASK_PRIORITY_LOW);
+    const [bugPriority, setBugPriority] = useState<BUG_PRIORITY>(BUG_PRIORITY_LOW);
+    const [bugLevel, setBugLevel] = useState<BUG_LEVEL>(BUG_LEVEL_MINOR);
 
     const addIssue = async () => {
         const createRes = await request(create_issue({
@@ -38,12 +52,12 @@ const AddIssueModal = (props: AddIssueModalProps) => {
             },
             extra_info: {
                 ExtraTaskInfo: issueType == ISSUE_TYPE_TASK ? {
-                    priority: TASK_PRIORITY_LOW,
+                    priority: taskPriority,
                 } : undefined,
                 ExtraBugInfo: issueType == ISSUE_TYPE_TASK ? undefined : {
                     software_version: "",
-                    level: BUG_LEVEL_MINOR,
-                    priority: BUG_PRIORITY_LOW,
+                    level: bugLevel,
+                    priority: bugPriority,
                 },
             }
         }));
@@ -117,6 +131,37 @@ const AddIssueModal = (props: AddIssueModalProps) => {
                         ))}
                     </Select>
                 </Form.Item>
+                {issueType == ISSUE_TYPE_TASK && (
+                    <Form.Item label="优先级">
+                        <Select value={taskPriority} onChange={value => setTaskPriority(value)}>
+                            <Select.Option value={TASK_PRIORITY_LOW}>低优先级</Select.Option>
+                            <Select.Option value={TASK_PRIORITY_MIDDLE}>正常处理</Select.Option>
+                            <Select.Option value={TASK_PRIORITY_HIGH}>高度重视</Select.Option>
+                        </Select>
+                    </Form.Item>
+                )}
+                {issueType == ISSUE_TYPE_BUG && (
+                    <>
+                        <Form.Item label="缺陷级别">
+                            <Select value={bugLevel} onChange={value => setBugLevel(value)}>
+                                <Select.Option value={BUG_LEVEL_MINOR}>提示</Select.Option>
+                                <Select.Option value={BUG_LEVEL_MAJOR}>一般</Select.Option>
+                                <Select.Option value={BUG_LEVEL_CRITICAL}>严重</Select.Option>
+                                <Select.Option value={BUG_LEVEL_BLOCKER}>致命</Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="优先级">
+                            <Select value={bugPriority} onChange={value => setBugPriority(value)}>
+                                <Select.Option value={BUG_PRIORITY_LOW}>低优先级</Select.Option>
+                                <Select.Option value={BUG_PRIORITY_NORMAL}>正常处理</Select.Option>
+                                <Select.Option value={BUG_PRIORITY_HIGH}>高度重视</Select.Option>
+                                <Select.Option value={BUG_PRIORITY_URGENT}>急需解决</Select.Option>
+                                <Select.Option value={BUG_PRIORITY_IMMEDIATE}>马上解决</Select.Option>
+                            </Select>
+                        </Form.Item>
+
+                    </>
+                )}
             </Form>
         </Modal>
     );

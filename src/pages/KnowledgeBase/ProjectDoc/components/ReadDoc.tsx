@@ -15,10 +15,22 @@ const ReadDoc: React.FC = () => {
   const ideaStore = useStores('ideaStore');
   const editorStore = useStores('editorStore');
   const projectStore = useStores('projectStore');
+  const appStore = useStores('appStore');
+
+  const calcWidth = () => {
+    let subWidth = 60;
+    if (projectStore.showChatAndComment) {
+      subWidth += 300;
+    }
+    if (appStore.focusMode == false) {
+      subWidth += 200;
+    }
+    return `calc(100vw - ${subWidth}px)`;
+  };
 
   return (
     <Card extra={<RenderDocBtns keyWordList={matchKeywordList} />} bordered={false}
-      bodyStyle={{ paddingBottom: "0px", width: projectStore.showChatAndComment ? "calc(100vw - 570px)" : "calc(100vw - 260px)" }}>
+      bodyStyle={{ paddingBottom: "0px", width: calcWidth() }}>
       <div className={s.doc_wrap}>
         {editorStore.tocList.length > 0 && <DocTocPanel />}
         <div className={s.read_doc}>

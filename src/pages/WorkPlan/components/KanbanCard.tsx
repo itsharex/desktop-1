@@ -387,27 +387,78 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                         </div>
                     </div>
                 )}
-                {hover && (
-                    <div>
-                        {props.issue.issue_type == ISSUE_TYPE_TASK && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].color }}>
-                                    优先级{taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].label}
-                                </span>
-                            </Tag>
+
+
+                {props.issue.issue_type == ISSUE_TYPE_TASK && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].color }}>
+                            优先级{taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].label}
+                        </span>
+                    </Tag>
+                )}
+                {props.issue.issue_type == ISSUE_TYPE_BUG && (
+                    <>
+                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                            <span style={{ color: bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].color }}>{bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].label}</span>
+                        </Tag>
+                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                            缺陷级别:&nbsp;
+                            <span style={{ color: bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].color }}>{bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].label}</span>
+                        </Tag>
+                    </>
+                )}
+                {props.issue.exec_user_id == "" && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", color: "red", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}>
+                            <WarningOutlined />&nbsp;未设置执行人
+                        </span>
+                        {props.issue.user_issue_perm.can_assign_exec_user && hover && (
+                            <a onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowExecUserModal(true);
+                            }}>&nbsp;<PlusOutlined /></a>
                         )}
-                        {props.issue.issue_type == ISSUE_TYPE_BUG && (
-                            <>
-                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                    <span style={{ color: bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].color }}>{bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].label}</span>
-                                </Tag>
-                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                    缺陷级别:&nbsp;
-                                    <span style={{ color: bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].color }}>{bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].label}</span>
-                                </Tag>
-                            </>
+                    </Tag>
+                )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.estimate_minutes <= 0 && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估时间</span>
+                        {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
+                            <a onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowEstimateModal(true);
+                            }}>&nbsp;<EditOutlined /></a>
                         )}
-                    </div>
+                    </Tag>
+                )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time == false && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估开始时间</span>
+                    </Tag>
+                )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time == false && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估结束时间</span>
+                    </Tag>
+                )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time &&
+                    (props.issue.start_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.start_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
+                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                            <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估开始时间不合理</span>
+                        </Tag>
+                    )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time &&
+                    (props.issue.end_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.end_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
+                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                            <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间不合理</span>
+                        </Tag>
+                    )}
+                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time && props.issue.has_end_time && props.issue.end_time <= props.issue.start_time && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间早于预估开始时间</span>
+                    </Tag>
                 )}
                 {hover && (
                     <div>
@@ -416,20 +467,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                                 <span style={{ color: "red" }}><WarningOutlined />&nbsp;重新打开次数&nbsp;{props.issue.re_open_count}</span>
                             </Tag>
                         )}
-                        {props.issue.exec_user_id == "" && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", color: "red", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}>
-                                    <WarningOutlined />&nbsp;未设置执行人
-                                </span>
-                                {props.issue.user_issue_perm.can_assign_exec_user && hover && (
-                                    <a onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setShowExecUserModal(true);
-                                    }}>&nbsp;<PlusOutlined /></a>
-                                )}
-                            </Tag>
-                        )}
+
                         {props.issue.check_user_id == "" && (
                             <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
                                 <span style={{ color: "red" }}>
@@ -442,45 +480,6 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                                         setShowCheckUserModal(true);
                                     }}>&nbsp;<PlusOutlined /></a>
                                 )}
-                            </Tag>
-                        )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.estimate_minutes <= 0 && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估时间</span>
-                                {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
-                                    <a onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setShowEstimateModal(true);
-                                    }}>&nbsp;<EditOutlined /></a>
-                                )}
-                            </Tag>
-                        )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time == false && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估开始时间</span>
-                            </Tag>
-                        )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time == false && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估结束时间</span>
-                            </Tag>
-                        )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time &&
-                            (props.issue.start_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.start_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
-                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                    <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估开始时间不合理</span>
-                                </Tag>
-                            )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time &&
-                            (props.issue.end_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.end_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
-                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                    <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间不合理</span>
-                                </Tag>
-                            )}
-                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time && props.issue.has_end_time && props.issue.end_time <= props.issue.start_time && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间早于预估开始时间</span>
                             </Tag>
                         )}
                     </div>

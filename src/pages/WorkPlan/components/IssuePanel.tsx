@@ -4,11 +4,10 @@ import { Card, Popover, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import Button from "@/components/Button";
 import { EditOutlined, ExclamationCircleOutlined, InfoCircleOutlined, LinkOutlined } from "@ant-design/icons";
-import type { IssueInfo } from "@/api/project_issue";
-import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE } from "@/api/project_issue";
+import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
 import type LinkAuxStore from "@/stores/linkAux";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
-import type { ColumnsType } from 'antd/lib/table';
 import s from './Panel.module.less';
 import { cancel_link_sprit } from '@/api/project_issue';
 import { request } from "@/utils/request";
@@ -16,12 +15,20 @@ import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
 import type { History } from 'history';
 import { useHistory } from "react-router-dom";
 import { EditDate } from "@/components/EditCell/EditDate";
-import { cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems, updateCheckUser, updateEndTime, updateEstimateMinutes, updateExecUser, updateRemainMinutes, updateStartTime } from "@/pages/Issue/components/utils";
+import {
+    cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems,
+    updateCheckUser, updateEndTime, updateEstimateMinutes, updateExecUser, updateExtraInfo, updateProcessStage,
+    updateRemainMinutes, updateStartTime
+} from "@/pages/Issue/components/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
-import { hourSelectItems } from "@/pages/Issue/components/constant";
+import { bugLvSelectItems, bugPrioritySelectItems, hourSelectItems, taskPrioritySelectItems } from "@/pages/Issue/components/constant";
 import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
 import StageModel from "@/pages/Issue/components/StageModel";
+import type { ColumnType } from 'antd/lib/table';
 
+type ColumnsTypes = ColumnType<IssueInfo> & {
+    issueType?: ISSUE_TYPE;
+};
 
 const getColor = (v: number) => {
     switch (v) {
@@ -111,12 +118,12 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     const memberSelectItems = getMemberSelectItems(memberStore.memberList.map(item => item.member));
 
 
-    const columns: ColumnsType<IssueInfo> = [
+    const columns: ColumnsTypes[] = [
         {
             title: `ID`,
             width: 100,
             fixed: true,
-            align:"left",
+            align: "left",
             render: (_, row: IssueInfo) => {
                 let notComplete = row.exec_user_id == "" || row.has_end_time == false || row.has_start_time == false || row.has_estimate_minutes == false || row.has_remain_minutes == false;
                 if (row.has_start_time && row.has_end_time && row.start_time > row.end_time) {
@@ -153,8 +160,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                                 <ExclamationCircleOutlined />
                             </Space>
                         </Popover>)}
-
-
                     </div>
                 );
             },
@@ -164,7 +169,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             ellipsis: true,
             dataIndex: ['basic_info', 'title'],
             width: 200,
-            align:"left",
+            align: "left",
             fixed: true,
             render: (_, row: IssueInfo) =>
                 renderTitle(row, projectStore.curProjectId, linkAuxStore, spritStore.taskList.map(task => task.issue_id), spritStore.bugList.map(bug => bug.issue_id), history),
@@ -218,10 +223,98 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             },
         },
         {
+            title: "处理子阶段",
+            width: 100,
+            align: 'left',
+            dataIndex: "process_stage",
+            render: (_, record: IssueInfo) => (
+                <>
+                    {record.state == ISSUE_STATE_PROCESS && (
+                        <EditSelect editable={(!projectStore.isClosed) && (record.exec_user_id == userStore.userInfo.userId)}
+                            curValue={record.process_stage}
+                            itemList={[
+                                {
+                                    value: PROCESS_STAGE_TODO,
+                                    label: "未开始",
+                                    color: "black",
+                                },
+                                {
+                                    value: PROCESS_STAGE_DOING,
+                                    label: "执行中",
+                                    color: "black",
+                                },
+                                {
+                                    value: PROCESS_STAGE_DONE,
+                                    label: "待检查",
+                                    color: "black",
+                                },
+                            ]} showEditIcon={true} allowClear={false}
+                            onChange={async value => {
+                                return await updateProcessStage(userStore.sessionId, record.project_id, record.issue_id, value as PROCESS_STAGE);
+                            }} />
+                    )}
+                </>
+            ),
+        },
+        {
+            title: `缺陷级别`,
+            width: 100,
+            align: 'left',
+            render: (_, record: IssueInfo) => <EditSelect
+                allowClear={false}
+                editable={(!projectStore.isClosed) && record.user_issue_perm.can_update}
+                curValue={record.extra_info.ExtraBugInfo?.level ?? 0}
+                itemList={bugLvSelectItems}
+                onChange={async (value) => {
+                    return await updateExtraInfo(userStore.sessionId, record.project_id, record.issue_id, {
+                        ExtraBugInfo: {
+                            ...record.extra_info.ExtraBugInfo!,
+                            level: value as number,
+                        },
+                    });
+                }} showEditIcon={true} />,
+            issueType: ISSUE_TYPE_BUG,
+        },
+        {
+            title: '优先级',
+            width: 120,
+            align: 'left',
+            sorter: {
+                compare: (a, b) => {
+                    if (a.issue_type == ISSUE_TYPE_TASK) {
+                        return (a.extra_info.ExtraTaskInfo?.priority ?? 0) - (b.extra_info.ExtraTaskInfo?.priority ?? 0);
+                    } else {
+                        return (a.extra_info.ExtraBugInfo?.priority ?? 0) - (b.extra_info.ExtraBugInfo?.priority ?? 0);
+                    }
+                },
+            },
+            render: (_, record: IssueInfo) => <EditSelect
+                allowClear={false}
+                editable={(!projectStore.isClosed) && record.user_issue_perm.can_update}
+                curValue={record.issue_type == ISSUE_TYPE_TASK ? (record.extra_info.ExtraTaskInfo?.priority ?? 0) : (record.extra_info.ExtraBugInfo?.priority ?? 0)}
+                itemList={record.issue_type == ISSUE_TYPE_TASK ? taskPrioritySelectItems : bugPrioritySelectItems}
+                onChange={async (value) => {
+                    if (record.issue_type == ISSUE_TYPE_TASK) {
+                        return await updateExtraInfo(userStore.sessionId, record.project_id, record.issue_id, {
+                            ExtraTaskInfo: {
+                                priority: value as number,
+                            }
+                        });
+                    } else {
+                        return await updateExtraInfo(userStore.sessionId, record.project_id, record.issue_id, {
+                            ExtraBugInfo: {
+                                ...record.extra_info.ExtraBugInfo!,
+                                priority: value as number,
+                            }
+                        });
+                    }
+                }} showEditIcon={true} />
+        },
+        {
             title: '处理人',
             dataIndex: 'exec_display_name',
             width: 100,
-            align:"left",
+            align: "left",
             render: (_, row: IssueInfo) => <EditSelect
                 allowClear={false}
                 editable={row.user_issue_perm.can_assign_exec_user}
@@ -239,7 +332,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: '验收人',
             dataIndex: 'check_display_name',
             width: 100,
-            align:"left",
+            align: "left",
             render: (_, row: IssueInfo) => <EditSelect
                 allowClear={false}
                 editable={row.user_issue_perm.can_assign_check_user}
@@ -257,7 +350,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: '预估开始成时间',
             dataIndex: 'start_time',
             width: 120,
-            align:"left",
+            align: "left",
             render: (_, record) => <EditDate
                 editable={record.exec_user_id == userStore.userInfo.userId && record.state == ISSUE_STATE_PROCESS}
                 disabledDate={(date) => {
@@ -285,7 +378,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: '预估完成时间',
             dataIndex: 'end_time',
             width: 120,
-            align:"left",
+            align: "left",
             render: (_, record) => <EditDate
                 editable={record.exec_user_id == userStore.userInfo.userId && record.state == ISSUE_STATE_PROCESS}
                 hasTimeStamp={record.has_end_time}
@@ -313,7 +406,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: '预估工时',
             dataIndex: 'estimate_minutes',
             width: 100,
-            align:"left",
+            align: "left",
             render: (_, record: IssueInfo) => <EditSelect
                 allowClear={false}
                 editable={record.exec_user_id == userStore.userInfo.userId && record.state == ISSUE_STATE_PROCESS}
@@ -338,7 +431,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: '剩余工时',
             dataIndex: 'remain_minutes',
             width: 100,
-            align:"left",
+            align: "left",
             render: (_, record: IssueInfo) => <EditSelect
                 allowClear={true}
                 editable={record.exec_user_id == userStore.userInfo.userId && record.state == ISSUE_STATE_PROCESS}
@@ -377,7 +470,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                             return false;
                         }
                     })}
-                    columns={columns}
+                    columns={columns.filter(item => item.issueType != ISSUE_TYPE_BUG)}
                     pagination={false}
                     scroll={{ x: 1100 }}
                 />

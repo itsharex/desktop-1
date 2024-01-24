@@ -226,8 +226,8 @@ export async function list_repo_tag(path: string): Promise<LocalRepoTagInfo[]> {
     return retList.map(item => ({ ...item, name: item.name.startsWith("refs/tags/") ? item.name.substring("refs/tags/".length) : item.name }));
 }
 
-export async function list_repo_commit(path: string, branch: string): Promise<LocalRepoCommitInfo[]> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "list-commit", branch]);
+export async function list_repo_commit(path: string, refName: string): Promise<LocalRepoCommitInfo[]> {
+    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "list-commit", refName]);
     const result = await command.execute();
     if (result.code != 0) {
         throw new Error(result.stderr);
