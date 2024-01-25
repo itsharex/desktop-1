@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import moment from "moment";
@@ -11,6 +11,7 @@ import type { Task as GanttTask } from 'gantt-task-react';
 import { Gantt, ViewMode, } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { Card, Descriptions, Space } from "antd";
+import { useSize } from "ahooks";
 
 const getColor = (v: number) => {
     switch (v) {
@@ -124,6 +125,9 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
 
     const history = useHistory();
 
+    const wrapRef = useRef<HTMLDivElement>(null);
+    const wrapRefSize = useSize(wrapRef);
+
     const [taskList, setTaskList] = useState<GanttTask[]>([]);
 
     const calcName = (issue: IssueInfo): string => {
@@ -209,7 +213,7 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
     }, [spritStore.taskList, spritStore.bugList]);
 
     return (
-        <Card bordered={false} bodyStyle={{ padding: "0px 0px", height: "calc(100vh - 190px)", overflowY: "scroll" }}
+        <Card bordered={false} bodyStyle={{ padding: "0px 0px" }}
             extra={
                 <Space style={{ fontSize: "14px", fontWeight: 600 }}>
                     <div>图例说明:</div>
@@ -217,10 +221,10 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                     <div style={{ backgroundColor: "crimson", padding: "4px 8px", borderRadius: "6px" }}>参数异常</div>
                 </Space>
             }>
-            <div style={{ height: (spritStore.taskList.length + spritStore.bugList.length) * 36 + 200 }}>
-                {taskList.length > 0 && (
-                    <Gantt tasks={taskList} viewMode={ViewMode.Day} locale="chi" listCellWidth="" TooltipContent={TooltipContent}
-                        rowHeight={36} rtl={false} preStepsCount={2}
+            <div style={{ height: "calc(100vh - 190px)", overflowY: "hidden" }} ref={wrapRef}>
+                {taskList.length > 0 && wrapRefSize != undefined && (
+                    <Gantt tasks={taskList} viewMode={ViewMode.Day} locale="chi" listCellWidth="" columnWidth={100} TooltipContent={TooltipContent}
+                        rowHeight={36} rtl={false} preStepsCount={2} ganttHeight={wrapRefSize.height - 60}
                         onClick={task => {
                             if (spritStore.taskList.map(item => item.issue_id).includes(task.id)) {
                                 linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, task.id, spritStore.taskList.map(item => item.issue_id)), history);
