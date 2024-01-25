@@ -28,6 +28,9 @@ export const EditNumber: React.FC<EditNumberProps> = (props) => {
             e.stopPropagation();
             e.preventDefault();
             if (props.editable) {
+                if (value == undefined) {
+                    setValue(props.value ?? (props.min ?? 0));
+                }
                 setInEdit(true);
             }
         }}>
@@ -81,7 +84,10 @@ export const EditNumber: React.FC<EditNumberProps> = (props) => {
                         } else if (e.key == "Enter") {
                             e.stopPropagation();
                             e.preventDefault();
-                            props.onChange(value ?? -1).then(res => {
+                            if (value == undefined) {
+                                return;
+                            }
+                            props.onChange(value).then(res => {
                                 if (!res) {
                                     setValue(props.value);
                                 }
