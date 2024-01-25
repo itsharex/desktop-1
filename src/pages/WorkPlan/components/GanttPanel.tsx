@@ -12,6 +12,7 @@ import { Gantt, ViewMode, } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { Card, Descriptions, Space } from "antd";
 import { useSize } from "ahooks";
+import { WarningOutlined } from "@ant-design/icons";
 
 const getColor = (v: number) => {
     switch (v) {
@@ -141,6 +142,11 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
         return `${issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}:${issue.basic_info.title}(${parts.join(",")})`;
     }
 
+    const hasMissData = () => {
+        const status = spritStore.spritStatus;
+        return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount + status.missTimeBugCount + status.missTimeTaskCount) > 0;
+    }
+
     useEffect(() => {
         const tmpList: GanttTask[] = [];
         let totalEstimate = 0;
@@ -214,6 +220,22 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
 
     return (
         <Card bordered={false} bodyStyle={{ padding: "0px 0px" }}
+            title={(
+                <>
+                    {hasMissData() && (
+                        <Space style={{ marginLeft: "10px", color: "red" }}>
+                            <WarningOutlined />
+                            甘特图存在偏差。
+                            {spritStore.spritStatus.missTimeTaskCount > 0 && `有${spritStore.spritStatus.missTimeTaskCount}个任务未指定开始结束时间。`}
+                            {spritStore.spritStatus.missTimeBugCount > 0 && `有${spritStore.spritStatus.missTimeBugCount}个缺陷未指定开始结束时间。`}
+                            {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                            {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                            {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                            {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                        </Space>
+                    )}
+                </>
+            )}
             extra={
                 <Space style={{ fontSize: "14px", fontWeight: 600 }}>
                     <div>图例说明:</div>

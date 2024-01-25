@@ -454,7 +454,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     ];
 
     return (
-        <div>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
             <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
                 <Table
                     rowKey="issue_id"

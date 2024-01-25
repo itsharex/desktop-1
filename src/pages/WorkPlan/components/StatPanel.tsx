@@ -2,24 +2,30 @@ import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { ColumnsType } from 'antd/lib/table';
 import { useStores } from "@/hooks";
-import { ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, ISSUE_STATE_PROCESS } from "@/api/project_issue";
-import { Table } from 'antd';
+import { ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, ISSUE_STATE_PROCESS, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO } from "@/api/project_issue";
+import { Space, Table } from 'antd';
+import { WarningOutlined } from "@ant-design/icons";
 
 interface StatInfo {
-    memberUserId: string
-    name: string
+    memberUserId: string;
+    name: string;
+
     totalTaskCount: number;
-    inExecTaskCount: number;
-    inCheckTaskCount: number;
+    todoTaskCount: number;
+    doingTaskCount: number;
     doneTaskCount: number;
+    inCheckTaskCount: number;
+    closeTaskCount: number;
     totalTaskHour: number;
     remainTaskHour: number;
     taskProgress: number;
 
     totalBugCount: number;
-    inExecBugCount: number;
-    inCheckBugCount: number;
+    todoBugCount: number;
+    doingBugCount: number;
     doneBugCount: number;
+    inCheckBugCount: number;
+    closeBugCount: number;
     totalBugHour: number;
     remainBugHour: number;
     bugProgress: number;
@@ -36,21 +42,26 @@ const StatPanel = () => {
     const genStatInfo = () => {
         const tmpList: StatInfo[] = [];
         memberStore.memberList.forEach(member => {
-            const tmpStat = {
+            const tmpStat: StatInfo = {
                 memberUserId: member.member.member_user_id,
                 name: member.member.display_name,
+
                 totalTaskCount: 0,
-                inExecTaskCount: 0,
-                inCheckTaskCount: 0,
+                todoTaskCount: 0,
+                doingTaskCount: 0,
                 doneTaskCount: 0,
+                inCheckTaskCount: 0,
+                closeTaskCount: 0,
                 totalTaskHour: 0,
                 remainTaskHour: 0,
                 taskProgress: 0,
 
                 totalBugCount: 0,
-                inExecBugCount: 0,
-                inCheckBugCount: 0,
+                todoBugCount: 0,
+                doingBugCount: 0,
                 doneBugCount: 0,
+                inCheckBugCount: 0,
+                closeBugCount: 0,
                 totalBugHour: 0,
                 remainBugHour: 0,
                 bugProgress: 0,
@@ -61,11 +72,17 @@ const StatPanel = () => {
                 }
 
                 if (task.exec_user_id == tmpStat.memberUserId && task.state == ISSUE_STATE_PROCESS) {
-                    tmpStat.inExecTaskCount += 1;
+                    if (task.process_stage == PROCESS_STAGE_TODO) {
+                        tmpStat.todoTaskCount += 1;
+                    } else if (task.process_stage == PROCESS_STAGE_DOING) {
+                        tmpStat.doingTaskCount += 1;
+                    } else if (task.process_stage == PROCESS_STAGE_DONE) {
+                        tmpStat.doneTaskCount += 1;
+                    }
                 } else if (task.check_user_id == tmpStat.memberUserId && task.state == ISSUE_STATE_CHECK) {
                     tmpStat.inCheckTaskCount += 1
                 } else if (task.state == ISSUE_STATE_CLOSE) {
-                    tmpStat.doneTaskCount += 1
+                    tmpStat.closeTaskCount += 1
                 }
 
                 if (task.exec_user_id == tmpStat.memberUserId) {
@@ -79,11 +96,17 @@ const StatPanel = () => {
                 }
 
                 if (bug.exec_user_id == tmpStat.memberUserId && bug.state == ISSUE_STATE_PROCESS) {
-                    tmpStat.inExecBugCount += 1;
+                    if (bug.process_stage == PROCESS_STAGE_TODO) {
+                        tmpStat.todoBugCount += 1;
+                    } else if (bug.process_stage == PROCESS_STAGE_DOING) {
+                        tmpStat.doingBugCount += 1;
+                    } else if (bug.process_stage == PROCESS_STAGE_DONE) {
+                        tmpStat.doneBugCount += 1;
+                    }
                 } else if (bug.check_user_id == tmpStat.memberUserId && bug.state == ISSUE_STATE_CHECK) {
                     tmpStat.inCheckBugCount += 1
                 } else if (bug.state == ISSUE_STATE_CLOSE) {
-                    tmpStat.doneBugCount += 1
+                    tmpStat.closeBugCount += 1
                 }
 
                 if (bug.exec_user_id == tmpStat.memberUserId) {
@@ -103,37 +126,46 @@ const StatPanel = () => {
             tmpList.push(tmpStat);
         })
         //计算累计值
-        const allStat = {
+        const allStat: StatInfo = {
             memberUserId: "",
             name: "总计",
+
             totalTaskCount: 0,
-            inExecTaskCount: 0,
-            inCheckTaskCount: 0,
+            todoTaskCount: 0,
+            doingTaskCount: 0,
             doneTaskCount: 0,
+            inCheckTaskCount: 0,
+            closeTaskCount: 0,
             totalTaskHour: 0,
             remainTaskHour: 0,
             taskProgress: 0,
 
             totalBugCount: 0,
-            inExecBugCount: 0,
-            inCheckBugCount: 0,
+            todoBugCount: 0,
+            doingBugCount: 0,
             doneBugCount: 0,
+            inCheckBugCount: 0,
+            closeBugCount: 0,
             totalBugHour: 0,
             remainBugHour: 0,
             bugProgress: 0,
         };
         for (const stat of tmpList) {
             allStat.totalTaskCount += stat.totalTaskCount;
-            allStat.inExecTaskCount += stat.inExecTaskCount;
-            allStat.inCheckTaskCount += stat.inCheckTaskCount;
+            allStat.todoTaskCount += stat.todoTaskCount;
+            allStat.doingTaskCount += stat.doingTaskCount;
             allStat.doneTaskCount += stat.doneTaskCount;
+            allStat.inCheckTaskCount += stat.inCheckTaskCount;
+            allStat.closeTaskCount += stat.closeTaskCount;
             allStat.totalTaskHour += stat.totalTaskHour;
             allStat.remainTaskHour += stat.remainTaskHour;
 
             allStat.totalBugCount += stat.totalBugCount
-            allStat.inExecBugCount += stat.inExecBugCount
-            allStat.inCheckBugCount += stat.inCheckBugCount
+            allStat.todoBugCount += stat.todoBugCount
+            allStat.doingBugCount += stat.doingBugCount
             allStat.doneBugCount += stat.doneBugCount
+            allStat.inCheckBugCount += stat.inCheckBugCount
+            allStat.closeBugCount += stat.closeBugCount
             allStat.totalBugHour += stat.totalBugHour
             allStat.remainBugHour += stat.remainBugHour
         }
@@ -157,8 +189,16 @@ const StatPanel = () => {
             dataIndex: "totalTaskCount",
         },
         {
+            title: "未开始任务",
+            dataIndex: "todoTaskCount",
+        },
+        {
             title: "执行中任务",
-            dataIndex: "inExecTaskCount",
+            dataIndex: "doingTaskCount",
+        },
+        {
+            title: "待检查任务",
+            dataIndex: "doneTaskCount",
         },
         {
             title: "检查中任务",
@@ -195,8 +235,16 @@ const StatPanel = () => {
             dataIndex: "totalBugCount",
         },
         {
+            title: "未开始缺陷",
+            dataIndex: "todoBugCount",
+        },
+        {
             title: "执行中缺陷",
-            dataIndex: "inExecBugCount",
+            dataIndex: "doingBugCount",
+        },
+        {
+            title: "待检查缺陷",
+            dataIndex: "doneBugCount",
         },
         {
             title: "检查中缺陷",
@@ -204,7 +252,7 @@ const StatPanel = () => {
         },
         {
             title: "完成缺陷",
-            dataIndex: "doneBugCount",
+            dataIndex: "closeBugCount",
         },
         {
             title: "缺陷预估时间",
@@ -231,12 +279,27 @@ const StatPanel = () => {
 
     ];
 
+    const hasMissData = () => {
+        const status = spritStore.spritStatus;
+        return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount) > 0;
+    }
+
     useEffect(() => {
         genStatInfo();
     }, [spritStore.taskList, spritStore.bugList]);
 
     return (
-        <div>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
+            {hasMissData() && (
+                <Space style={{ marginLeft: "10px", color: "red" }}>
+                    <WarningOutlined />
+                    统计信息存在偏差。
+                    {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                    {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                    {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                    {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                </Space>
+            )}
             <Table rowKey="memberUserId" dataSource={statInfoList} columns={columns} pagination={false} />
         </div>
     );

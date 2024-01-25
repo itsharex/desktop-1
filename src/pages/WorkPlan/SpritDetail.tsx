@@ -109,7 +109,7 @@ const SpritDetail = () => {
 
     return (
         <Card bordered={false}
-            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "scroll", overflowX: "hidden", padding: "0px 0px" }}>
+            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "hidden", overflowX: "hidden", padding: "0px 0px" }}>
             <div>
                 {spritInfo != null && (
                     <Tabs

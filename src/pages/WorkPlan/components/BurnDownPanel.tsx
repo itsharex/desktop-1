@@ -6,12 +6,13 @@ import { useStores } from "@/hooks";
 import type { MemberInfo } from "@/api/project_member";
 import { request } from "@/utils/request";
 import moment from 'moment';
-import { Card, Table } from "antd";
+import { Card, Space, Table } from "antd";
 import type { ColumnsType } from 'antd/lib/table';
 import { EditNumber } from "@/components/EditCell/EditNumber";
 import { makeAutoObservable, runInAction } from "mobx";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useSize } from "ahooks";
+import { WarningOutlined } from "@ant-design/icons";
 
 class DayInfo {
     constructor(day: number) {
@@ -285,12 +286,27 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
         return retList;
     };
 
+    const hasMissData = () => {
+        const status = spritStore.spritStatus;
+        return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount) > 0;
+    }
+
     useEffect(() => {
         calcBurnDownInfoList();
     }, [spritStore.bugList, spritStore.taskList, dataVersion]);
 
     return (
-        <div>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
+            {hasMissData() && (
+                <Space style={{ marginLeft: "10px", color: "red" }}>
+                    <WarningOutlined />
+                    燃尽图存在偏差。
+                    {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                    {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                    {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                    {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                </Space>
+            )}
             <Card title="统计表" bordered={false}>
                 <Table rowKey="memberUserId" columns={columns} dataSource={localStore.burnDownInfoList} pagination={false}
                     scroll={{ x: "max-content" }} />
