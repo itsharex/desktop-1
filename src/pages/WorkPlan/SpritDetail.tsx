@@ -109,7 +109,7 @@ const SpritDetail = () => {
 
     return (
         <Card bordered={false}
-            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "scroll", overflowX: "hidden", padding: "0px 0px" }}>
+            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "hidden", overflowX: "hidden", padding: "0px 0px" }}>
             <div>
                 {spritInfo != null && (
                     <Tabs
@@ -186,19 +186,19 @@ const SpritDetail = () => {
                         )}
 
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_gantt_panel == false && (
-                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>甘特图</span>} key="gantt" disabled={!spritStore.allTimeReady}>
+                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>甘特图</span>} key="gantt">
                                 {spritStore.spritTab == "gantt" && <GanttPanel spritName={entryStore.curEntry?.entry_title ?? ""}
                                     startTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.start_time ?? 0}
                                     endTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.end_time ?? 0} />}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_burndown_panel == false && (
-                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>燃尽图</span>} key="burnDown" disabled={!spritStore.allTimeReady}>
+                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>燃尽图</span>} key="burnDown">
                                 {spritStore.spritTab == "burnDown" && <BurnDownPanel spritInfo={spritInfo} />}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_stat_panel == false && (
-                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>统计信息</span>} key="statistics" disabled={!spritStore.allTimeReady}>
+                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>统计信息</span>} key="statistics">
                                 {spritStore.spritTab == "statistics" && <StatPanel />}
                             </Tabs.TabPane>
                         )}
