@@ -167,6 +167,17 @@ const LoginModal = () => {
                             e.stopPropagation();
                             e.preventDefault();
                             setPassword(e.target.value.trim());
+                        }} onKeyDown={e => {
+                            if (e.key == "Enter") {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                if (userName == "" || password == "") {
+                                    return;
+                                }
+                                userStore.callLogin(userName, password).then(() => {
+                                    localStorage.setItem(`${defaultAddr}:username`, userName);
+                                });
+                            }
                         }} />
                     </Form.Item>
                     <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "14px" }}>
