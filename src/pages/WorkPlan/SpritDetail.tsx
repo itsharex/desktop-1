@@ -6,7 +6,7 @@ import { get as get_sprit } from "@/api/project_sprit";
 import type { SpritInfo } from "@/api/project_sprit";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
-import { Card, Dropdown, Form, Select, Space, Tabs } from 'antd';
+import { Button, Card, Dropdown, Form, Popover, Select, Space, Tabs } from 'antd';
 import IssuePanel from "./components/IssuePanel";
 import StatPanel from "./components/StatPanel";
 import GanttPanel from "./components/GanttPanel";
@@ -17,10 +17,11 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import { ISSUE_TYPE_TASK, type ISSUE_TYPE, ISSUE_TYPE_BUG, link_sprit, list_by_id } from "@/api/project_issue";
 import AddTaskOrBug from "@/components/Editor/components/AddTaskOrBug";
 import AddIssueModal from "./components/AddIssueModal";
-import { PlusOutlined } from "@ant-design/icons";
+import { ExportOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
 import { ISSUE_LIST_KANBAN, ISSUE_LIST_LIST } from "@/api/project_entry";
 import CommentEntry from "@/components/CommentEntry";
 import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
+import ExportModal from "./components/ExportModal";
 
 
 const SpritDetail = () => {
@@ -34,6 +35,7 @@ const SpritDetail = () => {
     const [selMemberUserId, setSelMemberUserId] = useState("");
     const [refIssueType, setRefIssueType] = useState<ISSUE_TYPE | null>(null);
     const [showAddIssueModal, setShowAddIssueModal] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
 
     const loadSpritInfo = async () => {
         const res = await request(get_sprit(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
@@ -118,7 +120,7 @@ const SpritDetail = () => {
                         onChange={value => {
                             spritStore.spritTab = value;
                         }} tabBarExtraContent={
-                            <Space>
+                            <Space style={{ marginRight: "10px" }}>
                                 <CommentEntry projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_ENTRY}
                                     targetId={entryStore.curEntry?.entry_id ?? ""} myUserId={userStore.userInfo.userId} myAdmin={projectStore.isAdmin} />
                                 {(spritStore.spritTab == "issue" || spritStore.spritTab == "kanban") && (
@@ -168,6 +170,18 @@ const SpritDetail = () => {
                                         </Form.Item>
                                     </Form>
                                 )}
+                                <Popover trigger="click" placement="bottom" content={
+                                    <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                        <Button type="link" icon={<ExportOutlined />}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setShowExportModal(true);
+                                            }}>导出</Button>
+                                    </Space>
+                                }>
+                                    <MoreOutlined style={{ padding: "6px" }} />
+                                </Popover>
                             </Space>
                         }>
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.issue_list_type != ISSUE_LIST_KANBAN && (
@@ -223,6 +237,9 @@ const SpritDetail = () => {
             )}
             {showAddIssueModal == true && (
                 <AddIssueModal onClose={() => setShowAddIssueModal(false)} />
+            )}
+            {showExportModal == true && (
+                <ExportModal onClose={() => setShowExportModal(false)} />
             )}
         </Card>
     );
