@@ -5,6 +5,17 @@ import { SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC } from '@/api/project_issue';
 import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, list as list_issue, get as get_issue } from '@/api/project_issue';
 import { request } from '@/utils/request';
 
+export interface SpritStatus {
+    taskCount: number;
+    bugCount: number;
+    missTimeTaskCount: number;
+    missProgressTaskCount: number;
+    missTimeBugCount: number;
+    missProgressBugCount: number;
+    missExecTaskCount: number;
+    missExecBugCount: number;
+}
+
 export default class SpritStore {
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore;
@@ -187,33 +198,39 @@ export default class SpritStore {
         });
     }
 
-
-    get allTimeReady(): boolean {
-        if (this._bugList.length == 0 && this._taskList.length == 0) {
-            return false;
-        }
+    get spritStatus(): SpritStatus {
+        const status = {
+            taskCount: this._taskList.length,
+            bugCount: this._bugList.length,
+            missTimeTaskCount: 0,
+            missProgressTaskCount: 0,
+            missTimeBugCount: 0,
+            missProgressBugCount: 0,
+            missExecTaskCount: 0,
+            missExecBugCount: 0,
+        };
         for (const bug of this._bugList) {
-            if (bug.exec_user_id == "" || bug.has_start_time == false || bug.has_end_time == false || bug.has_estimate_minutes == false || bug.has_remain_minutes == false) {
-                return false;
+            if(bug.exec_user_id == ""){
+                status.missExecBugCount += 1;
             }
-            if (bug.has_start_time && bug.has_end_time && bug.start_time > bug.end_time) {
-                return false;
+            if(bug.has_start_time == false || bug.has_end_time == false){
+                status.missTimeBugCount += 1;
             }
-            if (bug.has_estimate_minutes && bug.has_remain_minutes && bug.remain_minutes > bug.estimate_minutes) {
-                return false;
+            if(bug.has_estimate_minutes == false || bug.has_remain_minutes == false){
+                status.missProgressBugCount += 1;
             }
         }
         for (const task of this._taskList) {
-            if (task.exec_user_id == "" || task.has_start_time == false || task.has_end_time == false || task.has_estimate_minutes == false || task.has_remain_minutes == false) {
-                return false;
+            if(task.exec_user_id == ""){
+                status.missExecTaskCount += 1;
             }
-            if (task.has_start_time && task.has_end_time && task.start_time > task.end_time) {
-                return false;
+            if(task.has_start_time == false || task.has_end_time == false){
+                status.missTimeTaskCount += 1;
             }
-            if (task.has_estimate_minutes && task.has_remain_minutes && task.remain_minutes > task.estimate_minutes) {
-                return false;
+            if(task.has_estimate_minutes == false || task.has_remain_minutes == false){
+                status.missProgressTaskCount += 1;
             }
         }
-        return true;
+        return status;
     }
 }

@@ -415,44 +415,46 @@ const SummaryPanel: React.FC<SummaryPanelProps> = (props) => {
                     <span>总结阶段，不能再提交和修改建议。</span>
                 )}
             </Space>
-        } bordered={false} extra={
-            <Space size="middle">
-                <Select placeholder="标签:" style={{ width: "100px" }} value={filterTagId} allowClear onChange={value => setFilterTagId(value ?? null)}>
-                    <Select.Option value="">空标签</Select.Option>
-                    {(projectStore.curProject?.tag_list ?? []).filter(tagDef => tagDef.use_in_sprit_summary).map(tagDef => (
-                        <Select.Option key={tagDef.tag_id} value={tagDef.tag_id}>
-                            <span style={{ padding: "4px 4px", backgroundColor: tagDef.bg_color }}>{tagDef.tag_name}</span>
-                        </Select.Option>
-                    ))}
-                </Select>
+        }
+            bordered={false} bodyStyle={{height: "calc(100vh - 190px)", overflowY: "scroll" }}
+            extra={
+                <Space size="middle">
+                    <Select placeholder="标签:" style={{ width: "100px" }} value={filterTagId} allowClear onChange={value => setFilterTagId(value ?? null)}>
+                        <Select.Option value="">空标签</Select.Option>
+                        {(projectStore.curProject?.tag_list ?? []).filter(tagDef => tagDef.use_in_sprit_summary).map(tagDef => (
+                            <Select.Option key={tagDef.tag_id} value={tagDef.tag_id}>
+                                <span style={{ padding: "4px 4px", backgroundColor: tagDef.bg_color }}>{tagDef.tag_name}</span>
+                            </Select.Option>
+                        ))}
+                    </Select>
 
-                {props.state == SUMMARY_COLLECT && (
-                    <Button onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowAddModal(true);
-                    }}>新增建议</Button>
-                )}
-                {props.state == SUMMARY_SHOW && (
-                    <Button disabled={groupList.filter(g => g.checked).length < 2} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        mergeGroup();
-                    }}>合并建议</Button>
-                )}
-                <Popover trigger="click" placement="bottom" content={
-                    <div style={{ padding: "10px 10px" }}>
-                        <Button type="link" disabled={!projectStore.isAdmin} onClick={e => {
+                    {props.state == SUMMARY_COLLECT && (
+                        <Button onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
-                            projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_TAGLIST;
-                        }}>管理标签</Button>
-                    </div>
-                }>
-                    <MoreOutlined />
-                </Popover>
-            </Space>
-        }>
+                            setShowAddModal(true);
+                        }}>新增建议</Button>
+                    )}
+                    {props.state == SUMMARY_SHOW && (
+                        <Button disabled={groupList.filter(g => g.checked).length < 2} onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            mergeGroup();
+                        }}>合并建议</Button>
+                    )}
+                    <Popover trigger="click" placement="bottom" content={
+                        <div style={{ padding: "10px 10px" }}>
+                            <Button type="link" disabled={!projectStore.isAdmin} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_TAGLIST;
+                            }}>管理标签</Button>
+                        </div>
+                    }>
+                        <MoreOutlined />
+                    </Popover>
+                </Space>
+            }>
             {props.state == SUMMARY_COLLECT && (
                 <List rowKey="summary_item_id" grid={{ gutter: 16 }} dataSource={summaryList} renderItem={summaryItem => (
                     <List.Item>

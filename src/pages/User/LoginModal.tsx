@@ -84,7 +84,7 @@ const LoginModal = () => {
     }, [defaultAddr]);
 
     return (
-        <Modal title={getLoginTagStr()} open footer={null}
+        <Modal title={<span style={{ fontSize: "16px", fontWeight: 600 }}>{getLoginTagStr()}</span>} open footer={null}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -167,6 +167,17 @@ const LoginModal = () => {
                             e.stopPropagation();
                             e.preventDefault();
                             setPassword(e.target.value.trim());
+                        }} onKeyDown={e => {
+                            if (e.key == "Enter") {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                if (userName == "" || password == "") {
+                                    return;
+                                }
+                                userStore.callLogin(userName, password).then(() => {
+                                    localStorage.setItem(`${defaultAddr}:username`, userName);
+                                });
+                            }
                         }} />
                     </Form.Item>
                     <div style={{ display: "flex", justifyContent: "flex-end", fontSize: "14px" }}>
