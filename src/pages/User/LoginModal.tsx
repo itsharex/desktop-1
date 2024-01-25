@@ -84,7 +84,7 @@ const LoginModal = () => {
     }, [defaultAddr]);
 
     return (
-        <Modal title={getLoginTagStr()} open footer={null}
+        <Modal title={<span style={{ fontSize: "16px", fontWeight: 600 }}>{getLoginTagStr()}</span>} open footer={null}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
