@@ -11,7 +11,6 @@ import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import { FILE_OWNER_TYPE_ISSUE } from "@/api/fs";
 import { updateContent as updateIssueContent } from './utils';
-import { flushEditorContent } from "@/components/Editor/common";
 
 export interface IssueDetailLeftProps {
     issue: IssueInfo;
@@ -42,7 +41,6 @@ const IssueDetailLeft: React.FC<IssueDetailLeftProps> = (props) => {
     });
 
     const updateContent = async () => {
-        await flushEditorContent();
         const data = editor.editorRef.current?.getContent() ?? {
             type: 'doc',
         };

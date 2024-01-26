@@ -8,7 +8,6 @@ import { create_idea } from "@/api/project_idea";
 import { request } from "@/utils/request";
 import { useHistory } from "react-router-dom";
 import { LinkIdeaPageInfo } from "@/stores/linkAux";
-import { flushEditorContent } from "@/components/Editor/common";
 
 
 const CreateModal = () => {
@@ -42,7 +41,6 @@ const CreateModal = () => {
             message.error("标题不能为空");
             return;
         }
-        await flushEditorContent();
         const content = editorRef.current?.getContent() ?? {
             type: 'doc',
         };

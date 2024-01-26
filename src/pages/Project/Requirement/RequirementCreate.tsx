@@ -13,7 +13,6 @@ import { useStores } from "@/hooks";
 import { FILE_OWNER_TYPE_PROJECT, FILE_OWNER_TYPE_REQUIRE_MENT } from "@/api/fs";
 import { request } from "@/utils/request";
 import { create_requirement } from '@/api/project_requirement';
-import { flushEditorContent } from "@/components/Editor/common";
 
 const RequirementCreate = () => {
     const location = useLocation();
@@ -47,7 +46,6 @@ const RequirementCreate = () => {
             message.error("标题不能为空");
             return;
         }
-        await flushEditorContent();
         const content = editorRef.current?.getContent() ?? {
             type: 'doc',
         };

@@ -12,7 +12,6 @@ import { join } from '@/api/project_member';
 import { unixTipList } from '@/pages/Project/Setting/components/TipListSettingPanel';
 import randomColor from 'randomcolor';
 import { FILE_OWNER_TYPE_NONE } from '@/api/fs';
-import { flushEditorContent } from '../Editor/common';
 import { create_folder } from '@/api/project_entry';
 
 type CreatedProjectProps = {
@@ -47,8 +46,6 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
   });
 
   const createProject = async () => {
-    await flushEditorContent();
-
     const content = editorRef.current?.getContent() ?? { type: "doc" };
 
     const data: BasicProjectInfo = {

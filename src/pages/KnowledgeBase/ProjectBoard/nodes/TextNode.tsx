@@ -8,7 +8,6 @@ import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { Modal } from "antd";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
 import { request } from "@/utils/request";
-import { flushEditorContent } from "@/components/Editor/common";
 
 interface EditTextModalProps {
     content: string,
@@ -36,7 +35,6 @@ const EditTextModal = (props: EditTextModalProps) => {
     });
 
     const saveContent = async () => {
-        await flushEditorContent();
         await request(update_content({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,

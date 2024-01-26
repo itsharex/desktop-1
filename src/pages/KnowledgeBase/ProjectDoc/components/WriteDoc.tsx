@@ -11,7 +11,7 @@ import DocTocPanel from './DocTocPanel';
 import classNames from 'classnames';
 import s from "./EditDoc.module.less";
 import ActionModal from '@/components/ActionModal';
-import { type EditorRef, flushEditorContent } from '@/components/Editor/common';
+import { type EditorRef } from '@/components/Editor/common';
 
 interface WriteDocInnerProps {
   editor: React.JSX.Element;
@@ -30,7 +30,6 @@ const WriteDocInner = observer((props: WriteDocInnerProps) => {
 
   //更新文档
   const updateDoc = async () => {
-    await flushEditorContent();
     const content = props.editorRef.current?.getContent() ?? {
       type: 'doc',
     };

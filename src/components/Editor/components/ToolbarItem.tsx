@@ -23,7 +23,6 @@ import {
   WIDGET_TYPE_MERMAID,
   WidgetTypeList,
   WIDGET_TYPE_SPRIT_REF,
-  WIDGET_TYPE_API_COLL_REF,
   WIDGET_TYPE_TLDRAW,
   WIDGET_TYPE_SWAGGER,
 } from '../widgets/index';
@@ -340,10 +339,6 @@ const ContentWidget = observer((props: ContentWidgetProps) => {
     label: '软件设计',
     children: [
       {
-        key: WIDGET_TYPE_TLDRAW,
-        label: "白板",
-      },
-      {
         key: WIDGET_TYPE_MERMAID,
         label: 'mermaid',
       },
@@ -353,13 +348,11 @@ const ContentWidget = observer((props: ContentWidgetProps) => {
       }
     ],
   };
-  if (props.projectId !== "") {
-    designItems.children.push({
-      key: WIDGET_TYPE_API_COLL_REF,
-      label: "引用接口集合",
-    });
-  }
   items.push(designItems);
+  items.push({
+    key: WIDGET_TYPE_TLDRAW,
+    label: "白板",
+  });
   const menu = (
     <Menu
       subMenuCloseDelay={0.05}

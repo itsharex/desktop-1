@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SAVE_WIDGET_NOTICE, type WidgetProps } from './common';
+import { type WidgetProps } from './common';
 import mermaid from 'mermaid';
 import { Tabs, Select } from 'antd';
 import { uniqId } from '@/utils/utils';
@@ -9,7 +9,6 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import style from './MermaidWidget.module.less';
 import { QuestionCircleOutlined } from '@ant-design/icons/lib/icons';
 import { classDemo, erDemo, flowDemo, ganttDemo, gitDemo, journeyDemo, pieDemo, seqDemo, stateDemo } from '@/utils/mermaid';
-import { appWindow } from "@tauri-apps/api/window";
 import { observer } from 'mobx-react';
 
 //为了防止编辑器出错，WidgetData结构必须保存稳定
@@ -71,6 +70,7 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
         value = '';
     }
     setSpec(value);
+    props.writeData({ spec: value });
   };
 
   useEffect(() => {
@@ -92,17 +92,6 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
     }
   }, [spec, activateKey]);
 
-  useEffect(() => {
-    const unListenFn = appWindow.listen(SAVE_WIDGET_NOTICE, () => {
-      setSpec(oldValue => {
-        props.writeData({ spec: oldValue });
-        return oldValue;
-      });
-    });
-    return () => {
-      unListenFn.then(unListen => unListen());
-    };
-  }, []);
 
   return (
     <ErrorBoundary>
@@ -163,6 +152,7 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
               minHeight={200}
               onChange={(e) => {
                 setSpec(e.target.value);
+                props.writeData({ spec: e.target.value });
               }}
               style={{
                 fontSize: 14,
