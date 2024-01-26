@@ -42,7 +42,7 @@ const StatefulsetCard = (props: StatefulsetCardProps) => {
             });
             return;
         }
-        const index = cloudStore.statefulsetPermList.findIndex(item => item.name == props.statefulset.metadata?.name ?? "");
+        const index = cloudStore.statefulsetPermList.findIndex(item => item.name == (props.statefulset.metadata?.name ?? ""));
         if (index == -1) {
             setMyPerm({
                 user_id: userStore.userInfo.userId,

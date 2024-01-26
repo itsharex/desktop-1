@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import React from 'react';
 import s from './index.module.less';
-import { ReactComponent as Packupsvg } from '@/assets/svg/packup.svg';
+import Packupsvg  from '@/assets/svg/packup.svg?react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
 

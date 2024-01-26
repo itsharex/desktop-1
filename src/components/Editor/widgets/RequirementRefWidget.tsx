@@ -9,7 +9,7 @@ import type { RequirementInfo } from '@/api/project_requirement';
 import { list_requirement, get_requirement, list_requirement_by_id, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import type { ColumnsType } from 'antd/lib/table';
 import { useStores } from '@/hooks';
-import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
+import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import Pagination from '@/components/Pagination';
 import { request } from '@/utils/request';
 import moment from 'moment';
