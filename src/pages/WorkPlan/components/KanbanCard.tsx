@@ -17,9 +17,10 @@ import s from "./KanbanCard.module.less";
 import classNames from "classnames";
 import { request } from "@/utils/request";
 import { EditDate } from "@/components/EditCell/EditDate";
-import { cancelEndTime, cancelStartTime, updateEndTime, updateStartTime } from "@/pages/Issue/components/utils";
+import { cancelEndTime, cancelStartTime, updateEndTime, updateStartTime, updateTitle } from "@/pages/Issue/components/utils";
 import type { SpritInfo } from "@/api/project_sprit";
 import type { EntryInfo } from "@/api/project_entry";
+import { EditText } from "@/components/EditCell/EditText";
 
 export const DND_ITEM_TYPE = "issue";
 
@@ -283,15 +284,27 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                         </Space>
                     )}
                 </div>
-                <h4 className={s.title}><a onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (props.issue.issue_type == ISSUE_TYPE_TASK) {
-                        linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id), history);
-                    } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
-                        linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id), history);
-                    }
-                }}>{props.issue.basic_info.title}</a></h4>
+                <EditText editable={hover && props.issue.user_issue_perm.can_update} content={props.issue.basic_info.title}
+                    fontSize="16px" fontWeight={500} width="190px"
+                    showEditIcon onClick={() => {
+                        if (props.issue.issue_type == ISSUE_TYPE_TASK) {
+                            linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id, spritStore.taskList.map(item => item.issue_id)), history);
+                        } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
+                            linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id, spritStore.bugList.map(item => item.issue_id)), history);
+                        }
+                    }} onChange={async value => {
+                        if (value.trim() == "") {
+                            return false;
+                        }
+                        try {
+                            await updateTitle(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value.trim());
+                            await spritStore.updateIssue(props.issue.issue_id);
+                            return true;
+                        } catch (e) {
+                            console.log(e);
+                            return false;
+                        }
+                    }} />
                 {props.issue.exec_user_id != "" && (
                     <div className={s.member}>
                         <Space>

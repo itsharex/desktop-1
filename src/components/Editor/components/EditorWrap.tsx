@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import React from 'react';
 import s from './EditorWrap.module.less';
-import { ReactComponent as Deletesvg } from '@/assets/svg/delete.svg';
+import Deletesvg from '@/assets/svg/delete.svg?react';
 import classNames from 'classnames';
 
 type EditorWrapProps = {
@@ -18,7 +18,7 @@ const EditorWrap: FC<EditorWrapProps> = (props) => {
     <div>
       <div
         className={classNames(s.editor_wrap, className)}
-        style={{ ...props.style}}
+        style={{ ...props.style }}
       >
         {onChange && (
           <div

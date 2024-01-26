@@ -42,7 +42,7 @@ const DeploymentCard = (props: DeploymentCardProps) => {
             });
             return;
         }
-        const index = cloudStore.deploymentPermList.findIndex(item => item.name == props.deployment.metadata?.name ?? "");
+        const index = cloudStore.deploymentPermList.findIndex(item => item.name == (props.deployment.metadata?.name ?? ""));
         if (index == -1) {
             setMyPerm({
                 user_id: userStore.userInfo.userId,

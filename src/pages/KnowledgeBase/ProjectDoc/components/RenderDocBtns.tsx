@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReactComponent as Historysvg } from '@/assets/svg/history.svg';
+import Historysvg from '@/assets/svg/history.svg?react';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
 import { Popover, Space } from 'antd';

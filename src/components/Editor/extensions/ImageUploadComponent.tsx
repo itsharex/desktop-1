@@ -8,7 +8,7 @@ import { save_tmp_file_base64, write_thumb_image_file, set_file_owner, write_fil
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
 import style from './common.module.less';
-import { ReactComponent as Deletesvg } from '@/assets/svg/delete.svg';
+import Deletesvg from '@/assets/svg/delete.svg?react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { request } from '@/utils/request';
 import AsyncImage from '@/components/AsyncImage';

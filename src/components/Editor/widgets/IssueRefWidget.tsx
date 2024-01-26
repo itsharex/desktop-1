@@ -24,7 +24,7 @@ import type LinkAuxStore from '@/stores/linkAux';
 import type { History } from 'history';
 import Button from '@/components/Button';
 import { LinkOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
-import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
+import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import AddTaskOrBug from '../components/AddTaskOrBug';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { appWindow } from "@tauri-apps/api/window";

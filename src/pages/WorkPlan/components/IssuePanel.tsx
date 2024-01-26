@@ -1,29 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Card, Popover, Space, Table, Tooltip } from "antd";
+import { Card, Popover, Space, Table, Tooltip, List } from "antd";
 import { useStores } from "@/hooks";
-import Button from "@/components/Button";
-import { EditOutlined, ExclamationCircleOutlined, LinkOutlined } from "@ant-design/icons";
-import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
+import { EditOutlined, ExclamationCircleOutlined, CheckOutlined } from "@ant-design/icons";
+import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE, SubIssueInfo } from "@/api/project_issue";
 import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
-import type LinkAuxStore from "@/stores/linkAux";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
-import { cancel_link_sprit } from '@/api/project_issue';
+import { cancel_link_sprit, list_sub_issue } from '@/api/project_issue';
 import { request } from "@/utils/request";
 import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
-import type { History } from 'history';
 import { useHistory } from "react-router-dom";
 import { EditDate } from "@/components/EditCell/EditDate";
 import {
     cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems,
     updateCheckUser, updateEndTime, updateEstimateMinutes, updateExecUser, updateExtraInfo, updateProcessStage,
-    updateRemainMinutes, updateStartTime
+    updateRemainMinutes, updateStartTime,
+    updateTitle
 } from "@/pages/Issue/components/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { bugLvSelectItems, bugPrioritySelectItems, hourSelectItems, taskPrioritySelectItems } from "@/pages/Issue/components/constant";
-import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
+import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
+import { EditText } from "@/components/EditCell/EditText";
+
+interface SubIssuePopoverProps {
+    issueId: string;
+}
+
+const SubIssuePopover = (props: SubIssuePopoverProps) => {
+    const userStore = useStores('userStore');
+    const projectStore = useStores('projectStore');
+
+    const [subIssueList, setSubIssueList] = useState<SubIssueInfo[]>([]);
+
+    const loadSubIssueList = async () => {
+        const res = await request(list_sub_issue({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            issue_id: props.issueId,
+        }));
+        setSubIssueList(res.sub_issue_list);
+    };
+
+
+
+    useEffect(() => {
+        loadSubIssueList();
+    }, []);
+
+    return (
+        <List rowKey="sub_issue_id" dataSource={subIssueList} renderItem={item => (
+            <List.Item>
+                <Space>
+                    <div style={{ width: "20px" }}>
+                        {item.done && <CheckOutlined style={{ color: "green" }} />}
+                    </div>
+                    {item.basic_info.title}
+                </Space>
+            </List.Item>
+        )} style={{ padding: "10px 10px", maxWidth: "500px", maxHeight: "400px", overflowY: "scroll", borderRadius: "10px" }} />
+    )
+}
 
 type ColumnsTypes = ColumnType<IssueInfo> & {
     issueType?: ISSUE_TYPE;
@@ -42,38 +80,6 @@ const getColor = (v: number) => {
         default:
             return ISSUE_STATE_COLOR_ENUM.规划中颜色;
     }
-};
-
-const renderTitle = (
-    row: IssueInfo,
-    projectId: string,
-    linkAuxStore: LinkAuxStore | undefined,
-    taskIdList: string[],
-    bugIdList: string[],
-    history: History | undefined,
-) => {
-    return (
-        <div>
-            <Button
-                style={{ minWidth: 0, padding: "0px 0px" }}
-                type="link"
-                disabled={linkAuxStore == undefined}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (linkAuxStore !== undefined && history != undefined) {
-                        if (row.issue_type == ISSUE_TYPE_TASK) {
-                            linkAuxStore.goToLink(new LinkTaskInfo('', projectId, row.issue_id, taskIdList), history);
-                        } else if (row.issue_type == ISSUE_TYPE_BUG) {
-                            linkAuxStore.goToLink(new LinkBugInfo('', projectId, row.issue_id, bugIdList), history);
-                        }
-                    }
-                }}
-            >
-                <span title={row.basic_info?.title}><LinkOutlined />{row.basic_info?.title}</span>
-            </Button>
-        </div>
-    );
 };
 
 interface IssuePanelProps {
@@ -167,11 +173,24 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: `名称`,
             ellipsis: true,
             dataIndex: ['basic_info', 'title'],
-            width: 200,
+            width: 340,
             align: "left",
             fixed: true,
-            render: (_, row: IssueInfo) =>
-                renderTitle(row, projectStore.curProjectId, linkAuxStore, spritStore.taskList.map(task => task.issue_id), spritStore.bugList.map(bug => bug.issue_id), history),
+            render: (v: string, record: IssueInfo) => {
+                return (
+                    <div style={{ lineHeight: "28px" }}>
+                        <EditText editable={(!projectStore.isClosed) && record.user_issue_perm.can_update} content={v} showEditIcon={true} onChange={async (value) => {
+                            return await updateTitle(userStore.sessionId, record.project_id, record.issue_id, value);
+                        }} onClick={() => {
+                            if (record.issue_type == ISSUE_TYPE_TASK) {
+                                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, spritStore.taskList.map(item => item.issue_id)), history);
+                            } else if (record.issue_type == ISSUE_TYPE_BUG) {
+                                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id, spritStore.bugList.map(item => item.issue_id)), history);
+                            }
+                        }} />
+                    </div>
+                );
+            },
         },
         {
             title: `阶段`,
@@ -346,6 +365,24 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 }} showEditIcon={true} />,
         },
         {
+            title: "子任务数",
+            width: 100,
+            align: "left",
+            render: (_, row: IssueInfo) => (
+                <>
+                    {row.sub_issue_status.total_count > 0 && (
+                        <Popover trigger="hover" placement="bottom" destroyTooltipOnHide content={<SubIssuePopover issueId={row.issue_id} />}>
+                            <span style={{ color: "blue" }}>
+                                {row.sub_issue_status.done_count}/{row.sub_issue_status.total_count}
+                            </span>
+                        </Popover>
+                    )}
+                    {row.sub_issue_status.total_count == 0 && "-"}
+                </>
+            ),
+            issueType: ISSUE_TYPE_TASK,
+        },
+        {
             title: '预估开始成时间',
             dataIndex: 'start_time',
             width: 120,
@@ -468,7 +505,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                             return false;
                         }
                     })}
-                    columns={columns.filter(item => item.issueType != ISSUE_TYPE_BUG)}
+                    columns={columns.filter(item => (item.issueType == undefined || item.issueType == ISSUE_TYPE_TASK))}
                     pagination={false}
                     scroll={{ x: 1100 }}
                 />
@@ -486,7 +523,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                             return false;
                         }
                     })}
-                    columns={columns}
+                    columns={columns.filter(item => (item.issueType == undefined || item.issueType == ISSUE_TYPE_BUG))}
                     pagination={false}
                     scroll={{ x: 1100 }} />
             </Card>

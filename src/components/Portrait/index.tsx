@@ -7,7 +7,7 @@ import { useStores } from '@/hooks';
 import { observer } from 'mobx-react';
 import { request } from '@/utils/request';
 import { update } from '@/api/user';
-import { ReactComponent as Quitsvg } from '@/assets/svg/quit.svg';
+import Quitsvg from '@/assets/svg/quit.svg?react';
 import Profile from '../Profile';
 import * as fsApi from '@/api/fs';
 import UserPhoto from '@/components/Portrait/UserPhoto';
