@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Card, Popover, Space, Table, Tooltip } from "antd";
+import { Card, Popover, Space, Table, Tooltip, List } from "antd";
 import { useStores } from "@/hooks";
-import { EditOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
+import { EditOutlined, ExclamationCircleOutlined, CheckOutlined } from "@ant-design/icons";
+import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE, SubIssueInfo } from "@/api/project_issue";
 import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
-import { cancel_link_sprit } from '@/api/project_issue';
+import { cancel_link_sprit, list_sub_issue } from '@/api/project_issue';
 import { request } from "@/utils/request";
 import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
 import { useHistory } from "react-router-dom";
@@ -23,6 +23,45 @@ import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
 import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";
+
+interface SubIssuePopoverProps {
+    issueId: string;
+}
+
+const SubIssuePopover = (props: SubIssuePopoverProps) => {
+    const userStore = useStores('userStore');
+    const projectStore = useStores('projectStore');
+
+    const [subIssueList, setSubIssueList] = useState<SubIssueInfo[]>([]);
+
+    const loadSubIssueList = async () => {
+        const res = await request(list_sub_issue({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            issue_id: props.issueId,
+        }));
+        setSubIssueList(res.sub_issue_list);
+    };
+
+
+
+    useEffect(() => {
+        loadSubIssueList();
+    }, []);
+
+    return (
+        <List rowKey="sub_issue_id" dataSource={subIssueList} renderItem={item => (
+            <List.Item>
+                <Space>
+                    <div style={{ width: "20px" }}>
+                        {item.done && <CheckOutlined style={{ color: "green" }} />}
+                    </div>
+                    {item.basic_info.title}
+                </Space>
+            </List.Item>
+        )} style={{ padding: "10px 10px", maxWidth: "500px", maxHeight: "400px", overflowY: "scroll", borderRadius: "10px" }} />
+    )
+}
 
 type ColumnsTypes = ColumnType<IssueInfo> & {
     issueType?: ISSUE_TYPE;
@@ -329,7 +368,18 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             title: "子任务数",
             width: 100,
             align: "left",
-            render: (_, row: IssueInfo) => row.sub_issue_status.total_count > 0 ? `${row.sub_issue_status.done_count}/${row.sub_issue_status.total_count}` : "-",
+            render: (_, row: IssueInfo) => (
+                <>
+                    {row.sub_issue_status.total_count > 0 && (
+                        <Popover trigger="hover" placement="bottom" destroyTooltipOnHide content={<SubIssuePopover issueId={row.issue_id} />}>
+                            <span style={{ color: "blue" }}>
+                                {row.sub_issue_status.done_count}/{row.sub_issue_status.total_count}
+                            </span>
+                        </Popover>
+                    )}
+                    {row.sub_issue_status.total_count == 0 && "-"}
+                </>
+            ),
             issueType: ISSUE_TYPE_TASK,
         },
         {
