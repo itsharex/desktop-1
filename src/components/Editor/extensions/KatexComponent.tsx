@@ -4,7 +4,7 @@ import 'katex/dist/katex.min.css';
 import { BlockMath } from 'react-katex';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import style from './common.module.less';
-import { ReactComponent as Deletesvg } from '@/assets/svg/delete.svg';
+import Deletesvg from '@/assets/svg/delete.svg?react';
 import { Popover, Input, Space } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 

@@ -11,7 +11,7 @@ import { useStores } from '@/hooks';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import style from './common.module.less';
-import { ReactComponent as Deletesvg } from '@/assets/svg/delete.svg';
+import Deletesvg from '@/assets/svg/delete.svg?react';
 
 const getFileSizeStr = (size: number): string => {
   let s = size;

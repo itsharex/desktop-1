@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import style from '@/components/Editor/extensions/common.module.less';
 import { getFileType, FILE_TYPE } from '@/utils/file_type';
 import { Progress } from "antd";
-import { ReactComponent as Deletesvg } from '@/assets/svg/delete.svg';
+import Deletesvg  from '@/assets/svg/delete.svg?react';
 import { listen } from '@tauri-apps/api/event';
 import type { FsProgressEvent } from '@/api/fs';
 import { get_cache_file, download_file } from '@/api/fs';

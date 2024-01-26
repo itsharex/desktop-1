@@ -19,7 +19,7 @@ import {
 } from "@/pages/Issue/components/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { bugLvSelectItems, bugPrioritySelectItems, hourSelectItems, taskPrioritySelectItems } from "@/pages/Issue/components/constant";
-import { ReactComponent as Deliconsvg } from '@/assets/svg/delicon.svg';
+import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";

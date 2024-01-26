@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH } from '@/utils/constant';
 import AppStorePanel from './components/AppStorePanel';
 import { useStores } from '@/hooks';
-import { ReactComponent as DockerSvg } from '@/assets/svg/docker.svg';
+import DockerSvg from '@/assets/svg/docker.svg?react';
 import DockerTemplatePanel from './components/DockerTemplatePanel';
 import PubSearchPanel from './components/PubSearchPanel';
 import { observer } from 'mobx-react';

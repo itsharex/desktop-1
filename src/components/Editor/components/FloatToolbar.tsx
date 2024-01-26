@@ -8,7 +8,7 @@ import { CompactPicker } from 'react-color';
 import type { TextColorAttributes } from '@remirror/extension-text-color';
 import type { TextHighlightAttributes } from '@remirror/extension-text-highlight';
 import s from './FloatToolbar.module.less';
-import { ReactComponent as Bgsvg } from '@/assets/svg/bg.svg';
+import Bgsvg from '@/assets/svg/bg.svg?react';
 import ToolbarGroup from './ToolbarGroup';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
