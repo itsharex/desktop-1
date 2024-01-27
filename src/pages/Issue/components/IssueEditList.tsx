@@ -9,7 +9,7 @@ import { Popover, Space, Table, Tooltip } from 'antd';
 import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import type { ColumnType } from 'antd/lib/table';
-import { LinkBugInfo, LinkRequirementInfo, LinkTaskInfo } from '@/stores/linkAux';
+import { LinkBugInfo, LinkRequirementInfo, LinkSpritInfo, LinkTaskInfo } from '@/stores/linkAux';
 import { showShortNote } from '@/utils/short_note';
 import { SHORT_NOTE_BUG, SHORT_NOTE_TASK } from '@/api/short_note';
 import { issueState } from '@/utils/constant';
@@ -150,6 +150,26 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
               e.preventDefault();
               linkAuxStore.goToLink(new LinkRequirementInfo("", record.project_id, record.requirement_id), history);
             }}><LinkOutlined />&nbsp;{record.requirement_title}</a>
+          )}
+        </>
+      ),
+    },
+    {
+      title: "工作计划",
+      dataIndex: "sprit_name",
+      width: 150,
+      ellipsis: true,
+      render: (_, record: IssueInfo) => (
+        <>
+          {record.sprit_id == "" && "-"}
+          {record.sprit_id != "" && (
+            <a onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              linkAuxStore.goToLink(new LinkSpritInfo("", record.project_id, record.sprit_id), history);
+            }}>
+              <LinkOutlined />&nbsp;{record.sprit_name}
+            </a>
           )}
         </>
       ),
@@ -513,7 +533,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       dataSource={dataSource}
       pagination={false}
       expandable={{
-        expandedRowRender: (row: IssueInfo) => (<SubTaskList issueId={row.issue_id}/>),
+        expandedRowRender: (row: IssueInfo) => (<SubTaskList issueId={row.issue_id} />),
         rowExpandable: (row: IssueInfo) => row.sub_issue_status.total_count > 0,
         showExpandColumn: getIsTask(location.pathname),
       }}
