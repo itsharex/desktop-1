@@ -111,11 +111,13 @@ export default class SpritStore {
             offset: 0,
             limit: 999,
         }));
+        //按issue index倒序
+        const infoList = res.info_list.sort((a, b) => b.issue_index - a.issue_index);
         runInAction(() => {
             if (issueType == ISSUE_TYPE_TASK) {
-                this._taskList = res.info_list;
+                this._taskList = infoList;
             } else if (issueType == ISSUE_TYPE_BUG) {
-                this._bugList = res.info_list;
+                this._bugList = infoList;
             }
         });
     }
@@ -133,8 +135,8 @@ export default class SpritStore {
                 tmpBugList.unshift(issue);
             }
         }
-        tmpTaskList.sort((a, b) => b.update_time - a.update_time);
-        tmpBugList.sort((a, b) => b.update_time - a.update_time);
+        tmpTaskList.sort((a, b) => b.issue_index - a.issue_index);
+        tmpBugList.sort((a, b) => b.issue_index - a.issue_index);
         runInAction(() => {
             this._taskList = tmpTaskList;
             this._bugList = tmpBugList;
@@ -210,24 +212,24 @@ export default class SpritStore {
             missExecBugCount: 0,
         };
         for (const bug of this._bugList) {
-            if(bug.exec_user_id == ""){
+            if (bug.exec_user_id == "") {
                 status.missExecBugCount += 1;
             }
-            if(bug.has_start_time == false || bug.has_end_time == false){
+            if (bug.has_start_time == false || bug.has_end_time == false) {
                 status.missTimeBugCount += 1;
             }
-            if(bug.has_estimate_minutes == false || bug.has_remain_minutes == false){
+            if (bug.has_estimate_minutes == false || bug.has_remain_minutes == false) {
                 status.missProgressBugCount += 1;
             }
         }
         for (const task of this._taskList) {
-            if(task.exec_user_id == ""){
+            if (task.exec_user_id == "") {
                 status.missExecTaskCount += 1;
             }
-            if(task.has_start_time == false || task.has_end_time == false){
+            if (task.has_start_time == false || task.has_end_time == false) {
                 status.missTimeTaskCount += 1;
             }
-            if(task.has_estimate_minutes == false || task.has_remain_minutes == false){
+            if (task.has_estimate_minutes == false || task.has_remain_minutes == false) {
                 status.missProgressTaskCount += 1;
             }
         }
