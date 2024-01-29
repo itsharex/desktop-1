@@ -19,12 +19,11 @@ pub struct Filter {
 }
 
 //读取文件,只在微应用里面调用
-#[allow(unused_variables)]
 #[tauri::command]
 async fn read_file<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    project_id: String,
+    _project_id: String,
     multi: bool,
     filter_name: String,
     extensions: Vec<String>,
