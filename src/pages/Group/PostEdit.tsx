@@ -13,7 +13,7 @@ import Button from "@/components/Button";
 import { APP_GROUP_POST_DETAIL_PATH, APP_GROUP_POST_LIST_PATH } from "@/utils/constant";
 import { observer, useLocalObservable } from 'mobx-react';
 import ActionModal from "@/components/ActionModal";
-import { type EditorRef, flushEditorContent } from "@/components/Editor/common";
+import { type EditorRef } from "@/components/Editor/common";
 import { runInAction } from "mobx";
 
 
@@ -58,7 +58,6 @@ const PostEditInner = observer((props: PostEditInnerProps) => {
     };
 
     const createPost = async () => {
-        await flushEditorContent();
         const content = props.editorRef.current?.getContent() ?? { type: "doc" };
         const addRes = await request(add_post({
             session_id: userStore.sessionId,
@@ -79,7 +78,6 @@ const PostEditInner = observer((props: PostEditInnerProps) => {
     };
 
     const updatePost = async () => {
-        await flushEditorContent();
         const content = props.editorRef.current?.getContent() ?? { type: "doc" };
         await request(update_post_content({
             session_id: userStore.sessionId,

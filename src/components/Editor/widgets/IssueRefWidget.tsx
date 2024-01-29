@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { SAVE_WIDGET_NOTICE, type WidgetProps } from './common';
+import React, { useMemo, useState } from 'react';
+import { type WidgetProps } from './common';
 import type { ExtraBugInfo, ExtraTaskInfo, IssueInfo, ISSUE_TYPE } from '@/api/project_issue';
 import {
   ISSUE_STATE_CHECK,
@@ -27,7 +27,6 @@ import { LinkOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
 import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import AddTaskOrBug from '../components/AddTaskOrBug';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { appWindow } from "@tauri-apps/api/window";
 import { observer } from 'mobx-react';
 
 // 为了防止编辑器出错，WidgetData结构必须保存稳定
@@ -157,12 +156,22 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
     }
     if (issueList.length != dataSource.length) {
       setDataSource(issueList);
+      const saveData: WidgetData = {
+        issueType: data.issueType,
+        issueIdList: issueList.map(item => item.issue_id),
+      };
+      props.writeData(saveData);
     }
   };
 
   const removeIssue = (issueIndex: number) => {
     const tmpList = dataSource.filter(item => item.issue_index != issueIndex);
     setDataSource(tmpList);
+    const saveData: WidgetData = {
+      issueType: data.issueType,
+      issueIdList: tmpList.map(item => item.issue_id),
+    };
+    props.writeData(saveData);
   }
 
   const columns: ColumnsType<IssueInfo> = [
@@ -277,22 +286,6 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
     addIssue(linkList);
   }, []);
 
-  useEffect(() => {
-    const unListenFn = appWindow.listen(SAVE_WIDGET_NOTICE, () => {
-      setDataSource(oldValue => {
-        const saveData: WidgetData = {
-          issueType: data.issueType,
-          issueIdList: oldValue.map(item => item.issue_id),
-        };
-        props.writeData(saveData);
-        return oldValue;
-      });
-    });
-    return () => {
-      unListenFn.then(unListen => unListen());
-    };
-  }, []);
-
   return (
     <ErrorBoundary>
       <EditorWrap onChange={() => props.removeSelf()}>
@@ -322,7 +315,7 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
 
         {showAddIssue && <AddTaskOrBug
           title={data.issueType == ISSUE_TYPE_TASK ? '引用任务' : '引用缺陷'}
-          visible={showAddIssue}
+          open={showAddIssue}
           onCancel={() => setShowAddIssue(false)}
           okText="完成"
           onOK={(link) => {

@@ -7,7 +7,6 @@ import { useStores } from "@/hooks";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_PROJECT } from "@/api/fs";
 import { update as update_project } from "@/api/project";
-import { flushEditorContent } from "@/components/Editor/common";
 import { request } from "@/utils/request";
 
 const DescSettingPanel = (props: PanelProps) => {
@@ -32,7 +31,6 @@ const DescSettingPanel = (props: PanelProps) => {
     });
 
     const updateProject = async () => {
-        await flushEditorContent();
         const content = await editorRef.current?.getContent() ?? { type: "doc" };
         await request(update_project(userStore.sessionId, projectStore.curProjectId, {
             project_name: title,

@@ -40,9 +40,6 @@ export const Widget: React.FC<WidgetProps> = (props) => {
     case widgets.WIDGET_TYPE_REQUIRE_MENT_REF: {
       return <widgets.RequirementRefWidget {...widgetProps} />;
     }
-    case widgets.WIDGET_TYPE_API_COLL_REF: {
-      return <widgets.ApiCollRefWidget {...widgetProps} />
-    }
     case widgets.WIDGET_TYPE_TLDRAW: {
       return <widgets.TldrawWidget {...widgetProps} />
     }

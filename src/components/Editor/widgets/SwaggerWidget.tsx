@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { SAVE_WIDGET_NOTICE, type WidgetProps } from './common';
+import React, { useState } from 'react';
+import { type WidgetProps } from './common';
 import SwaggerUI from 'swagger-ui-react';
 import { Tabs, Input, Card, Form } from 'antd';
 import 'swagger-ui-react/swagger-ui.css';
@@ -9,7 +9,6 @@ import { QuestionCircleOutlined } from '@ant-design/icons/lib/icons';
 import { runInAction } from 'mobx';
 import { useLocalObservable } from 'mobx-react';
 import YAML from 'yaml';
-import { appWindow } from "@tauri-apps/api/window";
 import { observer } from 'mobx-react';
 
 //为了防止编辑器出错，WidgetData结构必须保存稳定
@@ -34,17 +33,6 @@ const EditSwagger: React.FC<WidgetProps> = observer((props) => {
         }
     }));
 
-    useEffect(() => {
-        const unListenFn = appWindow.listen(SAVE_WIDGET_NOTICE, () => {
-            props.writeData({
-                spec: localStore.spec,
-            });
-        });
-        return () => {
-            unListenFn.then(unListen => unListen());
-        };
-    }, []);
-
     return (
         <ErrorBoundary>
             <EditorWrap onChange={() => props.removeSelf()}>
@@ -62,6 +50,9 @@ const EditSwagger: React.FC<WidgetProps> = observer((props) => {
                                     e.preventDefault();
                                     console.log(e.target.value);
                                     localStore.setSpec(e.target.value);
+                                    props.writeData({
+                                        spec: e.target.value,
+                                    });
                                 }}
                                 style={{
                                     height: "calc(100vh - 400px)", marginRight: "20px", overflowY: "scroll"
@@ -121,7 +112,7 @@ const ViewSwagger: React.FC<WidgetProps> = (props) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     setAddr(e.target.value.trim());
-                                }}  style={{width:200}}/>
+                                }} style={{ width: 200 }} />
                             </Form.Item>
                         </Form>
                     }>
