@@ -3,11 +3,11 @@ authors = ["panleiming"]
 default-run = "linksaas"
 description = ""
 edition = "2021"
-license = "GPL-3.0"
+license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.7.15"
+version = "0.7.16"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

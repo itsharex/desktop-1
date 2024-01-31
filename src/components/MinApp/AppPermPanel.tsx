@@ -121,6 +121,9 @@ const AppPermPanel: React.FC<MinAppPermPanelProps> = (props) => {
         if (props.perm.net_perm.net_util) {
             tmpNetValues.push("net_util");
         }
+        if(props.perm.net_perm.proxy_grpc){
+            tmpNetValues.push("proxy_grpc");
+        }
 
         if (props.perm.fs_perm.read_file) {
             tmpFsValues.push("read_file");
