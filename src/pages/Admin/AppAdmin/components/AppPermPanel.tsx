@@ -45,6 +45,10 @@ const netOptionList: CheckboxOptionType[] = [
     {
         label: "网络诊断",
         value: "net_util",
+    },
+    {
+        label: "代理grpc访问",
+        value: "proxy_grpc",
     }
 ];
 
@@ -114,6 +118,9 @@ const AppPermPanel: React.FC<AppPermPanelProps> = (props) => {
         if (props.perm.net_perm.proxy_ssh) {
             tmpNetValues.push("proxy_ssh");
         }
+        if (props.perm.net_perm.proxy_grpc) {
+            tmpNetValues.push("proxy_grpc");
+        }
         if (props.perm.net_perm.net_util) {
             tmpNetValues.push("net_util");
         } if (props.perm.fs_perm.read_file) {
@@ -144,6 +151,7 @@ const AppPermPanel: React.FC<AppPermPanelProps> = (props) => {
                 proxy_mongo: false,
                 proxy_ssh: false,
                 net_util: false,
+                proxy_grpc: false,
             },
             fs_perm: {
                 read_file: false,
@@ -169,6 +177,8 @@ const AppPermPanel: React.FC<AppPermPanelProps> = (props) => {
                 tempPerm.net_perm.proxy_ssh = true;
             } else if (permStr == "net_util") {
                 tempPerm.net_perm.net_util = true;
+            } else if (permStr == "proxy_grpc") {
+                tempPerm.net_perm.proxy_grpc = true;
             }
         });
         fsPermList.forEach(permStr => {

@@ -42,6 +42,7 @@ const AddAppModal: React.FC<AddAppModalProps> = (props) => {
             proxy_mongo: false,
             proxy_ssh: false,
             net_util: false,
+            proxy_grpc: false,
         },
         fs_perm: {
             read_file: false,

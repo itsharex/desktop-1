@@ -29,6 +29,7 @@ const DebugMinAppModal: React.FC<DebugMinAppModalProps> = (props) => {
             proxy_mongo: false,
             proxy_ssh: false,
             net_util: false,
+            proxy_grpc: false,
         },
         fs_perm: {
             read_file: false,
