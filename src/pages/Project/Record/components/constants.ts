@@ -1282,7 +1282,7 @@ export const calcTestcaseEvCfg = (values: string[] | undefined): TestcaseEvCfg =
         return ret;
     }
     values.forEach(value => {
-        if (value = "create_case") {
+        if (value == "create_case") {
             ret.create_case = true;
         } else if (value == "update_case") {
             ret.update_case = true;
