@@ -143,6 +143,14 @@ export type HarborEvCfg = {
     delete_chart: boolean;
 };
 
+export type TestcaseEvCfg = {
+    create_case: boolean;
+    update_case: boolean;
+    remove_case: boolean;
+    link_sprit: boolean;
+    unlink_sprit: boolean;
+};
+
 export type EventCfg = {
     project_ev_cfg: ProjectEvCfg;
     ext_ev_cfg: ExtEvCfg;
@@ -156,6 +164,7 @@ export type EventCfg = {
     atomgit_ev_cfg: AtomgitEvCfg;
     entry_ev_cfg: EntryEvCfg;
     harbor_ev_cfg: HarborEvCfg;
+    testcase_ev_cfg: TestcaseEvCfg;
 };
 
 export type SubscribeInfo = {
@@ -272,6 +281,15 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
             delete_artifact: false,
             upload_chart: false,
             delete_chart: false,
+        };
+    }
+    if (cfg.testcase_ev_cfg == undefined || cfg.testcase_ev_cfg == null) {
+        cfg.testcase_ev_cfg = {
+            create_case: false,
+            update_case: false,
+            remove_case: false,
+            link_sprit: false,
+            unlink_sprit: false,
         };
     }
     return cfg;

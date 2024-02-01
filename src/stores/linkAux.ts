@@ -56,6 +56,7 @@ export enum LINK_TARGET_TYPE {
   LINK_TARGET_API_COLL = 23,
   LINK_TARGET_DATA_ANNO = 24,
   LINK_TARGET_BOARD = 25,
+  LINK_TARGET_TEST_CASE = 26,
 
   LINK_TARGET_NONE = 100,
   LINK_TARGET_IMAGE = 101,
@@ -271,6 +272,20 @@ export class LinkDataAnnoInfo {
   projectId: string;
   annoProjectId: string;
   showComment: boolean;
+}
+
+export class LinkTestCaseInfo {
+  constructor(content: string, projectId: string, testCaseId: string) {
+    this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE;
+    this.linkContent = content;
+    this.projectId = projectId;
+    this.testCaseId = testCaseId;
+  }
+
+  linkTargeType: LINK_TARGET_TYPE;
+  linkContent: string;
+  projectId: string;
+  testCaseId: string;
 }
 
 export class LinkImageInfo {

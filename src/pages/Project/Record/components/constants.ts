@@ -2,7 +2,8 @@ import type { CheckboxOptionType } from 'antd';
 import type {
     ProjectEvCfg, ExtEvCfg,
     GiteeEvCfg, GitlabEvCfg, IssueEvCfg,
-    RequirementEvCfg, CodeEvCfg, IdeaEvCfg, DataAnnoEvCfg, AtomgitEvCfg, EntryEvCfg, HarborEvCfg
+    RequirementEvCfg, CodeEvCfg, IdeaEvCfg, DataAnnoEvCfg, AtomgitEvCfg, EntryEvCfg, HarborEvCfg,
+    TestcaseEvCfg
 } from '@/api/events_subscribe';
 
 export const projectEvOptionList: CheckboxOptionType[] = [
@@ -1164,7 +1165,7 @@ export const calcEntryEvCfg = (values: string[] | undefined): EntryEvCfg => {
             ret.close = true;
         } else if (value == "remove") {
             ret.remove = true;
-        } 
+        }
     });
     return ret;
 };
@@ -1224,7 +1225,7 @@ export const calcHarborEvCfg = (values: string[] | undefined): HarborEvCfg => {
             ret.upload_chart = true;
         } else if (value == "delete_chart") {
             ret.delete_chart = true;
-        } 
+        }
     });
     return ret;
 };
@@ -1242,6 +1243,76 @@ export const genHarborEvCfgValues = (cfg: HarborEvCfg): string[] => {
     }
     if (cfg.delete_chart) {
         retList.push("delete_chart");
+    }
+    return retList;
+};
+
+export const testcaseEvOptionList: CheckboxOptionType[] = [
+    {
+        label: "创建测试用例",
+        value: "create_case",
+    },
+    {
+        label: "更新测试用例",
+        value: "update_case",
+    },
+    {
+        label: "删除测试用例",
+        value: "remove_case",
+    },
+    {
+        label: "关联工作计划",
+        value: "link_sprit",
+    },
+    {
+        label: "取消关联工作计划",
+        value: "unlink_sprit",
+    },
+];
+
+export const calcTestcaseEvCfg = (values: string[] | undefined): TestcaseEvCfg => {
+    const ret: TestcaseEvCfg = {
+        create_case: false,
+        update_case: false,
+        remove_case: false,
+        link_sprit: false,
+        unlink_sprit: false,
+    };
+    if (values == undefined) {
+        return ret;
+    }
+    values.forEach(value => {
+        if (value = "create_case") {
+            ret.create_case = true;
+        } else if (value == "update_case") {
+            ret.update_case = true;
+        } else if (value == "remove_case") {
+            ret.remove_case = true;
+        } else if (value == "link_sprit") {
+            ret.link_sprit = true;
+        } else if (value == "unlink_sprit") {
+            ret.unlink_sprit = true;
+        }
+    });
+    return ret;
+};
+
+export const genTestcaseEvCfgValues = (cfg: TestcaseEvCfg): string[] => {
+    const retList: string[] = [];
+    if (cfg.create_case) {
+        retList.push("create_case");
+    }
+    if (cfg.update_case) {
+        retList.push("update_case");
+    }
+    if (cfg.remove_case) {
+        retList.push("remove_case");
+    }
+    if (cfg.link_sprit) {
+        retList.push("link_sprit");
+    }
+    if (cfg.unlink_sprit) {
+        retList.push("unlink_sprit");
     }
     return retList;
 };

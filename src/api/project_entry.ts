@@ -59,6 +59,7 @@ export type ExtraSpritInfo = {
     hide_burndown_panel: boolean;
     hide_stat_panel: boolean;
     hide_summary_panel: boolean;
+    hide_test_plan_panel: boolean;
 };
 
 export type ExtraPagesInfo = {

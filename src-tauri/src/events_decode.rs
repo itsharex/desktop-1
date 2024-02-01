@@ -773,6 +773,47 @@ pub mod harbor {
     }
 }
 
+pub mod testcase {
+    use prost::Message;
+    use proto_gen_rust::events_testcase;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
+    pub enum Event {
+        CreateCaseEvent(events_testcase::CreateCaseEvent),
+        UpdateCaseEvent(events_testcase::UpdateCaseEvent),
+        RemoveCaseEvent(events_testcase::RemoveCaseEvent),
+        LinkSpritEvent(events_testcase::LinkSpritEvent),
+        UnlinkSpritEvent(events_testcase::UnlinkSpritEvent),
+    }
+
+    pub fn decode_event(data: &Any) -> Option<Event> {
+        if data.type_url == events_testcase::CreateCaseEvent::type_url() {
+            if let Ok(ev) = events_testcase::CreateCaseEvent::decode(data.value.as_slice()) {
+                return Some(Event::CreateCaseEvent(ev));
+            }
+        } else if data.type_url == events_testcase::UpdateCaseEvent::type_url() {
+            if let Ok(ev) = events_testcase::UpdateCaseEvent::decode(data.value.as_slice()) {
+                return Some(Event::UpdateCaseEvent(ev));
+            }
+        } else if data.type_url == events_testcase::RemoveCaseEvent::type_url() {
+            if let Ok(ev) = events_testcase::RemoveCaseEvent::decode(data.value.as_slice()) {
+                return Some(Event::RemoveCaseEvent(ev));
+            }
+        } else if data.type_url == events_testcase::LinkSpritEvent::type_url() {
+            if let Ok(ev) = events_testcase::LinkSpritEvent::decode(data.value.as_slice()) {
+                return Some(Event::LinkSpritEvent(ev));
+            }
+        } else if data.type_url == events_testcase::UnlinkSpritEvent::type_url() {
+            if let Ok(ev) = events_testcase::UnlinkSpritEvent::decode(data.value.as_slice()) {
+                return Some(Event::UnlinkSpritEvent(ev));
+            }
+        }
+        None
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
 pub enum EventMessage {
     ProjectEvent(project::Event),
@@ -788,6 +829,7 @@ pub enum EventMessage {
     AtomgitEvent(atomgit::Event),
     EntryEvent(entry::Event),
     HarborEvent(harbor::Event),
+    TestCaseEvent(testcase::Event),
     NoopEvent(),
 }
 
@@ -832,6 +874,9 @@ pub fn decode_event(data: &Any) -> Option<EventMessage> {
     }
     if let Some(ret) = harbor::decode_event(data) {
         return Some(EventMessage::HarborEvent(ret));
+    }
+    if let Some(ret) = testcase::decode_event(data) {
+        return Some(EventMessage::TestCaseEvent(ret));
     }
     Some(EventMessage::NoopEvent())
 }
