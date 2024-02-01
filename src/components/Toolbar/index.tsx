@@ -120,6 +120,12 @@ const Toolbar: React.FC = observer(() => {
         badge={projectStore.curProject?.project_status.undone_bug_count || 0}
       />
 
+      <Item
+        id="testcase"
+        pathname={pathname}
+        title="测试用例"
+      />
+
       <Divider />
       <Item
         id="record"

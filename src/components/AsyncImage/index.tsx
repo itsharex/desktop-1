@@ -25,7 +25,6 @@ export interface AsyncImageProps {
 const AsyncImage: React.FC<AsyncImageProps> = (props) => {
     const location = useLocation();
 
-
     const [imgSrc, setImgSrc] = useState("");
 
     const adjustImgSrc = async () => {
@@ -36,13 +35,15 @@ const AsyncImage: React.FC<AsyncImageProps> = (props) => {
             if (parts.length == 3) {
                 asName = parts[2];
             }
+            asName = asName.replaceAll(/\s/g, "");
+            console.log("xxxxx", asName);
             let sessionId = ""
             if (location.pathname.startsWith("/admin/")) {
                 sessionId = await get_admin_session();
             } else {
                 sessionId = await get_session();
             }
-            
+
             try {
                 const cacheRes = await get_cache_file(parts[0], parts[1], asName);
                 let localPath = ""

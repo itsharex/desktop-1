@@ -86,6 +86,7 @@ import GroupList from '@/pages/Admin/GroupAdmin/GroupList';
 import RecommendAuditList from '@/pages/Admin/GroupAdmin/RecommendAuditList';
 import CloudIndex from '@/pages/Project/Cloud/index';
 import DevPkgList from '@/pages/Admin/DevContainerAdmin/DevPkgList';
+import TestcaseList from '@/pages/Project/Testcase/TestcaseList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -163,6 +164,12 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       path: prefix + BUG_CREATE_SUFFIX,
       title: '创建缺陷',
       component: IssueCreate,
+      exact: true,
+    },
+    {
+      path: prefix + "/testcase",
+      title: "测试用例",
+      component: TestcaseList,
       exact: true,
     },
     {
