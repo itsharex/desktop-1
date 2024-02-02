@@ -1,17 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import CardWrap from "@/components/CardWrap";
-import { Space, Tabs } from "antd";
+import { Breadcrumb, Checkbox, Form, Input, Space, Tabs } from "antd";
 import Button from "@/components/Button";
 import { PlusOutlined } from "@ant-design/icons";
 import CreateModal from "./CreateModal";
+import FolderModeContent from "./FolderModeContent";
+import { useStores } from "@/hooks";
+import type { FolderPathItem } from "@/api/project_testcase";
+import { get_folder_path } from "@/api/project_testcase";
+import { request } from "@/utils/request";
+import ListModeContent from "./ListModeContent";
+
 
 const TestcaseList = () => {
+    const userStore = useStores('userStore');
+    const projectStore = useStores('projectStore');
+    const appStore = useStores('appStore');
 
     const [activeKey, setActiveKey] = useState<"folder" | "list">("folder");
     const [dataVersion, setDataVersion] = useState(0);
     const [curFolderId, setCurFolderId] = useState(""); //只对目录模式有效
     const [showCreateModal, setShowCreateModal] = useState(false);
+
+    const [pathList, setPathList] = useState<FolderPathItem[]>([]);
+
+    const [filterTitle, setFilterTitle] = useState("");
+    const [filterMyWatch, setFilterMyWatch] = useState(false);
+
+    const calcFolderInfoWidth = () => {
+        let subWidth = 260;
+        if (appStore.focusMode == false) {
+            subWidth += 200;
+        }
+        if (projectStore.showChatAndComment) {
+            subWidth += 300;
+        }
+        return `calc(100vw - ${subWidth}px)`;
+    };
+
+    const loadPathList = async () => {
+        if (curFolderId == "") {
+            setPathList([]);
+            return;
+        }
+        const res = await request(get_folder_path({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            folder_id: curFolderId,
+        }));
+        setPathList(res.path_list);
+    };
+
+    useEffect(() => {
+        loadPathList();
+    }, [curFolderId]);
 
     return (
         <CardWrap title="测试用例" extra={
@@ -34,34 +77,89 @@ const TestcaseList = () => {
                 }
             }}
                 type="card"
+                style={{ padding: "0px 10px" }}
+                tabBarStyle={{ height: "40px" }}
                 items={[
                     {
                         key: "folder",
-                        label: "目录",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>目录</span>,
                         children: (
-                            <div style={{ height: "calc(100vh - 200px)", overflowY: "scroll", paddingRight: "20px" }}>
-                                {activeKey == "folder" && `${dataVersion}`}
+                            <div style={{ height: "calc(100vh - 210px)", overflowY: "scroll", paddingRight: "20px", paddingBottom: "20px" }}>
+                                {activeKey == "folder" && (
+                                    <FolderModeContent curFolderId={curFolderId} dataVersion={dataVersion} onChangeFolder={folderId => setCurFolderId(folderId)} />
+                                )}
                             </div>
                         ),
                     },
                     {
                         key: "list",
-                        label: "列表",
+                        label: <span style={{ fontSize: "16px", fontWeight: 600 }}>列表</span>,
                         children: (
-                            <div style={{ height: "calc(100vh - 200px)", overflowY: "scroll", paddingRight: "20px" }}>
-                                {activeKey == "list" && ""}
+                            <div style={{ height: "calc(100vh - 210px)", overflowY: "scroll", paddingRight: "20px" }}>
+                                {activeKey == "list" && (
+                                    <ListModeContent dataVersion={dataVersion} filterTitle={filterTitle} filterMyWatch={filterMyWatch} />
+                                )}
                             </div>
                         ),
                     }
-                ]} />
-                {showCreateModal == true && (
-                    <CreateModal curFolderId={curFolderId} enableFolder={activeKey=="folder"} 
-                    onCancel={()=>setShowCreateModal(false)}
-                    onOk={()=>{
+                ]} tabBarExtraContent={
+                    <>
+                        {activeKey == "folder" && (
+                            <div style={{ width: calcFolderInfoWidth(), overflow: "hidden", height: "30px" }}>
+                                <Breadcrumb>
+                                    <Breadcrumb.Item>
+                                        <Button type="link" disabled={curFolderId == ""}
+                                            style={{ minWidth: 0, padding: "0px 0px" }}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setCurFolderId("");
+                                            }}>
+                                            根目录
+                                        </Button>
+                                    </Breadcrumb.Item>
+                                    {pathList.map(item => (
+                                        <Breadcrumb.Item key={item.folder_id}>
+                                            <Button type="link" disabled={item.folder_id == curFolderId}
+                                                style={{ minWidth: 0, padding: "0px 0px" }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    setCurFolderId(item.folder_id);
+                                                }}>{item.title}</Button>
+                                        </Breadcrumb.Item>
+                                    ))}
+                                </Breadcrumb>
+                            </div>
+                        )}
+                        {activeKey == "list" && (
+                            <Form layout="inline">
+                                <Form.Item label="只看我的关注">
+                                    <Checkbox checked={filterMyWatch} onChange={e => {
+                                        e.stopPropagation();
+                                        setFilterMyWatch(e.target.checked);
+                                    }} />
+                                </Form.Item>
+                                <Form.Item label="过滤标题">
+                                    <Input value={filterTitle} style={{ width: "200px" }} size="small" placeholder="请输入关键词..."
+                                        onChange={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setFilterTitle(e.target.value.trim());
+                                        }} allowClear />
+                                </Form.Item>
+                            </Form>
+                        )}
+                    </>
+                } />
+            {showCreateModal == true && (
+                <CreateModal curFolderId={curFolderId} enableFolder={activeKey == "folder"}
+                    onCancel={() => setShowCreateModal(false)}
+                    onOk={() => {
                         setShowCreateModal(false);
-                        setDataVersion(oldValue=>oldValue+1);
-                    }}/>
-                )}
+                        setDataVersion(oldValue => oldValue + 1);
+                    }} />
+            )}
         </CardWrap>
     );
 };

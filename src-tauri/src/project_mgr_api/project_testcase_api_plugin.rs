@@ -223,6 +223,34 @@ async fn get_folder_path<R: Runtime>(
 }
 
 #[tauri::command]
+async fn list_all_folder<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListAllFolderRequest,
+) -> Result<ListAllFolderResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectTestCaseApiClient::new(chan.unwrap());
+    match client.list_all_folder(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_all_folder_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("list_all_folder".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+
+#[tauri::command]
 async fn create_case<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -266,6 +294,33 @@ async fn update_case<R: Runtime>(
             if inner_resp.code == update_case_response::Code::WrongSession as i32 {
                 if let Err(err) =
                     window.emit("notice", new_wrong_session_notice("update_case".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn update_case_content<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: UpdateCaseContentRequest,
+) -> Result<UpdateCaseContentResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectTestCaseApiClient::new(chan.unwrap());
+    match client.update_case_content(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == update_case_content_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("update_case_content".into()))
                 {
                     println!("{:?}", err);
                 }
@@ -644,8 +699,10 @@ impl<R: Runtime> ProjectTestCaseApiPlugin<R> {
                 remove_folder,
                 update_folder_perm,
                 get_folder_path,
+                list_all_folder,
                 create_case,
                 update_case,
+                update_case_content,
                 list_case,
                 list_case_flat,
                 get_case,

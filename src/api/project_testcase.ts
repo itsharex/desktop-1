@@ -33,6 +33,12 @@ export type FolderPathItem = {
     title: string;
 };
 
+export type SimpleFolderInfo = {
+    folder_id: string;
+    title: string;
+    parent_folder_id: string;
+};
+
 export type TestMethod = {
     unit_test: boolean;///单元测试
     ci_test: boolean; ///集成测试
@@ -190,6 +196,16 @@ export type GetFolderPathResponse = {
     path_list: FolderPathItem[];
 };
 
+export type ListAllFolderRequest = {
+    session_id: string;
+    project_id: string;
+};
+
+export type ListAllFolderResponse = {
+    code: number;
+    err_msg: string;
+    folder_list: SimpleFolderInfo[];
+};
 
 export type CreateCaseRequest = {
     session_id: string;
@@ -214,7 +230,6 @@ export type UpdateCaseRequest = {
     case_id: string;
     title: string;
     test_method: TestMethod;
-    content: string;
 };
 
 export type UpdateCaseResponse = {
@@ -222,6 +237,17 @@ export type UpdateCaseResponse = {
     err_msg: string;
 };
 
+export type UpdateCaseContentRequest = {
+    session_id: string;
+    project_id: string;
+    case_id: string;
+    content: string;
+};
+
+export type UpdateCaseContentResponse = {
+    code: number;
+    err_msg: string;
+};
 
 export type ListCaseRequest = {
     session_id: string;
@@ -474,6 +500,15 @@ export async function get_folder_path(request: GetFolderPathRequest): Promise<Ge
     });
 }
 
+//列出所有目录
+export async function list_all_folder(request: ListAllFolderRequest): Promise<ListAllFolderResponse> {
+    const cmd = 'plugin:project_testcase_api|list_all_folder';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListAllFolderResponse>(cmd, {
+        request,
+    });
+}
+
 // 创建测试条目
 export async function create_case(request: CreateCaseRequest): Promise<CreateCaseResponse> {
     const cmd = 'plugin:project_testcase_api|create_case';
@@ -491,6 +526,16 @@ export async function update_case(request: UpdateCaseRequest): Promise<UpdateCas
         request,
     });
 }
+
+//更新测试条目内容
+export async function update_case_content(request: UpdateCaseContentRequest): Promise<UpdateCaseContentResponse> {
+    const cmd = 'plugin:project_testcase_api|update_case_content';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<UpdateCaseContentResponse>(cmd, {
+        request,
+    });
+}
+
 
 // 列出测试条目(目录模式)
 export async function list_case(request: ListCaseRequest): Promise<ListCaseResponse> {
