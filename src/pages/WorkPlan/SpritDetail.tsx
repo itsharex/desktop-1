@@ -22,6 +22,8 @@ import { ISSUE_LIST_KANBAN, ISSUE_LIST_LIST } from "@/api/project_entry";
 import CommentEntry from "@/components/CommentEntry";
 import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
 import ExportModal from "./components/ExportModal";
+import TestPlanPanel from "./components/TestPlanPanel";
+import AddTestCaseModal from "./components/AddTestCaseModal";
 
 
 const SpritDetail = () => {
@@ -36,6 +38,7 @@ const SpritDetail = () => {
     const [refIssueType, setRefIssueType] = useState<ISSUE_TYPE | null>(null);
     const [showAddIssueModal, setShowAddIssueModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
+    const [showAddTestCaseModal, setShowAddTestCaseModal] = useState(false);
 
     const loadSpritInfo = async () => {
         const res = await request(get_sprit(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
@@ -93,6 +96,8 @@ const SpritDetail = () => {
             } else if (spritStore.spritTab == "burnDown" && entryStore.curEntry.extra_info.ExtraSpritInfo?.hide_burndown_panel == true) {
                 needChange = true;
             } else if (spritStore.spritTab == "statistics" && entryStore.curEntry.extra_info.ExtraSpritInfo?.hide_stat_panel == true) {
+                needChange = true;
+            } else if (spritStore.spritTab == "testplan" && entryStore.curEntry.extra_info.ExtraSpritInfo?.hide_test_plan_panel == true) {
                 needChange = true;
             } else if (spritStore.spritTab == "summary" && entryStore.curEntry.extra_info.ExtraSpritInfo?.hide_summary_panel) {
                 needChange = true;
@@ -170,6 +175,14 @@ const SpritDetail = () => {
                                         </Form.Item>
                                     </Form>
                                 )}
+                                {spritStore.spritTab == "testplan" && (
+                                    <Button type="primary" icon={<PlusOutlined />}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setShowAddTestCaseModal(true);
+                                        }}>增加测试用例</Button>
+                                )}
                                 <Popover trigger="click" placement="bottom" content={
                                     <Space direction="vertical" style={{ padding: "10px 10px" }}>
                                         <Button type="link" icon={<ExportOutlined />}
@@ -216,6 +229,11 @@ const SpritDetail = () => {
                                 {spritStore.spritTab == "statistics" && <StatPanel />}
                             </Tabs.TabPane>
                         )}
+                        {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_test_plan_panel == false && (
+                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>测试计划</span>} key="testplan">
+                                {spritStore.spritTab == "testplan" && <TestPlanPanel />}
+                            </Tabs.TabPane>
+                        )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_summary_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>工作总结</span>} key="summary">
                                 {spritStore.spritTab == "summary" && <SummaryPanel state={spritInfo.summary_state} />}
@@ -240,6 +258,9 @@ const SpritDetail = () => {
             )}
             {showExportModal == true && (
                 <ExportModal onClose={() => setShowExportModal(false)} />
+            )}
+            {showAddTestCaseModal == true && (
+                <AddTestCaseModal onClose={() => setShowAddTestCaseModal(false)} />
             )}
         </Card>
     );

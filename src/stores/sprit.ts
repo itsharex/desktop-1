@@ -4,6 +4,8 @@ import type { IssueInfo, ISSUE_TYPE } from '@/api/project_issue';
 import { SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC } from '@/api/project_issue';
 import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, list as list_issue, get as get_issue } from '@/api/project_issue';
 import { request } from '@/utils/request';
+import type { CaseInfo } from "@/api/project_testcase";
+import { list_by_sprit } from "@/api/project_testcase";
 
 export interface SpritStatus {
     taskCount: number;
@@ -27,6 +29,7 @@ export default class SpritStore {
     private _curSpritVersion: number = 0;
     private _taskList: IssueInfo[] = [];
     private _bugList: IssueInfo[] = [];
+    private _caseList: CaseInfo[] = [];
 
     get spritTab(): string {
         return this._spritTab;
@@ -46,6 +49,10 @@ export default class SpritStore {
         return this._bugList;
     }
 
+    get caseList(): CaseInfo[] {
+        return this._caseList;
+    }
+
     get curSpritVersion(): number {
         return this._curSpritVersion;
     }
@@ -60,6 +67,7 @@ export default class SpritStore {
         runInAction(() => {
             this._taskList = [];
             this._bugList = [];
+            this._caseList = [];
         });
         await this.loadIssue(ISSUE_TYPE_TASK);
         await this.loadIssue(ISSUE_TYPE_BUG);
@@ -197,6 +205,20 @@ export default class SpritStore {
                 tmpList[bugIndex] = res.info;
                 this._bugList = tmpList;
             }
+        });
+    }
+
+    async loadCaseList() {
+        if (this.rootStore.entryStore.curEntry == null) {
+            return;
+        }
+        const res = await request(list_by_sprit({
+            session_id: this.rootStore.userStore.sessionId,
+            project_id: this.rootStore.projectStore.curProjectId,
+            sprit_id: this.rootStore.entryStore.curEntry.entry_id,
+        }));
+        runInAction(() => {
+            this._caseList = res.case_list;
         });
     }
 

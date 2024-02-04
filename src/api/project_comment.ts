@@ -8,6 +8,8 @@ export const COMMENT_TARGET_BUG: COMMENT_TARGET_TYPE = 3;           //缺陷
 // export const COMMENT_TARGET_CI_CD: COMMENT_TARGET_TYPE = 4;         // CI/CD
 // export const COMMENT_TARGET_API_COLL: COMMENT_TARGET_TYPE = 5;      // API集合
 // export const COMMENT_TARGET_DATA_ANNO: COMMENT_TARGET_TYPE = 6;     // 数据标注
+export const COMMENT_TARGET_TEST_CASE: COMMENT_TARGET_TYPE = 7;           //测试用例
+
 
 export type Comment = {
     comment_id: string;

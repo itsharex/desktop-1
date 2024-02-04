@@ -12,6 +12,7 @@ import { list_key as list_bulletin_key } from "@/api/project_bulletin";
 import { get_un_read_state } from "@/api/project_comment";
 import ProjectChatStore from './project_chat';
 import { type ENTRY_TYPE, ENTRY_TYPE_NULL } from '@/api/project_entry';
+import { ProjectModalStore } from './project_modal';
 
 export class WebProjectStatus {
   constructor() {
@@ -55,6 +56,8 @@ export default class ProjectStore {
   //全部项目
   private _projectList: WebProjectInfo[] = [];
   private _projectMap: Map<string, WebProjectInfo> = new Map();
+
+  public projectModal = new ProjectModalStore();
 
   async setCurProjectId(val: string) {
     const oldProjectId = this._curProjectId;
@@ -570,6 +573,19 @@ export default class ProjectStore {
   set homeFilterByWatch(val: boolean) {
     runInAction(() => {
       this._homeFilterByWatch = val;
+    });
+  }
+
+  //测试用例相关
+  private _testCaseVersion = 0;
+
+  get testCaseVersion() {
+    return this._testCaseVersion;
+  }
+
+  incTestCaseVersion() {
+    runInAction(() => {
+      this._testCaseVersion += 1;
     });
   }
 }

@@ -1634,6 +1634,99 @@ const issueEventList: EventDesc[] = [
     },
 ];
 
+const testcaseEventList: EventDesc[] = [
+    {
+        id: "CreateCaseEvent",
+        name: "创建测试用例",
+        attrList: [
+            {
+                key: "case_id",
+                desc: "测试用例ID"
+            },
+            {
+                key: "case_title",
+                desc: "测试用例名称"
+            },
+        ],
+    },
+    {
+        id: "UpdateCaseEvent",
+        name: "更新测试用例",
+        attrList: [
+            {
+                key: "case_id",
+                desc: "测试用例ID"
+            },
+            {
+                key: "old_case_title",
+                desc: "原测试用例名称"
+            },
+            {
+                key: "new_case_title",
+                desc: "新测试用例名称"
+            },
+        ],
+    },
+    {
+        id: "RemoveCaseEvent",
+        name: "删除测试用例",
+        attrList: [
+            {
+                key: "case_id",
+                desc: "测试用例ID"
+            },
+            {
+                key: "case_title",
+                desc: "测试用例名称"
+            },
+        ],
+    },
+    {
+        id: "LinkSpritEvent",
+        name: "关联工作计划",
+        attrList: [
+            {
+                key: "case_id",
+                desc: "测试用例ID"
+            },
+            {
+                key: "case_title",
+                desc: "测试用例名称"
+            },
+            {
+                key: "sprit_id",
+                desc: "工作计划ID"
+            },
+            {
+                key: "sprit_title",
+                desc: "工作计划名称"
+            },
+        ],
+    },
+    {
+        id: "UnlinkSpritEvent",
+        name: "取消关联工作计划",
+        attrList: [
+            {
+                key: "case_id",
+                desc: "测试用例ID"
+            },
+            {
+                key: "case_title",
+                desc: "测试用例名称"
+            },
+            {
+                key: "sprit_id",
+                desc: "工作计划ID"
+            },
+            {
+                key: "sprit_title",
+                desc: "工作计划名称"
+            },
+        ],
+    },
+];
+
 const gitlabEventList: EventDesc[] = [
     {
         id: "BuildEvent",
@@ -2735,6 +2828,11 @@ export const eventGroupList: EventGroup[] = [
         id: "IssueEvent",
         name: "工单",
         eventDescList: issueEventList,
+    },
+    {
+        id: "TestcaseEvent",
+        name: "测试用例",
+        eventDescList: testcaseEventList,
     },
     {
         id: "ExtEvEvent",

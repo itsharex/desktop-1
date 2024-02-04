@@ -8,7 +8,7 @@ import {
     LinkTaskInfo,
     LinkBugInfo,
 } from '@/stores/linkAux';
-import { WATCH_TARGET_BUG,  WATCH_TARGET_ENTRY, WATCH_TARGET_REQUIRE_MENT, WATCH_TARGET_TASK, type WATCH_TARGET_TYPE } from '../project_watch';
+import { WATCH_TARGET_BUG,  WATCH_TARGET_ENTRY, WATCH_TARGET_REQUIRE_MENT, WATCH_TARGET_TASK, WATCH_TARGET_TEST_CASE, type WATCH_TARGET_TYPE } from '../project_watch';
 
 function get_chat_bot_type_str(chat_bot_type: number): string {
     if (chat_bot_type == es.CHAT_BOT_QYWX) {
@@ -33,6 +33,9 @@ function getTargetTypeStr(targetType: WATCH_TARGET_TYPE): string {
     }
     if (targetType == WATCH_TARGET_BUG) {
         return "缺陷";
+    }
+    if (targetType == WATCH_TARGET_TEST_CASE){
+        return "测试用例";
     }
     return "";
 }

@@ -60,6 +60,10 @@ const ProjectFsList = () => {
             return "信息面板存储";
         } else if (projectStore.curProject?.file_fs_id == fsId) {
             return "内容文件存储";
+        } else if (projectStore.curProject?.test_case_fs_id == fsId) {
+            return "测试用例存储";
+        } else if (projectStore.curProject?.test_result_fs_id == fsId) {
+            return "测试结果存储";
         }
         return "";
     };

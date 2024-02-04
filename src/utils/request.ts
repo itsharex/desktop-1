@@ -15,11 +15,13 @@ export function request<T>(func: Promise<T & SuccessData>): Promise<T & SuccessD
           //成功
           resolve(resp);
         } else {
+          console.log(resp);
           message.error(resp.err_msg);
           reject(resp.err_msg);
         }
       })
       .catch((err) => {
+        console.log(err);
         reject(err);
       });
   });

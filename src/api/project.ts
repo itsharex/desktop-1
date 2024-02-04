@@ -118,6 +118,8 @@ export type ProjectInfo = {
   pages_fs_id: string;
   board_fs_id: string;
   file_fs_id: string;
+  test_case_fs_id: string;
+  test_result_fs_id: string;
 
   default_chat_group_id: string;
 

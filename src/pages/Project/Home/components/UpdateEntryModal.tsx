@@ -501,6 +501,21 @@ const UpdateEntryModal = () => {
                                     setExtraChanged(true);
                                 }} />
                             </Form.Item>
+                            <Form.Item label="隐藏测试计划" >
+                                <Checkbox checked={entryInfo.extra_info.ExtraSpritInfo?.hide_test_plan_panel ?? false} onChange={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setEntryInfo({
+                                        ...entryInfo, extra_info: {
+                                            ExtraSpritInfo: {
+                                                ...entryInfo.extra_info.ExtraSpritInfo!,
+                                                hide_test_plan_panel: e.target.checked,
+                                            }
+                                        }
+                                    });
+                                    setExtraChanged(true);
+                                }} />
+                            </Form.Item>
                             <Form.Item label="隐藏工作总结" >
                                 <Checkbox checked={entryInfo.extra_info.ExtraSpritInfo?.hide_summary_panel ?? false} onChange={e => {
                                     e.stopPropagation();

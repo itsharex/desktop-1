@@ -56,6 +56,7 @@ export enum LINK_TARGET_TYPE {
   LINK_TARGET_API_COLL = 23,
   LINK_TARGET_DATA_ANNO = 24,
   LINK_TARGET_BOARD = 25,
+  LINK_TARGET_TEST_CASE = 26,
 
   LINK_TARGET_NONE = 100,
   LINK_TARGET_IMAGE = 101,
@@ -273,6 +274,24 @@ export class LinkDataAnnoInfo {
   showComment: boolean;
 }
 
+export class LinkTestCaseInfo {
+  constructor(content: string, projectId: string, testCaseId: string, spritId: string = "", showTab: "detail" | "result" | "comment" = "detail") {
+    this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE;
+    this.linkContent = content;
+    this.projectId = projectId;
+    this.testCaseId = testCaseId;
+    this.spritId = spritId;
+    this.showTab = showTab;
+  }
+
+  linkTargeType: LINK_TARGET_TYPE;
+  linkContent: string;
+  projectId: string;
+  testCaseId: string;
+  spritId: string;
+  showTab: "detail" | "result" | "comment";
+}
+
 export class LinkImageInfo {
   constructor(content: string, imgUrl: string, thumbImgUrl: string) {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_IMAGE;
@@ -477,6 +496,14 @@ class LinkAuxStore {
         await this.rootStore.projectStore.setCurProjectId(dataAnnoLink.projectId);
       }
       await this.openAnnoProjectPage(dataAnnoLink.annoProjectId, dataAnnoLink.linkContent, dataAnnoLink.showComment);
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE) {
+      const testCaseLink = link as LinkTestCaseInfo;
+      if (this.rootStore.projectStore.curProjectId != testCaseLink.projectId) {
+        await this.rootStore.projectStore.setCurProjectId(testCaseLink.projectId);
+      }
+      this.rootStore.projectStore.projectModal.testCaseLinkSpritId = testCaseLink.spritId;
+      this.rootStore.projectStore.projectModal.testCaseTab = testCaseLink.showTab;
+      this.rootStore.projectStore.projectModal.testCaseId = testCaseLink.testCaseId;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as LinkExterneInfo;
       let destUrl = externLink.destUrl;
@@ -585,6 +612,11 @@ class LinkAuxStore {
       state.curPage = 0;
     }
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/bug"), state);
+  }
+
+  //调整到测试用例列表
+  goToTestCaseList(history: History) {
+    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/testcase"));
   }
 
   //跳转到研发行为列表页
