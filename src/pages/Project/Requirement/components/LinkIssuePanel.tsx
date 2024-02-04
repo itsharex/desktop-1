@@ -153,7 +153,7 @@ const LinkIssuePanel = () => {
 
     return (
         <Card title={<h2>相关任务</h2>} bordered={false}
-            bodyStyle={{ height: "calc(100vh - 400px)", overflowY: "scroll", padding: "0px" }}
+            bodyStyle={{ height: "calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
             extra={
                 <Dropdown.Button
                     type="primary"

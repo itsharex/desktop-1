@@ -137,29 +137,33 @@ export class LinkBoardInfo {
 }
 
 export class LinkTaskInfo {
-  constructor(content: string, projectId: string, issueId: string) {
+  constructor(content: string, projectId: string, issueId: string, showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TASK;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
+  showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment";
 }
 
 export class LinkBugInfo {
-  constructor(content: string, projectId: string, issueId: string) {
+  constructor(content: string, projectId: string, issueId: string, showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_BUG;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
+  showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment";
 }
 
 export class LinkNoneInfo {
@@ -366,12 +370,14 @@ class LinkAuxStore {
         await this.rootStore.projectStore.setCurProjectId(taskLink.projectId);
       }
       this.rootStore.projectStore.projectModal.setIssueIdAndType(taskLink.issueId, ISSUE_TYPE_TASK);
+      this.rootStore.projectStore.projectModal.issueTab = taskLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_BUG) {
       const bugLink = link as LinkBugInfo;
       if (this.rootStore.projectStore.curProjectId != bugLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(bugLink.projectId);
       }
       this.rootStore.projectStore.projectModal.setIssueIdAndType(bugLink.issueId, ISSUE_TYPE_BUG);
+      this.rootStore.projectStore.projectModal.issueTab = bugLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DOC) {
       const docLink = link as LinkDocInfo;
       if (this.rootStore.appStore.inEdit) {

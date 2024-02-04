@@ -35,13 +35,13 @@ const TestcaseDetailModal = () => {
             }}>
             <Tabs activeKey={projectStore.projectModal.testCaseTab}
                 onChange={key => projectStore.projectModal.testCaseTab = (key as "detail" | "result" | "comment")}
-                type="card"
+                type="card" tabPosition="left" size="large"
                 items={[
                     {
                         key: "detail",
                         label: "测试用例详情",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.testCaseTab == "detail" && (
                                     <DetailPanel />
                                 )}
@@ -52,7 +52,7 @@ const TestcaseDetailModal = () => {
                         key: "result",
                         label: "测试结果",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.testCaseTab == "result" && (
                                     <ResultPanel />
                                 )}
@@ -63,7 +63,7 @@ const TestcaseDetailModal = () => {
                         key: "comment",
                         label: <CommentTab targetType={COMMENT_TARGET_TEST_CASE} targetId={projectStore.projectModal.testCaseId} dataVersion={commentDataVersion} />,
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll", paddingRight: "10px" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll", paddingRight: "10px" }}>
                                 <CommentInModal projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_TEST_CASE} targetId={projectStore.projectModal.testCaseId}
                                     myUserId={userStore.sessionId} myAdmin={projectStore.isAdmin} />
                             </div>

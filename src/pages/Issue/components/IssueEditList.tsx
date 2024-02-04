@@ -31,7 +31,7 @@ import { request } from '@/utils/request';
 import s from "./IssueEditList.module.less";
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import SubTaskList from './SubTaskList';
+import { ExtraIssueInfo } from './ExtraIssueInfo';
 
 type ColumnsTypes = ColumnType<IssueInfo> & {
   dataIndex: string | string[];
@@ -533,8 +533,12 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       dataSource={dataSource}
       pagination={false}
       expandable={{
-        expandedRowRender: (row: IssueInfo) => (<SubTaskList issueId={row.issue_id} />),
-        rowExpandable: (row: IssueInfo) => row.sub_issue_status.total_count > 0,
+        expandedRowRender: (row: IssueInfo) => (
+          <ExtraIssueInfo issueId={row.issue_id}
+            canOptDependence={row.user_issue_perm.can_opt_dependence}
+            canOptSubIssue={row.user_issue_perm.can_opt_sub_issue} />
+        ),
+        rowExpandable: () => true,
         showExpandColumn: getIsTask(location.pathname),
       }}
     />
