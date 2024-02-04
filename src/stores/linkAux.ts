@@ -2,7 +2,7 @@ import type { RootStore } from '.';
 import { makeAutoObservable } from 'mobx';
 import { request } from '@/utils/request';
 import type { History } from 'history';
-import type { ISSUE_STATE } from '@/api/project_issue';
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, type ISSUE_STATE } from '@/api/project_issue';
 import {
   APP_PROJECT_HOME_PATH,
   APP_PROJECT_KB_BOARD_PATH,
@@ -11,10 +11,6 @@ import {
   APP_PROJECT_OVERVIEW_PATH,
   APP_PROJECT_PATH,
   APP_PROJECT_WORK_PLAN_PATH,
-  BUG_CREATE_SUFFIX,
-  BUG_DETAIL_SUFFIX,
-  TASK_CREATE_SUFFIX,
-  TASK_DETAIL_SUFFIX,
 } from '@/utils/constant';
 import { open } from '@tauri-apps/api/shell';
 import { uniqId } from '@/utils/utils';
@@ -141,33 +137,29 @@ export class LinkBoardInfo {
 }
 
 export class LinkTaskInfo {
-  constructor(content: string, projectId: string, issueId: string, contextIssueIdList: string[] = []) {
+  constructor(content: string, projectId: string, issueId: string) {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TASK;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
-    this.contextIssueIdList = contextIssueIdList;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
-  contextIssueIdList: string[];
 }
 
 export class LinkBugInfo {
-  constructor(content: string, projectId: string, issueId: string, contextIssueIdList: string[] = []) {
+  constructor(content: string, projectId: string, issueId: string) {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_BUG;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
-    this.contextIssueIdList = contextIssueIdList;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
-  contextIssueIdList: string[];
 }
 
 export class LinkNoneInfo {
@@ -320,13 +312,6 @@ export type LinkEventState = {
   memberUserId: string;
 };
 
-export type LinkIssueState = {
-  issueId: string;
-  content: string;
-  contextIssueIdList?: string[];
-  spritId?: string;
-};
-
 export enum ISSUE_TAB_LIST_TYPE {
   ISSUE_TAB_LIST_ALL, //全部
   ISSUE_TAB_LIST_ASSGIN_ME, //指派给我
@@ -380,21 +365,13 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != taskLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(taskLink.projectId);
       }
-      history.push(this.genUrl(taskLink.projectId, pathname, TASK_DETAIL_SUFFIX), {
-        issueId: taskLink.issueId,
-        content: '',
-        contextIssueIdList: taskLink.contextIssueIdList,
-      } as LinkIssueState);
+      this.rootStore.projectStore.projectModal.setIssueIdAndType(taskLink.issueId, ISSUE_TYPE_TASK);
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_BUG) {
       const bugLink = link as LinkBugInfo;
       if (this.rootStore.projectStore.curProjectId != bugLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(bugLink.projectId);
       }
-      history.push(this.genUrl(bugLink.projectId, pathname, BUG_DETAIL_SUFFIX), {
-        issueId: bugLink.issueId,
-        content: '',
-        contextIssueIdList: bugLink.contextIssueIdList,
-      } as LinkIssueState);
+      this.rootStore.projectStore.projectModal.setIssueIdAndType(bugLink.issueId, ISSUE_TYPE_BUG);
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DOC) {
       const docLink = link as LinkDocInfo;
       if (this.rootStore.appStore.inEdit) {
@@ -539,12 +516,7 @@ class LinkAuxStore {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
     }
-    history.push(this.genUrl(projectId, history.location.pathname, TASK_CREATE_SUFFIX), {
-      issueId: '',
-      content: content,
-      contextIssueIdList: [],
-      spritId: spritId,
-    } as LinkIssueState);
+    //TODO
   }
 
   //跳转到创建缺陷
@@ -552,12 +524,7 @@ class LinkAuxStore {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
     }
-    history.push(this.genUrl(projectId, history.location.pathname, BUG_CREATE_SUFFIX), {
-      issueId: '',
-      content: content,
-      contextIssueIdList: [],
-      spritId: spritId,
-    } as LinkIssueState);
+    //TODO
   }
 
   //跳转到任务列表

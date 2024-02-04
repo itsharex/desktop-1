@@ -7,7 +7,6 @@ import ProjectRecord from '@/pages/Project/Record/Record';
 import ProjectAccess from '@/pages/Project/Access';
 import ProjectAccessView from '@/pages/Project/Access/View';
 import IssueList from '@/pages/Issue/IssueList';
-import IssueDetail from '@/pages/Issue/IssueDetail';
 import Workbench from '@/pages/Workbench';
 import {
   ADMIN_PATH,
@@ -20,10 +19,6 @@ import {
   ADMIN_PATH_USER_LIST_SUFFIX,
   APP_PROJECT_KB_DOC_PATH,
   APP_PROJECT_KB_PATH,
-  BUG_CREATE_SUFFIX,
-  BUG_DETAIL_SUFFIX,
-  TASK_CREATE_SUFFIX,
-  TASK_DETAIL_SUFFIX,
   WORKBENCH_PATH,
   ADMIN_PATH_APPSTORE_CATE_SUFFIX,
   ADMIN_PATH_APPSTORE_APP_SUFFIX,
@@ -49,7 +44,6 @@ import {
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
-import IssueCreate from '@/pages/Issue/IssueCreate';
 import SubscribeList from '@/pages/Project/Record/SubscribeList';
 import AdminLayout from '@/layouts/AdminLayout';
 import UserList from '@/pages/Admin/UserAdmin/UserList';
@@ -121,33 +115,9 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       exact: true,
     },
     {
-      path: prefix + TASK_DETAIL_SUFFIX,
-      title: '任务详情',
-      component: IssueDetail,
-      exact: true,
-    },
-    {
-      path: prefix + TASK_CREATE_SUFFIX,
-      title: '创建任务',
-      component: IssueCreate,
-      exact: true,
-    },
-    {
       path: prefix + '/bug',
       title: '缺陷列表',
       component: IssueList,
-      exact: true,
-    },
-    {
-      path: prefix + BUG_DETAIL_SUFFIX,
-      title: '缺陷详情',
-      component: IssueDetail,
-      exact: true,
-    },
-    {
-      path: prefix + BUG_CREATE_SUFFIX,
-      title: '创建缺陷',
-      component: IssueCreate,
       exact: true,
     },
     {

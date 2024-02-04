@@ -119,7 +119,7 @@ const LinkIssuePanel = () => {
                 <a onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, issueList.map(item => item.issue_id)), history);
+                    linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id), history);
                 }}><LinkOutlined />&nbsp;{record.basic_info.title}</a>
             ),
         },

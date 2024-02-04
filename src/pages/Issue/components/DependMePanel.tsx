@@ -7,9 +7,6 @@ import type { ColumnsType } from 'antd/lib/table';
 import { useStores } from "@/hooks";
 import { get_issue_type_str } from '@/api/event_type';
 import { renderState, renderTitle } from "./dependComon";
-import { getIssueDetailUrl } from '@/utils/utils';
-import { useHistory, useLocation } from "react-router-dom";
-import type { LinkIssueState } from '@/stores/linkAux';
 import { LinkOutlined } from '@ant-design/icons/lib/icons';
 
 
@@ -24,8 +21,6 @@ export const DependMePanel: React.FC<DependMePanelProps> = (props) => {
 
     const [issueList, setIssueList] = useState<IssueInfo[]>([]);
 
-    const { pathname } = useLocation();
-    const { push } = useHistory();
 
     const loadIssue = async () => {
         const res = await request(list_depend_me({
@@ -44,19 +39,14 @@ export const DependMePanel: React.FC<DependMePanelProps> = (props) => {
             dataIndex: 'issue_index',
             ellipsis: true,
             width: 60,
-            render: (v, record: IssueInfo) => {
+            render: (v, _record: IssueInfo) => {
                 return (
                     <span
                         style={{ cursor: 'pointer' }}
                         onClick={(e) => {
                             e.stopPropagation();
-                            push(
-                                getIssueDetailUrl(pathname), {
-                                    issueId: record.issue_id,
-                                    content: "",
-                                    contextIssueIdList: issueList.map(item=>item.issue_id),
-                                } as LinkIssueState
-                            );
+                            e.preventDefault();
+                            //TODO
                         }}
                     >
                         <a><LinkOutlined />&nbsp;&nbsp;{v}</a>
