@@ -13,7 +13,6 @@ import {
   APP_PROJECT_WORK_PLAN_PATH,
   BUG_CREATE_SUFFIX,
   BUG_DETAIL_SUFFIX,
-  REQUIRE_MENT_CREATE_SUFFIX,
   TASK_CREATE_SUFFIX,
   TASK_DETAIL_SUFFIX,
 } from '@/utils/constant';
@@ -22,7 +21,6 @@ import { uniqId } from '@/utils/utils';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
 import type { API_COLL_TYPE } from "@/api/project_entry";
-
 
 /*
  * 用于统一管理链接跳转以及链接直接传递数据
@@ -560,14 +558,6 @@ class LinkAuxStore {
       contextIssueIdList: [],
       spritId: spritId,
     } as LinkIssueState);
-  }
-
-  //跳转到创建需求
-  async goToCreateRequirement(content: string, projectId: string, history: History) {
-    if (projectId != this.rootStore.projectStore.curProjectId) {
-      await this.rootStore.projectStore.setCurProjectId(projectId);
-    }
-    history.push(this.genUrl(projectId, history.location.pathname, REQUIRE_MENT_CREATE_SUFFIX), content);
   }
 
   //跳转到任务列表

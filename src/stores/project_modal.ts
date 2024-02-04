@@ -88,4 +88,17 @@ export class ProjectModalStore {
             this._requirementTab = val;
         });
     }
+
+    //创建需求相关
+    private _createRequirement = false;
+
+    get createRequirement() {
+        return this._createRequirement;
+    }
+
+    set createRequirement(val: boolean) {
+        runInAction(() => {
+            this._createRequirement = val;
+        });
+    }
 }
