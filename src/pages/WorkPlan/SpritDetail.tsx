@@ -230,7 +230,7 @@ const SpritDetail = () => {
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_test_plan_panel == false && (
-                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>测试方案</span>} key="testplan">
+                            <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>测试计划</span>} key="testplan">
                                 {spritStore.spritTab == "testplan" && <TestPlanPanel />}
                             </Tabs.TabPane>
                         )}

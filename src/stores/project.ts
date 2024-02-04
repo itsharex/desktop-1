@@ -575,4 +575,17 @@ export default class ProjectStore {
       this._homeFilterByWatch = val;
     });
   }
+
+  //测试用例相关
+  private _testCaseVersion = 0;
+
+  get testCaseVersion() {
+    return this._testCaseVersion;
+  }
+
+  incTestCaseVersion() {
+    runInAction(() => {
+      this._testCaseVersion += 1;
+    });
+  }
 }

@@ -2,22 +2,39 @@ import React, { useEffect } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { CaseInfo } from "@/api/project_testcase";
-import { Space, Table, Tag } from "antd";
+import  { unlink_sprit } from "@/api/project_testcase";
+import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/lib/table";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
 import { useHistory } from "react-router-dom";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
+import { request } from "@/utils/request";
 
 
 const TestPlanPanel = () => {
     const history = useHistory();
 
+    const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
+
+    const unlinkTestCase = async (caseId: string) => {
+        if(entryStore.curEntry == null){
+            return;
+        }
+        await request(unlink_sprit({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            case_id: caseId,
+            sprit_id: entryStore.curEntry.entry_id,
+        }));
+
+        await spritStore.loadCaseList();
+    };
 
     const columns: ColumnsType<CaseInfo> = [
         {
@@ -66,6 +83,18 @@ const TestPlanPanel = () => {
             ),
         },
         {
+            title: "操作",
+            width: 80,
+            render: (_, row: CaseInfo) => (
+                <Button type="link" danger disabled={!(entryStore.curEntry?.can_update ?? false)}
+                    style={{ minWidth: 0, padding: "0px 0px" }} onClick={e=>{
+                        e.stopPropagation();
+                        e.preventDefault();
+                        unlinkTestCase(row.case_id);
+                    }}>移除</Button>
+            ),
+        },
+        {
             title: "创建者",
             width: 120,
             render: (_, row: CaseInfo) => (
@@ -89,7 +118,7 @@ const TestPlanPanel = () => {
     }, [projectStore.projectModal.testCaseId])
 
     return (
-        <Table rowKey="case_id" dataSource={spritStore.caseList} columns={columns} pagination={false} scroll={{ x: 1000 }} />
+        <Table rowKey="case_id" dataSource={spritStore.caseList} columns={columns} pagination={false} scroll={{ x: 1100 }} />
     );
 };
 

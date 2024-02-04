@@ -11,8 +11,6 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 
 
 export interface CreateModalProps {
-    curFolderId: string;
-    enableFolder: boolean;
     onCancel: () => void;
     onOk: () => void;
 };
@@ -59,13 +57,14 @@ const CreateModal = (props: CreateModalProps) => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
             title: folderTitle,
-            parent_folder_id: props.curFolderId,
+            parent_folder_id: projectStore.projectModal.createTestCaseParentFolderId,
             perm_setting: {
                 update_for_all: permSetting.update_for_all,
                 extra_update_user_id_list: permSetting.update_for_all ? [] : permSetting.extra_update_user_id_list,
             },
         }));
         message.info("创建成功");
+        projectStore.incTestCaseVersion();
         props.onOk();
     };
 
@@ -78,7 +77,7 @@ const CreateModal = (props: CreateModalProps) => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
             title: caseTitle,
-            parent_folder_id: props.curFolderId,
+            parent_folder_id: projectStore.projectModal.createTestCaseParentFolderId,
             perm_setting: {
                 update_for_all: permSetting.update_for_all,
                 extra_update_user_id_list: permSetting.update_for_all ? [] : permSetting.extra_update_user_id_list,
@@ -89,6 +88,7 @@ const CreateModal = (props: CreateModalProps) => {
 
         await change_file_owner(content, userStore.sessionId, FILE_OWNER_TYPE_TEST_CASE, res.case_id);
         message.info("创建成功");
+        projectStore.incTestCaseVersion();
         props.onOk();
     };
 
@@ -106,7 +106,7 @@ const CreateModal = (props: CreateModalProps) => {
     };
 
     return (
-        <Modal open title={`创建${props.enableFolder ? "目录/测试用例" : "测试用例 "}`}
+        <Modal open title={`创建${projectStore.projectModal.createTestCaseEnableFolder ? "目录/测试用例" : "测试用例 "}`}
             okText="创建" okButtonProps={{ disabled: !isValid() }} width={700}
             onCancel={e => {
                 e.stopPropagation();
@@ -123,15 +123,17 @@ const CreateModal = (props: CreateModalProps) => {
                 }
             }}>
             <Form labelCol={{ span: 3 }}>
-                <Form.Item label="类型">
-                    <Radio.Group value={createType} onChange={e => {
-                        e.stopPropagation();
-                        setCreateType(e.target.value);
-                    }}>
-                        <Radio value="case">测试用例</Radio>
-                        <Radio value="folder">目录</Radio>
-                    </Radio.Group>
-                </Form.Item>
+                {projectStore.projectModal.createTestCaseEnableFolder && (
+                    <Form.Item label="类型">
+                        <Radio.Group value={createType} onChange={e => {
+                            e.stopPropagation();
+                            setCreateType(e.target.value);
+                        }}>
+                            <Radio value="case">测试用例</Radio>
+                            <Radio value="folder">目录</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                )}
                 <Form.Item label="全体可编辑">
                     <Checkbox checked={permSetting.update_for_all} onChange={e => {
                         e.stopPropagation();

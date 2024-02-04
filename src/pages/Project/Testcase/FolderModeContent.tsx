@@ -24,7 +24,6 @@ type FolderOrCaseInfo = {
 
 export interface FolderModeContentProps {
     curFolderId: string;
-    dataVersion: number;
     onChangeFolder: (folderId: string) => void;
 }
 
@@ -286,7 +285,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
 
     useEffect(() => {
         loadDataList();
-    }, [props.curFolderId, props.dataVersion, projectStore.projectModal.testCaseId]);
+    }, [props.curFolderId, projectStore.projectModal.testCaseId, projectStore.testCaseVersion]);
 
     return (
         <div>

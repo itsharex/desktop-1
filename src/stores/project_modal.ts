@@ -5,7 +5,7 @@ export class ProjectModalStore {
         makeAutoObservable(this);
     }
 
-    //测试用例相关
+    //测试用例详情相关
     private _testCaseId = "";
     private _testCaseTab: "detail" | "result" | "comment" = "detail";
     private _testCaseLinkSpritId = "";
@@ -38,5 +38,30 @@ export class ProjectModalStore {
         runInAction(() => {
             this._testCaseLinkSpritId = val;
         });
+    }
+
+    //创建测试用例相关
+    private _createTestCase = false;
+    private _createTestCaseParentFolderId = "";
+    private _createTestCaseEnableFolder = false;
+
+    async setCreateTestCase(show: boolean, parentFolderId: string, enableFolder: boolean) {
+        runInAction(() => {
+            this._createTestCase = show;
+            this._createTestCaseParentFolderId = parentFolderId;
+            this._createTestCaseEnableFolder = enableFolder;
+        });
+    }
+
+    get createTestCase() {
+        return this._createTestCase;
+    }
+
+    get createTestCaseParentFolderId() {
+        return this._createTestCaseParentFolderId;
+    }
+
+    get createTestCaseEnableFolder() {
+        return this._createTestCaseEnableFolder;
     }
 }

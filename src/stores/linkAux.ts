@@ -614,6 +614,11 @@ class LinkAuxStore {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/bug"), state);
   }
 
+  //调整到测试用例列表
+  goToTestCaseList(history: History) {
+    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/testcase"));
+  }
+
   //跳转到研发行为列表页
   goToEventList(history: History) {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/record"));

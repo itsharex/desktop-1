@@ -632,7 +632,7 @@ const CreateEntryModal = () => {
                                 });
                             }} />
                         </Form.Item>
-                        <Form.Item label="隐藏测试方案">
+                        <Form.Item label="隐藏测试计划">
                             <Checkbox checked={spritExtraInfo.hide_test_plan_panel} onChange={e => {
                                 e.stopPropagation();
                                 e.preventDefault();

@@ -4,7 +4,6 @@ import CardWrap from "@/components/CardWrap";
 import { Breadcrumb, Checkbox, Form, Input, Space, Tabs } from "antd";
 import Button from "@/components/Button";
 import { PlusOutlined } from "@ant-design/icons";
-import CreateModal from "./CreateModal";
 import FolderModeContent from "./FolderModeContent";
 import { useStores } from "@/hooks";
 import type { FolderPathItem } from "@/api/project_testcase";
@@ -19,9 +18,7 @@ const TestcaseList = () => {
     const appStore = useStores('appStore');
 
     const [activeKey, setActiveKey] = useState<"folder" | "list">("folder");
-    const [dataVersion, setDataVersion] = useState(0);
     const [curFolderId, setCurFolderId] = useState(""); //只对目录模式有效
-    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const [pathList, setPathList] = useState<FolderPathItem[]>([]);
 
@@ -62,7 +59,7 @@ const TestcaseList = () => {
                 <Button icon={<PlusOutlined />} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    setShowCreateModal(true);
+                    projectStore.projectModal.setCreateTestCase(true, activeKey == "folder" ? curFolderId : "", activeKey == "folder");
                 }}>
                     创建{activeKey == "folder" ? "目录/测试用例" : "测试用例"}
                 </Button>
@@ -86,7 +83,7 @@ const TestcaseList = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 210px)", overflowY: "scroll", paddingRight: "20px", paddingBottom: "20px" }}>
                                 {activeKey == "folder" && (
-                                    <FolderModeContent curFolderId={curFolderId} dataVersion={dataVersion} onChangeFolder={folderId => setCurFolderId(folderId)} />
+                                    <FolderModeContent curFolderId={curFolderId} onChangeFolder={folderId => setCurFolderId(folderId)} />
                                 )}
                             </div>
                         ),
@@ -97,7 +94,7 @@ const TestcaseList = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 210px)", overflowY: "scroll", paddingRight: "20px" }}>
                                 {activeKey == "list" && (
-                                    <ListModeContent dataVersion={dataVersion} filterTitle={filterTitle} filterMyWatch={filterMyWatch} />
+                                    <ListModeContent filterTitle={filterTitle} filterMyWatch={filterMyWatch} />
                                 )}
                             </div>
                         ),
@@ -152,14 +149,6 @@ const TestcaseList = () => {
                         )}
                     </>
                 } />
-            {showCreateModal == true && (
-                <CreateModal curFolderId={curFolderId} enableFolder={activeKey == "folder"}
-                    onCancel={() => setShowCreateModal(false)}
-                    onOk={() => {
-                        setShowCreateModal(false);
-                        setDataVersion(oldValue => oldValue + 1);
-                    }} />
-            )}
         </CardWrap>
     );
 };

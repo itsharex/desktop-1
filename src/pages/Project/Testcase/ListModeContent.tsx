@@ -18,7 +18,6 @@ import { LinkTestCaseInfo } from "@/stores/linkAux";
 const PAGE_SIZE = 10;
 
 export interface ListModeContentProps {
-    dataVersion: number;
     filterTitle: string;
     filterMyWatch: boolean;
 }
@@ -212,7 +211,7 @@ const ListModeContent = (props: ListModeContentProps) => {
         } else {
             loadCaseInfoList();
         }
-    }, [props.dataVersion, props.filterTitle, props.filterMyWatch]);
+    }, [projectStore.testCaseVersion, props.filterTitle, props.filterMyWatch]);
 
     useEffect(() => {
         loadCaseInfoList();

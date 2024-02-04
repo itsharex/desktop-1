@@ -12,7 +12,7 @@ import UpdateEntryModal from '@/pages/Project/Home/components/UpdateEntryModal';
 import ChatAndCommentPanel from '@/pages/Project/ChatAndComment';
 import CreateEntryModal from '@/pages/Project/Home/components/CreateEntryModal';
 import TestcaseDetailModal from '@/pages/Project/Testcase/TestcaseDetailModal';
-
+import CreateTestCaseModal from "@/pages/Project/Testcase/CreateModal";
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -54,6 +54,14 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             )}
             {projectStore.curProjectId != "" && projectStore.projectModal.testCaseId != "" && (
                 <TestcaseDetailModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.createTestCase == true && (
+                <CreateTestCaseModal
+                    onCancel={() => projectStore.projectModal.setCreateTestCase(false, "", false)}
+                    onOk={() => {
+                        projectStore.incTestCaseVersion();
+                        projectStore.projectModal.setCreateTestCase(false, "", false);
+                    }} />
             )}
         </div>
     );

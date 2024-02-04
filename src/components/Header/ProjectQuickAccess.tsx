@@ -16,14 +16,21 @@ import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
 const MENU_KEY_MEMBER_PREFIX = "member:";
 const MENU_KEY_SHOW_TOOL_BAR_IDEA = "toolbar.idea.show"
+
 const MENU_KEY_SHOW_TOOL_BAR_REQUIRE_MENT = "toolbar.requirement.show";
 const MENU_KEY_CREATE_REQUIRE_MENT = "create.requirement";
+
 const MENU_KEY_SHOW_TOOL_BAR_TASK_MY = "toolbar.task.my.show";
 const MENU_KEY_SHOW_TOOL_BAR_TASK_ALL = "toolbar.task.all.show";
 const MENU_KEY_CREATE_TASK = "create.task";
+
 const MENU_KEY_SHOW_TOOL_BAR_BUG_MY = "toolbar.bug.my.show";
 const MENU_KEY_SHOW_TOOL_BAR_BUG_ALL = "toolbar.bug.all.show";
 const MENU_KEY_CREATE_BUG = "create.bug";
+
+const MENU_KEY_SHOW_TOOL_BAR_TEST_CASE = "toolbar.testcase.show";
+const MENU_KEY_CREATE_TEST_CASE = "create.testcase";
+
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
@@ -189,7 +196,20 @@ const ProjectQuickAccess = () => {
                 }
             ],
         });
-
+        tmpItems.push({
+            key: "testcase",
+            label: "测试用例",
+            children: [
+                {
+                    key: MENU_KEY_SHOW_TOOL_BAR_TEST_CASE,
+                    label: "查看测试用例",
+                },
+                {
+                    key: MENU_KEY_CREATE_TEST_CASE,
+                    label: "创建测试用例",
+                },
+            ],
+        });
         tmpItems.push({
             key: "event",
             label: "研发行为",
@@ -225,7 +245,7 @@ const ProjectQuickAccess = () => {
             newSetting.hide_project_info = !projectStore.curProject.setting.hide_project_info;
         } else if (key == MENU_KEY_LAYOUT_OVERVIEW_BULLETIN) {
             newSetting.hide_bulletin = !projectStore.curProject.setting.hide_bulletin;
-        } 
+        }
         await request(update_setting({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
@@ -273,6 +293,12 @@ const ProjectQuickAccess = () => {
                 break;
             case MENU_KEY_CREATE_BUG:
                 linkAuxStore.goToCreateBug("", projectStore.curProjectId, history);
+                break;
+            case MENU_KEY_SHOW_TOOL_BAR_TEST_CASE:
+                linkAuxStore.goToTestCaseList(history);
+                break;
+            case MENU_KEY_CREATE_TEST_CASE:
+                projectStore.projectModal.setCreateTestCase(true, "", false);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_EVENTS:
                 linkAuxStore.goToEventList(history);
