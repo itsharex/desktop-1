@@ -206,12 +206,14 @@ const ListModeContent = (props: ListModeContentProps) => {
     ];
 
     useEffect(() => {
-        if (curPage != 0) {
-            setCurPage(0);
-        } else {
-            loadCaseInfoList();
+        if (projectStore.projectModal.createTestCase == false) {
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                loadCaseInfoList();
+            }
         }
-    }, [projectStore.testCaseVersion, props.filterTitle, props.filterMyWatch]);
+    }, [projectStore.projectModal.createTestCase, props.filterTitle, props.filterMyWatch]);
 
     useEffect(() => {
         loadCaseInfoList();

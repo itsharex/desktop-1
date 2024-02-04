@@ -29,8 +29,6 @@ export const TASK_CREATE_SUFFIX = '/task/create';
 export const BUG_CREATE_SUFFIX = '/bug/create';
 
 export const REQUIRE_MENT_CREATE_SUFFIX = '/req/create';
-export const REQUIRE_MENT_DETAIL_SUFFIX = '/req/detail';
-
 
 export const ADMIN_PATH = "/admin";
 

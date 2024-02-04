@@ -8,7 +8,6 @@ import { useHistory, useLocation } from "react-router-dom";
 import s from './RequirementCreate.module.less';
 import { change_file_fs, change_file_owner, useCommonEditor } from "@/components/Editor";
 import { LinkRequirementInfo } from "@/stores/linkAux";
-import type { LinkRequirementState } from "@/stores/linkAux";
 import { useStores } from "@/hooks";
 import { FILE_OWNER_TYPE_PROJECT, FILE_OWNER_TYPE_REQUIRE_MENT } from "@/api/fs";
 import { request } from "@/utils/request";
@@ -18,7 +17,7 @@ const RequirementCreate = () => {
     const location = useLocation();
     const history = useHistory();
 
-    const state: LinkRequirementState | undefined = location.state as LinkRequirementState | undefined;
+    const initContent = (location.state as string | undefined) ?? ""
 
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
@@ -26,7 +25,7 @@ const RequirementCreate = () => {
 
 
     const { editor, editorRef } = useCommonEditor({
-        content: state?.content ?? "",
+        content: initContent,
         fsId: projectStore.curProject?.issue_fs_id ?? '',
         ownerType: FILE_OWNER_TYPE_PROJECT,
         ownerId: projectStore.curProjectId,

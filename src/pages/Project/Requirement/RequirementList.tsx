@@ -306,6 +306,22 @@ const RequirementList = () => {
         loadReqInfoList();
     }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch]);
 
+    useEffect(() => {
+        if (projectStore.projectModal.requirementId == "") {
+            if (filterClosed != null) {
+                setFilterClosed(null);
+            }
+            if (filterTagId != null) {
+                setFilterTagId(null);
+            }
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                loadReqInfoList();
+            }
+        }
+    }, [projectStore.projectModal.requirementId])
+
 
 
     return (

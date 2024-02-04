@@ -31,7 +31,6 @@ const DetailPanel = () => {
     const [inEditOther, setInEditOther] = useState(false);
     const [hasChange, setHasChange] = useState(false);
 
-
     const { editor, editorRef } = useCommonEditor({
         content: "",
         fsId: projectStore.curProject?.test_case_fs_id ?? "",

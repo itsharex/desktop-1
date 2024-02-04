@@ -23,7 +23,6 @@ import {
   BUG_CREATE_SUFFIX,
   BUG_DETAIL_SUFFIX,
   REQUIRE_MENT_CREATE_SUFFIX,
-  REQUIRE_MENT_DETAIL_SUFFIX,
   TASK_CREATE_SUFFIX,
   TASK_DETAIL_SUFFIX,
   WORKBENCH_PATH,
@@ -63,7 +62,6 @@ import CreateProject from '@/pages/Admin/ProjectAdmin/CrateProject';
 import MenuAdmin from '@/pages/Admin/ClientAdmin/MenuAdmin';
 import RequirementList from '@/pages/Project/Requirement/RequirementList';
 import RequirementCreate from '@/pages/Project/Requirement/RequirementCreate';
-import RequirementDetail from '@/pages/Project/Requirement/RequirementDetail';
 import AppCateList from '@/pages/Admin/AppAdmin/AppCateList';
 import AppList from '@/pages/Admin/AppAdmin/AppList';
 import OverviewLayout from '@/layouts/OverviewLayout';
@@ -122,12 +120,6 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       path: prefix + REQUIRE_MENT_CREATE_SUFFIX,
       title: "创建需求",
       component: RequirementCreate,
-      exact: true,
-    },
-    {
-      path: prefix + REQUIRE_MENT_DETAIL_SUFFIX,
-      title: "需求详情",
-      component: RequirementDetail,
       exact: true,
     },
     {

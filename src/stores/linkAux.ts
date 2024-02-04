@@ -14,7 +14,6 @@ import {
   BUG_CREATE_SUFFIX,
   BUG_DETAIL_SUFFIX,
   REQUIRE_MENT_CREATE_SUFFIX,
-  REQUIRE_MENT_DETAIL_SUFFIX,
   TASK_CREATE_SUFFIX,
   TASK_DETAIL_SUFFIX,
 } from '@/utils/constant';
@@ -183,16 +182,18 @@ export class LinkNoneInfo {
 }
 
 export class LinkRequirementInfo {
-  constructor(content: string, projectId: string, requirementId: string) {
+  constructor(content: string, projectId: string, requirementId: string, showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_REQUIRE_MENT;
     this.linkContent = content;
     this.projectId = projectId;
     this.requirementId = requirementId;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   requirementId: string;
+  showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment"
 }
 
 export class LinkCodeCommentInfo {
@@ -354,10 +355,6 @@ export type LinkDocState = {
   docId: string;
 };
 
-export type LinkRequirementState = {
-  requirementId: string;
-  content: string;
-}
 
 export type LinkIdeaPageState = {
   keywordList: string[];
@@ -432,11 +429,8 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != reqLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(reqLink.projectId);
       }
-      const state: LinkRequirementState = {
-        requirementId: reqLink.requirementId,
-        content: "",
-      };
-      history.push(this.genUrl(reqLink.projectId, pathname, REQUIRE_MENT_DETAIL_SUFFIX), state);
+      this.rootStore.projectStore.projectModal.requirementId = reqLink.requirementId;
+      this.rootStore.projectStore.projectModal.requirementTab = reqLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_CODE_COMMENT) {
       const commentLink = link as LinkCodeCommentInfo;
       if (this.rootStore.projectStore.curProjectId != commentLink.projectId) {
@@ -573,11 +567,7 @@ class LinkAuxStore {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
     }
-    const state: LinkRequirementState = {
-      content: content,
-      requirementId: '',
-    };
-    history.push(this.genUrl(projectId, history.location.pathname, REQUIRE_MENT_CREATE_SUFFIX), state);
+    history.push(this.genUrl(projectId, history.location.pathname, REQUIRE_MENT_CREATE_SUFFIX), content);
   }
 
   //跳转到任务列表

@@ -285,7 +285,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
 
     useEffect(() => {
         loadDataList();
-    }, [props.curFolderId, projectStore.projectModal.testCaseId, projectStore.testCaseVersion]);
+    }, [props.curFolderId, projectStore.projectModal.testCaseId, projectStore.projectModal.createTestCase]);
 
     return (
         <div>
