@@ -64,4 +64,41 @@ export class ProjectModalStore {
     get createTestCaseEnableFolder() {
         return this._createTestCaseEnableFolder;
     }
+
+    //需求详情相关
+    private _requirementId = "";
+    private _requirementTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment" = "detail";
+
+    get requirementId() {
+        return this._requirementId;
+    }
+
+    set requirementId(val: string) {
+        runInAction(() => {
+            this._requirementId = val;
+        });
+    }
+
+    get requirementTab() {
+        return this._requirementTab;
+    }
+
+    set requirementTab(val: "detail" | "issue" | "fourq" | "kano" | "event" | "comment") {
+        runInAction(() => {
+            this._requirementTab = val;
+        });
+    }
+
+    //创建需求相关
+    private _createRequirement = false;
+
+    get createRequirement() {
+        return this._createRequirement;
+    }
+
+    set createRequirement(val: boolean) {
+        runInAction(() => {
+            this._createRequirement = val;
+        });
+    }
 }

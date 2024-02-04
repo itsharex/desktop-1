@@ -5,7 +5,7 @@ import { LinkOutlined, PlusOutlined } from '@ant-design/icons';
 import AddTaskOrBug from '@/components/Editor/components/AddTaskOrBug';
 import type { LinkInfo } from '@/stores/linkAux';
 import { LinkTaskInfo } from '@/stores/linkAux';
-import { link_issue, unlink_issue, list_issue_link, type RequirementInfo } from '@/api/project_requirement';
+import { link_issue, unlink_issue, list_issue_link, type RequirementInfo, get_requirement } from '@/api/project_requirement';
 import { request } from '@/utils/request';
 import { useStores } from '@/hooks';
 import BatchCreateTask from './BatchCreateTask';
@@ -17,10 +17,6 @@ import { getStateColor } from '@/pages/Issue/components/utils';
 import SingleCreateTask from './SingleCreateTask';
 import { useHistory } from 'react-router-dom';
 
-interface LinkIssuePanelProps {
-    requirement: RequirementInfo;
-    onUpdate: () => void;
-}
 
 const renderState = (val: number) => {
     const v = issueState[val];
@@ -40,7 +36,7 @@ const renderState = (val: number) => {
     );
 };
 
-const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
+const LinkIssuePanel = () => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
@@ -53,11 +49,22 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
 
     const [issueList, setIssueList] = useState<IssueInfo[]>([]);
 
+    const [reqInfo, setReqInfo] = useState<RequirementInfo | null>(null);
+
+    const loadReqInfo = async () => {
+        const res = await request(get_requirement({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            requirement_id: projectStore.projectModal.requirementId,
+        }));
+        setReqInfo(res.requirement);
+    };
+
     const loadIssueList = async () => {
         const linkRes = await request(list_issue_link({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
         }));
         const res = await request(list_issue_by_id({
             session_id: userStore.sessionId,
@@ -77,7 +84,7 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
                 await request(link_issue({
                     session_id: userStore.sessionId,
                     project_id: projectStore.curProjectId,
-                    requirement_id: props.requirement.requirement_id,
+                    requirement_id: projectStore.projectModal.requirementId,
                     issue_id: taskLink.issueId,
                 }));
             } catch (e) {
@@ -85,7 +92,6 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
             }
         }
         setShowRefModal(false);
-        props.onUpdate();
         await loadIssueList();
         message.info("关联成功");
     };
@@ -94,10 +100,9 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
         await request(unlink_issue({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
             issue_id: issueId,
         }));
-        props.onUpdate();
         await loadIssueList();
     };
 
@@ -130,7 +135,7 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
             width: 100,
             render: (_, record: IssueInfo) => (
                 <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }}
-                    disabled={projectStore.isClosed || (!props.requirement.user_requirement_perm.can_update)}
+                    disabled={projectStore.isClosed || (!(reqInfo?.user_requirement_perm.can_update ?? false))}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -142,47 +147,49 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
 
 
     useEffect(() => {
+        loadReqInfo();
         loadIssueList();
     }, []);
 
     return (
-        <Card title={<h2>相关任务</h2>} bordered={false} extra={
-            <Dropdown.Button
-                type="primary"
-                disabled={projectStore.isClosed || (!props.requirement.user_requirement_perm.can_update)}
-                menu={{
-                    items: [
-                        {
-                            label: "批量创建",
-                            key: "batch",
+        <Card title={<h2>相关任务</h2>} bordered={false}
+            bodyStyle={{ height: "calc(100vh - 400px)", overflowY: "scroll", padding: "0px" }}
+            extra={
+                <Dropdown.Button
+                    type="primary"
+                    disabled={projectStore.isClosed || (!(reqInfo?.user_requirement_perm.can_update ?? false))}
+                    menu={{
+                        items: [
+                            {
+                                label: "批量创建",
+                                key: "batch",
+                            },
+                            {
+                                label: "引用任务",
+                                key: "refTask",
+                            },
+                        ],
+                        onClick: (e) => {
+                            if (e.key == "batch") {
+                                setShowBatchModal(true);
+                            } else if (e.key == "refTask") {
+                                setShowRefModal(true);
+                            }
                         },
-                        {
-                            label: "引用任务",
-                            key: "refTask",
-                        },
-                    ],
-                    onClick: (e) => {
-                        if (e.key == "batch") {
-                            setShowBatchModal(true);
-                        } else if (e.key == "refTask") {
-                            setShowRefModal(true);
-                        }
-                    },
-                }} onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setShowAddModal(true);
-                }}>
-                <PlusOutlined />创建任务
-            </Dropdown.Button>
-        }>
+                    }} onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowAddModal(true);
+                    }}>
+                    <PlusOutlined />创建任务
+                </Dropdown.Button>
+            }>
             <Table rowKey="issue_id" columns={columns} dataSource={issueList} pagination={false} />
             {showAddModal == true && (
-                <SingleCreateTask requirementId={props.requirement.requirement_id}
+                <SingleCreateTask requirementId={projectStore.projectModal.requirementId}
                     onCancel={() => setShowAddModal(false)}
                     onOk={() => {
                         setShowAddModal(false);
-                        props.onUpdate();
                         loadIssueList();
                         message.info("创建成功");
                     }} />
@@ -198,11 +205,10 @@ const LinkIssuePanel: React.FC<LinkIssuePanelProps> = (props) => {
                     issueIdList={issueList.map(item => item.issue_id)} />
             )}
             {showBatchModal == true && (
-                <BatchCreateTask requirementId={props.requirement.requirement_id}
+                <BatchCreateTask requirementId={projectStore.projectModal.requirementId}
                     onCancel={() => setShowBatchModal(false)}
                     onOk={() => {
                         setShowBatchModal(false);
-                        props.onUpdate();
                         loadIssueList();
                         message.info("创建成功");
                     }} />

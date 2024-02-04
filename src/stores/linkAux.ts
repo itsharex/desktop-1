@@ -13,8 +13,6 @@ import {
   APP_PROJECT_WORK_PLAN_PATH,
   BUG_CREATE_SUFFIX,
   BUG_DETAIL_SUFFIX,
-  REQUIRE_MENT_CREATE_SUFFIX,
-  REQUIRE_MENT_DETAIL_SUFFIX,
   TASK_CREATE_SUFFIX,
   TASK_DETAIL_SUFFIX,
 } from '@/utils/constant';
@@ -23,7 +21,6 @@ import { uniqId } from '@/utils/utils';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
 import type { API_COLL_TYPE } from "@/api/project_entry";
-
 
 /*
  * 用于统一管理链接跳转以及链接直接传递数据
@@ -183,16 +180,18 @@ export class LinkNoneInfo {
 }
 
 export class LinkRequirementInfo {
-  constructor(content: string, projectId: string, requirementId: string) {
+  constructor(content: string, projectId: string, requirementId: string, showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_REQUIRE_MENT;
     this.linkContent = content;
     this.projectId = projectId;
     this.requirementId = requirementId;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   requirementId: string;
+  showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment"
 }
 
 export class LinkCodeCommentInfo {
@@ -354,10 +353,6 @@ export type LinkDocState = {
   docId: string;
 };
 
-export type LinkRequirementState = {
-  requirementId: string;
-  content: string;
-}
 
 export type LinkIdeaPageState = {
   keywordList: string[];
@@ -432,11 +427,8 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != reqLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(reqLink.projectId);
       }
-      const state: LinkRequirementState = {
-        requirementId: reqLink.requirementId,
-        content: "",
-      };
-      history.push(this.genUrl(reqLink.projectId, pathname, REQUIRE_MENT_DETAIL_SUFFIX), state);
+      this.rootStore.projectStore.projectModal.requirementId = reqLink.requirementId;
+      this.rootStore.projectStore.projectModal.requirementTab = reqLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_CODE_COMMENT) {
       const commentLink = link as LinkCodeCommentInfo;
       if (this.rootStore.projectStore.curProjectId != commentLink.projectId) {
@@ -566,18 +558,6 @@ class LinkAuxStore {
       contextIssueIdList: [],
       spritId: spritId,
     } as LinkIssueState);
-  }
-
-  //跳转到创建需求
-  async goToCreateRequirement(content: string, projectId: string, history: History) {
-    if (projectId != this.rootStore.projectStore.curProjectId) {
-      await this.rootStore.projectStore.setCurProjectId(projectId);
-    }
-    const state: LinkRequirementState = {
-      content: content,
-      requirementId: '',
-    };
-    history.push(this.genUrl(projectId, history.location.pathname, REQUIRE_MENT_CREATE_SUFFIX), state);
   }
 
   //跳转到任务列表

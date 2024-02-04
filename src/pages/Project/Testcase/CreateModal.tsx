@@ -64,7 +64,6 @@ const CreateModal = (props: CreateModalProps) => {
             },
         }));
         message.info("创建成功");
-        projectStore.incTestCaseVersion();
         props.onOk();
     };
 
@@ -88,7 +87,6 @@ const CreateModal = (props: CreateModalProps) => {
 
         await change_file_owner(content, userStore.sessionId, FILE_OWNER_TYPE_TEST_CASE, res.case_id);
         message.info("创建成功");
-        projectStore.incTestCaseVersion();
         props.onOk();
     };
 

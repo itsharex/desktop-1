@@ -266,7 +266,7 @@ const ProjectQuickAccess = () => {
                 linkAuxStore.goToRequirementList(history);
                 break;
             case MENU_KEY_CREATE_REQUIRE_MENT:
-                linkAuxStore.goToCreateRequirement("", projectStore.curProjectId, history);
+                projectStore.projectModal.createRequirement = true;
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_TASK_MY:
                 linkAuxStore.goToTaskList(undefined, history);

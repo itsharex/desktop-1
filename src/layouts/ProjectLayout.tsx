@@ -13,6 +13,9 @@ import ChatAndCommentPanel from '@/pages/Project/ChatAndComment';
 import CreateEntryModal from '@/pages/Project/Home/components/CreateEntryModal';
 import TestcaseDetailModal from '@/pages/Project/Testcase/TestcaseDetailModal';
 import CreateTestCaseModal from "@/pages/Project/Testcase/CreateModal";
+import RequirementDetailModal from '@/pages/Project/Requirement/RequirementDetailModal';
+import CreateRequirementModal from "@/pages/Project/Requirement/CreateModal";
+
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -59,9 +62,14 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
                 <CreateTestCaseModal
                     onCancel={() => projectStore.projectModal.setCreateTestCase(false, "", false)}
                     onOk={() => {
-                        projectStore.incTestCaseVersion();
                         projectStore.projectModal.setCreateTestCase(false, "", false);
                     }} />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.requirementId != "" && (
+                <RequirementDetailModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.createRequirement == true && (
+                <CreateRequirementModal />
             )}
         </div>
     );

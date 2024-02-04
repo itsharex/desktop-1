@@ -11,7 +11,7 @@ import reqIcon from '@/assets/allIcon/icon-req.png';
 import ideaIcon from '@/assets/allIcon/icon-idea.png';
 import apiCollIcon from '@/assets/allIcon/icon-apicoll.png';
 import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
-
+import testCaseIcon from '@/assets/allIcon/icon-testcase.png';
 
 import * as API from '@/api/events';
 
@@ -87,5 +87,9 @@ export const EVENT_ICON_LIST = {
   [API.EVENT_TYPE_ATOMGIT]: {
     title: "Atomgit",
     icon: iconAtomgit,
+  },
+  [API.EVENT_TYPE_TEST_CASE]: {
+    title: "TestCase",
+    icon: testCaseIcon,
   }
 };

@@ -35,6 +35,8 @@ const ListModeContent = (props: ListModeContentProps) => {
     const [caseInfoList, setCaseInfoList] = useState<CaseInfo[]>([]);
     const [removeCaseInfo, setRemoveCaseInfo] = useState<CaseInfo | null>(null);
 
+    const [dataVersion, setDataVersion] = useState(0);
+
     const loadCaseInfoList = async () => {
         const res = await request(list_case_flat({
             session_id: userStore.sessionId,
@@ -206,20 +208,24 @@ const ListModeContent = (props: ListModeContentProps) => {
     ];
 
     useEffect(() => {
-        if (curPage != 0) {
-            setCurPage(0);
-        } else {
-            loadCaseInfoList();
+        loadCaseInfoList();
+    }, [curPage, dataVersion, props.filterTitle, props.filterMyWatch]);
+
+    useEffect(() => {
+        if (projectStore.projectModal.testCaseId == "") {
+            setDataVersion(oldValue => oldValue + 1);
         }
-    }, [projectStore.testCaseVersion, props.filterTitle, props.filterMyWatch]);
+    }, [projectStore.projectModal.testCaseId]);
 
     useEffect(() => {
-        loadCaseInfoList();
-    }, [projectStore.projectModal.testCaseId])
-
-    useEffect(() => {
-        loadCaseInfoList();
-    }, [curPage]);
+        if (projectStore.projectModal.createRequirement == false) {
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                setDataVersion(oldValue => oldValue + 1);
+            }
+        }
+    }, [projectStore.projectModal.createRequirement]);
 
     return (
         <div>

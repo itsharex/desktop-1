@@ -46,6 +46,8 @@ const RequirementList = () => {
     const [filterTagId, setFilterTagId] = useState<string | null>(null);
     const [filterByWatch, setFilterByWatch] = useState(false);
 
+    const [dataVersion, setDataVersion] = useState(0);
+
     const loadReqInfoList = async () => {
         const res = await request(list_requirement({
             session_id: userStore.sessionId,
@@ -304,9 +306,39 @@ const RequirementList = () => {
 
     useEffect(() => {
         loadReqInfoList();
-    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch]);
+    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch, dataVersion]);
 
+    useEffect(() => {
+        if (projectStore.projectModal.requirementId == "") {
+            if (filterClosed != null) {
+                setFilterClosed(null);
+            }
+            if (filterTagId != null) {
+                setFilterTagId(null);
+            }
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                setDataVersion(oldValue => oldValue + 1);
+            }
+        }
+    }, [projectStore.projectModal.requirementId])
 
+    useEffect(() => {
+        if (projectStore.projectModal.createRequirement == false) {
+            if (filterClosed != null) {
+                setFilterClosed(null);
+            }
+            if (filterTagId != null) {
+                setFilterTagId(null);
+            }
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                setDataVersion(oldValue => oldValue + 1);
+            }
+        }
+    }, [projectStore.projectModal.createRequirement])
 
     return (
         <CardWrap title="需求列表" extra={
@@ -314,7 +346,7 @@ const RequirementList = () => {
                 <Button disabled={projectStore.isClosed} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    linkAuxStore.goToCreateRequirement("", projectStore.curProjectId, history);
+                    projectStore.projectModal.createRequirement = true;
                 }}>创建需求</Button>
                 <Popover placement="bottom" trigger="click" content={
                     <div style={{ padding: "10px 10px" }}>

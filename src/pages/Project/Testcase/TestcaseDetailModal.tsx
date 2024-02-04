@@ -33,7 +33,8 @@ const TestcaseDetailModal = () => {
                 projectStore.projectModal.testCaseTab = "detail";
                 projectStore.projectModal.testCaseLinkSpritId = "";
             }}>
-            <Tabs activeKey={projectStore.projectModal.testCaseTab} onChange={key => projectStore.projectModal.testCaseTab = (key as "detail" | "result" | "comment")}
+            <Tabs activeKey={projectStore.projectModal.testCaseTab}
+                onChange={key => projectStore.projectModal.testCaseTab = (key as "detail" | "result" | "comment")}
                 type="card"
                 items={[
                     {
@@ -62,7 +63,7 @@ const TestcaseDetailModal = () => {
                         key: "comment",
                         label: <CommentTab targetType={COMMENT_TARGET_TEST_CASE} targetId={projectStore.projectModal.testCaseId} dataVersion={commentDataVersion} />,
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll",paddingRight:"10px" }}>
+                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll", paddingRight: "10px" }}>
                                 <CommentInModal projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_TEST_CASE} targetId={projectStore.projectModal.testCaseId}
                                     myUserId={userStore.sessionId} myAdmin={projectStore.isAdmin} />
                             </div>

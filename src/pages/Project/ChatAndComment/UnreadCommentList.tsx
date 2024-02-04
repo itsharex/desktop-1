@@ -63,7 +63,7 @@ const UnreadCommentList = () => {
                         if (row.target_type == COMMENT_TARGET_ENTRY) {
                             linkAuxStore.goToLink(new LinkEntryInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_REQUIRE_MENT) {
-                            linkAuxStore.goToLink(new LinkRequirementInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
+                            linkAuxStore.goToLink(new LinkRequirementInfo("", projectStore.curProjectId, row.target_id, "comment"), history);
                         } else if (row.target_type == COMMENT_TARGET_TASK) {
                             linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_BUG) {
