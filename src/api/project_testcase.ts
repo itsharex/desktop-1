@@ -76,6 +76,12 @@ export type CaseDetailInfo = {
     content: string;
 };
 
+export type SimpleCaseInfo = {
+    case_id: string;
+    title: string;
+    parent_folder_id: string;
+};
+
 export type TestResultInfo = {
     test_result_id: string;
     test_ok: boolean;
@@ -277,13 +283,22 @@ export type ListCaseFlatResponse = {
     case_list: CaseInfo[];
 };
 
+export type ListAllCaseRequest = {
+    session_id: string;
+    project_id: string;
+};
+
+export type ListAllCaseResponse = {
+    code: number;
+    err_msg: string;
+    case_list: SimpleCaseInfo[];
+};
 
 export type GetCaseRequest = {
     session_id: string;
     project_id: string;
     case_id: string;
     sprit_id: string;    //工作计划场景
-
 };
 
 export type GetCaseResponse = {
@@ -549,6 +564,15 @@ export async function list_case(request: ListCaseRequest): Promise<ListCaseRespo
 // 列出测试条目(列表模式)
 export async function list_case_flat(request: ListCaseFlatRequest): Promise<ListCaseFlatResponse> {
     const cmd = 'plugin:project_testcase_api|list_case_flat';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListCaseFlatResponse>(cmd, {
+        request,
+    });
+}
+
+// 列出所有测试条目
+export async function list_all_case(request: ListAllCaseRequest): Promise<ListAllCaseResponse> {
+    const cmd = 'plugin:project_testcase_api|list_all_case';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListCaseFlatResponse>(cmd, {
         request,

@@ -13,6 +13,8 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import s from "./index.module.less";
 import SetParentModal from "./SetParentModal";
+import { useHistory } from "react-router-dom";
+import { LinkTestCaseInfo } from "@/stores/linkAux";
 
 type FolderOrCaseInfo = {
     id: string;
@@ -27,9 +29,12 @@ export interface FolderModeContentProps {
 }
 
 const FolderModeContent = (props: FolderModeContentProps) => {
+    const history = useHistory();
+
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
+    const linkAuxStore = useStores('linkAuxStore');
 
     const [dataList, setDataList] = useState<FolderOrCaseInfo[]>([]);
     const [removeDataInfo, setRemoveDataInfo] = useState<FolderOrCaseInfo | null>(null);
@@ -151,7 +156,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                             if (row.dataType == "folder") {
                                 props.onChangeFolder(row.id);
                             } else if (row.dataType == "case") {
-                                //TODO
+                                linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.id), history);
                             }
                         }}
                         onChange={async value => {
@@ -281,7 +286,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
 
     useEffect(() => {
         loadDataList();
-    }, [props.curFolderId, props.dataVersion]);
+    }, [props.curFolderId, props.dataVersion, projectStore.projectModal.testCaseId]);
 
     return (
         <div>

@@ -386,6 +386,33 @@ async fn list_case_flat<R: Runtime>(
 }
 
 #[tauri::command]
+async fn list_all_case<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListAllCaseRequest,
+) -> Result<ListAllCaseResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectTestCaseApiClient::new(chan.unwrap());
+    match client.list_all_case(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_all_case_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("list_all_case".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn get_case<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -705,6 +732,7 @@ impl<R: Runtime> ProjectTestCaseApiPlugin<R> {
                 update_case_content,
                 list_case,
                 list_case_flat,
+                list_all_case,
                 get_case,
                 set_case_parent,
                 remove_case,

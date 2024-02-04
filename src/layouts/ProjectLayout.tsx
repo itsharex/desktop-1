@@ -11,6 +11,7 @@ import GitPostHookModal from '@/pages/Project/ProjectTool/GitPostHookModal';
 import UpdateEntryModal from '@/pages/Project/Home/components/UpdateEntryModal';
 import ChatAndCommentPanel from '@/pages/Project/ChatAndComment';
 import CreateEntryModal from '@/pages/Project/Home/components/CreateEntryModal';
+import TestcaseDetailModal from '@/pages/Project/Testcase/TestcaseDetailModal';
 
 
 
@@ -26,7 +27,7 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             </div>
             {projectStore.showChatAndComment && (
                 <div style={{ width: "300px", marginRight: "60px", borderLeft: "1px solid #e4e4e8" }}>
-                    <div style={{ width: "290px", backgroundColor: "white",margin:"5px 5px",height:"calc(100vh - 96px)",borderRadius:"10px" }}>
+                    <div style={{ width: "290px", backgroundColor: "white", margin: "5px 5px", height: "calc(100vh - 96px)", borderRadius: "10px" }}>
                         <ChatAndCommentPanel />
                     </div>
                 </div>
@@ -50,6 +51,9 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             )}
             {entryStore.createEntryType != null && (
                 <CreateEntryModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.testCaseId != "" && (
+                <TestcaseDetailModal />
             )}
         </div>
     );

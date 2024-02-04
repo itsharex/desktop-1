@@ -275,17 +275,21 @@ export class LinkDataAnnoInfo {
 }
 
 export class LinkTestCaseInfo {
-  constructor(content: string, projectId: string, testCaseId: string) {
+  constructor(content: string, projectId: string, testCaseId: string, spritId: string = "", showTab: "detail" | "result" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE;
     this.linkContent = content;
     this.projectId = projectId;
     this.testCaseId = testCaseId;
+    this.spritId = spritId;
+    this.showTab = showTab;
   }
 
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   testCaseId: string;
+  spritId: string;
+  showTab: "detail" | "result" | "comment";
 }
 
 export class LinkImageInfo {
@@ -492,6 +496,14 @@ class LinkAuxStore {
         await this.rootStore.projectStore.setCurProjectId(dataAnnoLink.projectId);
       }
       await this.openAnnoProjectPage(dataAnnoLink.annoProjectId, dataAnnoLink.linkContent, dataAnnoLink.showComment);
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE) {
+      const testCaseLink = link as LinkTestCaseInfo;
+      if (this.rootStore.projectStore.curProjectId != testCaseLink.projectId) {
+        await this.rootStore.projectStore.setCurProjectId(testCaseLink.projectId);
+      }
+      this.rootStore.projectStore.projectModal.testCaseLinkSpritId = testCaseLink.spritId;
+      this.rootStore.projectStore.projectModal.testCaseTab = testCaseLink.showTab;
+      this.rootStore.projectStore.projectModal.testCaseId = testCaseLink.testCaseId;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as LinkExterneInfo;
       let destUrl = externLink.destUrl;

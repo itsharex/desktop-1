@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { CaseInfo } from "@/api/project_testcase";
-import { list_case_flat, remove_case,update_case } from "@/api/project_testcase";
+import { list_case_flat, remove_case, update_case } from "@/api/project_testcase";
 import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
 import type { ColumnsType } from 'antd/lib/table';
@@ -12,6 +12,8 @@ import s from "./index.module.less";
 import { EditText } from "@/components/EditCell/EditText";
 import Table from "antd/lib/table";
 import { Button, Modal, Space, Tag } from "antd";
+import { useHistory } from "react-router-dom";
+import { LinkTestCaseInfo } from "@/stores/linkAux";
 
 const PAGE_SIZE = 10;
 
@@ -22,9 +24,12 @@ export interface ListModeContentProps {
 }
 
 const ListModeContent = (props: ListModeContentProps) => {
+    const history = useHistory();
+
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
+    const linkAuxStore = useStores('linkAuxStore');
 
     const [curPage, setCurPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
@@ -117,13 +122,13 @@ const ListModeContent = (props: ListModeContentProps) => {
             render: (_, row: CaseInfo) => (
                 <EditText editable={row.user_perm.can_update} content={row.title}
                     showEditIcon onClick={() => {
-                        //TODO
+                        linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.case_id), history);
                     }}
                     onChange={async value => {
-                        if(value.trim() == ""){
+                        if (value.trim() == "") {
                             return false;
                         }
-                        try{
+                        try {
                             await request(update_case({
                                 session_id: userStore.sessionId,
                                 project_id: projectStore.curProjectId,
@@ -132,7 +137,7 @@ const ListModeContent = (props: ListModeContentProps) => {
                                 test_method: row.test_method,
                             }));
                             return true;
-                        }catch(e){
+                        } catch (e) {
                             console.log(e);
                             return false;
                         }
@@ -208,6 +213,10 @@ const ListModeContent = (props: ListModeContentProps) => {
             loadCaseInfoList();
         }
     }, [props.dataVersion, props.filterTitle, props.filterMyWatch]);
+
+    useEffect(() => {
+        loadCaseInfoList();
+    }, [projectStore.projectModal.testCaseId])
 
     useEffect(() => {
         loadCaseInfoList();

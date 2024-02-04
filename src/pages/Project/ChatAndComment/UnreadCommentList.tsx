@@ -69,7 +69,7 @@ const UnreadCommentList = () => {
                         } else if (row.target_type == COMMENT_TARGET_BUG) {
                             linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_TEST_CASE) {
-                            linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
+                            linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.target_id, "", "comment"), history);
                         }
                     }}>{row.title}</a>
             ),
