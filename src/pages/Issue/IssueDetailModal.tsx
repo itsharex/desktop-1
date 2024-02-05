@@ -13,6 +13,7 @@ import { request } from "@/utils/request";
 import { SubIssuePanel } from "./components/SubIssuePanel";
 import { MyDependPanel } from "./components/MyDependPanel";
 import { DependMePanel } from "./components/DependMePanel";
+import DetailPanel from "./components/DetailPanel";
 
 const SubIssuePanelWrap = observer(() => {
     const userStore = useStores('userStore');
@@ -89,7 +90,9 @@ const IssueDetailModal = () => {
                 label: `${projectStore.projectModal.issueType == ISSUE_TYPE_TASK ? "任务" : "缺陷"}详情`,
                 children: (
                     <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
-                        xx
+                        {projectStore.projectModal.issueTab == "detail" && (
+                            <DetailPanel />
+                        )}
                     </div>
                 ),
             },
