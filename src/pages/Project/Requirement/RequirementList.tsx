@@ -24,6 +24,7 @@ import { EditTag } from "@/components/EditCell/EditTag";
 import { PROJECT_SETTING_TAB } from "@/utils/constant";
 import { watch, unwatch, WATCH_TARGET_REQUIRE_MENT } from "@/api/project_watch";
 import UserPhoto from "@/components/Portrait/UserPhoto";
+import LinkIssuePanel from "./components/LinkIssuePanel";
 
 const PAGE_SIZE = 10;
 
@@ -415,7 +416,14 @@ const RequirementList = () => {
                         </Form>
                     </Space>}>
                     <div className={s.table_wrap}>
-                        <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }} />
+                        <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }}
+                            expandable={{
+                                expandedRowRender: (row: RequirementInfo) => (
+                                    <LinkIssuePanel requirementId={row.requirement_id} inModal={false} />
+                                ),
+                                rowExpandable: () => true,
+                                showExpandColumn: true,
+                            }} />
                         <Pagination total={totalCount} pageSize={PAGE_SIZE} current={curPage + 1} onChange={page => setCurPage(page - 1)} />
                     </div>
                 </Card>

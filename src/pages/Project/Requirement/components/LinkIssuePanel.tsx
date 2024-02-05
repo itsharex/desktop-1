@@ -36,7 +36,12 @@ const renderState = (val: number) => {
     );
 };
 
-const LinkIssuePanel = () => {
+export interface LinkIssuePanelProps {
+    requirementId: string;
+    inModal: boolean;
+}
+
+const LinkIssuePanel = (props:LinkIssuePanelProps) => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
@@ -55,7 +60,7 @@ const LinkIssuePanel = () => {
         const res = await request(get_requirement({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: projectStore.projectModal.requirementId,
+            requirement_id: props.requirementId,
         }));
         setReqInfo(res.requirement);
     };
@@ -64,7 +69,7 @@ const LinkIssuePanel = () => {
         const linkRes = await request(list_issue_link({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: projectStore.projectModal.requirementId,
+            requirement_id: props.requirementId,
         }));
         const res = await request(list_issue_by_id({
             session_id: userStore.sessionId,
@@ -84,7 +89,7 @@ const LinkIssuePanel = () => {
                 await request(link_issue({
                     session_id: userStore.sessionId,
                     project_id: projectStore.curProjectId,
-                    requirement_id: projectStore.projectModal.requirementId,
+                    requirement_id: props.requirementId,
                     issue_id: taskLink.issueId,
                 }));
             } catch (e) {
@@ -100,7 +105,7 @@ const LinkIssuePanel = () => {
         await request(unlink_issue({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: projectStore.projectModal.requirementId,
+            requirement_id: props.requirementId,
             issue_id: issueId,
         }));
         await loadIssueList();
@@ -153,7 +158,7 @@ const LinkIssuePanel = () => {
 
     return (
         <Card title={<h2>相关任务</h2>} bordered={false}
-            bodyStyle={{ height: "calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
+            bodyStyle={{ maxHeight:"calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
             extra={
                 <Dropdown.Button
                     type="primary"
@@ -186,7 +191,7 @@ const LinkIssuePanel = () => {
             }>
             <Table rowKey="issue_id" columns={columns} dataSource={issueList} pagination={false} />
             {showAddModal == true && (
-                <SingleCreateTask requirementId={projectStore.projectModal.requirementId}
+                <SingleCreateTask requirementId={props.requirementId}
                     onCancel={() => setShowAddModal(false)}
                     onOk={() => {
                         setShowAddModal(false);
@@ -205,7 +210,7 @@ const LinkIssuePanel = () => {
                     issueIdList={issueList.map(item => item.issue_id)} />
             )}
             {showBatchModal == true && (
-                <BatchCreateTask requirementId={projectStore.projectModal.requirementId}
+                <BatchCreateTask requirementId={props.requirementId}
                     onCancel={() => setShowBatchModal(false)}
                     onOk={() => {
                         setShowBatchModal(false);

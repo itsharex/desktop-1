@@ -56,7 +56,7 @@ const RequirementDetailModal = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "issue" && (
-                                    <LinkIssuePanel />
+                                    <LinkIssuePanel requirementId={projectStore.projectModal.requirementId} inModal/>
                                 )}
                             </div>
                         ),
@@ -78,7 +78,7 @@ const RequirementDetailModal = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "kano" && (
-                                    <KanoPanel/>
+                                    <KanoPanel />
                                 )}
                             </div>
                         ),
@@ -89,7 +89,7 @@ const RequirementDetailModal = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "event" && (
-                                    <EventListPanel/>
+                                    <EventListPanel />
                                 )}
                             </div>
                         ),
