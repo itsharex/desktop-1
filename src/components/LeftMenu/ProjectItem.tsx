@@ -3,7 +3,7 @@ import cls from './index.module.less';
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import { Badge } from "antd";
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH } from "@/utils/constant";
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { CaretRightFilled, FolderFilled } from "@ant-design/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import type { WebProjectInfo } from "@/stores/project";
@@ -28,34 +28,92 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                     if (appStore.inEdit) {
                         appStore.showCheckLeave(() => {
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
                         });
                         return;
                     }
                     projectStore.setCurProjectId(item.project_id).then(() => {
+                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                         history.push(APP_PROJECT_HOME_PATH);
                     });
                 }}><FolderFilled style={{ color: item.project_id == projectStore.curProjectId ? "white" : "inherit" }} />&nbsp;{item.basic_info.project_name} </span>
             </div>
             {item.project_id == projectStore.curProjectId && (
                 <div>
-                    <div className={`${cls.project_sub_menu} ${location.pathname.startsWith(APP_PROJECT_HOME_PATH) ? cls.active_sub_menu : ""}`}
+                    <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST ? cls.active_sub_menu : ""}`}
                         onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST;
                                         history.push(APP_PROJECT_HOME_PATH);
                                     });
                                 });
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
-                        }}><CaretRightFilled />内容面板</div>
+                        }}><CaretRightFilled />工作计划</div>
+                    <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST ? cls.active_sub_menu : ""}`}
+                        onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            if (appStore.inEdit) {
+                                appStore.showCheckLeave(() => {
+                                    projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST;
+                                        history.push(APP_PROJECT_HOME_PATH);
+                                    });
+                                });
+                                return;
+                            }
+                            projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST;
+                                history.push(APP_PROJECT_HOME_PATH);
+                            });
+                        }}><CaretRightFilled />项目文档</div>
+                    <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST ? cls.active_sub_menu : ""}`}
+                        onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            if (appStore.inEdit) {
+                                appStore.showCheckLeave(() => {
+                                    projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST;
+                                        history.push(APP_PROJECT_HOME_PATH);
+                                    });
+                                });
+                                return;
+                            }
+                            projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST;
+                                history.push(APP_PROJECT_HOME_PATH);
+                            });
+                        }}><CaretRightFilled />信息面板</div>
+                    <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST ? cls.active_sub_menu : ""}`}
+                        onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            if (appStore.inEdit) {
+                                appStore.showCheckLeave(() => {
+                                    projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST;
+                                        history.push(APP_PROJECT_HOME_PATH);
+                                    });
+                                });
+                                return;
+                            }
+                            projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST;
+                                history.push(APP_PROJECT_HOME_PATH);
+                            });
+                        }}><CaretRightFilled />静态网页</div>
                     <div className={`${cls.project_sub_menu} ${location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) ? cls.active_sub_menu : ""}`}
                         onClick={e => {
                             e.stopPropagation();
@@ -63,12 +121,14 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                         history.push(APP_PROJECT_MY_WORK_PATH);
                                     });
                                 });
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_MY_WORK_PATH);
                             });
                         }}><CaretRightFilled />我的工作</div>
@@ -79,12 +139,14 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                         history.push(APP_PROJECT_OVERVIEW_PATH);
                                     });
                                 });
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_OVERVIEW_PATH);
                             });
                         }}><CaretRightFilled />项目概览</div>
