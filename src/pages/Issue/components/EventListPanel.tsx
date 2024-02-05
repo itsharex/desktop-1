@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { PluginEvent } from '@/api/events';
-import { EVENT_REF_TYPE_REQUIRE_MENT, EVENT_TYPE_REQUIRE_MENT } from '@/api/events';
+import { EVENT_REF_TYPE_BUG, EVENT_REF_TYPE_TASK, EVENT_TYPE_BUG, EVENT_TYPE_TASK } from '@/api/events';
 import { request } from "@/utils/request";
 import { list_event_by_ref } from '@/api/events';
 import { Space, Timeline } from "antd";
 import EventCom from "@/components/EventCom";
 import moment from "moment";
 import UserPhoto from "@/components/Portrait/UserPhoto";
+import { ISSUE_TYPE_TASK } from "@/api/project_issue";
 
 const EventListPanel = () => {
     const userStore = useStores('userStore');
@@ -20,16 +21,16 @@ const EventListPanel = () => {
         const res = await request(list_event_by_ref({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            event_type: EVENT_TYPE_REQUIRE_MENT,
-            ref_type: EVENT_REF_TYPE_REQUIRE_MENT,
-            ref_id: projectStore.projectModal.requirementId,
+            event_type: projectStore.projectModal.issueType == ISSUE_TYPE_TASK ? EVENT_TYPE_TASK : EVENT_TYPE_BUG,
+            ref_type: projectStore.projectModal.issueType == ISSUE_TYPE_TASK ? EVENT_REF_TYPE_TASK : EVENT_REF_TYPE_BUG,
+            ref_id: projectStore.projectModal.issueId,
         }));
         setTimeLine(res.event_list);
     }
 
     useEffect(() => {
         loadEvent();
-    }, [projectStore.projectModal.requirementId]);
+    }, [projectStore.projectModal.issueId]);
 
     return (
         <Timeline reverse={true} style={{ paddingTop: "10px" }}>

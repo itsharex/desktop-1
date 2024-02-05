@@ -395,6 +395,7 @@ class NoticeStore {
     } else if (notice.UpdateIssueNotice !== undefined) {
       await this.rootStore.spritStore.updateIssue(notice.UpdateIssueNotice.issue_id);
       if (notice.UpdateIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
+        //TODO
       }
     }
     else if (notice.UpdateIssueStateNotice !== undefined) {
@@ -407,6 +408,7 @@ class NoticeStore {
         if (notice.UpdateIssueStateNotice.check_user_id != "") {
           await this.rootStore.memberStore.updateIssueState(notice.UpdateIssueStateNotice.project_id, notice.UpdateIssueStateNotice.check_user_id);
         }
+        //TODO
       }
     } else if (notice.RemoveIssueNotice !== undefined) {
       await this.rootStore.projectStore.updateProjectIssueCount(notice.RemoveIssueNotice.project_id);
@@ -421,6 +423,7 @@ class NoticeStore {
         await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.check_user_id);
       }
       if (notice.RemoveIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
+        //TODO
       }
     } else if (notice.SetSpritNotice !== undefined) {
       if ((this.rootStore.entryStore.curEntry?.entry_id ?? "") == notice.SetSpritNotice.old_sprit_id) {
@@ -428,6 +431,9 @@ class NoticeStore {
       }
       if ((this.rootStore.entryStore.curEntry?.entry_id ?? "") == notice.SetSpritNotice.new_sprit_id) {
         await this.rootStore.spritStore.onNewIssue(notice.SetSpritNotice.issue_id);
+      }
+      if (notice.SetSpritNotice.project_id == this.rootStore.projectStore.curProjectId) {
+        //TODO
       }
     }
   }

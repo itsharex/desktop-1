@@ -37,13 +37,13 @@ const RequirementDetailModal = () => {
             }}>
             <Tabs activeKey={projectStore.projectModal.requirementTab}
                 onChange={key => projectStore.projectModal.requirementTab = (key as "detail" | "issue" | "fourq" | "kano" | "event" | "comment")}
-                type="card"
+                type="card" tabPosition="left" size="large"
                 items={[
                     {
                         key: "detail",
-                        label: "项目需求详情",
+                        label: "需求详情",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "detail" && (
                                     <DetailPanel />
                                 )}
@@ -54,7 +54,7 @@ const RequirementDetailModal = () => {
                         key: "issue",
                         label: "相关任务",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "issue" && (
                                     <LinkIssuePanel />
                                 )}
@@ -65,7 +65,7 @@ const RequirementDetailModal = () => {
                         key: "fourq",
                         label: "四象限分析",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "fourq" && (
                                     <FourQPanel />
                                 )}
@@ -76,7 +76,7 @@ const RequirementDetailModal = () => {
                         key: "kano",
                         label: "KANO分析",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "kano" && (
                                     <KanoPanel/>
                                 )}
@@ -87,7 +87,7 @@ const RequirementDetailModal = () => {
                         key: "event",
                         label: "操作历史",
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.requirementTab == "event" && (
                                     <EventListPanel/>
                                 )}
@@ -98,7 +98,7 @@ const RequirementDetailModal = () => {
                         key: "comment",
                         label: <CommentTab targetType={COMMENT_TARGET_REQUIRE_MENT} targetId={projectStore.projectModal.requirementId} dataVersion={commentDataVersion} />,
                         children: (
-                            <div style={{ height: "calc(100vh - 340px)", overflowY: "scroll", paddingRight: "10px" }}>
+                            <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll", paddingRight: "10px" }}>
                                 <CommentInModal projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_REQUIRE_MENT} targetId={projectStore.projectModal.requirementId}
                                     myUserId={userStore.sessionId} myAdmin={projectStore.isAdmin} />
                             </div>

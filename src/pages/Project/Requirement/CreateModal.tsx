@@ -8,7 +8,6 @@ import { request } from "@/utils/request";
 import { create_requirement } from "@/api/project_requirement";
 
 const CreateModal = () => {
-
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
@@ -65,7 +64,7 @@ const CreateModal = () => {
 
     return (
         <Modal open title="创建项目需求"
-            okText="创建" okButtonProps={{ disabled: title.trim() == "" }} width={700}
+            okText="创建" okButtonProps={{ disabled: title.trim() == "" }} width={800}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();

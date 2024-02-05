@@ -15,7 +15,8 @@ import TestcaseDetailModal from '@/pages/Project/Testcase/TestcaseDetailModal';
 import CreateTestCaseModal from "@/pages/Project/Testcase/CreateModal";
 import RequirementDetailModal from '@/pages/Project/Requirement/RequirementDetailModal';
 import CreateRequirementModal from "@/pages/Project/Requirement/CreateModal";
-
+import IssueDetailModal from '@/pages/Issue/IssueDetailModal';
+import CreateIssueModal from '@/pages/Issue/CreateModal';
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -70,6 +71,12 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             )}
             {projectStore.curProjectId != "" && projectStore.projectModal.createRequirement == true && (
                 <CreateRequirementModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.issueId != "" && (
+                <IssueDetailModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.createIssue == true && (
+                <CreateIssueModal />
             )}
         </div>
     );

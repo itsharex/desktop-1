@@ -31,7 +31,7 @@ import { request } from '@/utils/request';
 import s from "./IssueEditList.module.less";
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import SubTaskList from './SubTaskList';
+import { ExtraIssueInfo } from './ExtraIssueInfo';
 
 type ColumnsTypes = ColumnType<IssueInfo> & {
   dataIndex: string | string[];
@@ -41,25 +41,22 @@ type ColumnsTypes = ColumnType<IssueInfo> & {
 
 type IssueEditListProps = {
   isFilter: boolean;
-  dataSource: IssueInfo[];
   issueIdList: string[];
   tagDefList: TagInfo[];
-  onChange: (issueId: string) => void;
   showStage: (issueId: string) => void;
 };
 
 const IssueEditList: React.FC<IssueEditListProps> = ({
   isFilter,
-  dataSource,
   issueIdList,
   tagDefList,
-  onChange,
   showStage,
 }) => {
   const userStore = useStores("userStore");
   const projectStore = useStores("projectStore");
   const memberStore = useStores("memberStore");
   const linkAuxStore = useStores("linkAuxStore");
+  const issueStore = useStores('issueStore');
 
   const { pathname } = useLocation();
   const history = useHistory();
@@ -73,7 +70,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       target_type: issueType == ISSUE_TYPE_TASK ? WATCH_TARGET_TASK : WATCH_TARGET_BUG,
       target_id: issueId,
     }));
-    onChange(issueId);
+    issueStore.updateIssue(issueId);
   };
 
   const watchIssue = async (issueId: string, issueType: ISSUE_TYPE) => {
@@ -83,7 +80,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       target_type: issueType == ISSUE_TYPE_TASK ? WATCH_TARGET_TASK : WATCH_TARGET_BUG,
       target_id: issueId,
     }));
-    onChange(issueId);
+    issueStore.updateIssue(issueId);
   };
 
   const columnsList: ColumnsTypes[] = [
@@ -126,9 +123,9 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
               return await updateTitle(userStore.sessionId, record.project_id, record.issue_id, value);
             }} onClick={() => {
               if (record.issue_type == ISSUE_TYPE_TASK) {
-                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, issueIdList), history);
+                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id), history);
               } else if (record.issue_type == ISSUE_TYPE_BUG) {
-                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id, issueIdList), history);
+                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id), history);
               }
             }} />
           </div>
@@ -374,7 +371,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
         onChange={async (value) => {
           const res = await updateExecUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
           if (res) {
-            onChange(row.issue_id);
+            issueStore.updateIssue(row.issue_id);
           }
           return res;
         }} showEditIcon={true} />,
@@ -392,7 +389,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
         onChange={async (value) => {
           const res = await updateCheckUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
           if (res) {
-            onChange(row.issue_id);
+            issueStore.updateIssue(row.issue_id);
           }
           return res;
         }} showEditIcon={true} />,
@@ -431,7 +428,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
               issue_id: row.issue_id,
               tag_id_list: tagIdList,
             })).then(() => {
-              onChange(row.issue_id);
+              issueStore.updateIssue(row.issue_id);
             });
           }} />
       ),
@@ -530,11 +527,15 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       rowKey={'issue_id'}
       columns={columns}
       scroll={{ x: 1650, y: `${isFilter ? 'calc(100vh - 400px)' : 'calc(100vh - 340px)'}` }}
-      dataSource={dataSource}
+      dataSource={issueStore.issueList}
       pagination={false}
       expandable={{
-        expandedRowRender: (row: IssueInfo) => (<SubTaskList issueId={row.issue_id} />),
-        rowExpandable: (row: IssueInfo) => row.sub_issue_status.total_count > 0,
+        expandedRowRender: (row: IssueInfo) => (
+          <ExtraIssueInfo issueId={row.issue_id}
+            canOptDependence={row.user_issue_perm.can_opt_dependence}
+            canOptSubIssue={row.user_issue_perm.can_opt_sub_issue} />
+        ),
+        rowExpandable: () => true,
         showExpandColumn: getIsTask(location.pathname),
       }}
     />

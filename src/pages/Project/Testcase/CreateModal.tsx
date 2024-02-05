@@ -105,7 +105,7 @@ const CreateModal = (props: CreateModalProps) => {
 
     return (
         <Modal open title={`创建${projectStore.projectModal.createTestCaseEnableFolder ? "目录/测试用例" : "测试用例 "}`}
-            okText="创建" okButtonProps={{ disabled: !isValid() }} width={700}
+            okText="创建" okButtonProps={{ disabled: !isValid() }} width={800}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();

@@ -1,3 +1,4 @@
+import { type ISSUE_TYPE, ISSUE_TYPE_TASK } from '@/api/project_issue';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 export class ProjectModalStore {
@@ -100,5 +101,59 @@ export class ProjectModalStore {
         runInAction(() => {
             this._createRequirement = val;
         });
+    }
+
+    // 工单详情相关
+    private _issueId = "";
+    private _issueType = ISSUE_TYPE_TASK;
+    private _issueTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment" = "detail";
+
+    get issueId() {
+        return this._issueId;
+    }
+    get issueType() {
+        return this._issueType;
+    }
+
+    setIssueIdAndType(issueId: string, issueType: ISSUE_TYPE) {
+        runInAction(() => {
+            this._issueId = issueId;
+            this._issueType = issueType;
+        });
+    }
+
+    get issueTab() {
+        return this._issueTab;
+    }
+
+    set issueTab(val: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment") {
+        runInAction(() => {
+            this._issueTab = val;
+        });
+    }
+
+    //创建工单相关
+    private _createIssue = false;
+    private _createIssueType = ISSUE_TYPE_TASK;
+    private _createIssueLinkSpritId = "";
+
+    setCreateIssue(show: boolean, issueType: ISSUE_TYPE, linkSpritId: string) {
+        runInAction(() => {
+            this._createIssue = show;
+            this._createIssueType = issueType;
+            this._createIssueLinkSpritId = linkSpritId;
+        });
+    }
+
+    get createIssue() {
+        return this._createIssue;
+    }
+
+    get createIssueType() {
+        return this._createIssueType;
+    }
+
+    get createIssueLinkSpritId() {
+        return this._createIssueLinkSpritId;
     }
 }

@@ -73,9 +73,9 @@ const IssueList = (props: IssueListProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             if (record.issue_type == ISSUE_TYPE_TASK) {
-                                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, props.issueList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id), history);
                             } else if (record.issue_type == ISSUE_TYPE_BUG) {
-                                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id, props.issueList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id), history);
                             }
                         }}
                     >

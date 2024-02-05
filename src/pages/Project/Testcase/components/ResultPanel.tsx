@@ -245,6 +245,7 @@ const ResultPanle = () => {
     return (
         <Card title={projectStore.projectModal.testCaseLinkSpritId == "" ? "包含全部测试结果" : "只包含当前工作计划相关测试结果"}
             headStyle={{ padding: "0px 10px" }} bordered={false}
+            bodyStyle={{ height: "calc(100vh - 370px)", overflowY: "scroll" }}
             extra={
                 <Space>
                     {inEdit == false && (

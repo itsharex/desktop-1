@@ -119,7 +119,7 @@ const LinkIssuePanel = () => {
                 <a onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, issueList.map(item => item.issue_id)), history);
+                    linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id), history);
                 }}><LinkOutlined />&nbsp;{record.basic_info.title}</a>
             ),
         },
@@ -153,7 +153,7 @@ const LinkIssuePanel = () => {
 
     return (
         <Card title={<h2>相关任务</h2>} bordered={false}
-            bodyStyle={{ height: "calc(100vh - 400px)", overflowY: "scroll", padding: "0px" }}
+            bodyStyle={{ height: "calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
             extra={
                 <Dropdown.Button
                     type="primary"

@@ -288,9 +288,9 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                     fontSize="16px" fontWeight={500} width="190px"
                     showEditIcon onClick={() => {
                         if (props.issue.issue_type == ISSUE_TYPE_TASK) {
-                            linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id, spritStore.taskList.map(item => item.issue_id)), history);
+                            linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id), history);
                         } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
-                            linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id, spritStore.bugList.map(item => item.issue_id)), history);
+                            linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id), history);
                         }
                     }} onChange={async value => {
                         if (value.trim() == "") {
