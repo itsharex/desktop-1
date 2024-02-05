@@ -26,6 +26,8 @@ import {
     entryEvOptionList,
     calcHarborEvCfg,
     harborEvOptionList,
+    calcTestcaseEvCfg,
+    testcaseEvOptionList,
 } from "./constants";
 import { CHAT_BOT_QYWX, CHAT_BOT_DING, CHAT_BOT_FS, create as create_subscribe } from '@/api/events_subscribe';
 import type { CHAT_BOT_TYPE } from '@/api/events_subscribe';
@@ -56,6 +58,7 @@ interface FormValue {
     apiCollectionEvCfg: string[] | undefined;
     entryEvCfg: string[] | undefined;
     harborEvCfg: string[] | undefined;
+    testcaseEvCfg: string[] | undefined;
 }
 
 
@@ -87,6 +90,9 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
 
     const [issueEvCfgCheckAll, setIssueEvCfgCheckAll] = useState(false);
     const [issueEvCfgIndeterminate, setIssueEvCfgIndeterminate] = useState(false);
+
+    const [testcaseEvCfgCheckAll, setTestcaseEvCfgCheckAll] = useState(false);
+    const [testcaseEvCfgIndeterminate, setTestcaseEvCfgIndeterminate] = useState(false);
 
     const [requirementEvCfgCheckAll, setRequirementEvCfgCheckAll] = useState(false);
     const [requirementEvCfgIndeterminate, setRequirementEvCfgIndeterminate] = useState(false);
@@ -138,6 +144,7 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
                 data_anno_ev_cfg: calcDataAnnoEvCfg(formValue.dataAnnoEvCfg),
                 entry_ev_cfg: calcEntryEvCfg(formValue.entryEvCfg),
                 harbor_ev_cfg: calcHarborEvCfg(formValue.harborEvCfg),
+                testcase_ev_cfg: calcTestcaseEvCfg(formValue.testcaseEvCfg),
             },
         }));
         props.onOk();
@@ -376,7 +383,7 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
                             }
                         }} />
                     </Form.Item>
-                    
+
                     <Form.Item label={<Checkbox indeterminate={requirementEvCfgIndeterminate} checked={requirementEvCfgCheckAll} onChange={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -424,6 +431,31 @@ const CreateSubscribeModal: React.FC<CreateSubscribeModalProps> = (props) => {
                             } else {
                                 setIssueEvCfgCheckAll(false);
                                 setIssueEvCfgIndeterminate(true);
+                            }
+                        }} />
+                    </Form.Item>
+                    <Form.Item label={<Checkbox indeterminate={testcaseEvCfgIndeterminate} checked={testcaseEvCfgCheckAll} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setTestcaseEvCfgIndeterminate(false);
+                        if (testcaseEvCfgCheckAll) {
+                            setTestcaseEvCfgCheckAll(false);
+                            form.setFieldValue("testcaseEvCfg", []);
+                        } else {
+                            setTestcaseEvCfgCheckAll(true);
+                            form.setFieldValue("testcaseEvCfg", testcaseEvOptionList.map(item => item.value));
+                        }
+                    }}>测试用例事件</Checkbox>} name="testcaseEvCfg">
+                        <Checkbox.Group options={testcaseEvOptionList} onChange={values => {
+                            if (values.length == 0) {
+                                setTestcaseEvCfgCheckAll(false);
+                                setTestcaseEvCfgIndeterminate(false);
+                            } else if (values.length == testcaseEvOptionList.length) {
+                                setTestcaseEvCfgCheckAll(true);
+                                setTestcaseEvCfgIndeterminate(false);
+                            } else {
+                                setTestcaseEvCfgCheckAll(false);
+                                setTestcaseEvCfgIndeterminate(true);
                             }
                         }} />
                     </Form.Item>

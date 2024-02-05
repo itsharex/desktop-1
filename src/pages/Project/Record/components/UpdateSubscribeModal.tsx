@@ -17,6 +17,7 @@ import {
     calcIssueEvCfg,
     calcProjectEvCfg,
     calcRequirementEvCfg,
+    calcTestcaseEvCfg,
     codeEvOptionList,
     dataAnnoEvOptionList,
     entryEvOptionList,
@@ -33,6 +34,7 @@ import {
     genIssueEvCfgValues,
     genProjectEvCfgValues,
     genRequirementEvCfgValues,
+    genTestcaseEvCfgValues,
     giteeEvOptionList,
     gitlabEvOptionList,
     harborEvOptionList,
@@ -40,6 +42,7 @@ import {
     issueEvOptionList,
     projectEvOptionList,
     requirementEvOptionList,
+    testcaseEvOptionList,
 } from "./constants";
 import { observer } from 'mobx-react';
 import { request } from "@/utils/request";
@@ -67,6 +70,7 @@ interface FormValue {
     apiCollectionEvCfg: string[] | undefined;
     entryEvCfg: string[] | undefined;
     harborEvCfg: string[] | undefined;
+    testcaseEvCfg: string[] | undefined;
 }
 
 const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
@@ -101,6 +105,10 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
     const issueEvCfgValues = genIssueEvCfgValues(props.subscribe.event_cfg.issue_ev_cfg);
     const [issueEvCfgCheckAll, setIssueEvCfgCheckAll] = useState(issueEvCfgValues.length == issueEvOptionList.length);
     const [issueEvCfgIndeterminate, setIssueEvCfgIndeterminate] = useState(issueEvCfgValues.length > 0 && issueEvCfgValues.length < issueEvOptionList.length);
+
+    const testcaseEvCfgValues = genTestcaseEvCfgValues(props.subscribe.event_cfg.testcase_ev_cfg);
+    const [testcaseEvCfgCheckAll, setTestcaseEvCfgCheckAll] = useState(testcaseEvCfgValues.length == testcaseEvOptionList.length);
+    const [testcaseEvCfgIndeterminate, setTestcaseEvCfgIndeterminate] = useState(testcaseEvCfgValues.length > 0 && testcaseEvCfgValues.length < testcaseEvOptionList.length);
 
     const requirementEvCfgValues = genRequirementEvCfgValues(props.subscribe.event_cfg.requirement_ev_cfg);
     const [requirementEvCfgCheckAll, setRequirementEvCfgCheckAll] = useState(requirementEvCfgValues.length == requirementEvOptionList.length);
@@ -146,6 +154,7 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                 data_anno_ev_cfg: calcDataAnnoEvCfg(formValue.dataAnnoEvCfg),
                 entry_ev_cfg: calcEntryEvCfg(formValue.entryEvCfg),
                 harbor_ev_cfg: calcHarborEvCfg(formValue.harborEvCfg),
+                testcase_ev_cfg: calcTestcaseEvCfg(formValue.testcaseEvCfg),
             },
         }));
         props.onOk();
@@ -175,6 +184,7 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                     "dataAnnoEvCfg": dataAnnoEvCfgValues,
                     "entryEvCfg": entryEvCfgValues,
                     "harborEvCfg": harborEvCfgValues,
+                    "testcaseEvCfg": testcaseEvCfgValues,
                 }}>
                     <Form.Item label="订阅名称" name="chatBotName" rules={[{ required: true }]}>
                         <Input defaultValue={props.subscribe.chat_bot_name} />
@@ -405,6 +415,31 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                             } else {
                                 setIssueEvCfgCheckAll(false);
                                 setIssueEvCfgIndeterminate(true);
+                            }
+                        }} />
+                    </Form.Item>
+                    <Form.Item label={<Checkbox indeterminate={testcaseEvCfgIndeterminate} checked={testcaseEvCfgCheckAll} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setTestcaseEvCfgIndeterminate(false);
+                        if (testcaseEvCfgCheckAll) {
+                            setTestcaseEvCfgCheckAll(false);
+                            form.setFieldValue("testcaseEvCfg", []);
+                        } else {
+                            setTestcaseEvCfgCheckAll(true);
+                            form.setFieldValue("testcaseEvCfg", testcaseEvOptionList.map(item => item.value));
+                        }
+                    }}>测试用例事件</Checkbox>} name="testcaseEvCfg">
+                        <Checkbox.Group options={testcaseEvOptionList} onChange={values => {
+                            if (values.length == 0) {
+                                setTestcaseEvCfgCheckAll(false);
+                                setTestcaseEvCfgIndeterminate(false);
+                            } else if (values.length == testcaseEvOptionList.length) {
+                                setTestcaseEvCfgCheckAll(true);
+                                setTestcaseEvCfgIndeterminate(false);
+                            } else {
+                                setTestcaseEvCfgCheckAll(false);
+                                setTestcaseEvCfgIndeterminate(true);
                             }
                         }} />
                     </Form.Item>

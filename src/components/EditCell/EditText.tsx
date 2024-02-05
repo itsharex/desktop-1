@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
 
@@ -18,6 +18,12 @@ export interface EditTextProps {
 export const EditText: React.FC<EditTextProps> = (props) => {
     const [inEdit, setInEdit] = useState(false);
     const [content, setContent] = useState(props.content);
+
+    useEffect(() => {
+        if (inEdit == false) {
+            setContent(props.content);
+        }
+    }, [props.content]);
 
     return (
         <span onClick={e => {

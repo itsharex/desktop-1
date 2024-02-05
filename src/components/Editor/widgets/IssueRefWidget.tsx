@@ -65,8 +65,6 @@ const renderTitle = (
   row: IssueInfo,
   projectId: string,
   linkAuxStore: LinkAuxStore | undefined,
-  taskIdList: string[],
-  bugIdList: string[],
   history: History | undefined,
 ) => {
   return (
@@ -80,9 +78,9 @@ const renderTitle = (
           e.preventDefault();
           if (linkAuxStore !== undefined && history != undefined) {
             if (row.issue_type == ISSUE_TYPE_TASK) {
-              linkAuxStore.goToLink(new LinkTaskInfo('', projectId, row.issue_id, taskIdList), history);
+              linkAuxStore.goToLink(new LinkTaskInfo('', projectId, row.issue_id), history);
             } else if (row.issue_type == ISSUE_TYPE_BUG) {
-              linkAuxStore.goToLink(new LinkBugInfo('', projectId, row.issue_id, bugIdList), history);
+              linkAuxStore.goToLink(new LinkBugInfo('', projectId, row.issue_id), history);
             }
           }
         }}
@@ -201,7 +199,7 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
       dataIndex: ['basic_info', 'title'],
       width: 200,
       render: (_, row: IssueInfo) =>
-        renderTitle(row, projectStore.curProjectId, undefined, [], [], undefined),
+        renderTitle(row, projectStore.curProjectId, undefined, undefined),
     },
     {
       title: '优先级',
@@ -354,7 +352,7 @@ const ViewIssueRef: React.FC<WidgetProps> = (props) => {
       dataIndex: ['basic_info', 'title'],
       width: 150,
       render: (v: string, row: IssueInfo) =>
-        renderTitle(row, projectStore.curProjectId, linkAuxStore, data.issueIdList, data.issueIdList, history),
+        renderTitle(row, projectStore.curProjectId, linkAuxStore, history),
     },
     {
       title: '优先级',

@@ -183,9 +183,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                             return await updateTitle(userStore.sessionId, record.project_id, record.issue_id, value);
                         }} onClick={() => {
                             if (record.issue_type == ISSUE_TYPE_TASK) {
-                                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id, spritStore.taskList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkTaskInfo("", record.project_id, record.issue_id), history);
                             } else if (record.issue_type == ISSUE_TYPE_BUG) {
-                                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id, spritStore.bugList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkBugInfo("", record.project_id, record.issue_id), history);
                             }
                         }} />
                     </div>

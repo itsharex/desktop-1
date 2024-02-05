@@ -2,24 +2,30 @@ import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { FourQInfo, RequirementInfo } from "@/api/project_requirement";
-import { get_four_q_info, set_four_q_info } from "@/api/project_requirement";
+import { get_four_q_info, get_requirement, set_four_q_info } from "@/api/project_requirement";
 import { runInAction } from "mobx";
 import { request } from "@/utils/request";
 import { Card, InputNumber, Space } from "antd";
 import s from "./FourQPanel.module.less";
 import Button from "@/components/Button";
 
-interface FourQPanelProps {
-    requirement: RequirementInfo;
-    onUpdate: () => void;
-}
 
-const FourQPanel: React.FC<FourQPanelProps> = (props) => {
+const FourQPanel = () => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
     const [inEdit, setInEdit] = useState(false);
     const [fourQInfo, setFourInfo] = useState<FourQInfo | null>(null);
+    const [reqInfo, setReqInfo] = useState<RequirementInfo | null>(null);
+
+    const loadReqInfo = async () => {
+        const res = await request(get_requirement({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            requirement_id: projectStore.projectModal.requirementId,
+        }));
+        setReqInfo(res.requirement);
+    };
 
     const localStore = useLocalObservable(() => ({
         urgentAndImportant: 0,
@@ -54,7 +60,7 @@ const FourQPanel: React.FC<FourQPanelProps> = (props) => {
         const res = await request(get_four_q_info({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
         }));
         localStore.initData(res.four_q_info);
         setFourInfo(res.four_q_info);
@@ -64,9 +70,9 @@ const FourQPanel: React.FC<FourQPanelProps> = (props) => {
         await request(set_four_q_info({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
             four_q_info: {
-                requirement_id: props.requirement.requirement_id,
+                requirement_id: projectStore.projectModal.requirementId,
                 urgent_and_important: localStore.urgentAndImportant,
                 urgent_and_not_important: localStore.urgentAndNotImportant,
                 not_urgent_and_not_important: localStore.notUrgentAndNotImportant,
@@ -76,19 +82,19 @@ const FourQPanel: React.FC<FourQPanelProps> = (props) => {
             four_q_important_value: localStore.importantValue,
         }));
         setInEdit(false);
-        props.onUpdate();
     };
 
     useEffect(() => {
+        loadReqInfo();
         loadFourQInfo();
-    }, [props.requirement.requirement_id]);
+    }, [projectStore.projectModal.requirementId]);
 
     return (
         <Card bordered={false} title={<h3 className={s.head}>调研结果</h3>}
             bodyStyle={{ padding: "0px 0px" }} extra={
                 <>
                     {inEdit == false && (
-                        <Button disabled={(projectStore.isClosed || (!props.requirement.user_requirement_perm.can_update) || (fourQInfo == null))} onClick={e => {
+                        <Button disabled={(projectStore.isClosed || (!(reqInfo?.user_requirement_perm.can_update??false)) || (fourQInfo == null))} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setInEdit(true);

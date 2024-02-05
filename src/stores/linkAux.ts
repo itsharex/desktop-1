@@ -2,7 +2,7 @@ import type { RootStore } from '.';
 import { makeAutoObservable } from 'mobx';
 import { request } from '@/utils/request';
 import type { History } from 'history';
-import type { ISSUE_STATE } from '@/api/project_issue';
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, type ISSUE_STATE } from '@/api/project_issue';
 import {
   APP_PROJECT_HOME_PATH,
   APP_PROJECT_KB_BOARD_PATH,
@@ -11,19 +11,12 @@ import {
   APP_PROJECT_OVERVIEW_PATH,
   APP_PROJECT_PATH,
   APP_PROJECT_WORK_PLAN_PATH,
-  BUG_CREATE_SUFFIX,
-  BUG_DETAIL_SUFFIX,
-  REQUIRE_MENT_CREATE_SUFFIX,
-  REQUIRE_MENT_DETAIL_SUFFIX,
-  TASK_CREATE_SUFFIX,
-  TASK_DETAIL_SUFFIX,
 } from '@/utils/constant';
 import { open } from '@tauri-apps/api/shell';
 import { uniqId } from '@/utils/utils';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
 import type { API_COLL_TYPE } from "@/api/project_entry";
-
 
 /*
  * 用于统一管理链接跳转以及链接直接传递数据
@@ -56,6 +49,7 @@ export enum LINK_TARGET_TYPE {
   LINK_TARGET_API_COLL = 23,
   LINK_TARGET_DATA_ANNO = 24,
   LINK_TARGET_BOARD = 25,
+  LINK_TARGET_TEST_CASE = 26,
 
   LINK_TARGET_NONE = 100,
   LINK_TARGET_IMAGE = 101,
@@ -143,33 +137,33 @@ export class LinkBoardInfo {
 }
 
 export class LinkTaskInfo {
-  constructor(content: string, projectId: string, issueId: string, contextIssueIdList: string[] = []) {
+  constructor(content: string, projectId: string, issueId: string, showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TASK;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
-    this.contextIssueIdList = contextIssueIdList;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
-  contextIssueIdList: string[];
+  showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment";
 }
 
 export class LinkBugInfo {
-  constructor(content: string, projectId: string, issueId: string, contextIssueIdList: string[] = []) {
+  constructor(content: string, projectId: string, issueId: string, showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_BUG;
     this.linkContent = content;
     this.projectId = projectId;
     this.issueId = issueId;
-    this.contextIssueIdList = contextIssueIdList;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   issueId: string;
-  contextIssueIdList: string[];
+  showTab: "detail" | "subtask" | "mydep" | "depme" | "event" | "comment";
 }
 
 export class LinkNoneInfo {
@@ -182,16 +176,18 @@ export class LinkNoneInfo {
 }
 
 export class LinkRequirementInfo {
-  constructor(content: string, projectId: string, requirementId: string) {
+  constructor(content: string, projectId: string, requirementId: string, showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_REQUIRE_MENT;
     this.linkContent = content;
     this.projectId = projectId;
     this.requirementId = requirementId;
+    this.showTab = showTab;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
   projectId: string;
   requirementId: string;
+  showTab: "detail" | "issue" | "fourq" | "kano" | "event" | "comment"
 }
 
 export class LinkCodeCommentInfo {
@@ -273,6 +269,24 @@ export class LinkDataAnnoInfo {
   showComment: boolean;
 }
 
+export class LinkTestCaseInfo {
+  constructor(content: string, projectId: string, testCaseId: string, spritId: string = "", showTab: "detail" | "result" | "comment" = "detail") {
+    this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE;
+    this.linkContent = content;
+    this.projectId = projectId;
+    this.testCaseId = testCaseId;
+    this.spritId = spritId;
+    this.showTab = showTab;
+  }
+
+  linkTargeType: LINK_TARGET_TYPE;
+  linkContent: string;
+  projectId: string;
+  testCaseId: string;
+  spritId: string;
+  showTab: "detail" | "result" | "comment";
+}
+
 export class LinkImageInfo {
   constructor(content: string, imgUrl: string, thumbImgUrl: string) {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_IMAGE;
@@ -302,13 +316,6 @@ export type LinkEventState = {
   memberUserId: string;
 };
 
-export type LinkIssueState = {
-  issueId: string;
-  content: string;
-  contextIssueIdList?: string[];
-  spritId?: string;
-};
-
 export enum ISSUE_TAB_LIST_TYPE {
   ISSUE_TAB_LIST_ALL, //全部
   ISSUE_TAB_LIST_ASSGIN_ME, //指派给我
@@ -335,10 +342,6 @@ export type LinkDocState = {
   docId: string;
 };
 
-export type LinkRequirementState = {
-  requirementId: string;
-  content: string;
-}
 
 export type LinkIdeaPageState = {
   keywordList: string[];
@@ -366,21 +369,15 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != taskLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(taskLink.projectId);
       }
-      history.push(this.genUrl(taskLink.projectId, pathname, TASK_DETAIL_SUFFIX), {
-        issueId: taskLink.issueId,
-        content: '',
-        contextIssueIdList: taskLink.contextIssueIdList,
-      } as LinkIssueState);
+      this.rootStore.projectStore.projectModal.setIssueIdAndType(taskLink.issueId, ISSUE_TYPE_TASK);
+      this.rootStore.projectStore.projectModal.issueTab = taskLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_BUG) {
       const bugLink = link as LinkBugInfo;
       if (this.rootStore.projectStore.curProjectId != bugLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(bugLink.projectId);
       }
-      history.push(this.genUrl(bugLink.projectId, pathname, BUG_DETAIL_SUFFIX), {
-        issueId: bugLink.issueId,
-        content: '',
-        contextIssueIdList: bugLink.contextIssueIdList,
-      } as LinkIssueState);
+      this.rootStore.projectStore.projectModal.setIssueIdAndType(bugLink.issueId, ISSUE_TYPE_BUG);
+      this.rootStore.projectStore.projectModal.issueTab = bugLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DOC) {
       const docLink = link as LinkDocInfo;
       if (this.rootStore.appStore.inEdit) {
@@ -413,11 +410,8 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != reqLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(reqLink.projectId);
       }
-      const state: LinkRequirementState = {
-        requirementId: reqLink.requirementId,
-        content: "",
-      };
-      history.push(this.genUrl(reqLink.projectId, pathname, REQUIRE_MENT_DETAIL_SUFFIX), state);
+      this.rootStore.projectStore.projectModal.requirementId = reqLink.requirementId;
+      this.rootStore.projectStore.projectModal.requirementTab = reqLink.showTab;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_CODE_COMMENT) {
       const commentLink = link as LinkCodeCommentInfo;
       if (this.rootStore.projectStore.curProjectId != commentLink.projectId) {
@@ -477,6 +471,14 @@ class LinkAuxStore {
         await this.rootStore.projectStore.setCurProjectId(dataAnnoLink.projectId);
       }
       await this.openAnnoProjectPage(dataAnnoLink.annoProjectId, dataAnnoLink.linkContent, dataAnnoLink.showComment);
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE) {
+      const testCaseLink = link as LinkTestCaseInfo;
+      if (this.rootStore.projectStore.curProjectId != testCaseLink.projectId) {
+        await this.rootStore.projectStore.setCurProjectId(testCaseLink.projectId);
+      }
+      this.rootStore.projectStore.projectModal.testCaseLinkSpritId = testCaseLink.spritId;
+      this.rootStore.projectStore.projectModal.testCaseTab = testCaseLink.showTab;
+      this.rootStore.projectStore.projectModal.testCaseId = testCaseLink.testCaseId;
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as LinkExterneInfo;
       let destUrl = externLink.destUrl;
@@ -520,12 +522,7 @@ class LinkAuxStore {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
     }
-    history.push(this.genUrl(projectId, history.location.pathname, TASK_CREATE_SUFFIX), {
-      issueId: '',
-      content: content,
-      contextIssueIdList: [],
-      spritId: spritId,
-    } as LinkIssueState);
+    //TODO
   }
 
   //跳转到创建缺陷
@@ -533,24 +530,7 @@ class LinkAuxStore {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
     }
-    history.push(this.genUrl(projectId, history.location.pathname, BUG_CREATE_SUFFIX), {
-      issueId: '',
-      content: content,
-      contextIssueIdList: [],
-      spritId: spritId,
-    } as LinkIssueState);
-  }
-
-  //跳转到创建需求
-  async goToCreateRequirement(content: string, projectId: string, history: History) {
-    if (projectId != this.rootStore.projectStore.curProjectId) {
-      await this.rootStore.projectStore.setCurProjectId(projectId);
-    }
-    const state: LinkRequirementState = {
-      content: content,
-      requirementId: '',
-    };
-    history.push(this.genUrl(projectId, history.location.pathname, REQUIRE_MENT_CREATE_SUFFIX), state);
+    //TODO
   }
 
   //跳转到任务列表
@@ -585,6 +565,11 @@ class LinkAuxStore {
       state.curPage = 0;
     }
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/bug"), state);
+  }
+
+  //调整到测试用例列表
+  goToTestCaseList(history: History) {
+    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/testcase"));
   }
 
   //跳转到研发行为列表页

@@ -2,13 +2,23 @@ import React from "react";
 import { issueState, ISSUE_STATE_COLOR_ENUM } from '@/utils/constant';
 import type { IssueInfo } from '@/api/project_issue';
 import { ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE } from '@/api/project_issue';
+import { LinkOutlined } from "@ant-design/icons";
 
 
-export const renderTitle = (row: IssueInfo) => {
+export const renderTitle = (row: IssueInfo, inModal: boolean, onClick: () => void) => {
     return (
-        <div>
-            <span>{row.basic_info?.title}</span>
-        </div>
+        <>
+            {inModal == true && (
+                <span title={row.basic_info?.title ?? ""}>{row.basic_info?.title ?? ""}</span>
+            )}
+            {inModal == false && (
+                <a onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onClick();
+                }} title={row.basic_info?.title ?? ""}><LinkOutlined />&nbsp;{row.basic_info?.title ?? ""}</a>
+            )}
+        </>
     );
 };
 

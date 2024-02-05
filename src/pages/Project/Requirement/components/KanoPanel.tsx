@@ -4,15 +4,11 @@ import { Card, InputNumber, List, Modal, Space } from "antd";
 import { useStores } from "@/hooks";
 import Button from "@/components/Button";
 import type { KanoInfo, RequirementInfo } from "@/api/project_requirement";
-import { get_kano_info, set_kano_info } from "@/api/project_requirement";
+import { get_kano_info, get_requirement, set_kano_info } from "@/api/project_requirement";
 import { runInAction } from "mobx";
 import { request } from "@/utils/request";
 import s from "./KanoPanel.module.less";
 
-interface KanoPanelProps {
-    requirement: RequirementInfo;
-    onUpdate: () => void;
-}
 
 //颜色用到了逻辑里面，颜色不能相同
 const ITEM_A_COLOR = "#DC9C64";
@@ -22,7 +18,7 @@ const ITEM_I_COLOR = "#6786A4"
 const ITEM_R_COLOR = "#03F3FF";
 const ITEM_Q_COLOR = "#C2C2C2";
 
-const KanoPanel: React.FC<KanoPanelProps> = (props) => {
+const KanoPanel = () => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
@@ -157,11 +153,22 @@ const KanoPanel: React.FC<KanoPanelProps> = (props) => {
         }
     }));
 
+    const [reqInfo, setReqInfo] = useState<RequirementInfo | null>(null);
+
+    const loadReqInfo = async () => {
+        const res = await request(get_requirement({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            requirement_id: projectStore.projectModal.requirementId,
+        }));
+        setReqInfo(res.requirement);
+    };
+
     const loadKanoInfo = async () => {
         const res = await request(get_kano_info({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
         }));
         localStore.initData(res.kano_info);
         setKanoInfo(res.kano_info);
@@ -171,9 +178,9 @@ const KanoPanel: React.FC<KanoPanelProps> = (props) => {
         await request(set_kano_info({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            requirement_id: props.requirement.requirement_id,
+            requirement_id: projectStore.projectModal.requirementId,
             kano_info: {
-                requirement_id: props.requirement.requirement_id,
+                requirement_id: projectStore.projectModal.requirementId,
                 like_vs_row: {
                     like: localStore.likeVsLike,
                     expect: localStore.likeVsExpect,
@@ -218,27 +225,28 @@ const KanoPanel: React.FC<KanoPanelProps> = (props) => {
             kano_dubiouse_value: localStore.statQ,
         }));
         setInEdit(false);
-        props.onUpdate();
     }
 
     useEffect(() => {
+        loadReqInfo();
         loadKanoInfo();
-    }, [props.requirement.requirement_id]);
+    }, [projectStore.projectModal.requirementId]);
 
     return (
-        <Card bordered={false} title={<Space>
-            <h3 className={s.head}>调研结果</h3>
-            <a style={{ fontSize: "12px" }} onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                setShowSurvey(true);
-            }}>调研问卷</a>
-        </Space>}
-            bodyStyle={{ padding: "0px 0px" }}
+        <Card bordered={false}
+            bodyStyle={{ height: "calc(100vh - 400px)", overflowY: "scroll", overflowX:"hidden", padding: "0px" }}
+            title={<Space>
+                <h3 className={s.head}>调研结果</h3>
+                <a style={{ fontSize: "12px" }} onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setShowSurvey(true);
+                }}>调研问卷</a>
+            </Space>}
             extra={
                 <>
                     {inEdit == false && (
-                        <Button disabled={(projectStore.isClosed || (!props.requirement.user_requirement_perm.can_update) || (kanoInfo == null))} onClick={e => {
+                        <Button disabled={(projectStore.isClosed || (!(reqInfo?.user_requirement_perm.can_update ?? false)) || (kanoInfo == null))} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setInEdit(true);

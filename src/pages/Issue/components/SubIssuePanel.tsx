@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Input, message, Form, Space } from 'antd';
+import { Table, Modal, Input, message, Form, Space, Card } from 'antd';
 import type { SubIssueInfo } from '@/api/project_issue';
 import type { ColumnsType } from 'antd/lib/table';
 import { create_sub_issue, list_sub_issue, update_sub_issue, update_sub_issue_state, remove_sub_issue } from '@/api/project_issue';
@@ -12,12 +12,12 @@ import { CheckOutlined } from "@ant-design/icons";
 interface SybIssuePanelProps {
     issueId: string;
     canOptSubIssue: boolean;
+    inModal: boolean;
 }
 
 export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-
 
     const [subIssueList, setSubIssueList] = useState<SubIssueInfo[]>([]);
     const [showAddSubIssue, setShowAddSubIssue] = useState(false);
@@ -136,7 +136,7 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
                         <Button
                             type="link"
                             disabled={!props.canOptSubIssue}
-                            style={{ minWidth: "10px" }}
+                            style={{ minWidth: "0px", padding: "0px 0px" }}
                             onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -163,18 +163,16 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
     }, [props.issueId])
 
     return (
-        <>
-            <div style={{ position: "relative", paddingBottom: "28px" }}>
-                <Button
-                    style={{ position: "absolute", right: "10px" }}
-                    type="primary"
-                    disabled={projectStore.isClosed || !props.canOptSubIssue}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowAddSubIssue(true);
-                    }}>新增子任务</Button>
-            </div>
+        <Card bordered={false}
+            bodyStyle={{ maxHeight: "calc(100vh - 370px)", overflowY: "scroll" }}
+            extra={<Button
+                type={props.inModal ? "primary" : "link"}
+                disabled={projectStore.isClosed || !props.canOptSubIssue}
+                onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setShowAddSubIssue(true);
+                }}>新增子任务</Button>}>
             <Table rowKey={'sub_issue_id'} dataSource={subIssueList} columns={subIssueColums} pagination={false} />
             {showAddSubIssue == true && (
                 <Modal
@@ -199,8 +197,7 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
                             }} />
                         </Form.Item>
                     </Form>
-
                 </Modal>)}
-        </>
+        </Card>
     );
 };

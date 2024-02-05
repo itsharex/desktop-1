@@ -257,7 +257,7 @@ const ProjectHome = () => {
                                     key: "requirement",
                                     label: "创建需求",
                                     onClick: () => {
-                                        linkAuxStore.goToCreateRequirement("", projectStore.curProjectId, history);
+                                        projectStore.projectModal.createRequirement = true;
                                     },
                                 },
                                 {

@@ -249,9 +249,9 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                         rowHeight={36} rtl={false} preStepsCount={2} ganttHeight={wrapRefSize.height - 60}
                         onClick={task => {
                             if (spritStore.taskList.map(item => item.issue_id).includes(task.id)) {
-                                linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, task.id, spritStore.taskList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, task.id), history);
                             } else if (spritStore.bugList.map(item => item.issue_id).includes(task.id)) {
-                                linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, task.id, spritStore.bugList.map(item => item.issue_id)), history);
+                                linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, task.id), history);
                             }
                         }} />
                 )}

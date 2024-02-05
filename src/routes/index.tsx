@@ -7,7 +7,6 @@ import ProjectRecord from '@/pages/Project/Record/Record';
 import ProjectAccess from '@/pages/Project/Access';
 import ProjectAccessView from '@/pages/Project/Access/View';
 import IssueList from '@/pages/Issue/IssueList';
-import IssueDetail from '@/pages/Issue/IssueDetail';
 import Workbench from '@/pages/Workbench';
 import {
   ADMIN_PATH,
@@ -20,12 +19,6 @@ import {
   ADMIN_PATH_USER_LIST_SUFFIX,
   APP_PROJECT_KB_DOC_PATH,
   APP_PROJECT_KB_PATH,
-  BUG_CREATE_SUFFIX,
-  BUG_DETAIL_SUFFIX,
-  REQUIRE_MENT_CREATE_SUFFIX,
-  REQUIRE_MENT_DETAIL_SUFFIX,
-  TASK_CREATE_SUFFIX,
-  TASK_DETAIL_SUFFIX,
   WORKBENCH_PATH,
   ADMIN_PATH_APPSTORE_CATE_SUFFIX,
   ADMIN_PATH_APPSTORE_APP_SUFFIX,
@@ -51,7 +44,6 @@ import {
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
-import IssueCreate from '@/pages/Issue/IssueCreate';
 import SubscribeList from '@/pages/Project/Record/SubscribeList';
 import AdminLayout from '@/layouts/AdminLayout';
 import UserList from '@/pages/Admin/UserAdmin/UserList';
@@ -62,8 +54,6 @@ import ProjectDetail from '@/pages/Admin/ProjectAdmin/ProjectDetail';
 import CreateProject from '@/pages/Admin/ProjectAdmin/CrateProject';
 import MenuAdmin from '@/pages/Admin/ClientAdmin/MenuAdmin';
 import RequirementList from '@/pages/Project/Requirement/RequirementList';
-import RequirementCreate from '@/pages/Project/Requirement/RequirementCreate';
-import RequirementDetail from '@/pages/Project/Requirement/RequirementDetail';
 import AppCateList from '@/pages/Admin/AppAdmin/AppCateList';
 import AppList from '@/pages/Admin/AppAdmin/AppList';
 import OverviewLayout from '@/layouts/OverviewLayout';
@@ -86,6 +76,7 @@ import GroupList from '@/pages/Admin/GroupAdmin/GroupList';
 import RecommendAuditList from '@/pages/Admin/GroupAdmin/RecommendAuditList';
 import CloudIndex from '@/pages/Project/Cloud/index';
 import DevPkgList from '@/pages/Admin/DevContainerAdmin/DevPkgList';
+import TestcaseList from '@/pages/Project/Testcase/TestcaseList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -118,33 +109,9 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       exact: true,
     },
     {
-      path: prefix + REQUIRE_MENT_CREATE_SUFFIX,
-      title: "创建需求",
-      component: RequirementCreate,
-      exact: true,
-    },
-    {
-      path: prefix + REQUIRE_MENT_DETAIL_SUFFIX,
-      title: "需求详情",
-      component: RequirementDetail,
-      exact: true,
-    },
-    {
       path: prefix + '/task',
       title: '任务列表',
       component: IssueList,
-      exact: true,
-    },
-    {
-      path: prefix + TASK_DETAIL_SUFFIX,
-      title: '任务详情',
-      component: IssueDetail,
-      exact: true,
-    },
-    {
-      path: prefix + TASK_CREATE_SUFFIX,
-      title: '创建任务',
-      component: IssueCreate,
       exact: true,
     },
     {
@@ -154,15 +121,9 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       exact: true,
     },
     {
-      path: prefix + BUG_DETAIL_SUFFIX,
-      title: '缺陷详情',
-      component: IssueDetail,
-      exact: true,
-    },
-    {
-      path: prefix + BUG_CREATE_SUFFIX,
-      title: '创建缺陷',
-      component: IssueCreate,
+      path: prefix + "/testcase",
+      title: "测试用例",
+      component: TestcaseList,
       exact: true,
     },
     {

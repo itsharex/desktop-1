@@ -24,6 +24,7 @@ import { EditTag } from "@/components/EditCell/EditTag";
 import { PROJECT_SETTING_TAB } from "@/utils/constant";
 import { watch, unwatch, WATCH_TARGET_REQUIRE_MENT } from "@/api/project_watch";
 import UserPhoto from "@/components/Portrait/UserPhoto";
+import LinkIssuePanel from "./components/LinkIssuePanel";
 
 const PAGE_SIZE = 10;
 
@@ -45,6 +46,8 @@ const RequirementList = () => {
 
     const [filterTagId, setFilterTagId] = useState<string | null>(null);
     const [filterByWatch, setFilterByWatch] = useState(false);
+
+    const [dataVersion, setDataVersion] = useState(0);
 
     const loadReqInfoList = async () => {
         const res = await request(list_requirement({
@@ -304,9 +307,39 @@ const RequirementList = () => {
 
     useEffect(() => {
         loadReqInfoList();
-    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch]);
+    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch, dataVersion]);
 
+    useEffect(() => {
+        if (projectStore.projectModal.requirementId == "") {
+            if (filterClosed != null) {
+                setFilterClosed(null);
+            }
+            if (filterTagId != null) {
+                setFilterTagId(null);
+            }
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                setDataVersion(oldValue => oldValue + 1);
+            }
+        }
+    }, [projectStore.projectModal.requirementId])
 
+    useEffect(() => {
+        if (projectStore.projectModal.createRequirement == false) {
+            if (filterClosed != null) {
+                setFilterClosed(null);
+            }
+            if (filterTagId != null) {
+                setFilterTagId(null);
+            }
+            if (curPage != 0) {
+                setCurPage(0);
+            } else {
+                setDataVersion(oldValue => oldValue + 1);
+            }
+        }
+    }, [projectStore.projectModal.createRequirement])
 
     return (
         <CardWrap title="需求列表" extra={
@@ -314,7 +347,7 @@ const RequirementList = () => {
                 <Button disabled={projectStore.isClosed} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    linkAuxStore.goToCreateRequirement("", projectStore.curProjectId, history);
+                    projectStore.projectModal.createRequirement = true;
                 }}>创建需求</Button>
                 <Popover placement="bottom" trigger="click" content={
                     <div style={{ padding: "10px 10px" }}>
@@ -383,7 +416,14 @@ const RequirementList = () => {
                         </Form>
                     </Space>}>
                     <div className={s.table_wrap}>
-                        <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }} />
+                        <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }}
+                            expandable={{
+                                expandedRowRender: (row: RequirementInfo) => (
+                                    <LinkIssuePanel requirementId={row.requirement_id} inModal={false} />
+                                ),
+                                rowExpandable: () => true,
+                                showExpandColumn: true,
+                            }} />
                         <Pagination total={totalCount} pageSize={PAGE_SIZE} current={curPage + 1} onChange={page => setCurPage(page - 1)} />
                     </div>
                 </Card>

@@ -76,6 +76,7 @@ const CreateEntryModal = () => {
         hide_burndown_panel: false,
         hide_stat_panel: false,
         hide_summary_panel: false,
+        hide_test_plan_panel: false,
     });
 
     const [localPagesPath, setLocalPagesPath] = useState("");
@@ -628,6 +629,16 @@ const CreateEntryModal = () => {
                                 setSpritExtraInfo({
                                     ...spritExtraInfo,
                                     hide_stat_panel: e.target.checked,
+                                });
+                            }} />
+                        </Form.Item>
+                        <Form.Item label="隐藏测试计划">
+                            <Checkbox checked={spritExtraInfo.hide_test_plan_panel} onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setSpritExtraInfo({
+                                    ...spritExtraInfo,
+                                    hide_test_plan_panel: e.target.checked,
                                 });
                             }} />
                         </Form.Item>

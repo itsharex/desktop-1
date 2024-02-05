@@ -3,13 +3,14 @@ import { observer } from 'mobx-react';
 import { Table } from "antd";
 import {
     type UnReadInfo, list_un_read,
-    COMMENT_TARGET_ENTRY, COMMENT_TARGET_REQUIRE_MENT, COMMENT_TARGET_TASK, COMMENT_TARGET_BUG
+    COMMENT_TARGET_ENTRY, COMMENT_TARGET_REQUIRE_MENT, COMMENT_TARGET_TASK, COMMENT_TARGET_BUG,
+    COMMENT_TARGET_TEST_CASE
 } from "@/api/project_comment";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import type { ColumnsType } from 'antd/lib/table';
 import CommentModal from "@/components/CommentEntry/CommentModal";
-import {LinkBugInfo, LinkEntryInfo, LinkRequirementInfo, LinkTaskInfo } from "@/stores/linkAux";
+import { LinkBugInfo, LinkEntryInfo, LinkRequirementInfo, LinkTaskInfo, LinkTestCaseInfo } from "@/stores/linkAux";
 import { useHistory } from "react-router-dom";
 
 const PAGE_SIZE = 10;
@@ -48,6 +49,7 @@ const UnreadCommentList = () => {
                     {row.target_type == COMMENT_TARGET_REQUIRE_MENT && "需求"}
                     {row.target_type == COMMENT_TARGET_TASK && "任务"}
                     {row.target_type == COMMENT_TARGET_BUG && "缺陷"}
+                    {row.target_type == COMMENT_TARGET_TEST_CASE && "测试用例"}
                 </span>
             ),
         },
@@ -61,11 +63,13 @@ const UnreadCommentList = () => {
                         if (row.target_type == COMMENT_TARGET_ENTRY) {
                             linkAuxStore.goToLink(new LinkEntryInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_REQUIRE_MENT) {
-                            linkAuxStore.goToLink(new LinkRequirementInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
+                            linkAuxStore.goToLink(new LinkRequirementInfo("", projectStore.curProjectId, row.target_id, "comment"), history);
                         } else if (row.target_type == COMMENT_TARGET_TASK) {
                             linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
                         } else if (row.target_type == COMMENT_TARGET_BUG) {
                             linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, row.target_id), history).then(() => setShowUnReadInfo(row));
+                        } else if (row.target_type == COMMENT_TARGET_TEST_CASE) {
+                            linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.target_id, "", "comment"), history);
                         }
                     }}>{row.title}</a>
             ),
