@@ -12,7 +12,6 @@ import { useHistory } from "react-router-dom";
 import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
 import { getEntryTypeStr } from "./components/common";
 import RemoveEntryModal from "./components/RemoveEntryModal";
-import { watch, unwatch, WATCH_TARGET_ENTRY } from "@/api/project_watch";
 import spritIcon from '@/assets/allIcon/icon-sprit.png';
 import htmlIcon from '@/assets/allIcon/icon-html.png';
 import boardIcon from '@/assets/allIcon/icon-board.png';
@@ -45,26 +44,6 @@ const EntryCard = (props: EntryCardPorps) => {
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
     const [showMoveModal, setShowMoveModal] = useState(false);
-
-    const watchEntry = async () => {
-        await request(watch({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            target_type: WATCH_TARGET_ENTRY,
-            target_id: props.entryInfo.entry_id,
-        }));
-        entryStore.updateEntry(props.entryInfo.entry_id);
-    };
-
-    const unwatchEntry = async () => {
-        await request(unwatch({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            target_type: WATCH_TARGET_ENTRY,
-            target_id: props.entryInfo.entry_id,
-        }));
-        entryStore.updateEntry(props.entryInfo.entry_id);
-    }
 
     const openEntry = async () => {
         entryStore.reset();
@@ -210,9 +189,9 @@ const EntryCard = (props: EntryCardPorps) => {
                     e.stopPropagation();
                     e.preventDefault();
                     if (props.entryInfo.my_watch) {
-                        unwatchEntry();
+                        entryStore.unwatchEntry(props.entryInfo.entry_id);
                     } else {
-                        watchEntry();
+                        entryStore.watchEntry(props.entryInfo.entry_id);
                     }
                 }}>
                     <span className={props.entryInfo.my_watch ? s.isCollect : s.noCollect} />

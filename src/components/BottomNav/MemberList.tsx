@@ -6,12 +6,13 @@ import { UserAddOutlined } from "@ant-design/icons";
 import type { WebMemberInfo } from "@/stores/member";
 import UserPhoto from "../Portrait/UserPhoto";
 import { useHistory } from "react-router-dom";
-import { APP_PROJECT_OVERVIEW_PATH } from "@/utils/constant";
+import { APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 
 const MemberList = () => {
     const history = useHistory();
 
     const appStore = useStores('appStore');
+    const projectStore = useStores('projectStore');
     const userStore = useStores('userStore');
     const memberStore = useStores('memberStore');
 
@@ -46,10 +47,12 @@ const MemberList = () => {
                         if (appStore.inEdit) {
                             appStore.showCheckLeave(() => {
                                 memberStore.showDetailMemberId = item.member.member_user_id;
+                                projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_OVERVIEW_PATH);
                             });
                         } else {
                             memberStore.showDetailMemberId = item.member.member_user_id;
+                            projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                             history.push(APP_PROJECT_OVERVIEW_PATH);
                         }
                     }}>

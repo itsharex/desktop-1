@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from 'mobx-react';
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, type EntryInfo, remove_file, remove_pages } from "@/api/project_entry";
+import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, type EntryInfo, remove_file, remove_pages, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
 import { Modal, message } from "antd";
 import { getEntryTypeStr } from "./common";
 import { useStores } from "@/hooks";
@@ -8,6 +8,8 @@ import { remove_doc } from "@/api/project_doc";
 import { remove as remove_sprit } from "@/api/project_sprit";
 import { request } from "@/utils/request";
 import { remove_board } from "@/api/project_board";
+import {remove as remove_api_coll} from "@/api/api_collection";
+import {remove as remove_data_anno} from "@/api/data_anno_project";
 
 export interface RemoveEntryModalProps {
     entryInfo: EntryInfo;
@@ -46,6 +48,18 @@ const RemoveEntryModal = (props: RemoveEntryModalProps) => {
                 session_id: userStore.sessionId,
                 project_id: projectStore.curProjectId,
                 entry_id: props.entryInfo.entry_id,
+            }));
+        } else if(props.entryInfo.entry_type == ENTRY_TYPE_API_COLL){
+            await request(remove_api_coll({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                api_coll_id: props.entryInfo.entry_id,
+            }));
+        }else if(props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO){
+            await request(remove_data_anno({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                anno_project_id: props.entryInfo.entry_id,
             }));
         }
         if (entryStore.curEntry != null && entryStore.curEntry.entry_id == props.entryInfo.entry_id) {

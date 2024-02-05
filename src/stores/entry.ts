@@ -3,6 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { EntryInfo, ENTRY_TYPE, EntryOrFolderInfo } from "@/api/project_entry";
 import { get as get_entry } from "@/api/project_entry";
 import { request } from '@/utils/request';
+import { WATCH_TARGET_ENTRY, unwatch, watch } from '@/api/project_watch';
 
 export default class EntryStore {
     constructor(rootStore: RootStore) {
@@ -132,9 +133,29 @@ export default class EntryStore {
             const tmpList2 = this._sysEntryList.slice();
             const index2 = tmpList2.findIndex(item => item.entry_id == entryId);
             if (index2 != -1) {
-                tmpList2[index] = res.entry;
+                tmpList2[index2] = res.entry;
                 this._sysEntryList = tmpList2;
             }
         });
+    }
+
+    async unwatchEntry(entryId: string) {
+        await request(unwatch({
+            session_id: this.rootStore.userStore.sessionId,
+            project_id: this.rootStore.projectStore.curProjectId,
+            target_type: WATCH_TARGET_ENTRY,
+            target_id: entryId,
+        }));
+        await this.updateEntry(entryId);
+    }
+
+    async watchEntry(entryId: string) {
+        await request(watch({
+            session_id: this.rootStore.userStore.sessionId,
+            project_id: this.rootStore.projectStore.curProjectId,
+            target_type: WATCH_TARGET_ENTRY,
+            target_id: entryId,
+        }));
+        await this.updateEntry(entryId);
     }
 }

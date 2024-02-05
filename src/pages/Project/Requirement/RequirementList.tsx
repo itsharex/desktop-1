@@ -415,7 +415,7 @@ const RequirementList = () => {
                             </Form.Item>
                         </Form>
                     </Space>}>
-                    <div className={s.table_wrap}>
+                    <div className={reqInfoList.length == 0 ? "" : s.listWrap}>
                         <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }}
                             expandable={{
                                 expandedRowRender: (row: RequirementInfo) => (

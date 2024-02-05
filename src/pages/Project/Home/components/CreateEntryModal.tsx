@@ -28,7 +28,7 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment, { type Moment } from "moment";
 import s from "./UpdateEntryModal.module.less";
 import { request } from "@/utils/request";
-import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
+import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { useHistory } from "react-router-dom";
 import { DeleteOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
@@ -238,7 +238,7 @@ const CreateEntryModal = () => {
                     return false;
                 }
             }
-        } 
+        }
         return true;
     };
 
@@ -487,20 +487,22 @@ const CreateEntryModal = () => {
                         setTitle(e.target.value.trim());
                     }} />
                 </Form.Item>
-                <Form.Item label="类型">
-                    <Radio.Group value={entryStore.createEntryType} onChange={e => {
-                        e.stopPropagation();
-                        entryStore.createEntryType = e.target.value;
-                    }}>
-                        <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
-                        <Radio value={ENTRY_TYPE_DOC}>文档</Radio>
-                        <Radio value={ENTRY_TYPE_PAGES}>静态网页</Radio>
-                        <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>
-                        <Radio value={ENTRY_TYPE_FILE}>文件</Radio>
-                        <Radio value={ENTRY_TYPE_API_COLL}>接口集合</Radio>
-                        <Radio value={ENTRY_TYPE_DATA_ANNO}>数据标注</Radio>
-                    </Radio.Group>
-                </Form.Item>
+                {projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT && (
+                    <Form.Item label="类型">
+                        <Radio.Group value={entryStore.createEntryType} onChange={e => {
+                            e.stopPropagation();
+                            entryStore.createEntryType = e.target.value;
+                        }}>
+                            <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
+                            <Radio value={ENTRY_TYPE_DOC}>文档</Radio>
+                            <Radio value={ENTRY_TYPE_PAGES}>静态网页</Radio>
+                            <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>
+                            <Radio value={ENTRY_TYPE_FILE}>文件</Radio>
+                            <Radio value={ENTRY_TYPE_API_COLL}>接口集合</Radio>
+                            <Radio value={ENTRY_TYPE_DATA_ANNO}>数据标注</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                )}
                 <Form.Item label="所有成员可修改">
                     <Checkbox checked={entryPerm.update_for_all} onChange={e => {
                         e.stopPropagation();
