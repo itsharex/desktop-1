@@ -72,6 +72,7 @@ const MyDependPanelWrap = observer(() => {
 const IssueDetailModal = () => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
+    const issueStore = useStores("issueStore");
 
     const [commentDataVersion, setCommentDataVersion] = useState(0);
 
@@ -163,6 +164,7 @@ const IssueDetailModal = () => {
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
+                issueStore.updateIssue(projectStore.projectModal.issueId);
                 projectStore.projectModal.setIssueIdAndType("", 0);
             }}>
             <Tabs activeKey={projectStore.projectModal.issueTab}

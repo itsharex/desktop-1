@@ -131,4 +131,29 @@ export class ProjectModalStore {
             this._issueTab = val;
         });
     }
+
+    //创建工单相关
+    private _createIssue = false;
+    private _createIssueType = ISSUE_TYPE_TASK;
+    private _createIssueLinkSpritId = "";
+
+    setCreateIssue(show: boolean, issueType: ISSUE_TYPE, linkSpritId: string) {
+        runInAction(() => {
+            this._createIssue = show;
+            this._createIssueType = issueType;
+            this._createIssueLinkSpritId = linkSpritId;
+        });
+    }
+
+    get createIssue() {
+        return this._createIssue;
+    }
+
+    get createIssueType() {
+        return this._createIssueType;
+    }
+
+    get createIssueLinkSpritId() {
+        return this._createIssueLinkSpritId;
+    }
 }

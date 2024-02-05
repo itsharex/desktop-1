@@ -12,6 +12,18 @@ export default class IssueStore {
 
     private _prjTodoTaskList: issueApi.IssueInfo[] = [];
     private _prjTodoBugList: issueApi.IssueInfo[] = [];
+    private _issueList: issueApi.IssueInfo[] = [];
+
+
+    get issueList() {
+        return this._issueList;
+    }
+
+    set issueList(val: issueApi.IssueInfo[]) {
+        runInAction(() => {
+            this._issueList = val;
+        });
+    }
 
     get prjTodoTaskList(): issueApi.IssueInfo[] {
         return this._prjTodoTaskList;
@@ -73,4 +85,19 @@ export default class IssueStore {
             }
         });
     }
+
+    async updateIssue(issueId: string) {
+        const tmpList = this._issueList.slice();
+        const index = tmpList.findIndex(item => item.issue_id == issueId);
+        if (index == -1) {
+            return;
+        }
+        const res = await request(issueApi.get(this.rootStore.userStore.sessionId, this.rootStore.projectStore.curProjectId, issueId));
+        if (res) {
+            tmpList[index] = res.info;
+            runInAction(() => {
+                this._issueList = tmpList;
+            });
+        }
+    };
 }

@@ -10,7 +10,7 @@ import Tabs from './components/Tabs';
 import addIcon from '@/assets/image/addIcon.png';
 import { ISSUE_TAB_LIST_TYPE, type LinkIssueListState } from '@/stores/linkAux';
 import IssueEditList from "./components/IssueEditList";
-import { ASSGIN_USER_ALL, ASSGIN_USER_CHECK, ASSGIN_USER_EXEC, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC, list as list_issue, get as get_issue, list_id as list_issue_id, ISSUE_STATE_PROCESS_OR_CHECK, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK } from "@/api/project_issue";
+import { ASSGIN_USER_ALL, ASSGIN_USER_CHECK, ASSGIN_USER_EXEC, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC, list as list_issue, list_id as list_issue_id, ISSUE_STATE_PROCESS_OR_CHECK, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_TYPE_TASK, ISSUE_TYPE_BUG } from "@/api/project_issue";
 import type { IssueInfo, ListRequest, ListParam } from "@/api/project_issue";
 import { request } from '@/utils/request';
 import StageModel from "./components/StageModel";
@@ -24,6 +24,10 @@ import Filtration from "./components/Filtration";
 
 const tabList = [
     {
+        name: "全部",
+        value: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL
+    },
+    {
         name: "指派给我",
         value: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME,
     },
@@ -34,10 +38,6 @@ const tabList = [
     {
         name: "我的关注",
         value: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_MY_WATCH,
-    },
-    {
-        name: "全部",
-        value: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL
     },
 ]
 
@@ -51,21 +51,21 @@ const IssueList = () => {
     const projectStore = useStores('projectStore');
     const spritStore = useStores('spritStore');
     const linkAuxStore = useStores('linkAuxStore');
+    const issueStore = useStores('issueStore');
 
     const filterState: LinkIssueListState = location.state as LinkIssueListState ?? {
         priorityList: [],
         softwareVersionList: [],
         levelList: [],
         tagId: "",
-        stateList: [ISSUE_STATE_PROCESS_OR_CHECK],
-        execUserIdList: [userStore.userInfo.userId],
-        checkUserIdList: [userStore.userInfo.userId],
-        tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME,
+        stateList: [],
+        execUserIdList: [],
+        checkUserIdList: [],
+        tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL,
         curPage: 0,
     };
     const [isFilter, setIsFilter] = useState(true);
 
-    const [issueList, setIssueList] = useState<IssueInfo[]>([]);
     const [issueIdList, setIssueIdList] = useState<string[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [stageIssue, setStageIssue] = useState<IssueInfo | undefined>(undefined);
@@ -73,27 +73,18 @@ const IssueList = () => {
 
     const [lastState, setLastState] = useState<LinkIssueListState | null>(null);
 
-    const updateIssue = async (issueId: string) => {
-        const tmpList = issueList.slice();
-        const index = tmpList.findIndex(item => item.issue_id == issueId);
-        if (index == -1) {
-            return;
-        }
-        const res = await request(get_issue(userStore.sessionId, projectStore.curProjectId, issueId));
-        if (res) {
-            tmpList[index] = res.info;
-            setIssueList(tmpList);
-        }
-    };
+
 
     const showStage = (issueId: string) => {
-        const issue = issueList.find(item => item.issue_id == issueId);
+        const issue = issueStore.issueList.find(item => item.issue_id == issueId);
         if (issue !== undefined) {
             setStageIssue(issue);
         }
     };
 
     const loadIssueList = async () => {
+        issueStore.issueList = [];
+        
         setLastState(filterState);
         let newFilterState = filterState.stateList.slice();
         if (newFilterState !== undefined && newFilterState.length > 0 && newFilterState.includes(ISSUE_STATE_PROCESS_OR_CHECK)) {
@@ -154,7 +145,7 @@ const IssueList = () => {
         };
         const res = await request(list_issue(req));
         if (res) {
-            setIssueList(res.info_list);
+            issueStore.issueList = res.info_list;
             setTotalCount(res.total_count);
         }
         const idRes = await request(list_issue_id({
@@ -237,7 +228,11 @@ const IssueList = () => {
                     className={s.btn}
                     type="primary"
                     onClick={() => {
-                        //TODO
+                        if (getIsTask(location.pathname)) {
+                            projectStore.projectModal.setCreateIssue(true, ISSUE_TYPE_TASK, "");
+                        } else {
+                            projectStore.projectModal.setCreateIssue(true, ISSUE_TYPE_BUG, "");
+                        }
                     }}
                     disabled={projectStore.curProject?.closed}
                 >
@@ -268,7 +263,7 @@ const IssueList = () => {
             <div className={s.task_wrap}>
                 <div style={{ marginRight: '20px' }}>
                     <Tabs
-                        activeVal={filterState.tabType ?? ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME}
+                        activeVal={filterState.tabType ?? ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL}
                         list={tabList}
                         onChang={value => {
                             if (value == ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME) {
@@ -314,8 +309,8 @@ const IssueList = () => {
                     />
                     {isFilter && <Filtration tagDefList={getTagDefList()} />}
                 </div>
-                <IssueEditList isFilter={isFilter} dataSource={issueList}
-                    issueIdList={issueIdList} onChange={issueId => updateIssue(issueId)} showStage={issueId => showStage(issueId)}
+                <IssueEditList isFilter={isFilter}
+                    issueIdList={issueIdList} showStage={issueId => showStage(issueId)}
                     tagDefList={getTagDefList()} />
                 <Pagination
                     total={totalCount}
@@ -335,7 +330,7 @@ const IssueList = () => {
                 issue={stageIssue}
                 onCancel={() => setStageIssue(undefined)}
                 onOk={() => {
-                    updateIssue(stageIssue.issue_id).then(() => {
+                    issueStore.updateIssue(stageIssue.issue_id).then(() => {
                         setStageIssue(undefined)
                     });
                     spritStore.updateIssue(stageIssue.issue_id);
