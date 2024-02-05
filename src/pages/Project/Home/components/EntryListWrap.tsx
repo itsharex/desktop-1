@@ -23,6 +23,7 @@ const EntryListWrap = (props: EntryListWrapProps) => {
     const [dataVersion, setDataVersion] = useState(0); //防止两次加载
 
     const loadEntryList = async () => {
+        entryStore.entryOrFolderList = [];
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
