@@ -3,7 +3,7 @@ import { type WidgetProps } from './common';
 import EditorWrap from '../components/EditorWrap';
 import s from './RequirementRefWidget.module.less';
 import Button from '@/components/Button';
-import { LinkOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
+import { LinkOutlined, PlusOutlined } from '@ant-design/icons';
 import { Card, Form, Input, Modal, Space, Table } from 'antd';
 import type { RequirementInfo } from '@/api/project_requirement';
 import { list_requirement, get_requirement, list_requirement_by_id, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
@@ -311,24 +311,12 @@ const ViewRequirementRef: React.FC<WidgetProps> = observer((props) => {
 
     useEffect(() => {
         return () => {
-          requirementStore.unlisten();
+            requirementStore.unlisten();
         };
-      }, []);
+    }, []);
 
     return (
         <EditorWrap>
-            <div className={s.sync_wrap}>
-                <Button
-                    className={s.sync}
-                    disabled={loading}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        loadData();
-                    }} icon={<SyncOutlined />}>
-                    &nbsp;&nbsp;刷新
-                </Button>
-            </div>
             <Table
                 loading={loading}
                 style={{ marginTop: '8px' }}

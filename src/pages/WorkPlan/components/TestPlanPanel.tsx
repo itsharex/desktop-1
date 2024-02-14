@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
-import type { CaseInfo } from "@/api/project_testcase";
-import  { unlink_sprit } from "@/api/project_testcase";
+import type { CaseInfo, FolderOrCaseInfo } from "@/api/project_testcase";
+import { unlink_sprit, list_by_sprit } from "@/api/project_testcase";
 import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/lib/table";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
@@ -10,20 +10,40 @@ import { useHistory } from "react-router-dom";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import { request } from "@/utils/request";
+import type { LocalTestcaseStore } from "@/stores/local";
 
+export interface TestPlanPanelProps {
+    testcaseStore: LocalTestcaseStore;
+}
 
-const TestPlanPanel = () => {
+const TestPlanPanel = (props: TestPlanPanelProps) => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
 
+    const loadTestcaseList = async () => {
+        if (entryStore.curEntry == null) {
+            return;
+        }
+        const res = await request(list_by_sprit({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            sprit_id: entryStore.curEntry.entry_id,
+        }));
+
+        props.testcaseStore.itemList = res.case_list.map(item => ({
+            id: item.case_id,
+            dataType: "case",
+            dataValue: item,
+        }))
+    };
+
     const unlinkTestCase = async (caseId: string) => {
-        if(entryStore.curEntry == null){
+        if (entryStore.curEntry == null) {
             return;
         }
         await request(unlink_sprit({
@@ -32,20 +52,18 @@ const TestPlanPanel = () => {
             case_id: caseId,
             sprit_id: entryStore.curEntry.entry_id,
         }));
-
-        await spritStore.loadCaseList();
     };
 
-    const columns: ColumnsType<CaseInfo> = [
+    const columns: ColumnsType<FolderOrCaseInfo> = [
         {
             title: "名称",
             width: 300,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <a onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.case_id, entryStore.curEntry?.entry_id ?? ""), history);
-                }}>{row.title}</a>
+                    linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.id, entryStore.curEntry?.entry_id ?? ""), history);
+                }}>{row.dataValue.title}</a>
 
             ),
             fixed: true,
@@ -53,12 +71,12 @@ const TestPlanPanel = () => {
         {
             title: "测试类型",
             width: 200,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space style={{ flexWrap: "wrap" }}>
-                    {row.test_method.unit_test && "单元测试"}
-                    {row.test_method.ci_test && "集成测试"}
-                    {row.test_method.load_test && "压力测试"}
-                    {row.test_method.manual_test && "手动测试"}
+                    {(row.dataValue as CaseInfo).test_method.unit_test && "单元测试"}
+                    {(row.dataValue as CaseInfo).test_method.ci_test && "集成测试"}
+                    {(row.dataValue as CaseInfo).test_method.load_test && "压力测试"}
+                    {(row.dataValue as CaseInfo).test_method.manual_test && "手动测试"}
                 </Space>
             ),
         },
@@ -70,11 +88,11 @@ const TestPlanPanel = () => {
         {
             title: "修改权限",
             width: 200,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space size="small" style={{ flexWrap: "wrap" }}>
-                    {row.perm_setting.update_for_all == true && "全体成员可修改"}
-                    {row.perm_setting.update_for_all == false
-                        && memberStore.memberList.filter(item => row.perm_setting.extra_update_user_id_list.includes(item.member.member_user_id)).map(item => (
+                    {row.dataValue.perm_setting.update_for_all == true && "全体成员可修改"}
+                    {row.dataValue.perm_setting.update_for_all == false
+                        && memberStore.memberList.filter(item => row.dataValue.perm_setting.extra_update_user_id_list.includes(item.member.member_user_id)).map(item => (
                             <Tag icon={<UserPhoto logoUri={item.member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />} style={{ border: "none", padding: "0px 0px" }}>
                                 &nbsp;{item.member.display_name}
                             </Tag>
@@ -85,40 +103,44 @@ const TestPlanPanel = () => {
         {
             title: "操作",
             width: 80,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Button type="link" danger disabled={!(entryStore.curEntry?.can_update ?? false)}
-                    style={{ minWidth: 0, padding: "0px 0px" }} onClick={e=>{
+                    style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        unlinkTestCase(row.case_id);
+                        unlinkTestCase(row.id);
                     }}>移除</Button>
             ),
         },
         {
             title: "创建者",
             width: 120,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space>
-                    <UserPhoto logoUri={row.create_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
-                    {row.create_display_name}
+                    <UserPhoto logoUri={row.dataValue.create_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                    {row.dataValue.create_display_name}
                 </Space>
             ),
         },
         {
             title: "创建时间",
             width: 120,
-            render: (_, row: CaseInfo) => moment(row.create_time).format("YYYY-MM-DD HH:mm"),
+            render: (_, row: FolderOrCaseInfo) => moment(row.dataValue.create_time).format("YYYY-MM-DD HH:mm"),
         }
     ];
 
     useEffect(() => {
-        if (projectStore.projectModal.testCaseId == "") {
-            spritStore.loadCaseList();
-        }
-    }, [projectStore.projectModal.testCaseId])
+        return () => {
+            props.testcaseStore.unlisten();
+        };
+    }, []);
+
+    useEffect(() => {
+        loadTestcaseList();
+    }, [entryStore.curEntry?.entry_id]);
 
     return (
-        <Table rowKey="case_id" dataSource={spritStore.caseList} columns={columns} pagination={false} scroll={{ x: 1100 }} />
+        <Table rowKey="id" dataSource={props.testcaseStore.itemList} columns={columns} pagination={false} scroll={{ x: 1100 }} />
     );
 };
 

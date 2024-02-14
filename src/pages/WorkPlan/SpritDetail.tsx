@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import type { LinkInfo, LinkTaskInfo, LinkBugInfo } from "@/stores/linkAux";
 import { LINK_TARGET_TYPE } from "@/stores/linkAux";
 import { get as get_sprit } from "@/api/project_sprit";
@@ -24,6 +24,7 @@ import { COMMENT_TARGET_ENTRY } from "@/api/project_comment";
 import ExportModal from "./components/ExportModal";
 import TestPlanPanel from "./components/TestPlanPanel";
 import AddTestCaseModal from "./components/AddTestCaseModal";
+import { LocalTestcaseStore } from "@/stores/local";
 
 
 const SpritDetail = () => {
@@ -32,6 +33,8 @@ const SpritDetail = () => {
     const spritStore = useStores('spritStore');
     const memberStore = useStores('memberStore');
     const entryStore = useStores('entryStore');
+
+    const testcaseStore = useLocalObservable(() => new LocalTestcaseStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
 
     const [spritInfo, setSpritInfo] = useState<SpritInfo | null>(null);
     const [selMemberUserId, setSelMemberUserId] = useState("");
@@ -231,7 +234,7 @@ const SpritDetail = () => {
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_test_plan_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>测试计划</span>} key="testplan">
-                                {spritStore.spritTab == "testplan" && <TestPlanPanel />}
+                                {spritStore.spritTab == "testplan" && <TestPlanPanel testcaseStore={testcaseStore} />}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_summary_panel == false && (
@@ -260,7 +263,7 @@ const SpritDetail = () => {
                 <ExportModal onClose={() => setShowExportModal(false)} />
             )}
             {showAddTestCaseModal == true && (
-                <AddTestCaseModal onClose={() => setShowAddTestCaseModal(false)} />
+                <AddTestCaseModal onClose={() => setShowAddTestCaseModal(false)} checkedKeys={testcaseStore.itemList.map(item => item.id)} />
             )}
         </Card>
     );
