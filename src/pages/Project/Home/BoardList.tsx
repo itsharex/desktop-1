@@ -83,7 +83,8 @@ const BoardList = () => {
     ];
     return (
         <EntryListWrap entryType={ENTRY_TYPE_BOARD}>
-            <Table rowKey="id" dataSource={entryStore.entryOrFolderList} columns={columns} scroll={{ x: 850 }}
+            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_BOARD)}
+                columns={columns} scroll={{ x: 850 }}
                 pagination={{ total: projectStore.projectHome.otherTotalCount, current: projectStore.projectHome.otherCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.otherCurPage = page + 1 }} />
         </EntryListWrap>
     );
