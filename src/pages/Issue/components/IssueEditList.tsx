@@ -522,23 +522,25 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
   const columns: ColumnsTypes[] = columnsList.filter((item: ColumnsTypes) => !item.hideInTable);
 
   return (
-    <Table
-      style={{ marginTop: '8px' }}
-      rowKey={'issue_id'}
-      columns={columns}
-      scroll={{ x: 1650, y: `${isFilter ? 'calc(100vh - 400px)' : 'calc(100vh - 340px)'}` }}
-      dataSource={issueStore.issueList}
-      pagination={false}
-      expandable={{
-        expandedRowRender: (row: IssueInfo) => (
-          <ExtraIssueInfo issueId={row.issue_id}
-            canOptDependence={row.user_issue_perm.can_opt_dependence}
-            canOptSubIssue={row.user_issue_perm.can_opt_sub_issue} />
-        ),
-        rowExpandable: () => true,
-        showExpandColumn: getIsTask(location.pathname),
-      }}
-    />
+    <div className={issueStore.issueList.length == 0 ? "" : s.listWrap}>
+      <Table
+        style={{ marginTop: '8px' }}
+        rowKey={'issue_id'}
+        columns={columns}
+        scroll={{ x: 1650, y: `${isFilter ? 'calc(100vh - 400px)' : 'calc(100vh - 340px)'}` }}
+        dataSource={issueStore.issueList}
+        pagination={false}
+        expandable={{
+          expandedRowRender: (row: IssueInfo) => (
+            <ExtraIssueInfo issueId={row.issue_id}
+              canOptDependence={row.user_issue_perm.can_opt_dependence}
+              canOptSubIssue={row.user_issue_perm.can_opt_sub_issue} />
+          ),
+          rowExpandable: () => true,
+          showExpandColumn: getIsTask(location.pathname),
+        }}
+      />
+    </div>
   );
 };
 

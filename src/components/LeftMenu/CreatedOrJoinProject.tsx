@@ -7,7 +7,7 @@ import { useStores } from '@/hooks';
 import { request } from '@/utils/request';
 import { useCommonEditor } from '@/components/Editor';
 import { useHistory } from 'react-router-dom';
-import { APP_PROJECT_OVERVIEW_PATH, PROJECT_SETTING_TAB } from '@/utils/constant';
+import { APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE, PROJECT_SETTING_TAB } from '@/utils/constant';
 import { join } from '@/api/project_member';
 import { unixTipList } from '@/pages/Project/Setting/components/TipListSettingPanel';
 import randomColor from 'randomcolor';
@@ -92,6 +92,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       await projectStore.updateProject(res.project_id);
       onChange(false);
       projectStore.setCurProjectId(res.project_id).then(() => {
+        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
         history.push(APP_PROJECT_OVERVIEW_PATH);
         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT;
       });

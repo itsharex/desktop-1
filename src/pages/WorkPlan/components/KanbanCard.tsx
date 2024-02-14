@@ -233,7 +233,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: DND_ITEM_TYPE,
         item: props.issue,
-        canDrag: props.issue.user_issue_perm.next_state_list.length != 0,
+        canDrag: props.issue.user_issue_perm.next_state_list.length != 0 || props.issue.user_issue_perm.can_opt_sub_issue,
         collect: monitor => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -258,7 +258,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                 e.preventDefault();
                 setHover(false);
             }}>
-            <div className={classNames(s.card_wrap, props.issue.user_issue_perm.next_state_list.length == 0 ? s.disable : "")} style={{ borderLeft: `6px solid rgb(${getColor(props.issue.state)} / 80%)` }}>
+            <div className={classNames(s.card_wrap, (props.issue.user_issue_perm.next_state_list.length == 0 && props.issue.user_issue_perm.can_opt_sub_issue == false) ? s.disable : "")} style={{ borderLeft: `6px solid rgb(${getColor(props.issue.state)} / 80%)` }}>
                 <div className={s.head}>
                     <div style={{ flex: 1, fontSize: "14px", fontWeight: 600 }}>{`${props.issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"} #${props.issue.issue_index}`}</div>
                     {hover == true && (
