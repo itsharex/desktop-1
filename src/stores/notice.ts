@@ -364,64 +364,16 @@ class NoticeStore {
     if (notice.NewIssueNotice !== undefined) {
       await this.rootStore.projectStore.updateProjectIssueCount(notice.NewIssueNotice.project_id);
       if (notice.NewIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        await this.rootStore.memberStore.updateIssueState(notice.NewIssueNotice.project_id, notice.NewIssueNotice.create_user_id);
-      }
-    } else if (notice.SetExecUserNotice !== undefined) {
-      await this.rootStore.projectStore.updateProjectIssueCount(notice.SetExecUserNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.SetExecUserNotice.issue_id);
-      if (notice.SetExecUserNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.SetExecUserNotice.exec_user_id != notice.SetExecUserNotice.old_exec_user_id) {
-          if (notice.SetExecUserNotice.exec_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetExecUserNotice.project_id, notice.SetExecUserNotice.exec_user_id);
-          }
-          if (notice.SetExecUserNotice.old_exec_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetExecUserNotice.project_id, notice.SetExecUserNotice.old_exec_user_id);
-          }
-        }
-      }
-    } else if (notice.SetCheckUserNotice !== undefined) {
-      this.rootStore.projectStore.updateProjectIssueCount(notice.SetCheckUserNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.SetCheckUserNotice.issue_id);
-      if (notice.SetCheckUserNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.SetCheckUserNotice.check_user_id != notice.SetCheckUserNotice.old_check_user_id) {
-          if (notice.SetCheckUserNotice.check_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetCheckUserNotice.project_id, notice.SetCheckUserNotice.check_user_id);
-          }
-          if (notice.SetCheckUserNotice.old_check_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetCheckUserNotice.project_id, notice.SetCheckUserNotice.old_check_user_id);
-          }
-        }
+        // await this.rootStore.memberStore.updateIssueState(notice.NewIssueNotice.project_id, notice.NewIssueNotice.create_user_id);
       }
     } else if (notice.UpdateIssueNotice !== undefined) {
       await this.rootStore.spritStore.updateIssue(notice.UpdateIssueNotice.issue_id);
       if (notice.UpdateIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
         //TODO
       }
-    }
-    else if (notice.UpdateIssueStateNotice !== undefined) {
-      this.rootStore.projectStore.updateProjectIssueCount(notice.UpdateIssueStateNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.UpdateIssueStateNotice.issue_id);
-      if (notice.UpdateIssueStateNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.UpdateIssueStateNotice.exec_user_id != "") {
-          await this.rootStore.memberStore.updateIssueState(notice.UpdateIssueStateNotice.project_id, notice.UpdateIssueStateNotice.exec_user_id);
-        }
-        if (notice.UpdateIssueStateNotice.check_user_id != "") {
-          await this.rootStore.memberStore.updateIssueState(notice.UpdateIssueStateNotice.project_id, notice.UpdateIssueStateNotice.check_user_id);
-        }
-        //TODO
-      }
     } else if (notice.RemoveIssueNotice !== undefined) {
       await this.rootStore.projectStore.updateProjectIssueCount(notice.RemoveIssueNotice.project_id);
       await this.rootStore.spritStore.removeIssue(notice.RemoveIssueNotice.issue_id);
-      if (notice.RemoveIssueNotice.create_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.create_user_id);
-      }
-      if (notice.RemoveIssueNotice.exec_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.exec_user_id);
-      }
-      if (notice.RemoveIssueNotice.check_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.check_user_id);
-      }
       if (notice.RemoveIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
         //TODO
       }
