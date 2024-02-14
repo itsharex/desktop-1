@@ -122,6 +122,7 @@ export namespace issue {
   export type NewIssueNotice = {
     project_id: string;
     issue_id: string;
+    create_user_id: string;
   };
 
   export type UpdateIssueNotice = {
@@ -166,6 +167,7 @@ export namespace entry {
   export type NewFolderNotice = {
     project_id: string;
     folder_id: string;
+    create_user_id: string;
   };
 
   export type UpdateFolderNotice = {
@@ -181,6 +183,7 @@ export namespace entry {
   export type NewEntryNotice = {
     project_id: string;
     entry_id: string;
+    create_user_id: string;
   };
 
   export type UpdateEntryNotice = {
@@ -207,6 +210,7 @@ export namespace requirement {
   export type NewRequirementNotice = {
     project_id: string;
     requirement_id: string;
+    create_user_id: string;
   };
 
   export type UpdateRequirementNotice = {
@@ -230,6 +234,7 @@ export namespace testcase {
   export type NewFolderNotice = {
     project_id: string;
     folder_id: string;
+    create_user_id: string;
   };
 
   export type UpdateFolderNotice = {
@@ -245,6 +250,7 @@ export namespace testcase {
   export type NewCaseNotice = {
     project_id: string;
     case_id: string;
+    create_user_id: string;
   };
 
   export type UpdateCaseNotice = {

@@ -16,14 +16,14 @@ import {
 } from '@/api/project_issue';
 import type { IssueInfo, ListParam as ListIssueParam } from '@/api/project_issue';
 import { request } from '@/utils/request';
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import s from './LinkSelect.module.less';
 import classNames from 'classnames';
-import type { RequirementInfo } from '@/api/project_requirement';
 import { list_requirement, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import type { EntryInfo } from "@/api/project_entry";
 import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { CheckOutlined } from '@ant-design/icons';
+import { LocalRequirementStore } from '@/stores/local';
 
 const PAGE_SIZE = 6;
 
@@ -71,7 +71,8 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     defaultTab = 'externe';
   }
 
-  const [requirementList, setRequirementList] = useState([] as RequirementInfo[]);
+  const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+
   const [taskList, setTaskList] = useState([] as IssueInfo[]);
   const [bugList, setBugList] = useState([] as IssueInfo[]);
   const [docList, setDocList] = useState([] as EntryInfo[]);
@@ -283,10 +284,16 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       filter_by_watch: myWatch,
     })).then(res => {
       setTotalCount(res.total_count);
-      setRequirementList(res.requirement_list);
+      requirementStore.itemList = res.requirement_list;
     })
   }, [tab, curPage, myWatch, keyword]);
 
+
+  useEffect(() => {
+    return () => {
+      requirementStore.unlisten();
+    };
+  }, []);
 
   const renderItemContent = () => {
     if (props.showDoc && tab === 'doc') {
@@ -399,7 +406,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="requirement_id" dataSource={requirementList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="requirement_id" dataSource={requirementStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();

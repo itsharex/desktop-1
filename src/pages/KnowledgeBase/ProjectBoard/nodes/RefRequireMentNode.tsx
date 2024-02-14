@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { NodeProps } from "reactflow";
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import { start_update_content, type Node as BoardNode, keep_update_content, end_update_content, update_content, NODE_REF_TYPE_REQUIRE_MENT } from "@/api/project_board";
 import NodeWrap from "./NodeWrap";
 import { useStores } from "@/hooks";
@@ -11,6 +11,7 @@ import type { ColumnsType } from "antd/lib/table";
 import Pagination from '@/components/Pagination';
 import { useHistory } from "react-router-dom";
 import { LinkRequirementInfo } from "@/stores/linkAux";
+import { LocalRequirementStore } from "@/stores/local";
 
 const PAGE_SIZE = 10;
 
@@ -19,13 +20,14 @@ interface SelectRequireMentModalProps {
     onClose: () => void;
 }
 
-const SelectRequireMentModal = (props: SelectRequireMentModalProps) => {
+const SelectRequireMentModal = observer((props: SelectRequireMentModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const entryStore = useStores('entryStore');
     const boardStore = useStores('boardStore');
 
-    const [requireMentList, setRequireMentList] = useState<RequirementInfo[]>([]);
+    const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
@@ -48,7 +50,7 @@ const SelectRequireMentModal = (props: SelectRequireMentModalProps) => {
             sort_type: REQ_SORT_UPDATE_TIME,
         }));
         setTotalCount(res.total_count);
-        setRequireMentList(res.requirement_list);
+        requirementStore.itemList = res.requirement_list;
     };
 
     const updateRequireMentId = async (requireMentId: string) => {
@@ -121,6 +123,12 @@ const SelectRequireMentModal = (props: SelectRequireMentModalProps) => {
         loadRequireMentList();
     }, [projectStore.curProjectId, curPage]);
 
+    useEffect(() => {
+        return () => {
+          requirementStore.unlisten();
+        };
+      }, []);
+
     return (
         <Modal open title="选择需求" footer={null}
             onCancel={e => {
@@ -132,7 +140,7 @@ const SelectRequireMentModal = (props: SelectRequireMentModalProps) => {
                 style={{ marginTop: '8px', maxHeight: "calc(100vh - 300px)", overflowY: "scroll" }}
                 rowKey={'requirement_id'}
                 columns={columns}
-                dataSource={requireMentList}
+                dataSource={requirementStore.itemList}
                 pagination={false}
             />
             <Pagination
@@ -143,7 +151,7 @@ const SelectRequireMentModal = (props: SelectRequireMentModalProps) => {
             />
         </Modal>
     );
-};
+});
 
 const RefRequireMentNode = (props: NodeProps<BoardNode>) => {
     const history = useHistory();

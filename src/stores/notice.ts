@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type * as NoticeType from '@/api/notice_type'
+import type * as NoticeType from '@/api/notice_type';
 import { listen } from '@tauri-apps/api/event';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import type { RootStore } from '.';
