@@ -1,8 +1,8 @@
 import { Card, Space, Table, Tabs } from "antd";
 import React, { useEffect, useState } from "react";
-import type { ISSUE_TYPE, IssueInfo } from "@/api/project_issue";
+import type { ISSUE_TYPE } from "@/api/project_issue";
 import { ASSGIN_USER_ALL, ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC, list as list_issue } from "@/api/project_issue";
-import { observer } from "mobx-react";
+import { observer, useLocalObservable } from "mobx-react";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import IssueList from "./IssueList";
@@ -17,6 +17,7 @@ import type { RequirementInfo } from "@/api/project_requirement";
 import { REQ_SORT_UPDATE_TIME, list_requirement } from "@/api/project_requirement";
 import PagesModal from "@/pages/Project/Home/components/PagesModal";
 import FileModal from "@/pages/Project/Home/components/FileModal";
+import { LocalIssueStore, LocalRequirementStore } from "@/stores/local";
 
 type EntryColumnType = ColumnType<EntryInfo> & {
     entryType?: ENTRY_TYPE;
@@ -28,11 +29,12 @@ interface WatchIssueListProps {
     issueType: ISSUE_TYPE;
 }
 
-const WatchIssueList = (props: WatchIssueListProps) => {
+const WatchIssueList = observer((props: WatchIssueListProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
-    const [issueList, setIssueList] = useState<IssueInfo[]>([]);
+    const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
@@ -81,19 +83,25 @@ const WatchIssueList = (props: WatchIssueListProps) => {
             limit: PAGE_SIZE,
         }));
         setTotalCount(res.total_count);
-        setIssueList(res.info_list);
+        issueStore.itemList = res.info_list;
     };
 
     useEffect(() => {
         loadIssueList();
     }, [curPage]);
 
+    useEffect(() => {
+        return () => {
+            issueStore.unlisten();
+        };
+    }, []);
+
     return (
-        <IssueList issueList={issueList} totalCount={totalCount}
+        <IssueList issueList={issueStore.itemList} totalCount={totalCount}
             curPage={curPage} pageSize={PAGE_SIZE}
             issueType={props.issueType} onChangePage={page => setCurPage(page)} />
     );
-};
+});
 
 interface WatchEntryListProps {
     entryType: ENTRY_TYPE;
@@ -225,14 +233,15 @@ const WatchEntryList = (props: WatchEntryListProps) => {
     );
 };
 
-const WatchRequirementList = () => {
+const WatchRequirementList = observer(() => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const linkAuxStore = useStores('linkAuxStore');
 
-    const [reqList, setReqList] = useState([] as RequirementInfo[]);
+    const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
@@ -254,7 +263,7 @@ const WatchRequirementList = () => {
             sort_type: REQ_SORT_UPDATE_TIME,
         }));
         setTotalCount(res.total_count);
-        setReqList(res.requirement_list);
+        requirementStore.itemList = res.requirement_list;
     };
 
     const getTagDefList = () => {
@@ -330,8 +339,14 @@ const WatchRequirementList = () => {
         loadReqList();
     }, [curPage]);
 
+    useEffect(() => {
+        return () => {
+            requirementStore.unlisten();
+        };
+    }, []);
+
     return (
-        <Table rowKey="requirement_id" dataSource={reqList} columns={columns}
+        <Table rowKey="requirement_id" dataSource={requirementStore.itemList} columns={columns}
             pagination={{
                 current: curPage + 1,
                 pageSize: PAGE_SIZE,
@@ -340,7 +355,7 @@ const WatchRequirementList = () => {
                 hideOnSinglePage: true,
             }} style={{ minHeight: "200px" }} scroll={{ x: 1400 }} />
     );
-};
+});
 
 
 const MyWatchPanel = () => {

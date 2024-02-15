@@ -124,34 +124,15 @@ export namespace issue {
     issue_id: string;
     create_user_id: string;
   };
-  export type RemoveIssueNotice = {
-    project_id: string;
-    issue_id: string;
-    create_user_id: string;
-    exec_user_id: string;
-    check_user_id: string;
-  };
-  export type SetExecUserNotice = {
-    project_id: string;
-    issue_id: string;
-    exec_user_id: string;
-    old_exec_user_id: string;
-  };
-  export type SetCheckUserNotice = {
-    project_id: string;
-    issue_id: string;
-    check_user_id: string;
-    old_check_user_id: string;
-  };
+
   export type UpdateIssueNotice = {
     project_id: string;
     issue_id: string;
   };
-  export type UpdateIssueStateNotice = {
+
+  export type RemoveIssueNotice = {
     project_id: string;
     issue_id: string;
-    exec_user_id: string;
-    check_user_id: string;
   };
 
   export type SetSpritNotice = {
@@ -161,14 +142,162 @@ export namespace issue {
     new_sprit_id: string;
   };
 
+  export type UpdateIssueDepNotice = {
+    project_id: string;
+    issue_id: string;
+    dep_issue_id: string;
+  };
+
+  export type UpdateSubIssueNotice = {
+    project_id: string;
+    issue_id: string;
+  };
+
   export type AllNotice = {
     NewIssueNotice?: NewIssueNotice;
     RemoveIssueNotice?: RemoveIssueNotice;
-    SetExecUserNotice?: SetExecUserNotice;
-    SetCheckUserNotice?: SetCheckUserNotice;
     UpdateIssueNotice?: UpdateIssueNotice;
-    UpdateIssueStateNotice?: UpdateIssueStateNotice;
     SetSpritNotice?: SetSpritNotice;
+    UpdateIssueDepNotice?: UpdateIssueDepNotice;
+    UpdateSubIssueNotice?: UpdateSubIssueNotice;
+  };
+}
+
+export namespace entry {
+  export type NewFolderNotice = {
+    project_id: string;
+    folder_id: string;
+    create_user_id: string;
+  };
+
+  export type UpdateFolderNotice = {
+    project_id: string;
+    folder_id: string;
+  };
+
+  export type RemoveFolderNotice = {
+    project_id: string;
+    folder_id: string;
+  };
+
+  export type NewEntryNotice = {
+    project_id: string;
+    entry_id: string;
+    create_user_id: string;
+  };
+
+  export type UpdateEntryNotice = {
+    project_id: string;
+    entry_id: string;
+  };
+
+  export type RemoveEntryNotice = {
+    project_id: string;
+    entry_id: string;
+  };
+
+  export type AllNotice = {
+    NewFolderNotice?: NewFolderNotice;
+    UpdateFolderNotice?: UpdateFolderNotice;
+    RemoveFolderNotice?: RemoveFolderNotice;
+    NewEntryNotice?: NewEntryNotice;
+    UpdateEntryNotice?: UpdateEntryNotice;
+    RemoveEntryNotice?: RemoveEntryNotice;
+  }
+}
+
+export namespace requirement {
+  export type NewRequirementNotice = {
+    project_id: string;
+    requirement_id: string;
+    create_user_id: string;
+  };
+
+  export type UpdateRequirementNotice = {
+    project_id: string;
+    requirement_id: string;
+  };
+
+  export type RemoveRequirementNotice = {
+    project_id: string;
+    requirement_id: string;
+  };
+
+  export type LinkIssueNotice = {
+    project_id: string;
+    requirement_id: string;
+    issue_id: string;
+  };
+
+  export type UnlinkIssueNotice = {
+    project_id: string;
+    requirement_id: string;
+    issue_id: string;
+  };
+
+  export type AllNotice = {
+    NewRequirementNotice?: NewRequirementNotice;
+    UpdateRequirementNotice?: UpdateRequirementNotice;
+    RemoveRequirementNotice?: RemoveRequirementNotice;
+    LinkIssueNotice?: LinkIssueNotice;
+    UnlinkIssueNotice?: UnlinkIssueNotice;
+  };
+}
+
+export namespace testcase {
+  export type NewFolderNotice = {
+    project_id: string;
+    folder_id: string;
+    create_user_id: string;
+  };
+
+  export type UpdateFolderNotice = {
+    project_id: string;
+    folder_id: string;
+  };
+
+  export type RemoveFolderNotice = {
+    project_id: string;
+    folder_id: string;
+  };
+
+  export type NewCaseNotice = {
+    project_id: string;
+    case_id: string;
+    create_user_id: string;
+  };
+
+  export type UpdateCaseNotice = {
+    project_id: string;
+    case_id: string;
+  };
+
+  export type RemoveCaseNotice = {
+    project_id: string;
+    case_id: string;
+  };
+
+  export type LinkSpritNotice = {
+    project_id: string;
+    case_id: string;
+    sprit_id: string;
+  };
+
+  export type UnlinkSpritNotice = {
+    project_id: string;
+    case_id: string;
+    sprit_id: string;
+  };
+
+  export type AllNotice = {
+    NewFolderNotice?: NewFolderNotice;
+    UpdateFolderNotice?: UpdateFolderNotice;
+    RemoveFolderNotice?: RemoveFolderNotice;
+    NewCaseNotice?: NewCaseNotice;
+    UpdateCaseNotice?: UpdateCaseNotice;
+    RemoveCaseNotice?: RemoveCaseNotice;
+    LinkSpritNotice?: LinkSpritNotice;
+    UnlinkSpritNotice?: UnlinkSpritNotice;
   };
 }
 
@@ -357,4 +486,7 @@ export type AllNotice = {
   CommentNotice?: comment.AllNotice;
   BoardNotice?: board.AllNotice;
   ChatNotice?: chat.AllNotice;
+  EntryNotice?: entry.AllNotice;
+  RequirementNotice?: requirement.AllNotice;
+  TestcaseNotice?: testcase.AllNotice;
 };

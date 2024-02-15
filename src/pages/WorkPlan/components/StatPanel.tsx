@@ -5,6 +5,8 @@ import { useStores } from "@/hooks";
 import { ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, ISSUE_STATE_PROCESS, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO } from "@/api/project_issue";
 import { Space, Table } from 'antd';
 import { WarningOutlined } from "@ant-design/icons";
+import type { LocalIssueStore } from "@/stores/local";
+import type { SpritStatus } from "../SpritDetail";
 
 interface StatInfo {
     memberUserId: string;
@@ -32,9 +34,13 @@ interface StatInfo {
 
 }
 
+export interface StatPanelProps {
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
+    spritStatus: SpritStatus;
+}
 
-const StatPanel = () => {
-    const spritStore = useStores('spritStore');
+const StatPanel = (props: StatPanelProps) => {
     const memberStore = useStores('memberStore');
 
     const [statInfoList, setStatInfoList] = useState<StatInfo[]>([]);
@@ -66,7 +72,7 @@ const StatPanel = () => {
                 remainBugHour: 0,
                 bugProgress: 0,
             };
-            for (const task of spritStore.taskList) {
+            for (const task of props.taskStore.itemList) {
                 if (task.exec_user_id == tmpStat.memberUserId || task.check_user_id == tmpStat.memberUserId) {
                     tmpStat.totalTaskCount += 1;
                 }
@@ -90,7 +96,7 @@ const StatPanel = () => {
                     tmpStat.remainTaskHour += (task.remain_minutes / 60);
                 }
             }
-            for (const bug of spritStore.bugList) {
+            for (const bug of props.bugStore.itemList) {
                 if (bug.exec_user_id == tmpStat.memberUserId || bug.check_user_id == tmpStat.memberUserId) {
                     tmpStat.totalBugCount += 1;
                 }
@@ -280,13 +286,13 @@ const StatPanel = () => {
     ];
 
     const hasMissData = () => {
-        const status = spritStore.spritStatus;
+        const status = props.spritStatus;
         return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount) > 0;
     }
 
     useEffect(() => {
         genStatInfo();
-    }, [spritStore.taskList, spritStore.bugList]);
+    }, [props.taskStore.itemList,props.bugStore.itemList]);
 
     return (
         <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
@@ -294,10 +300,10 @@ const StatPanel = () => {
                 <Space style={{ marginLeft: "10px", color: "red" }}>
                     <WarningOutlined />
                     统计信息存在偏差。
-                    {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
-                    {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
-                    {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
-                    {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                    {props.spritStatus.missExecTaskCount > 0 && `有${props.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                    {props.spritStatus.missExecBugCount > 0 && `有${props.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                    {props.spritStatus.missProgressTaskCount > 0 && `有${props.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                    {props.spritStatus.missProgressBugCount > 0 && `有${props.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
                 </Space>
             )}
             <Table rowKey="memberUserId" dataSource={statInfoList} columns={columns} pagination={false} />

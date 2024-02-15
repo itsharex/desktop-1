@@ -36,8 +36,6 @@ const RefTaskNode = (props: NodeProps<BoardNode>) => {
             const notice = ev.payload;
             if(notice.IssueNotice?.UpdateIssueNotice?.issue_id == props.data.node_data.NodeRefData?.ref_target_id){
                 loadIssueInfo(props.data.node_data.NodeRefData?.ref_target_id ?? "");
-            }else if(notice.IssueNotice?.UpdateIssueStateNotice?.issue_id == props.data.node_data.NodeRefData?.ref_target_id){
-                loadIssueInfo(props.data.node_data.NodeRefData?.ref_target_id ?? "");
             }else if(notice.IssueNotice?.RemoveIssueNotice?.issue_id == props.data.node_data.NodeRefData?.ref_target_id){
                 setIssueInfo(null);
             }

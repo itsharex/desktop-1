@@ -100,6 +100,13 @@ export type TestResultInfo = {
     update_time: number;
 };
 
+
+export type FolderOrCaseInfo = {
+    id: string;
+    dataType: "folder" | "case";
+    dataValue: FolderInfo | CaseInfo;
+};
+
 export type CreateFolderRequest = {
     session_id: string;
     project_id: string;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
-import type { FolderInfo, CaseInfo } from "@/api/project_testcase";
+import { observer, useLocalObservable } from 'mobx-react';
+import type { FolderInfo, CaseInfo, FolderOrCaseInfo } from "@/api/project_testcase";
 import { list_folder, list_case, remove_case, remove_folder, update_case, update_folder } from "@/api/project_testcase";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
@@ -15,12 +15,9 @@ import s from "./index.module.less";
 import SetParentModal from "./SetParentModal";
 import { useHistory } from "react-router-dom";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
-
-type FolderOrCaseInfo = {
-    id: string;
-    dataType: "folder" | "case";
-    dataValue: FolderInfo | CaseInfo;
-};
+import { LocalTestcaseStore } from "@/stores/local";
+import type * as NoticeType from '@/api/notice_type';
+import { listen } from '@tauri-apps/api/event';
 
 export interface FolderModeContentProps {
     curFolderId: string;
@@ -35,7 +32,8 @@ const FolderModeContent = (props: FolderModeContentProps) => {
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
 
-    const [dataList, setDataList] = useState<FolderOrCaseInfo[]>([]);
+    const testcaseStore = useLocalObservable(() => new LocalTestcaseStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [removeDataInfo, setRemoveDataInfo] = useState<FolderOrCaseInfo | null>(null);
     const [moveDataInfo, setMoveDataInfo] = useState<FolderOrCaseInfo | null>(null);
 
@@ -65,7 +63,8 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                 dataValue: caseInfo,
             });
         }
-        setDataList(tmpList);
+        testcaseStore.itemList = tmpList;
+        console.log("xxxxxx", testcaseStore.itemList);
     };
 
     const removeData = async () => {
@@ -89,15 +88,6 @@ const FolderModeContent = (props: FolderModeContentProps) => {
         setRemoveDataInfo(null);
     };
 
-    const setWatchFlag = (caseId: string, value: boolean) => {
-        const tmpList = dataList.slice();
-        const index = tmpList.findIndex(item => item.id == caseId);
-        if (index != -1) {
-            (tmpList[index].dataValue as CaseInfo).my_watch = value;
-            setDataList(tmpList);
-        }
-    };
-
     const watchCase = async (caseId: string) => {
         await request(watch({
             session_id: userStore.sessionId,
@@ -105,7 +95,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
             target_type: WATCH_TARGET_TEST_CASE,
             target_id: caseId,
         }));
-        setWatchFlag(caseId, true);
+        testcaseStore.setWatch(caseId, true);
     };
 
     const unwatchCase = async (caseId: string) => {
@@ -115,7 +105,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
             target_type: WATCH_TARGET_TEST_CASE,
             target_id: caseId,
         }));
-        setWatchFlag(caseId, false);
+        testcaseStore.setWatch(caseId, false);
     };
 
     const columns: ColumnsType<FolderOrCaseInfo> = [
@@ -285,11 +275,32 @@ const FolderModeContent = (props: FolderModeContentProps) => {
 
     useEffect(() => {
         loadDataList();
-    }, [props.curFolderId, projectStore.projectModal.testCaseId, projectStore.projectModal.createTestCase]);
+    }, [props.curFolderId]);
+
+    useEffect(() => {
+        //处理新建需求通知
+        const unListenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
+            if (ev.payload.TestcaseNotice?.NewFolderNotice !== undefined && ev.payload.TestcaseNotice.NewFolderNotice.create_user_id == userStore.userInfo.userId && ev.payload.TestcaseNotice.NewFolderNotice.project_id == projectStore.curProjectId) {
+                loadDataList();
+            } else if (ev.payload.TestcaseNotice?.NewCaseNotice !== undefined && ev.payload.TestcaseNotice.NewCaseNotice.create_user_id == userStore.userInfo.userId && ev.payload.TestcaseNotice.NewCaseNotice.project_id == projectStore.curProjectId) {
+                loadDataList();
+            }
+        });
+
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            testcaseStore.unlisten();
+        };
+    }, []);
 
     return (
         <div>
-            <Table rowKey="id" dataSource={dataList} columns={columns} pagination={false} scroll={{ x: 1400 }} />
+            <Table rowKey="id" dataSource={testcaseStore.itemList} columns={columns} pagination={false} scroll={{ x: 1400 }} />
             {removeDataInfo != null && (
                 <Modal open title={`删除${removeDataInfo.dataType == "folder" ? "目录" : "测试用例"}`}
                     okText="删除" okButtonProps={{ danger: true }}

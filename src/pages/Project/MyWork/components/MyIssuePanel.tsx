@@ -1,14 +1,15 @@
 import { Card, Tabs } from "antd";
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import { useStores } from "@/hooks";
-import type { IssueInfo, ISSUE_TYPE } from "@/api/project_issue";
+import type { ISSUE_TYPE } from "@/api/project_issue";
 import {
     ASSGIN_USER_ALL, ISSUE_STATE_CHECK, ISSUE_STATE_PROCESS, ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC,
     list as list_issue
 } from "@/api/project_issue";
 import { request } from "@/utils/request";
 import IssueList from "./IssueList";
+import { LocalIssueStore } from "@/stores/local";
 
 const PAGE_SIZE = 10;
 
@@ -20,7 +21,8 @@ const MyIssueList = (props: MyIssueListProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
-    const [issueList, setIssueList] = useState<IssueInfo[]>([]);
+    const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
@@ -68,15 +70,21 @@ const MyIssueList = (props: MyIssueListProps) => {
             limit: PAGE_SIZE,
         }));
         setTotalCount(res.total_count);
-        setIssueList(res.info_list);
+        issueStore.itemList = res.info_list;
     };
 
     useEffect(() => {
         loadIssueList();
     }, [curPage]);
 
+    useEffect(() => {
+        return () => {
+            issueStore.unlisten();
+        };
+    }, []);
+
     return (
-        <IssueList issueList={issueList} totalCount={totalCount}
+        <IssueList issueList={issueStore.itemList} totalCount={totalCount}
             curPage={curPage} pageSize={PAGE_SIZE}
             issueType={props.issueType} onChangePage={page => setCurPage(page)} />
     );
@@ -92,29 +100,29 @@ const MyTaskPanel = () => {
     return (
         <Card title="我的任务/缺陷" headStyle={{ backgroundColor: "#f5f5f5", fontSize: "16px", fontWeight: 600 }} style={{ marginTop: "10px" }}>
             <Tabs type="card" items={[
-            {
-                key: "myTask",
-                label: "待办任务",
-                children: (
-                    <>
-                        {activeKey == "myTask" && (
-                            <MyIssueList issueType={ISSUE_TYPE_TASK} />
-                        )}
-                    </>
-                ),
-            },
-            {
-                key: "myBug",
-                label: "待办缺陷",
-                children: (
-                    <>
-                        {activeKey == "myBug" && (
-                            <MyIssueList issueType={ISSUE_TYPE_BUG} />
-                        )}
-                    </>
-                ),
-            }
-        ]} activeKey={activeKey} onChange={key => setActiveKey(key)} />
+                {
+                    key: "myTask",
+                    label: "待办任务",
+                    children: (
+                        <>
+                            {activeKey == "myTask" && (
+                                <MyIssueList issueType={ISSUE_TYPE_TASK} />
+                            )}
+                        </>
+                    ),
+                },
+                {
+                    key: "myBug",
+                    label: "待办缺陷",
+                    children: (
+                        <>
+                            {activeKey == "myBug" && (
+                                <MyIssueList issueType={ISSUE_TYPE_BUG} />
+                            )}
+                        </>
+                    ),
+                }
+            ]} activeKey={activeKey} onChange={key => setActiveKey(key)} />
         </Card>
     );
 };

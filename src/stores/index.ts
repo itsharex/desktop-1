@@ -5,8 +5,6 @@ import UserStore from './user';
 import NoticeStore from './notice';
 import LinkAuxStore from './linkAux';
 import DocStore from './doc';
-import SpritStore from './sprit';
-import IssueStore from './issue';
 import IdeaStore from './idea';
 import PubResStore from './pubRes';
 import EntryStore from './entry';
@@ -23,8 +21,6 @@ export class RootStore {
   noticeStore: NoticeStore;
   linkAuxStore: LinkAuxStore;
   docStore: DocStore;
-  spritStore: SpritStore;
-  issueStore: IssueStore;
   ideaStore: IdeaStore;
   pubResStore: PubResStore;
   entryStore: EntryStore;
@@ -41,8 +37,6 @@ export class RootStore {
     this.noticeStore = new NoticeStore(this);
     this.linkAuxStore = new LinkAuxStore(this);
     this.docStore = new DocStore(this);
-    this.spritStore = new SpritStore(this);
-    this.issueStore = new IssueStore(this);
     this.ideaStore = new IdeaStore(this);
     this.pubResStore = new PubResStore();
     this.entryStore = new EntryStore(this);
@@ -62,8 +56,6 @@ const _store = {
   noticeStore: rootStore.noticeStore,
   linkAuxStore: rootStore.linkAuxStore,
   docStore: rootStore.docStore,
-  spritStore: rootStore.spritStore,
-  issueStore: rootStore.issueStore,
   ideaStore: rootStore.ideaStore,
   pubResStore: rootStore.pubResStore,
   entryStore: rootStore.entryStore,

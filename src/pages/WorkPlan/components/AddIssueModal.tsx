@@ -4,7 +4,7 @@ import { Form, Input, Modal, Select, Space, message } from "antd";
 import type { BUG_LEVEL, BUG_PRIORITY, ISSUE_TYPE, TASK_PRIORITY } from "@/api/project_issue";
 import {
     ISSUE_TYPE_TASK, ISSUE_TYPE_BUG, create as create_issue, TASK_PRIORITY_LOW, BUG_LEVEL_MINOR, BUG_PRIORITY_LOW,
-    assign_exec_user, assign_check_user, link_sprit, list_by_id,
+    assign_exec_user, assign_check_user, link_sprit,
     TASK_PRIORITY_MIDDLE,
     TASK_PRIORITY_HIGH,
     BUG_PRIORITY_NORMAL,
@@ -28,7 +28,6 @@ const AddIssueModal = (props: AddIssueModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
 
 
@@ -68,12 +67,6 @@ const AddIssueModal = (props: AddIssueModalProps) => {
             await request(assign_check_user(userStore.sessionId, projectStore.curProjectId, createRes.issue_id, checkUserId));
         }
         await request(link_sprit(userStore.sessionId, projectStore.curProjectId, createRes.issue_id, entryStore.curEntry?.entry_id ?? ""));
-        const listRes = await request(list_by_id({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            issue_id_list: [createRes.issue_id],
-        }));
-        spritStore.addIssueList(listRes.info_list);
         props.onClose();
         message.info(`增加${issueType == ISSUE_TYPE_TASK ? "任务" : "缺陷"}成功`);
     };

@@ -15,17 +15,17 @@ interface SimpleFolderOrCase {
 }
 
 export interface AddTestCaseModalProps {
+    checkedKeys: string[];
     onClose: () => void;
 }
 
 const AddTestCaseModal = (props: AddTestCaseModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
 
     const [treeNodeList, setTreeNodeList] = useState([] as DataNode[]);
-    const [checkedKeys, setCheckedKeys] = useState(spritStore.caseList.map(item => item.case_id));
+    const [checkedKeys, setCheckedKeys] = useState(props.checkedKeys);
 
     const setupTreeNode = (pathItemList: SimpleFolderOrCase[], nodeList: DataNode[], parentFolderId: string) => {
         for (const pathItem of pathItemList) {
@@ -38,7 +38,7 @@ const AddTestCaseModal = (props: AddTestCaseModalProps) => {
                 children: [],
                 checkable: pathItem.isFolder == false,
                 icon: pathItem.isFolder ? <FolderOutlined /> : <FileOutlined />,
-                disabled: spritStore.caseList.map(item => item.case_id).includes(pathItem.id),
+                disabled: props.checkedKeys.includes(pathItem.id),
             };
             nodeList.push(subNode);
             if (pathItem.isFolder) {
@@ -89,7 +89,7 @@ const AddTestCaseModal = (props: AddTestCaseModalProps) => {
         if (entryStore.curEntry == null) {
             return;
         }
-        const curCaseIdList = spritStore.caseList.map(item => item.case_id);
+        const curCaseIdList = props.checkedKeys;
         for (const caseId of checkedKeys) {
             if (curCaseIdList.includes(caseId)) {
                 continue;
@@ -105,7 +105,6 @@ const AddTestCaseModal = (props: AddTestCaseModalProps) => {
                 console.log(e);
             }
         }
-        await spritStore.loadCaseList();
         props.onClose();
     };
 

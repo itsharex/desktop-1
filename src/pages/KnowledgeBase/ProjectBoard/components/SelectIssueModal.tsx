@@ -1,3 +1,4 @@
+import { observer, useLocalObservable } from 'mobx-react';
 import {
     ASSGIN_USER_ALL,
     ISSUE_STATE_CHECK,
@@ -36,6 +37,7 @@ import { getStateColor } from '@/pages/Issue/components/utils';
 import { REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import { list_requirement, list_multi_issue_link } from '@/api/project_requirement';
 import { start_update_content, keep_update_content, end_update_content, update_content, NODE_REF_TYPE_TASK, NODE_REF_TYPE_BUG } from "@/api/project_board";
+import { LocalIssueStore } from '@/stores/local';
 
 
 const PAGE_SIZE = 10;
@@ -89,7 +91,8 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
 
     const [activeKey, setActiveKey] = useState('task');
 
-    const [dataSource, setDataSource] = useState<IssueInfo[]>([]);
+    const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [keyword, setKeyword] = useState('');
     const [includeClose, setIncludeClose] = useState(true);
 
@@ -144,7 +147,7 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
                 limit: PAGE_SIZE,
             }),
         )
-        setDataSource(res.info_list);
+        issueStore.itemList = res.info_list;
         setTotalCount(res.total_count);
     };
 
@@ -166,7 +169,7 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
             filter_by_watch: false,
         }));
         if (reqRes.total_count == 0) {
-            setDataSource([]);
+            issueStore.itemList = [];
             setTotalCount(0);
             return;
         }
@@ -180,7 +183,7 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
             project_id: projectStore.curProjectId,
             issue_id_list: issueIdRes.issue_id_list,
         }));
-        setDataSource(res.info_list);
+        issueStore.itemList = res.info_list;
         setTotalCount(reqRes.total_count);
     };
 
@@ -200,46 +203,6 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
         boardStore.updateNode(props.nodeId);
         props.onClose();
     };
-
-    useEffect(() => {
-        if (props.type == ISSUE_TYPE_BUG) {
-            loadIssue();
-        } else if (props.type == ISSUE_TYPE_TASK && activeKey == "task") {
-            loadIssue();
-        }
-    }, [keyword, props.type, curPage, activeKey, includeClose]);
-
-    useEffect(() => {
-        if (props.type == ISSUE_TYPE_TASK && activeKey == "requirement") {
-            loadIssueByReq();
-        }
-    }, [keyword, props.type, curPage, activeKey]);
-
-    useEffect(() => {
-        request(start_update_content({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            board_id: entryStore.curEntry?.entry_id ?? "",
-            node_id: props.nodeId,
-        }));
-        const timer = setInterval(() => {
-            request(keep_update_content({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                board_id: entryStore.curEntry?.entry_id ?? "",
-                node_id: props.nodeId,
-            }));
-        }, 30 * 1000);
-        return () => {
-            clearInterval(timer);
-            request(end_update_content({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                board_id: entryStore.curEntry?.entry_id ?? "",
-                node_id: props.nodeId,
-            }));
-        };
-    }, []);
 
     const columns: ColumnsType<IssueInfo> = [
         {
@@ -344,6 +307,51 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
         },
     ];
 
+    useEffect(() => {
+        if (props.type == ISSUE_TYPE_BUG) {
+            loadIssue();
+        } else if (props.type == ISSUE_TYPE_TASK && activeKey == "task") {
+            loadIssue();
+        }
+    }, [keyword, props.type, curPage, activeKey, includeClose]);
+
+    useEffect(() => {
+        if (props.type == ISSUE_TYPE_TASK && activeKey == "requirement") {
+            loadIssueByReq();
+        }
+    }, [keyword, props.type, curPage, activeKey]);
+
+    useEffect(() => {
+        request(start_update_content({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            board_id: entryStore.curEntry?.entry_id ?? "",
+            node_id: props.nodeId,
+        }));
+        const timer = setInterval(() => {
+            request(keep_update_content({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                board_id: entryStore.curEntry?.entry_id ?? "",
+                node_id: props.nodeId,
+            }));
+        }, 30 * 1000);
+        return () => {
+            clearInterval(timer);
+            request(end_update_content({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                board_id: entryStore.curEntry?.entry_id ?? "",
+                node_id: props.nodeId,
+            }));
+        };
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            issueStore.unlisten();
+        };
+    }, []);
 
     return (
         <Modal open width={833} footer={null} onCancel={e => {
@@ -417,10 +425,10 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
             </div>
             <Table
                 style={{ marginTop: '8px', maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}
-                rowKey={'issue_id'}
+                rowKey='issue_id'
                 columns={columns}
                 scroll={{ x: 950 }}
-                dataSource={dataSource}
+                dataSource={issueStore.itemList}
                 pagination={false}
             />
             <Pagination
@@ -434,4 +442,4 @@ const SelectIssueModal: FC<SelectIssueModalProps> = (props) => {
     );
 };
 
-export default SelectIssueModal;
+export default observer(SelectIssueModal);

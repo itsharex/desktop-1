@@ -17,12 +17,11 @@ import { add_comment, COMMENT_TARGET_BUG, COMMENT_TARGET_TASK } from "@/api/proj
 
 type StageModelProps = ModalProps & {
   issue: IssueInfo;
-  onCancel: (boo: boolean) => void;
-  onOk: () => void;
+  onClose: () => void;
 };
 
 const StageModel: FC<StageModelProps> = observer((props) => {
-  const { onCancel, onOk, issue } = props;
+  const { onClose, issue } = props;
   const [form] = Form.useForm();
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
@@ -106,7 +105,7 @@ const StageModel: FC<StageModelProps> = observer((props) => {
       state: stage_item_status,
     }, stage_item_select_user, issue);
     message.success('阶段更新成功');
-    onOk();
+    onClose();
   };
 
   return (
@@ -119,7 +118,7 @@ const StageModel: FC<StageModelProps> = observer((props) => {
         padding: '20px 30px 50px 0px',
       }}
       footer={false}
-      onCancel={() => onCancel(false)}
+      onCancel={() => onClose()}
     >
       <Form
         form={form}
@@ -127,7 +126,7 @@ const StageModel: FC<StageModelProps> = observer((props) => {
       >
         <StageFormItem form={form} details={issue} type={STAGE_FORM_TYPE_ENUM.MODEL} editor={editor} />
         <div className={s.foooter}>
-          <Button key="cancel" ghost onClick={() => onCancel(false)}>
+          <Button key="cancel" ghost onClick={() => onClose()}>
             取消
           </Button>
           <Button onClick={handleOk}>确定</Button>

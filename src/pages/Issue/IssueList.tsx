@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import s from './IssueList.module.less';
 import CardWrap from '@/components/CardWrap';
 import { getIssueText, getIssue_type, getIsTask } from '@/utils/utils';
@@ -10,7 +10,7 @@ import Tabs from './components/Tabs';
 import addIcon from '@/assets/image/addIcon.png';
 import { ISSUE_TAB_LIST_TYPE, type LinkIssueListState } from '@/stores/linkAux';
 import IssueEditList from "./components/IssueEditList";
-import { ASSGIN_USER_ALL, ASSGIN_USER_CHECK, ASSGIN_USER_EXEC, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC, list as list_issue, list_id as list_issue_id, ISSUE_STATE_PROCESS_OR_CHECK, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_TYPE_TASK, ISSUE_TYPE_BUG } from "@/api/project_issue";
+import { ASSGIN_USER_ALL, ASSGIN_USER_CHECK, ASSGIN_USER_EXEC, SORT_KEY_UPDATE_TIME, SORT_TYPE_DSC, list as list_issue, ISSUE_STATE_PROCESS_OR_CHECK, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_TYPE_TASK, ISSUE_TYPE_BUG } from "@/api/project_issue";
 import type { IssueInfo, ListRequest, ListParam } from "@/api/project_issue";
 import { request } from '@/utils/request';
 import StageModel from "./components/StageModel";
@@ -20,7 +20,9 @@ import { Popover, Space } from "antd";
 import { PROJECT_SETTING_TAB } from "@/utils/constant";
 import { MoreOutlined } from "@ant-design/icons";
 import Filtration from "./components/Filtration";
-
+import { LocalIssueStore } from "@/stores/local";
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 const tabList = [
     {
@@ -49,9 +51,7 @@ const IssueList = () => {
 
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const linkAuxStore = useStores('linkAuxStore');
-    const issueStore = useStores('issueStore');
 
     const filterState: LinkIssueListState = location.state as LinkIssueListState ?? {
         priorityList: [],
@@ -64,9 +64,11 @@ const IssueList = () => {
         tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL,
         curPage: 0,
     };
+
+    const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [isFilter, setIsFilter] = useState(true);
 
-    const [issueIdList, setIssueIdList] = useState<string[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [stageIssue, setStageIssue] = useState<IssueInfo | undefined>(undefined);
     const [showBatchModal, setShowBatchModal] = useState(false);
@@ -76,15 +78,15 @@ const IssueList = () => {
 
 
     const showStage = (issueId: string) => {
-        const issue = issueStore.issueList.find(item => item.issue_id == issueId);
+        const issue = issueStore.itemList.find(item => item.issue_id == issueId);
         if (issue !== undefined) {
             setStageIssue(issue);
         }
     };
 
     const loadIssueList = async () => {
-        issueStore.issueList = [];
-        
+        issueStore.itemList = [];
+
         setLastState(filterState);
         let newFilterState = filterState.stateList.slice();
         if (newFilterState !== undefined && newFilterState.length > 0 && newFilterState.includes(ISSUE_STATE_PROCESS_OR_CHECK)) {
@@ -145,19 +147,8 @@ const IssueList = () => {
         };
         const res = await request(list_issue(req));
         if (res) {
-            issueStore.issueList = res.info_list;
+            issueStore.itemList = res.info_list;
             setTotalCount(res.total_count);
-        }
-        const idRes = await request(list_issue_id({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            list_param: listParam,
-            sort_type: SORT_TYPE_DSC,
-            sort_key: SORT_KEY_UPDATE_TIME,
-            max_count: 999,
-        }));
-        if (idRes) {
-            setIssueIdList(idRes.issue_id_list);
         }
     };
 
@@ -220,6 +211,27 @@ const IssueList = () => {
     filterState.softwareVersionList, filterState.levelList, filterState.tagId, filterState.curPage
     ]);
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            if (ev.payload.IssueNotice?.NewIssueNotice != undefined && ev.payload.IssueNotice.NewIssueNotice.project_id == projectStore.curProjectId && ev.payload.IssueNotice.NewIssueNotice.create_user_id == userStore.userInfo.userId) {
+                if (getIsTask(location.pathname)) {
+                    linkAuxStore.goToTaskList(undefined, history);
+                } else {
+                    linkAuxStore.goToBugList(undefined, history);
+                }
+            }
+        });
+
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            issueStore.unlisten();
+        };
+    }, []);
 
     return (
         <CardWrap title={`${getIssueText(location.pathname)}列表`} extra={
@@ -310,8 +322,8 @@ const IssueList = () => {
                     {isFilter && <Filtration tagDefList={getTagDefList()} />}
                 </div>
                 <IssueEditList isFilter={isFilter}
-                    issueIdList={issueIdList} showStage={issueId => showStage(issueId)}
-                    tagDefList={getTagDefList()} />
+                    showStage={issueId => showStage(issueId)}
+                    tagDefList={getTagDefList()} issueStore={issueStore} />
                 <Pagination
                     total={totalCount}
                     pageSize={PAGE_SIZE}
@@ -328,13 +340,7 @@ const IssueList = () => {
 
             {stageIssue !== undefined && <StageModel
                 issue={stageIssue}
-                onCancel={() => setStageIssue(undefined)}
-                onOk={() => {
-                    issueStore.updateIssue(stageIssue.issue_id).then(() => {
-                        setStageIssue(undefined)
-                    });
-                    spritStore.updateIssue(stageIssue.issue_id);
-                }}
+                onClose={() => setStageIssue(undefined)}
             />}
             {showBatchModal == true && <BatchCreate
                 onCancel={() => setShowBatchModal(false)}

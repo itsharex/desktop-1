@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
-import type { CaseInfo } from "@/api/project_testcase";
+import { observer, useLocalObservable } from 'mobx-react';
+import type { CaseInfo, FolderOrCaseInfo } from "@/api/project_testcase";
 import { list_case_flat, remove_case, update_case } from "@/api/project_testcase";
 import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
@@ -14,12 +14,16 @@ import Table from "antd/lib/table";
 import { Button, Modal, Space, Tag } from "antd";
 import { useHistory } from "react-router-dom";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
+import { LocalTestcaseStore } from "@/stores/local";
+import type * as NoticeType from '@/api/notice_type';
+import { listen } from '@tauri-apps/api/event';
 
 const PAGE_SIZE = 10;
 
 export interface ListModeContentProps {
     filterTitle: string;
     filterMyWatch: boolean;
+    resetFilter: () => void;
 }
 
 const ListModeContent = (props: ListModeContentProps) => {
@@ -30,12 +34,11 @@ const ListModeContent = (props: ListModeContentProps) => {
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
 
+    const testcaseStore = useLocalObservable(() => new LocalTestcaseStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [curPage, setCurPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-    const [caseInfoList, setCaseInfoList] = useState<CaseInfo[]>([]);
     const [removeCaseInfo, setRemoveCaseInfo] = useState<CaseInfo | null>(null);
-
-    const [dataVersion, setDataVersion] = useState(0);
 
     const loadCaseInfoList = async () => {
         const res = await request(list_case_flat({
@@ -50,17 +53,12 @@ const ListModeContent = (props: ListModeContentProps) => {
             limit: PAGE_SIZE,
         }));
         setTotalCount(res.count);
-        setCaseInfoList(res.case_list);
+        testcaseStore.itemList = res.case_list.map(item => ({
+            id: item.case_id,
+            dataType: "case",
+            dataValue: item,
+        }))
     }
-
-    const setWatchFlag = (caseId: string, value: boolean) => {
-        const tmpList = caseInfoList.slice();
-        const index = tmpList.findIndex(item => item.case_id == caseId);
-        if (index != -1) {
-            tmpList[index].my_watch = value;
-            setCaseInfoList(tmpList);
-        }
-    };
 
     const watchCase = async (caseId: string) => {
         await request(watch({
@@ -69,7 +67,7 @@ const ListModeContent = (props: ListModeContentProps) => {
             target_type: WATCH_TARGET_TEST_CASE,
             target_id: caseId,
         }));
-        setWatchFlag(caseId, true);
+        testcaseStore.setWatch(caseId, true);
     };
 
     const unwatchCase = async (caseId: string) => {
@@ -79,7 +77,7 @@ const ListModeContent = (props: ListModeContentProps) => {
             target_type: WATCH_TARGET_TEST_CASE,
             target_id: caseId,
         }));
-        setWatchFlag(caseId, false);
+        testcaseStore.setWatch(caseId, false);
     };
 
     const removeCase = async () => {
@@ -95,23 +93,26 @@ const ListModeContent = (props: ListModeContentProps) => {
         await loadCaseInfoList();
     };
 
-    const columns: ColumnsType<CaseInfo> = [
+    const columns: ColumnsType<FolderOrCaseInfo> = [
         {
             title: "",
             dataIndex: "my_watch",
             width: 40,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
 
                 <a onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    if (row.my_watch) {
-                        unwatchCase(row.case_id);
-                    } else {
-                        watchCase(row.case_id);
+                    if (row.dataType == "case") {
+                        if ((row.dataValue as CaseInfo).my_watch) {
+                            unwatchCase(row.id);
+                        } else {
+                            watchCase(row.id);
+                        }
                     }
+
                 }}>
-                    <span className={row.my_watch ? s.isCollect : s.noCollect} />
+                    <span className={(row.dataValue as CaseInfo).my_watch ? s.isCollect : s.noCollect} />
                 </a>
 
             ),
@@ -120,10 +121,10 @@ const ListModeContent = (props: ListModeContentProps) => {
         {
             title: "名称",
             width: 300,
-            render: (_, row: CaseInfo) => (
-                <EditText editable={row.user_perm.can_update} content={row.title}
+            render: (_, row: FolderOrCaseInfo) => (
+                <EditText editable={row.dataValue.user_perm.can_update} content={row.dataValue.title}
                     showEditIcon onClick={() => {
-                        linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.case_id), history);
+                        linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.id), history);
                     }}
                     onChange={async value => {
                         if (value.trim() == "") {
@@ -133,9 +134,9 @@ const ListModeContent = (props: ListModeContentProps) => {
                             await request(update_case({
                                 session_id: userStore.sessionId,
                                 project_id: projectStore.curProjectId,
-                                case_id: row.case_id,
+                                case_id: row.id,
                                 title: value.trim(),
-                                test_method: row.test_method,
+                                test_method: (row.dataValue as CaseInfo).test_method,
                             }));
                             return true;
                         } catch (e) {
@@ -149,12 +150,12 @@ const ListModeContent = (props: ListModeContentProps) => {
         {
             title: "测试类型",
             width: 200,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space style={{ flexWrap: "wrap" }}>
-                    {row.test_method.unit_test && "单元测试"}
-                    {row.test_method.ci_test && "集成测试"}
-                    {row.test_method.load_test && "压力测试"}
-                    {row.test_method.manual_test && "手动测试"}
+                    {(row.dataValue as CaseInfo).test_method.unit_test && "单元测试"}
+                    {(row.dataValue as CaseInfo).test_method.ci_test && "集成测试"}
+                    {(row.dataValue as CaseInfo).test_method.load_test && "压力测试"}
+                    {(row.dataValue as CaseInfo).test_method.manual_test && "手动测试"}
                 </Space>
             ),
         },
@@ -166,11 +167,11 @@ const ListModeContent = (props: ListModeContentProps) => {
         {
             title: "修改权限",
             width: 200,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space size="small" style={{ flexWrap: "wrap" }}>
-                    {row.perm_setting.update_for_all == true && "全体成员可修改"}
-                    {row.perm_setting.update_for_all == false
-                        && memberStore.memberList.filter(item => row.perm_setting.extra_update_user_id_list.includes(item.member.member_user_id)).map(item => (
+                    {row.dataValue.perm_setting.update_for_all == true && "全体成员可修改"}
+                    {row.dataValue.perm_setting.update_for_all == false
+                        && memberStore.memberList.filter(item => row.dataValue.perm_setting.extra_update_user_id_list.includes(item.member.member_user_id)).map(item => (
                             <Tag icon={<UserPhoto logoUri={item.member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />} style={{ border: "none", padding: "0px 0px" }}>
                                 &nbsp;{item.member.display_name}
                             </Tag>
@@ -181,55 +182,69 @@ const ListModeContent = (props: ListModeContentProps) => {
         {
             title: "操作",
             width: 100,
-            render: (_, row: CaseInfo) => (
-                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.user_perm.can_remove}
+            render: (_, row: FolderOrCaseInfo) => (
+                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_remove}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        setRemoveCaseInfo(row);
+                        setRemoveCaseInfo(row.dataValue as CaseInfo);
                     }}>删除</Button>
             ),
         },
         {
             title: "创建者",
             width: 120,
-            render: (_, row: CaseInfo) => (
+            render: (_, row: FolderOrCaseInfo) => (
                 <Space>
-                    <UserPhoto logoUri={row.create_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
-                    {row.create_display_name}
+                    <UserPhoto logoUri={row.dataValue.create_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                    {row.dataValue.create_display_name}
                 </Space>
             ),
         },
         {
             title: "创建时间",
             width: 120,
-            render: (_, row: CaseInfo) => moment(row.create_time).format("YYYY-MM-DD HH:mm"),
+            render: (_, row: FolderOrCaseInfo) => moment(row.dataValue.create_time).format("YYYY-MM-DD HH:mm"),
         }
     ];
 
     useEffect(() => {
         loadCaseInfoList();
-    }, [curPage, dataVersion, props.filterTitle, props.filterMyWatch]);
+    }, [curPage, props.filterTitle, props.filterMyWatch]);
 
     useEffect(() => {
-        if (projectStore.projectModal.testCaseId == "") {
-            setDataVersion(oldValue => oldValue + 1);
-        }
-    }, [projectStore.projectModal.testCaseId]);
-
-    useEffect(() => {
-        if (projectStore.projectModal.createRequirement == false) {
-            if (curPage != 0) {
-                setCurPage(0);
-            } else {
-                setDataVersion(oldValue => oldValue + 1);
+        //处理新建需求通知
+        const unListenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
+            if (ev.payload.TestcaseNotice?.NewCaseNotice !== undefined && ev.payload.TestcaseNotice.NewCaseNotice.create_user_id == userStore.userInfo.userId && ev.payload.TestcaseNotice.NewCaseNotice.project_id == projectStore.curProjectId) {
+                let hasChange = false;
+                if (curPage != 0) {
+                    setCurPage(0);
+                    hasChange = true;
+                }
+                if (props.filterTitle != "" || props.filterMyWatch) {
+                    props.resetFilter();
+                    hasChange = true;
+                }
+                if (!hasChange) {
+                    loadCaseInfoList();
+                }
             }
-        }
-    }, [projectStore.projectModal.createRequirement]);
+        });
+
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            testcaseStore.unlisten();
+        };
+    }, []);
 
     return (
         <div>
-            <Table rowKey="case_id" dataSource={caseInfoList} columns={columns}
+            <Table rowKey="id" dataSource={testcaseStore.itemList} columns={columns}
                 scroll={{ x: 1200 }}
                 pagination={{ current: curPage + 1, total: totalCount, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1) }} />
             {removeCaseInfo != null && (

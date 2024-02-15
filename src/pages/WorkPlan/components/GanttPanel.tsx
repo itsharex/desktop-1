@@ -13,6 +13,12 @@ import "gantt-task-react/dist/index.css";
 import { Card, Descriptions, Space } from "antd";
 import { useSize } from "ahooks";
 import { WarningOutlined } from "@ant-design/icons";
+import type { LocalIssueStore } from "@/stores/local";
+import type { SpritStatus } from "../SpritDetail";
+
+type ExtGanttTask = GanttTask & {
+    issue: IssueInfo;
+};
 
 const getColor = (v: number) => {
     switch (v) {
@@ -52,63 +58,47 @@ const TooltipContent: React.FC<{
     fontSize: string;
     fontFamily: string;
 }> = observer((props) => {
-    const spritStore = useStores('spritStore');
-
-    const [issue, setIssue] = useState<IssueInfo | null>(null);
-
-    useEffect(() => {
-        let index = spritStore.taskList.findIndex(item => item.issue_id == props.task.id);
-        if (index != -1) {
-            setIssue(spritStore.taskList[index]);
-            return;
-        }
-        index = spritStore.bugList.findIndex(item => item.issue_id == props.task.id);
-        if (index != -1) {
-            setIssue(spritStore.bugList[index]);
-            return;
-        }
-    }, [props.task.id]);
     return (
-        <>
-            {issue !== null && (
-                <div style={{ backgroundColor: "white", padding: "10px 10px", border: "1px solid #e4e4e8" }}>
-                    <Descriptions title={`${issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}:${issue.basic_info.title}`} bordered={true}>
-                        <Descriptions.Item label="阶段">{renderState(issue.state)}</Descriptions.Item>
-                        <Descriptions.Item label="预估时间">
-                            <span style={{ color: issue.has_estimate_minutes ? undefined : "red" }}>
-                                {issue.has_estimate_minutes ? `${(issue.estimate_minutes / 60).toFixed(1)}小时` : "未设置"}
-                            </span>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="剩余时间">
-                            <span style={{ color: issue.has_remain_minutes ? undefined : "red" }}>
-                                {issue.has_remain_minutes ? `${(issue.remain_minutes / 60).toFixed(1)}小时` : "未设置"}
-                            </span>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="预估开始时间">
-                            <span style={{ color: issue.has_start_time ? undefined : "red" }}>
-                                {issue.has_start_time ? moment(issue.start_time).format("YYYY-MM-DD") : "未设置"}
-                            </span>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="预估结束时间">
-                            <span style={{ color: issue.has_end_time ? undefined : "red" }}>
-                                {issue.has_end_time ? moment(issue.end_time).format("YYYY-MM-DD") : "未设置"}
-                            </span>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="截止时间">
-                            {issue.has_dead_line_time == true && moment(issue.dead_line_time).format("YYYY-MM-DD")}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="创建者">{issue.create_display_name}</Descriptions.Item>
-                        <Descriptions.Item label="执行者">
-                            <span style={{ color: issue.exec_user_id == "" ? "red" : undefined }}>
-                                {issue.exec_user_id == "" ? "未设置" : issue.exec_display_name}
-                            </span>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="检查者">{issue.check_display_name}</Descriptions.Item>
-                    </Descriptions>
 
-                </div>
-            )}
-        </>
+
+        <div style={{ backgroundColor: "white", padding: "10px 10px", border: "1px solid #e4e4e8" }}>
+            <Descriptions title={`${(props.task as ExtGanttTask).issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}:${(props.task as ExtGanttTask).issue.basic_info.title}`} bordered={true}>
+                <Descriptions.Item label="阶段">{renderState((props.task as ExtGanttTask).issue.state)}</Descriptions.Item>
+                <Descriptions.Item label="预估时间">
+                    <span style={{ color: (props.task as ExtGanttTask).issue.has_estimate_minutes ? undefined : "red" }}>
+                        {(props.task as ExtGanttTask).issue.has_estimate_minutes ? `${((props.task as ExtGanttTask).issue.estimate_minutes / 60).toFixed(1)}小时` : "未设置"}
+                    </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="剩余时间">
+                    <span style={{ color: (props.task as ExtGanttTask).issue.has_remain_minutes ? undefined : "red" }}>
+                        {(props.task as ExtGanttTask).issue.has_remain_minutes ? `${((props.task as ExtGanttTask).issue.remain_minutes / 60).toFixed(1)}小时` : "未设置"}
+                    </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="预估开始时间">
+                    <span style={{ color: (props.task as ExtGanttTask).issue.has_start_time ? undefined : "red" }}>
+                        {(props.task as ExtGanttTask).issue.has_start_time ? moment((props.task as ExtGanttTask).issue.start_time).format("YYYY-MM-DD") : "未设置"}
+                    </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="预估结束时间">
+                    <span style={{ color: (props.task as ExtGanttTask).issue.has_end_time ? undefined : "red" }}>
+                        {(props.task as ExtGanttTask).issue.has_end_time ? moment((props.task as ExtGanttTask).issue.end_time).format("YYYY-MM-DD") : "未设置"}
+                    </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="截止时间">
+                    {(props.task as ExtGanttTask).issue.has_dead_line_time == true && moment((props.task as ExtGanttTask).issue.dead_line_time).format("YYYY-MM-DD")}
+                </Descriptions.Item>
+                <Descriptions.Item label="创建者">{(props.task as ExtGanttTask).issue.create_display_name}</Descriptions.Item>
+                <Descriptions.Item label="执行者">
+                    <span style={{ color: (props.task as ExtGanttTask).issue.exec_user_id == "" ? "red" : undefined }}>
+                        {(props.task as ExtGanttTask).issue.exec_user_id == "" ? "未设置" : (props.task as ExtGanttTask).issue.exec_display_name}
+                    </span>
+                </Descriptions.Item>
+                <Descriptions.Item label="检查者">{(props.task as ExtGanttTask).issue.check_display_name}</Descriptions.Item>
+            </Descriptions>
+
+        </div>
+
+
     );
 });
 
@@ -116,10 +106,12 @@ interface GanttPanelProps {
     spritName: string;
     startTime: number;
     endTime: number;
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
+    spritStatus: SpritStatus;
 }
 
 const GanttPanel: React.FC<GanttPanelProps> = (props) => {
-    const spritStore = useStores('spritStore');
     const projectStore = useStores('projectStore');
     const linkAuxStore = useStores('linkAuxStore');
     const entryStore = useStores('entryStore');
@@ -143,15 +135,15 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
     }
 
     const hasMissData = () => {
-        const status = spritStore.spritStatus;
+        const status = props.spritStatus;
         return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount + status.missTimeBugCount + status.missTimeTaskCount) > 0;
     }
 
     useEffect(() => {
-        const tmpList: GanttTask[] = [];
+        const tmpList: ExtGanttTask[] = [];
         let totalEstimate = 0;
         let totalRemain = 0;
-        for (const task of spritStore.taskList) {
+        for (const task of props.taskStore.itemList) {
             const startTime = task.has_start_time ? task.start_time : props.startTime;
             const endTime = task.has_end_time ? task.end_time : props.endTime;
             let progress = 0;
@@ -169,6 +161,7 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                     backgroundColor: (task.has_start_time && task.has_end_time && task.has_remain_minutes && task.has_estimate_minutes) ? "forestgreen" : "crimson",
                     backgroundSelectedColor: "gold",
                 },
+                issue: task,
             });
             if (task.has_estimate_minutes) {
                 totalEstimate += task.estimate_minutes;
@@ -177,7 +170,7 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                 totalRemain += task.remain_minutes;
             }
         }
-        for (const bug of spritStore.bugList) {
+        for (const bug of props.bugStore.itemList) {
             const startTime = bug.has_start_time ? bug.start_time : props.startTime;
             const endTime = bug.has_end_time ? bug.end_time : props.endTime;
             let progress = 0;
@@ -195,6 +188,7 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                     backgroundColor: (bug.has_start_time && bug.has_end_time && bug.has_remain_minutes && bug.has_estimate_minutes) ? "forestgreen" : "crimson",
                     backgroundSelectedColor: "gold",
                 },
+                issue: bug,
             });
             if (bug.has_estimate_minutes) {
                 totalEstimate += bug.estimate_minutes;
@@ -216,7 +210,7 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
             progress: progress,
         };
         setTaskList([spritTask, ...tmpList]);
-    }, [spritStore.taskList, spritStore.bugList]);
+    }, [props.taskStore.itemList, props.bugStore.itemList]);
 
     return (
         <Card bordered={false} bodyStyle={{ padding: "0px 0px" }}
@@ -226,12 +220,12 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                         <Space style={{ marginLeft: "10px", color: "red" }}>
                             <WarningOutlined />
                             甘特图存在偏差。
-                            {spritStore.spritStatus.missTimeTaskCount > 0 && `有${spritStore.spritStatus.missTimeTaskCount}个任务未指定开始结束时间。`}
-                            {spritStore.spritStatus.missTimeBugCount > 0 && `有${spritStore.spritStatus.missTimeBugCount}个缺陷未指定开始结束时间。`}
-                            {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
-                            {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
-                            {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
-                            {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                            {props.spritStatus.missTimeTaskCount > 0 && `有${props.spritStatus.missTimeTaskCount}个任务未指定开始结束时间。`}
+                            {props.spritStatus.missTimeBugCount > 0 && `有${props.spritStatus.missTimeBugCount}个缺陷未指定开始结束时间。`}
+                            {props.spritStatus.missExecTaskCount > 0 && `有${props.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                            {props.spritStatus.missExecBugCount > 0 && `有${props.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                            {props.spritStatus.missProgressTaskCount > 0 && `有${props.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                            {props.spritStatus.missProgressBugCount > 0 && `有${props.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
                         </Space>
                     )}
                 </>
@@ -248,9 +242,9 @@ const GanttPanel: React.FC<GanttPanelProps> = (props) => {
                     <Gantt tasks={taskList} viewMode={ViewMode.Day} locale="chi" listCellWidth="" columnWidth={100} TooltipContent={TooltipContent}
                         rowHeight={36} rtl={false} preStepsCount={2} ganttHeight={wrapRefSize.height - 60}
                         onClick={task => {
-                            if (spritStore.taskList.map(item => item.issue_id).includes(task.id)) {
+                            if (props.taskStore.itemList.map(item => item.issue_id).includes(task.id)) {
                                 linkAuxStore.goToLink(new LinkTaskInfo("", projectStore.curProjectId, task.id), history);
-                            } else if (spritStore.bugList.map(item => item.issue_id).includes(task.id)) {
+                            } else if (props.bugStore.itemList.map(item => item.issue_id).includes(task.id)) {
                                 linkAuxStore.goToLink(new LinkBugInfo("", projectStore.curProjectId, task.id), history);
                             }
                         }} />

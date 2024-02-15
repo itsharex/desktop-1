@@ -505,7 +505,6 @@ class LinkAuxStore {
       await this.rootStore.projectStore.setCurProjectId(spritLink.projectId);
     }
     await this.rootStore.entryStore.loadEntry(spritLink.spritId);
-    await this.rootStore.spritStore.loadCurSprit();
     history.push(APP_PROJECT_WORK_PLAN_PATH);
   }
 
