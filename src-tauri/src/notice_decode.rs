@@ -364,6 +364,8 @@ pub mod requirement {
         NewRequirementNotice(notices_requirement::NewRequirementNotice),
         UpdateRequirementNotice(notices_requirement::UpdateRequirementNotice),
         RemoveRequirementNotice(notices_requirement::RemoveRequirementNotice),
+        LinkIssueNotice(notices_requirement::LinkIssueNotice),
+        UnlinkIssueNotice(notices_requirement::UnlinkIssueNotice),
     }
 
     pub fn decode_notice(data: &Any) -> Option<Notice> {
@@ -384,6 +386,17 @@ pub mod requirement {
                 notices_requirement::RemoveRequirementNotice::decode(data.value.as_slice())
             {
                 return Some(Notice::RemoveRequirementNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::LinkIssueNotice::type_url() {
+            if let Ok(notice) = notices_requirement::LinkIssueNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::LinkIssueNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::UnlinkIssueNotice::type_url() {
+            if let Ok(notice) =
+                notices_requirement::UnlinkIssueNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::UnlinkIssueNotice(notice));
             }
         }
         None

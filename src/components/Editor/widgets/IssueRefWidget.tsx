@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { type WidgetProps } from './common';
 import type { ExtraBugInfo, ExtraTaskInfo, IssueInfo, ISSUE_TYPE } from '@/api/project_issue';
 import {
@@ -23,11 +23,12 @@ import { useHistory } from 'react-router-dom';
 import type LinkAuxStore from '@/stores/linkAux';
 import type { History } from 'history';
 import Button from '@/components/Button';
-import { LinkOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
+import { LinkOutlined, PlusOutlined } from '@ant-design/icons';
 import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import AddTaskOrBug from '../components/AddTaskOrBug';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
+import { LocalIssueStore } from '@/stores/local';
 
 // 为了防止编辑器出错，WidgetData结构必须保存稳定
 
@@ -328,13 +329,14 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
   );
 });
 
-const ViewIssueRef: React.FC<WidgetProps> = (props) => {
+const ViewIssueRef: React.FC<WidgetProps> = observer((props) => {
   const data = props.initData as WidgetData;
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
   const linkAuxStore = useStores('linkAuxStore');
   const history = useHistory();
-  const [dataSource, setDataSource] = useState<IssueInfo[]>([]);
+
+  const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
   const [loading, setLoading] = useState(false);
 
   const columns: ColumnsType<IssueInfo> = [
@@ -435,7 +437,7 @@ const ViewIssueRef: React.FC<WidgetProps> = (props) => {
         issue_id_list: data.issueIdList,
       })
       if (res.code == 0) {
-        setDataSource(res.info_list);
+        issueStore.itemList = res.info_list;
         setLoading(false);
       } else {
         message.error(res.err_msg);
@@ -448,25 +450,13 @@ const ViewIssueRef: React.FC<WidgetProps> = (props) => {
 
   };
 
-  useMemo(() => {
+  useEffect(() => {
     loadData();
   }, []);
 
   return (
     <ErrorBoundary>
       <EditorWrap>
-        <div className={s.sync_wrap}>
-          <Button
-            className={s.sync}
-            disabled={loading}
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              loadData();
-            }} icon={<SyncOutlined />}>
-            &nbsp;&nbsp;刷新
-          </Button>
-        </div>
         <Table
           loading={loading}
           style={{ marginTop: '8px' }}
@@ -474,13 +464,13 @@ const ViewIssueRef: React.FC<WidgetProps> = (props) => {
           columns={columns}
           className={s.EditIssueRef_table}
           scroll={{ x: 100 }}
-          dataSource={dataSource}
+          dataSource={issueStore.itemList}
           pagination={false}
         />
       </EditorWrap>
     </ErrorBoundary>
   );
-};
+});
 
 export const IssueRefWidget: React.FC<WidgetProps> = (props) => {
   if (props.editMode) {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { observer } from 'mobx-react';
 import { Card, Table, message } from 'antd';
 import { LinkSelect } from "@/components/Editor/components";
 import type { LinkInfo } from '@/stores/linkAux';
@@ -12,7 +13,8 @@ import { get_issue_type_str } from '@/api/event_type';
 import { renderState, renderTitle } from "./dependComon";
 import Button from "@/components/Button";
 import { useHistory } from "react-router-dom";
-
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 
 interface MyDependPanelProps {
@@ -21,7 +23,7 @@ interface MyDependPanelProps {
     inModal: boolean;
 }
 
-export const MyDependPanel: React.FC<MyDependPanelProps> = (props) => {
+export const MyDependPanel: React.FC<MyDependPanelProps> = observer((props) => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
@@ -44,6 +46,11 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = (props) => {
     };
 
     const addDependIssue = async (dependIssueId: string) => {
+        const index = issueList.findIndex(item => item.issue_id == dependIssueId);
+        if (index != -1) {
+            setShowSelectLink(false);
+            return;
+        }
         const res = await request(add_dependence({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
@@ -53,7 +60,6 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = (props) => {
         if (res) {
             message.info("设置依赖工单成功");
             setShowSelectLink(false);
-            await loadIssue();
         }
     };
 
@@ -129,6 +135,18 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = (props) => {
         loadIssue();
     }, [props.issueId])
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.IssueNotice?.UpdateIssueDepNotice != undefined && notice.IssueNotice.UpdateIssueDepNotice.issue_id == props.issueId) {
+                loadIssue();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [props.issueId]);
+
     return (
         <Card bordered={false}
             bodyStyle={{ maxHeight: "calc(100vh - 370px)", overflowY: "scroll" }}
@@ -171,4 +189,4 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = (props) => {
             )}
         </Card>
     );
-}
+});

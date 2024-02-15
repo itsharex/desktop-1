@@ -33,6 +33,8 @@ const SubIssuePanelWrap = observer(() => {
             loadIssueInfo();
         }
     }, [projectStore.projectModal.issueId]);
+
+    
     return (
         <>
             {issueInfo != null && (

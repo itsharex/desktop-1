@@ -223,10 +223,24 @@ export namespace requirement {
     requirement_id: string;
   };
 
+  export type LinkIssueNotice = {
+    project_id: string;
+    requirement_id: string;
+    issue_id: string;
+  };
+
+  export type UnlinkIssueNotice = {
+    project_id: string;
+    requirement_id: string;
+    issue_id: string;
+  };
+
   export type AllNotice = {
     NewRequirementNotice?: NewRequirementNotice;
     UpdateRequirementNotice?: UpdateRequirementNotice;
     RemoveRequirementNotice?: RemoveRequirementNotice;
+    LinkIssueNotice?: LinkIssueNotice;
+    UnlinkIssueNotice?: UnlinkIssueNotice;
   };
 }
 

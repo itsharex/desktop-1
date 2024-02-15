@@ -14,13 +14,14 @@ import { request } from '@/utils/request';
 import { issueState, ISSUE_STATE_COLOR_ENUM } from '@/utils/constant';
 import moment from 'moment';
 import s from './IssueRefWidget.module.less';
-import Button from '@/components/Button';
-import { LinkOutlined, SyncOutlined } from '@ant-design/icons';
+import { LinkOutlined,  } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { LinkBugInfo, LinkSpritInfo, LinkTaskInfo } from '@/stores/linkAux';
 import type { EntryInfo } from "@/api/project_entry"
 import { list as list_entry, get as get_entry, ENTRY_TYPE_SPRIT } from "@/api/project_entry"
 import { LocalIssueStore } from '@/stores/local';
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 // 为了防止编辑器出错，WidgetData结构必须保存稳定
 
@@ -416,21 +417,21 @@ const ViewSpritRef: React.FC<WidgetProps> = observer((props) => {
         };
     },[]);
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if(notice.EntryNotice?.UpdateEntryNotice != undefined && notice.EntryNotice.UpdateEntryNotice.entry_id == data.spritId){
+                loadSpritInfo();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
+
     return (
         <ErrorBoundary>
             <EditorWrap>
-                <div className={s.sync_wrap}>
-                    <Button
-                        className={s.sync}
-                        disabled={loading}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            loadData();
-                        }} icon={<SyncOutlined />}>
-                        &nbsp;&nbsp;刷新
-                    </Button>
-                </div>
                 {entryInfo != null && (
                     <div className={s.sprit_info_wrap}>
                         <div className={s.sprit_info}>
@@ -457,6 +458,7 @@ const ViewSpritRef: React.FC<WidgetProps> = observer((props) => {
                 )}
                 <Table
                     rowKey="issue_id"
+                    loading={loading}
                     className={s.EditIssueRef_table}
                     dataSource={issueStore.itemList}
                     columns={columns}

@@ -453,7 +453,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                props.onOk(new LinkTaskInfo(item.basic_info.title, projectStore.curProjectId, item.requirement_id));
+                props.onOk(new LinkTaskInfo(item.basic_info.title, projectStore.curProjectId, item.issue_id));
               }}>{item.issue_index}&nbsp;&nbsp;{item.basic_info.title}</List.Item>
             )} />
         </Card>
@@ -483,7 +483,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                props.onOk(new LinkBugInfo(item.basic_info.title, projectStore.curProjectId, item.requirement_id));
+                props.onOk(new LinkBugInfo(item.basic_info.title, projectStore.curProjectId, item.issue_id));
               }}>{item.issue_index}&nbsp;&nbsp;{item.basic_info.title}</List.Item>
             )} />
         </Card>
