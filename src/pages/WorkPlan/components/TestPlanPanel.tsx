@@ -130,12 +130,6 @@ const TestPlanPanel = (props: TestPlanPanelProps) => {
     ];
 
     useEffect(() => {
-        return () => {
-            props.testcaseStore.unlisten();
-        };
-    }, []);
-
-    useEffect(() => {
         loadTestcaseList();
     }, [entryStore.curEntry?.entry_id]);
 

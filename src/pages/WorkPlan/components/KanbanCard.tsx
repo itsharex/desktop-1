@@ -34,7 +34,6 @@ const SelectExecMemberModal = observer((props: ModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
-    const spritStore = useStores('spritStore');
 
     const [memberUserId, setMemberUserId] = useState<string | null>(null);
 
@@ -44,7 +43,6 @@ const SelectExecMemberModal = observer((props: ModalProps) => {
         }
         await request(assign_exec_user(userStore.sessionId, projectStore.curProjectId, props.issue.issue_id, memberUserId));
         props.onClose();
-        spritStore.updateIssue(props.issue.issue_id);
     };
 
     return (
@@ -82,7 +80,6 @@ const SelectCheckMemberModal = observer((props: ModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
-    const spritStore = useStores('spritStore');
 
     const [memberUserId, setMemberUserId] = useState<string | null>(null);
 
@@ -92,7 +89,6 @@ const SelectCheckMemberModal = observer((props: ModalProps) => {
         }
         await request(assign_check_user(userStore.sessionId, projectStore.curProjectId, props.issue.issue_id, memberUserId));
         props.onClose();
-        spritStore.updateIssue(props.issue.issue_id);
     };
 
     return (
@@ -131,7 +127,6 @@ const HOUR_LIST = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7
 const EstimateModal = observer((props: ModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
 
     const [estimateMinutes, setEstimateMinutes] = useState(props.issue.has_estimate_minutes ? props.issue.estimate_minutes : 0);
     const [remainMinutes, setRemainMinutes] = useState(props.issue.has_remain_minutes ? props.issue.remain_minutes : 0);
@@ -152,7 +147,6 @@ const EstimateModal = observer((props: ModalProps) => {
             }));
         }
         props.onClose();
-        spritStore.updateIssue(props.issue.issue_id);
     };
 
     return (
@@ -228,7 +222,6 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const projectStore = useStores('projectStore');
     const linkAuxStore = useStores('linkAuxStore');
     const memberStore = useStores('memberStore');
-    const spritStore = useStores('spritStore');
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: DND_ITEM_TYPE,
@@ -298,7 +291,6 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                         }
                         try {
                             await updateTitle(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value.trim());
-                            await spritStore.updateIssue(props.issue.issue_id);
                             return true;
                         } catch (e) {
                             console.log(e);
@@ -347,11 +339,9 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                                     onChange={async (value) => {
                                         if (value === undefined) {
                                             const ret = await cancelStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
-                                            spritStore.updateIssue(props.issue.issue_id);
                                             return ret;
                                         }
                                         const ret = await updateStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
-                                        spritStore.updateIssue(props.issue.issue_id);
                                         return ret;
                                     }}
                                     showEditIcon={hover}
@@ -368,11 +358,9 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                                     onChange={async (value) => {
                                         if (value === undefined) {
                                             const ret = await cancelEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
-                                            spritStore.updateIssue(props.issue.issue_id);
                                             return ret;
                                         }
                                         const ret = await updateEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
-                                        spritStore.updateIssue(props.issue.issue_id);
                                         return ret;
                                     }}
                                     showEditIcon={hover}

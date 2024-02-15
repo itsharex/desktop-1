@@ -14,7 +14,7 @@ import {
   ISSUE_TYPE_BUG,
   ASSGIN_USER_ALL,
 } from '@/api/project_issue';
-import type { IssueInfo, ListParam as ListIssueParam } from '@/api/project_issue';
+import type { ListParam as ListIssueParam } from '@/api/project_issue';
 import { request } from '@/utils/request';
 import { observer, useLocalObservable } from 'mobx-react';
 import s from './LinkSelect.module.less';
@@ -23,7 +23,7 @@ import { list_requirement, REQ_SORT_UPDATE_TIME } from '@/api/project_requiremen
 import type { EntryInfo } from "@/api/project_entry";
 import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { CheckOutlined } from '@ant-design/icons';
-import { LocalRequirementStore } from '@/stores/local';
+import { LocalIssueStore, LocalRequirementStore } from '@/stores/local';
 
 const PAGE_SIZE = 6;
 
@@ -72,9 +72,9 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   }
 
   const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+  const taskStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+  const bugStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
 
-  const [taskList, setTaskList] = useState([] as IssueInfo[]);
-  const [bugList, setBugList] = useState([] as IssueInfo[]);
   const [docList, setDocList] = useState([] as EntryInfo[]);
   const [spritList, setSpritList] = useState([] as EntryInfo[]);
   const [boardList, setBoardList] = useState([] as EntryInfo[]);
@@ -195,7 +195,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
           limit: PAGE_SIZE,
         }),
       ).then((res) => {
-        setTaskList(res.info_list);
+        taskStore.itemList = res.info_list;
         setTotalCount(res.total_count);
       });
     } else if (tab == 'bug') {
@@ -210,7 +210,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
           limit: PAGE_SIZE,
         }),
       ).then((res) => {
-        setBugList(res.info_list);
+        bugStore.itemList = res.info_list;
         setTotalCount(res.total_count);
       });
     }
@@ -288,6 +288,18 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     })
   }, [tab, curPage, myWatch, keyword]);
 
+
+  useEffect(() => {
+    return () => {
+      taskStore.unlisten();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      bugStore.unlisten();
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -436,7 +448,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="issue_id" dataSource={taskList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="issue_id" dataSource={taskStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -466,7 +478,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="issue_id" dataSource={bugList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="issue_id" dataSource={bugStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();

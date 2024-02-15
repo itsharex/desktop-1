@@ -32,6 +32,7 @@ import s from "./IssueEditList.module.less";
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
 import { ExtraIssueInfo } from './ExtraIssueInfo';
+import type { LocalIssueStore } from '@/stores/local';
 
 type ColumnsTypes = ColumnType<IssueInfo> & {
   dataIndex: string | string[];
@@ -41,14 +42,14 @@ type ColumnsTypes = ColumnType<IssueInfo> & {
 
 type IssueEditListProps = {
   isFilter: boolean;
-  issueIdList: string[];
+  issueStore: LocalIssueStore;
   tagDefList: TagInfo[];
   showStage: (issueId: string) => void;
 };
 
 const IssueEditList: React.FC<IssueEditListProps> = ({
   isFilter,
-  issueIdList,
+  issueStore,
   tagDefList,
   showStage,
 }) => {
@@ -56,7 +57,6 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
   const projectStore = useStores("projectStore");
   const memberStore = useStores("memberStore");
   const linkAuxStore = useStores("linkAuxStore");
-  const issueStore = useStores('issueStore');
 
   const { pathname } = useLocation();
   const history = useHistory();
@@ -70,7 +70,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       target_type: issueType == ISSUE_TYPE_TASK ? WATCH_TARGET_TASK : WATCH_TARGET_BUG,
       target_id: issueId,
     }));
-    issueStore.updateIssue(issueId);
+    issueStore.setWatch(issueId, false);
   };
 
   const watchIssue = async (issueId: string, issueType: ISSUE_TYPE) => {
@@ -80,7 +80,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       target_type: issueType == ISSUE_TYPE_TASK ? WATCH_TARGET_TASK : WATCH_TARGET_BUG,
       target_id: issueId,
     }));
-    issueStore.updateIssue(issueId);
+    issueStore.setWatch(issueId, true);
   };
 
   const columnsList: ColumnsTypes[] = [
@@ -370,9 +370,6 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
         itemList={memberSelectItems}
         onChange={async (value) => {
           const res = await updateExecUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
-          if (res) {
-            issueStore.updateIssue(row.issue_id);
-          }
           return res;
         }} showEditIcon={true} />,
     },
@@ -388,9 +385,6 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
         itemList={memberSelectItems}
         onChange={async (value) => {
           const res = await updateCheckUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
-          if (res) {
-            issueStore.updateIssue(row.issue_id);
-          }
           return res;
         }} showEditIcon={true} />,
     },
@@ -427,9 +421,7 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
               project_id: row.project_id,
               issue_id: row.issue_id,
               tag_id_list: tagIdList,
-            })).then(() => {
-              issueStore.updateIssue(row.issue_id);
-            });
+            }));
           }} />
       ),
     },
@@ -522,13 +514,13 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
   const columns: ColumnsTypes[] = columnsList.filter((item: ColumnsTypes) => !item.hideInTable);
 
   return (
-    <div className={issueStore.issueList.length == 0 ? "" : s.listWrap}>
+    <div className={issueStore.itemList.length == 0 ? "" : s.listWrap}>
       <Table
         style={{ marginTop: '8px' }}
         rowKey={'issue_id'}
         columns={columns}
         scroll={{ x: 1650, y: `${isFilter ? 'calc(100vh - 400px)' : 'calc(100vh - 340px)'}` }}
-        dataSource={issueStore.issueList}
+        dataSource={issueStore.itemList}
         pagination={false}
         expandable={{
           expandedRowRender: (row: IssueInfo) => (

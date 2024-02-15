@@ -15,6 +15,7 @@ import KanbanCard, { DND_ITEM_TYPE } from "./KanbanCard";
 import { ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
 import type { SpritInfo } from "@/api/project_sprit";
 import type { EntryInfo } from "@/api/project_entry";
+import type { LocalIssueStore } from "@/stores/local";
 
 const filterIssueList = (taskList: IssueInfo[], bugList: IssueInfo[], state: ISSUE_STATE, memberId: string) => {
     const retList: IssueInfo[] = [];
@@ -61,6 +62,8 @@ interface KanbanPanelProps {
     memberId: string;
     spritInfo: SpritInfo;
     entryInfo: EntryInfo | null;
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
 }
 
 interface ProcessPanelProps {
@@ -68,11 +71,12 @@ interface ProcessPanelProps {
     stage: PROCESS_STAGE;
     spritInfo: SpritInfo;
     entryInfo: EntryInfo | null;
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
 }
 
 
 const PlanIssueColumn = observer((props: KanbanPanelProps) => {
-    const spritStore = useStores('spritStore');
     const [issueList, setIssueList] = useState<IssueInfo[]>();
 
     const [{ isOver }, drop] = useDrop(() => ({
@@ -85,8 +89,8 @@ const PlanIssueColumn = observer((props: KanbanPanelProps) => {
     }));
 
     useEffect(() => {
-        setIssueList(filterIssueList(spritStore.taskList, spritStore.bugList, ISSUE_STATE_PLAN, props.memberId));
-    }, [spritStore.taskList, spritStore.bugList, props.memberId]);
+        setIssueList(filterIssueList(props.taskStore.itemList, props.bugStore.itemList, ISSUE_STATE_PLAN, props.memberId));
+    }, [props.taskStore.itemList, props.bugStore.itemList, props.memberId]);
 
     return (
         <div className={s.kanban_column} ref={drop}>
@@ -104,7 +108,6 @@ const PlanIssueColumn = observer((props: KanbanPanelProps) => {
 const ProcessIssueColumn = observer((props: ProcessPanelProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const [issueList, setIssueList] = useState<IssueInfo[]>();
 
     const setProcess = async (issue: IssueInfo) => {
@@ -126,8 +129,6 @@ const ProcessIssueColumn = observer((props: ProcessPanelProps) => {
                 state: ISSUE_STATE_PROCESS,
             }));
         }
-
-        await spritStore.updateIssue(issue.issue_id);
     };
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
@@ -161,8 +162,8 @@ const ProcessIssueColumn = observer((props: ProcessPanelProps) => {
     };
 
     useEffect(() => {
-        setIssueList(filterIssueList(spritStore.taskList, spritStore.bugList, ISSUE_STATE_PROCESS, props.memberId).filter(item => item.process_stage == props.stage));
-    }, [spritStore.taskList, spritStore.bugList, props.memberId]);
+        setIssueList(filterIssueList(props.taskStore.itemList, props.bugStore.itemList, ISSUE_STATE_PROCESS, props.memberId).filter(item => item.process_stage == props.stage));
+    }, [props.taskStore.itemList, props.bugStore.itemList, props.memberId]);
 
     return (
         <div className={s.kanban_column} ref={drop}>
@@ -180,7 +181,6 @@ const ProcessIssueColumn = observer((props: ProcessPanelProps) => {
 const CheckIssueColumn = observer((props: KanbanPanelProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const [issueList, setIssueList] = useState<IssueInfo[]>();
 
     const setCheck = async (issue: IssueInfo) => {
@@ -193,7 +193,6 @@ const CheckIssueColumn = observer((props: KanbanPanelProps) => {
             issue_id: issue.issue_id,
             state: ISSUE_STATE_CHECK,
         }));
-        await spritStore.updateIssue(issue.issue_id);
     };
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
@@ -207,8 +206,8 @@ const CheckIssueColumn = observer((props: KanbanPanelProps) => {
     }));
 
     useEffect(() => {
-        setIssueList(filterIssueList(spritStore.taskList, spritStore.bugList, ISSUE_STATE_CHECK, props.memberId));
-    }, [spritStore.taskList, spritStore.bugList, props.memberId]);
+        setIssueList(filterIssueList(props.taskStore.itemList, props.bugStore.itemList, ISSUE_STATE_CHECK, props.memberId));
+    }, [props.taskStore.itemList, props.bugStore.itemList, props.memberId]);
 
     return (
         <div className={s.kanban_column} ref={drop}>
@@ -226,7 +225,6 @@ const CheckIssueColumn = observer((props: KanbanPanelProps) => {
 const CloseIssueColumn = observer((props: KanbanPanelProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const [issueList, setIssueList] = useState<IssueInfo[]>();
 
     const setClose = async (issue: IssueInfo) => {
@@ -236,7 +234,6 @@ const CloseIssueColumn = observer((props: KanbanPanelProps) => {
             issue_id: issue.issue_id,
             state: ISSUE_STATE_CLOSE,
         }));
-        await spritStore.updateIssue(issue.issue_id);
     };
 
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
@@ -250,8 +247,8 @@ const CloseIssueColumn = observer((props: KanbanPanelProps) => {
     }));
 
     useEffect(() => {
-        setIssueList(filterIssueList(spritStore.taskList, spritStore.bugList, ISSUE_STATE_CLOSE, props.memberId));
-    }, [spritStore.taskList, spritStore.bugList, props.memberId]);
+        setIssueList(filterIssueList(props.taskStore.itemList, props.bugStore.itemList, ISSUE_STATE_CLOSE, props.memberId));
+    }, [props.taskStore.itemList, props.bugStore.itemList, props.memberId]);
 
     return (
         <div className={s.kanban_column} ref={drop}>
@@ -268,19 +265,17 @@ const CloseIssueColumn = observer((props: KanbanPanelProps) => {
 
 const KanbanPanel = (props: KanbanPanelProps) => {
 
-    const spritStore = useStores('spritStore');
-
     return (
         <DndProvider backend={HTML5Backend}>
             <div className={s.kanban_column_list}>
-                {props.memberId == "" && filterIssueList(spritStore.taskList, spritStore.bugList, ISSUE_STATE_PLAN, props.memberId).length > 0 && (
-                    <PlanIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
+                {props.memberId == "" && filterIssueList(props.taskStore.itemList, props.bugStore.itemList, ISSUE_STATE_PLAN, props.memberId).length > 0 && (
+                    <PlanIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
                 )}
-                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_TODO} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
-                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_DOING} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
-                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_DONE} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
-                <CheckIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
-                <CloseIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} />
+                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_TODO} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
+                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_DOING} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
+                <ProcessIssueColumn memberId={props.memberId} stage={PROCESS_STAGE_DONE} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
+                <CheckIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
+                <CloseIssueColumn memberId={props.memberId} spritInfo={props.spritInfo} entryInfo={props.entryInfo} taskStore={props.taskStore} bugStore={props.bugStore} />
             </div>
         </DndProvider>
     );

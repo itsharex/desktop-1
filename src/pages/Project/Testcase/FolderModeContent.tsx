@@ -280,9 +280,9 @@ const FolderModeContent = (props: FolderModeContentProps) => {
     useEffect(() => {
         //处理新建需求通知
         const unListenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
-            if (ev.payload.TestcaseNotice?.NewFolderNotice !== undefined && ev.payload.TestcaseNotice.NewFolderNotice.create_user_id == userStore.userInfo.userId) {
+            if (ev.payload.TestcaseNotice?.NewFolderNotice !== undefined && ev.payload.TestcaseNotice.NewFolderNotice.create_user_id == userStore.userInfo.userId && ev.payload.TestcaseNotice.NewFolderNotice.project_id == projectStore.curProjectId) {
                 loadDataList();
-            } else if (ev.payload.TestcaseNotice?.NewCaseNotice !== undefined && ev.payload.TestcaseNotice?.NewCaseNotice.create_user_id == userStore.userInfo.userId) {
+            } else if (ev.payload.TestcaseNotice?.NewCaseNotice !== undefined && ev.payload.TestcaseNotice.NewCaseNotice.create_user_id == userStore.userInfo.userId && ev.payload.TestcaseNotice.NewCaseNotice.project_id == projectStore.curProjectId) {
                 loadDataList();
             }
         });

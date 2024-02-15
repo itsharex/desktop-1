@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { observer, useLocalObservable } from 'mobx-react';
 import { type WidgetProps } from './common';
 import EditorWrap from '../components/EditorWrap';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -19,6 +20,7 @@ import { useHistory } from 'react-router-dom';
 import { LinkBugInfo, LinkSpritInfo, LinkTaskInfo } from '@/stores/linkAux';
 import type { EntryInfo } from "@/api/project_entry"
 import { list as list_entry, get as get_entry, ENTRY_TYPE_SPRIT } from "@/api/project_entry"
+import { LocalIssueStore } from '@/stores/local';
 
 // 为了防止编辑器出错，WidgetData结构必须保存稳定
 
@@ -115,7 +117,7 @@ const renderName = (id: string, name: string, userId: string) => {
     return isCurrentUser ? <span style={{ color: 'red' }}>{name}</span> : <span>{name}</span>;
 };
 
-const EditSpritRef: React.FC<WidgetProps> = (props) => {
+const EditSpritRef: React.FC<WidgetProps> = observer((props) => {
     const data = props.initData as WidgetData;
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
@@ -269,9 +271,9 @@ const EditSpritRef: React.FC<WidgetProps> = (props) => {
             </EditorWrap>
         </ErrorBoundary>
     );
-}
+});
 
-const ViewSpritRef: React.FC<WidgetProps> = (props) => {
+const ViewSpritRef: React.FC<WidgetProps> = observer((props) => {
     const data = props.initData as WidgetData;
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
@@ -279,7 +281,8 @@ const ViewSpritRef: React.FC<WidgetProps> = (props) => {
 
     const history = useHistory();
 
-    const [issueList, setIssueList] = useState<IssueInfo[]>([]);
+    const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
     const [entryInfo, setEntryInfo] = useState<EntryInfo | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -294,7 +297,7 @@ const ViewSpritRef: React.FC<WidgetProps> = (props) => {
 
     const loadIssue = async () => {
         const tmpList = await listIssueBySprit(userStore.sessionId, projectStore.curProjectId, data.spritId);
-        setIssueList(tmpList);
+        issueStore.itemList = tmpList;
     };
 
     const loadData = async () => {
@@ -407,6 +410,12 @@ const ViewSpritRef: React.FC<WidgetProps> = (props) => {
         loadData();
     }, []);
 
+    useEffect(()=>{
+        return ()=>{
+            issueStore.unlisten();
+        };
+    },[]);
+
     return (
         <ErrorBoundary>
             <EditorWrap>
@@ -449,7 +458,7 @@ const ViewSpritRef: React.FC<WidgetProps> = (props) => {
                 <Table
                     rowKey="issue_id"
                     className={s.EditIssueRef_table}
-                    dataSource={issueList}
+                    dataSource={issueStore.itemList}
                     columns={columns}
                     pagination={false}
                 />
@@ -457,7 +466,7 @@ const ViewSpritRef: React.FC<WidgetProps> = (props) => {
             </EditorWrap>
         </ErrorBoundary>
     );
-}
+});
 
 
 export const SpritRefWidget: React.FC<WidgetProps> = (props) => {

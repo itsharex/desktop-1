@@ -13,6 +13,8 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useSize } from "ahooks";
 import { WarningOutlined } from "@ant-design/icons";
+import type { LocalIssueStore } from "@/stores/local";
+import type { SpritStatus } from "../SpritDetail";
 
 class DayInfo {
     constructor(day: number) {
@@ -38,13 +40,15 @@ class MemberBurnDownInfo {
 
 interface BurnDownPanelProps {
     spritInfo: SpritInfo;
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
+    spritStatus: SpritStatus;
 }
 
 const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
     const userStore = useStores('userStore');
     const memberStore = useStores('memberStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
 
     const domRef = useRef<HTMLDivElement>(null);
@@ -65,7 +69,7 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
         //计算每个用户的totalRemain
         const tmpRemainMap: Map<string, number> = new Map();
         const tmpEstimateMap: Map<string, number> = new Map();
-        spritStore.taskList.forEach(item => {
+        props.taskStore.itemList.forEach(item => {
             if (item.exec_user_id != "") {
                 if (item.has_remain_minutes) {
                     const oldValue = tmpRemainMap.get(item.exec_user_id) ?? 0.0;
@@ -77,7 +81,7 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
                 }
             }
         });
-        spritStore.bugList.forEach(item => {
+        props.bugStore.itemList.forEach(item => {
             if (item.exec_user_id != "") {
                 if (item.has_remain_minutes) {
                     const oldValue = tmpRemainMap.get(item.exec_user_id) ?? 0.0;
@@ -212,12 +216,12 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
         }
 
         const execUserIdSet = new Set<string>();
-        spritStore.taskList.forEach(item => {
+        props.taskStore.itemList.forEach(item => {
             if (item.exec_user_id != "") {
                 execUserIdSet.add(item.exec_user_id);
             }
         });
-        spritStore.bugList.forEach(item => {
+        props.bugStore.itemList.forEach(item => {
             if (item.exec_user_id != "") {
                 execUserIdSet.add(item.exec_user_id);
             }
@@ -287,13 +291,13 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
     };
 
     const hasMissData = () => {
-        const status = spritStore.spritStatus;
+        const status = props.spritStatus;
         return (status.missExecBugCount + status.missExecTaskCount + status.missProgressBugCount + status.missProgressTaskCount) > 0;
     }
 
     useEffect(() => {
         calcBurnDownInfoList();
-    }, [spritStore.bugList, spritStore.taskList, dataVersion]);
+    }, [props.bugStore.itemList, props.taskStore.itemList, dataVersion]);
 
     return (
         <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
@@ -301,10 +305,10 @@ const BurnDownPanel: React.FC<BurnDownPanelProps> = (props) => {
                 <Space style={{ marginLeft: "10px", color: "red" }}>
                     <WarningOutlined />
                     燃尽图存在偏差。
-                    {spritStore.spritStatus.missExecTaskCount > 0 && `有${spritStore.spritStatus.missExecTaskCount}个任务未指定执行人。`}
-                    {spritStore.spritStatus.missExecBugCount > 0 && `有${spritStore.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
-                    {spritStore.spritStatus.missProgressTaskCount > 0 && `有${spritStore.spritStatus.missProgressTaskCount}个任务未指定进度。`}
-                    {spritStore.spritStatus.missProgressBugCount > 0 && `有${spritStore.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
+                    {props.spritStatus.missExecTaskCount > 0 && `有${props.spritStatus.missExecTaskCount}个任务未指定执行人。`}
+                    {props.spritStatus.missExecBugCount > 0 && `有${props.spritStatus.missExecBugCount}个缺陷未指定执行人。`}
+                    {props.spritStatus.missProgressTaskCount > 0 && `有${props.spritStatus.missProgressTaskCount}个任务未指定进度。`}
+                    {props.spritStatus.missProgressBugCount > 0 && `有${props.spritStatus.missProgressBugCount}个缺陷未指定进度。`}
                 </Space>
             )}
             <Card title="统计表" bordered={false}>

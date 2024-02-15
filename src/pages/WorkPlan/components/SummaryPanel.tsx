@@ -315,7 +315,6 @@ interface SummaryPanelProps {
 const SummaryPanel: React.FC<SummaryPanelProps> = (props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
 
     const [groupList, setGroupList] = useState<SummaryGroup[]>([]);
@@ -331,7 +330,6 @@ const SummaryPanel: React.FC<SummaryPanelProps> = (props) => {
             sprit_id: entryStore.curEntry?.entry_id ?? "",
             summary_state: state,
         }));
-        spritStore.incCurSpritVersion();
     };
 
     const loadSummaryAndGroup = async () => {
@@ -416,7 +414,7 @@ const SummaryPanel: React.FC<SummaryPanelProps> = (props) => {
                 )}
             </Space>
         }
-            bordered={false} bodyStyle={{height: "calc(100vh - 190px)", overflowY: "scroll" }}
+            bordered={false} bodyStyle={{ height: "calc(100vh - 190px)", overflowY: "scroll" }}
             extra={
                 <Space size="middle">
                     <Select placeholder="标签:" style={{ width: "100px" }} value={filterTagId} allowClear onChange={value => setFilterTagId(value ?? null)}>

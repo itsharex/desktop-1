@@ -295,7 +295,7 @@ const RequirementList = () => {
         //处理新建需求通知
         const unListenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
             if (ev.payload.RequirementNotice?.NewRequirementNotice !== undefined) {
-                if (ev.payload.RequirementNotice.NewRequirementNotice.create_user_id == userStore.userInfo.userId) {
+                if (ev.payload.RequirementNotice.NewRequirementNotice.create_user_id == userStore.userInfo.userId && ev.payload.RequirementNotice.NewRequirementNotice.project_id == projectStore.curProjectId) {
                     let hasChange = false;
                     if (curPage != 0) {
                         setCurPage(0);
