@@ -186,29 +186,26 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
         {projectStore.curProjectId != "" && (
           <div>
             <ProjectQuickAccess />
-            {location.pathname.startsWith(APP_PROJECT_HOME_PATH) == true && (
-              <span style={{ fontSize: "16px", fontWeight: 600 }}>{projectStore.curProject?.basic_info.project_name ?? ""}</span>
-            )}
-            {location.pathname.startsWith(APP_PROJECT_HOME_PATH) == false && (
-              <Button type="link"
-                style={{ minWidth: 0, padding: "0px 0px" }}
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (appStore.inEdit) {
-                    appStore.showCheckLeave(() => {
-                      entryStore.reset();
-                      history.push(APP_PROJECT_HOME_PATH);
-                    });
-                  } else {
+            <Button
+              type="link"
+              style={{ minWidth: 0, padding: "0px 0px", display: "inline" }}
+              disabled={location.pathname.startsWith(APP_PROJECT_HOME_PATH) == true}
+              size='small'
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (appStore.inEdit) {
+                  appStore.showCheckLeave(() => {
                     entryStore.reset();
                     history.push(APP_PROJECT_HOME_PATH);
-                  }
-                }} >
-                <span style={{ fontSize: "16px", fontWeight: 600 }}>{projectStore.curProject?.basic_info.project_name ?? ""}</span>
-              </Button>
-            )}
-
+                  });
+                } else {
+                  entryStore.reset();
+                  history.push(APP_PROJECT_HOME_PATH);
+                }
+              }}>
+              <span style={{ fontSize: "20px", fontWeight: 600 }}>{projectStore.curProject?.basic_info.project_name ?? ""}</span>
+            </Button>
             <Space size="small" style={{ fontSize: "16px", marginLeft: "10px", lineHeight: "26px", cursor: "default" }}>
               {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) && (
                 <>
