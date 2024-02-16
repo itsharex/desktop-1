@@ -45,8 +45,8 @@ const SpritDetail = () => {
     const memberStore = useStores('memberStore');
     const entryStore = useStores('entryStore');
 
-    const taskStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
-    const bugStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
+    const taskStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? "", ISSUE_TYPE_TASK));
+    const bugStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? "", ISSUE_TYPE_BUG));
     const testcaseStore = useLocalObservable(() => new LocalTestcaseStore(userStore.sessionId, projectStore.curProjectId, entryStore.curEntry?.entry_id ?? ""));
 
     const [spritInfo, setSpritInfo] = useState<SpritInfo | null>(null);
