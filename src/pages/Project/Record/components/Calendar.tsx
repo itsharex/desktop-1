@@ -152,7 +152,7 @@ const Calendar: React.FC<{
                         if (value != null) {
                           localStore.listProjectEvent(value);
                         }
-                      }} />
+                      }} popupStyle={{ zIndex: 10000 }}/>
                   </Space>
                 </div>
               )}

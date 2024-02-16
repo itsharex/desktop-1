@@ -154,7 +154,7 @@ const AnalyseRepoModal: React.FC<AnalyseRepoModalProps> = (props) => {
                         </Form.Item>
                         <Form.Item label="时间区间">
                             <DatePicker.RangePicker value={[fromTime, toTime]}
-                                popupStyle={{ zIndex: 4000 }}
+                                popupStyle={{ zIndex: 10000 }}
                                 onChange={values => {
                                     if (values?.length == 2) {
                                         setFromTime(values[0]!.startOf("day"));
