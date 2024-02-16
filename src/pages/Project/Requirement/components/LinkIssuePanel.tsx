@@ -16,7 +16,8 @@ import { issueState } from '@/utils/constant';
 import { getStateColor } from '@/pages/Issue/components/utils';
 import SingleCreateTask from './SingleCreateTask';
 import { useHistory } from 'react-router-dom';
-
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 const renderState = (val: number) => {
     const v = issueState[val];
@@ -41,7 +42,7 @@ export interface LinkIssuePanelProps {
     inModal: boolean;
 }
 
-const LinkIssuePanel = (props:LinkIssuePanelProps) => {
+const LinkIssuePanel = (props: LinkIssuePanelProps) => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
@@ -97,7 +98,6 @@ const LinkIssuePanel = (props:LinkIssuePanelProps) => {
             }
         }
         setShowRefModal(false);
-        await loadIssueList();
         message.info("关联成功");
     };
 
@@ -108,7 +108,6 @@ const LinkIssuePanel = (props:LinkIssuePanelProps) => {
             requirement_id: props.requirementId,
             issue_id: issueId,
         }));
-        await loadIssueList();
     };
 
     const columns: ColumnsType<IssueInfo> = [
@@ -156,9 +155,23 @@ const LinkIssuePanel = (props:LinkIssuePanelProps) => {
         loadIssueList();
     }, []);
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.RequirementNotice?.LinkIssueNotice !== undefined && notice.RequirementNotice.LinkIssueNotice.requirement_id == props.requirementId) {
+                loadIssueList();
+            } else if (notice.RequirementNotice?.UnlinkIssueNotice !== undefined && notice.RequirementNotice.UnlinkIssueNotice.requirement_id == props.requirementId) {
+                loadIssueList();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [props.requirementId]);
+
     return (
         <Card title={<h2>相关任务</h2>} bordered={false}
-            bodyStyle={{ maxHeight:"calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
+            bodyStyle={{ maxHeight: "calc(100vh - 370px)", overflowY: "scroll", padding: "0px" }}
             extra={
                 <Dropdown.Button
                     type="primary"

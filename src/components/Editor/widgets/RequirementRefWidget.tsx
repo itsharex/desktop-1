@@ -3,7 +3,7 @@ import { type WidgetProps } from './common';
 import EditorWrap from '../components/EditorWrap';
 import s from './RequirementRefWidget.module.less';
 import Button from '@/components/Button';
-import { LinkOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons';
+import { LinkOutlined, PlusOutlined } from '@ant-design/icons';
 import { Card, Form, Input, Modal, Space, Table } from 'antd';
 import type { RequirementInfo } from '@/api/project_requirement';
 import { list_requirement, get_requirement, list_requirement_by_id, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
@@ -15,7 +15,8 @@ import { request } from '@/utils/request';
 import moment from 'moment';
 import { LinkRequirementInfo } from '@/stores/linkAux';
 import { useHistory } from 'react-router-dom';
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
+import { LocalRequirementStore } from '@/stores/local';
 
 
 
@@ -34,7 +35,7 @@ interface AddRequirementModalProps {
 }
 
 const PAGE_SIZE = 10;
-const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
+const AddRequirementModal: React.FC<AddRequirementModalProps> = observer((props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
@@ -42,7 +43,8 @@ const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
 
     const [keyword, setKeyword] = useState("");
 
-    const [requirementList, setRequirementList] = useState<RequirementInfo[]>([]);
+    const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
@@ -64,7 +66,7 @@ const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
             filter_by_watch: false,
         }));
         setTotalCount(res.total_count);
-        setRequirementList(res.requirement_list);
+        requirementStore.itemList = res.requirement_list;
     };
 
     const columns: ColumnsType<RequirementInfo> = [
@@ -89,6 +91,12 @@ const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
     useEffect(() => {
         loadRequirementList();
     }, [curPage, keyword]);
+
+    useEffect(() => {
+        return () => {
+            requirementStore.unlisten();
+        };
+    }, []);
 
     return (
         <Modal open title="引用需求"
@@ -117,7 +125,7 @@ const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
                 </Space>
             }>
                 <div className={s.modal_content}>
-                    <Table rowKey="requirement_id" columns={columns} dataSource={requirementList}
+                    <Table rowKey="requirement_id" columns={columns} dataSource={requirementStore.itemList}
                         pagination={false}
                         rowSelection={{
                             type: "checkbox",
@@ -129,7 +137,7 @@ const AddRequirementModal: React.FC<AddRequirementModalProps> = (props) => {
             </Card>
         </Modal>
     );
-};
+});
 
 const EditRequirementRef: React.FC<WidgetProps> = observer((props) => {
     const userStore = useStores('userStore');
@@ -241,7 +249,7 @@ const EditRequirementRef: React.FC<WidgetProps> = observer((props) => {
     );
 });
 
-const ViewRequirementRef: React.FC<WidgetProps> = (props) => {
+const ViewRequirementRef: React.FC<WidgetProps> = observer((props) => {
     const data = props.initData as WidgetData;
 
     const history = useHistory();
@@ -250,7 +258,7 @@ const ViewRequirementRef: React.FC<WidgetProps> = (props) => {
     const projectStore = useStores('projectStore');
     const linkAuxStore = useStores('linkAuxStore');
 
-    const [dataSource, setDataSource] = useState<RequirementInfo[]>([]);
+    const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
     const [loading, setLoading] = useState(false);
 
     const loadData = async () => {
@@ -261,7 +269,7 @@ const ViewRequirementRef: React.FC<WidgetProps> = (props) => {
                 project_id: projectStore.curProjectId,
                 requirement_id_list: data.requirementIdList,
             }));
-            setDataSource(res.requirement_list);
+            requirementStore.itemList = res.requirement_list;
         } catch (e) {
             console.log(e);
         }
@@ -301,20 +309,14 @@ const ViewRequirementRef: React.FC<WidgetProps> = (props) => {
         loadData();
     }, []);
 
+    useEffect(() => {
+        return () => {
+            requirementStore.unlisten();
+        };
+    }, []);
+
     return (
         <EditorWrap>
-            <div className={s.sync_wrap}>
-                <Button
-                    className={s.sync}
-                    disabled={loading}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        loadData();
-                    }} icon={<SyncOutlined />}>
-                    &nbsp;&nbsp;刷新
-                </Button>
-            </div>
             <Table
                 loading={loading}
                 style={{ marginTop: '8px' }}
@@ -322,12 +324,12 @@ const ViewRequirementRef: React.FC<WidgetProps> = (props) => {
                 columns={columns}
                 className={s.EditReqRef_table}
                 scroll={{ x: 100 }}
-                dataSource={dataSource}
+                dataSource={requirementStore.itemList}
                 pagination={false}
             />
         </EditorWrap>
     );
-};
+});
 
 export const RequirementRefWidget: React.FC<WidgetProps> = (props) => {
     if (props.editMode) {

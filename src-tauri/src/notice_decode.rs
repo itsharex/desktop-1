@@ -124,11 +124,10 @@ pub mod issue {
     pub enum Notice {
         NewIssueNotice(notices_issue::NewIssueNotice),
         RemoveIssueNotice(notices_issue::RemoveIssueNotice),
-        SetExecUserNotice(notices_issue::SetExecUserNotice),
-        SetCheckUserNotice(notices_issue::SetCheckUserNotice),
         UpdateIssueNotice(notices_issue::UpdateIssueNotice),
-        UpdateIssueStateNotice(notices_issue::UpdateIssueStateNotice),
         SetSpritNotice(notices_issue::SetSpritNotice),
+        UpdateIssueDepNotice(notices_issue::UpdateIssueDepNotice),
+        UpdateSubIssueNotice(notices_issue::UpdateSubIssueNotice),
     }
 
     pub fn decode_notice(data: &Any) -> Option<Notice> {
@@ -140,26 +139,21 @@ pub mod issue {
             if let Ok(notice) = notices_issue::RemoveIssueNotice::decode(data.value.as_slice()) {
                 return Some(Notice::RemoveIssueNotice(notice));
             }
-        } else if data.type_url == notices_issue::SetExecUserNotice::type_url() {
-            if let Ok(notice) = notices_issue::SetExecUserNotice::decode(data.value.as_slice()) {
-                return Some(Notice::SetExecUserNotice(notice));
-            }
-        } else if data.type_url == notices_issue::SetCheckUserNotice::type_url() {
-            if let Ok(notice) = notices_issue::SetCheckUserNotice::decode(data.value.as_slice()) {
-                return Some(Notice::SetCheckUserNotice(notice));
-            }
         } else if data.type_url == notices_issue::UpdateIssueNotice::type_url() {
             if let Ok(notice) = notices_issue::UpdateIssueNotice::decode(data.value.as_slice()) {
                 return Some(Notice::UpdateIssueNotice(notice));
             }
-        } else if data.type_url == notices_issue::UpdateIssueStateNotice::type_url() {
-            if let Ok(notice) = notices_issue::UpdateIssueStateNotice::decode(data.value.as_slice())
-            {
-                return Some(Notice::UpdateIssueStateNotice(notice));
-            }
         } else if data.type_url == notices_issue::SetSpritNotice::type_url() {
             if let Ok(notice) = notices_issue::SetSpritNotice::decode(data.value.as_slice()) {
                 return Some(Notice::SetSpritNotice(notice));
+            }
+        } else if data.type_url == notices_issue::UpdateIssueDepNotice::type_url() {
+            if let Ok(notice) = notices_issue::UpdateIssueDepNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateIssueDepNotice(notice));
+            }
+        } else if data.type_url == notices_issue::UpdateSubIssueNotice::type_url() {
+            if let Ok(notice) = notices_issue::UpdateSubIssueNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateSubIssueNotice(notice));
             }
         }
         None
@@ -313,6 +307,160 @@ pub mod chat {
     }
 }
 
+pub mod entry {
+    use prost::Message;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::notices_entry;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    pub enum Notice {
+        NewFolderNotice(notices_entry::NewFolderNotice),
+        UpdateFolderNotice(notices_entry::UpdateFolderNotice),
+        RemoveFolderNotice(notices_entry::RemoveFolderNotice),
+        NewEntryNotice(notices_entry::NewEntryNotice),
+        UpdateEntryNotice(notices_entry::UpdateEntryNotice),
+        RemoveEntryNotice(notices_entry::RemoveEntryNotice),
+    }
+
+    pub fn decode_notice(data: &Any) -> Option<Notice> {
+        if data.type_url == notices_entry::NewFolderNotice::type_url() {
+            if let Ok(notice) = notices_entry::NewFolderNotice::decode(data.value.as_slice()) {
+                return Some(Notice::NewFolderNotice(notice));
+            }
+        } else if data.type_url == notices_entry::UpdateFolderNotice::type_url() {
+            if let Ok(notice) = notices_entry::UpdateFolderNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateFolderNotice(notice));
+            }
+        } else if data.type_url == notices_entry::RemoveFolderNotice::type_url() {
+            if let Ok(notice) = notices_entry::RemoveFolderNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveFolderNotice(notice));
+            }
+        } else if data.type_url == notices_entry::NewEntryNotice::type_url() {
+            if let Ok(notice) = notices_entry::NewEntryNotice::decode(data.value.as_slice()) {
+                return Some(Notice::NewEntryNotice(notice));
+            }
+        } else if data.type_url == notices_entry::UpdateEntryNotice::type_url() {
+            if let Ok(notice) = notices_entry::UpdateEntryNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateEntryNotice(notice));
+            }
+        } else if data.type_url == notices_entry::RemoveEntryNotice::type_url() {
+            if let Ok(notice) = notices_entry::RemoveEntryNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveEntryNotice(notice));
+            }
+        }
+        None
+    }
+}
+
+pub mod requirement {
+    use prost::Message;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::notices_requirement;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    pub enum Notice {
+        NewRequirementNotice(notices_requirement::NewRequirementNotice),
+        UpdateRequirementNotice(notices_requirement::UpdateRequirementNotice),
+        RemoveRequirementNotice(notices_requirement::RemoveRequirementNotice),
+        LinkIssueNotice(notices_requirement::LinkIssueNotice),
+        UnlinkIssueNotice(notices_requirement::UnlinkIssueNotice),
+    }
+
+    pub fn decode_notice(data: &Any) -> Option<Notice> {
+        if data.type_url == notices_requirement::NewRequirementNotice::type_url() {
+            if let Ok(notice) =
+                notices_requirement::NewRequirementNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::NewRequirementNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::UpdateRequirementNotice::type_url() {
+            if let Ok(notice) =
+                notices_requirement::UpdateRequirementNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::UpdateRequirementNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::RemoveRequirementNotice::type_url() {
+            if let Ok(notice) =
+                notices_requirement::RemoveRequirementNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::RemoveRequirementNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::LinkIssueNotice::type_url() {
+            if let Ok(notice) = notices_requirement::LinkIssueNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::LinkIssueNotice(notice));
+            }
+        } else if data.type_url == notices_requirement::UnlinkIssueNotice::type_url() {
+            if let Ok(notice) =
+                notices_requirement::UnlinkIssueNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::UnlinkIssueNotice(notice));
+            }
+        }
+        None
+    }
+}
+
+pub mod testcase {
+    use prost::Message;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::notices_testcase;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    pub enum Notice {
+        NewFolderNotice(notices_testcase::NewFolderNotice),
+        UpdateFolderNotice(notices_testcase::UpdateFolderNotice),
+        RemoveFolderNotice(notices_testcase::RemoveFolderNotice),
+        NewCaseNotice(notices_testcase::NewCaseNotice),
+        UpdateCaseNotice(notices_testcase::UpdateCaseNotice),
+        RemoveCaseNotice(notices_testcase::RemoveCaseNotice),
+        LinkSpritNotice(notices_testcase::LinkSpritNotice),
+        UnlinkSpritNotice(notices_testcase::UnlinkSpritNotice),
+    }
+
+    pub fn decode_notice(data: &Any) -> Option<Notice> {
+        if data.type_url == notices_testcase::NewFolderNotice::type_url() {
+            if let Ok(notice) = notices_testcase::NewFolderNotice::decode(data.value.as_slice()) {
+                return Some(Notice::NewFolderNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::UpdateFolderNotice::type_url() {
+            if let Ok(notice) = notices_testcase::UpdateFolderNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::UpdateFolderNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::RemoveFolderNotice::type_url() {
+            if let Ok(notice) = notices_testcase::RemoveFolderNotice::decode(data.value.as_slice())
+            {
+                return Some(Notice::RemoveFolderNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::NewCaseNotice::type_url() {
+            if let Ok(notice) = notices_testcase::NewCaseNotice::decode(data.value.as_slice()) {
+                return Some(Notice::NewCaseNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::UpdateCaseNotice::type_url() {
+            if let Ok(notice) = notices_testcase::UpdateCaseNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateCaseNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::RemoveCaseNotice::type_url() {
+            if let Ok(notice) = notices_testcase::RemoveCaseNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveCaseNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::LinkSpritNotice::type_url() {
+            if let Ok(notice) = notices_testcase::LinkSpritNotice::decode(data.value.as_slice()) {
+                return Some(Notice::LinkSpritNotice(notice));
+            }
+        } else if data.type_url == notices_testcase::UnlinkSpritNotice::type_url() {
+            if let Ok(notice) = notices_testcase::UnlinkSpritNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UnlinkSpritNotice(notice));
+            }
+        }
+        None
+    }
+}
+
 pub mod client {
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
@@ -376,6 +524,9 @@ pub enum NoticeMessage {
     CommentNotice(comment::Notice),
     BoardNotice(board::Notice),
     ChatNotice(chat::Notice),
+    EntryNotice(entry::Notice),
+    RequirementNotice(requirement::Notice),
+    TestcaseNotice(testcase::Notice),
     ClientNotice(client::Notice),
 }
 
@@ -399,6 +550,15 @@ pub fn decode_notice(data: &Any) -> Option<NoticeMessage> {
     }
     if let Some(ret) = chat::decode_notice(data) {
         return Some(NoticeMessage::ChatNotice(ret));
+    }
+    if let Some(ret) = entry::decode_notice(data) {
+        return Some(NoticeMessage::EntryNotice(ret));
+    }
+    if let Some(ret) = requirement::decode_notice(data) {
+        return Some(NoticeMessage::RequirementNotice(ret));
+    }
+    if let Some(ret) = testcase::decode_notice(data) {
+        return Some(NoticeMessage::TestcaseNotice(ret));
     }
     None
 }

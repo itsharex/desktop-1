@@ -5,6 +5,7 @@ export { MermaidWidget } from './MermaidWidget';
 export { RequirementRefWidget } from "./RequirementRefWidget";
 export { TldrawWidget } from "./TldrawWidget";
 export { SwaggerWidget } from "./SwaggerWidget";
+export { TestcaseRefWidget } from "./TestcaseRefWidget";
 
 import { taskRefWidgetInitData, bugRefWidgetInitData } from './IssueRefWidget';
 import { spritRefWidgetInitData } from './SpritRefWidget';
@@ -12,6 +13,7 @@ import { mermaidWidgetInitData } from './MermaidWidget';
 import { requirementRefWidgetInitData } from './RequirementRefWidget';
 import { tldrawWidgetInitData } from './TldrawWidget';
 import { swaggerWidgetInitData } from './SwaggerWidget';
+import { testcaseRefWidgetInitData } from './TestcaseRefWidget';
 
 export type WIDGET_TYPE = string;
 export const WIDGET_TYPE_REQUIRE_MENT_REF: WIDGET_TYPE = "requirementRef"; //引用项目需求
@@ -21,6 +23,7 @@ export const WIDGET_TYPE_SPRIT_REF: WIDGET_TYPE = "spritRef"; //引用工作计�
 export const WIDGET_TYPE_MERMAID: WIDGET_TYPE = "mermaid";
 export const WIDGET_TYPE_TLDRAW: WIDGET_TYPE = "tldraw";
 export const WIDGET_TYPE_SWAGGER: WIDGET_TYPE = "swagger";
+export const WIDGET_TYPE_TESTCASE_REF: WIDGET_TYPE = "testcaseRef";
 
 export const WidgetTypeList: WIDGET_TYPE[] = [
     WIDGET_TYPE_REQUIRE_MENT_REF,
@@ -30,6 +33,7 @@ export const WidgetTypeList: WIDGET_TYPE[] = [
     WIDGET_TYPE_MERMAID,
     WIDGET_TYPE_TLDRAW,
     WIDGET_TYPE_SWAGGER,
+    WIDGET_TYPE_TESTCASE_REF,
 ];
 
 
@@ -42,3 +46,4 @@ WidgetInitDataMap.set(WIDGET_TYPE_SPRIT_REF, spritRefWidgetInitData);
 WidgetInitDataMap.set(WIDGET_TYPE_MERMAID, mermaidWidgetInitData);
 WidgetInitDataMap.set(WIDGET_TYPE_TLDRAW, tldrawWidgetInitData);
 WidgetInitDataMap.set(WIDGET_TYPE_SWAGGER, swaggerWidgetInitData);
+WidgetInitDataMap.set(WIDGET_TYPE_TESTCASE_REF,testcaseRefWidgetInitData);

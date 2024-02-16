@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type * as NoticeType from '@/api/notice_type'
+import type * as NoticeType from '@/api/notice_type';
 import { listen } from '@tauri-apps/api/event';
 import type { UnlistenFn } from '@tauri-apps/api/event';
 import type { RootStore } from '.';
@@ -49,8 +49,6 @@ class NoticeStore {
         console.log("notice", notice);
         if (notice.ProjectNotice !== undefined) {
           this.processProjectNotice(notice.ProjectNotice);
-        } else if (notice.IssueNotice !== undefined) {
-          this.processIssueNotice(notice.IssueNotice);
         } else if (notice.ClientNotice !== undefined) {
           this.processClientNotice(notice.ClientNotice);
         } else if (notice.IdeaNotice !== undefined) {
@@ -353,88 +351,6 @@ class NoticeStore {
       this.rootStore.projectStore.updateTagList(notice.UpdateTagNotice.project_id);
     } else if (notice.RemoveTagNotice !== undefined) {
       this.rootStore.projectStore.updateTagList(notice.RemoveTagNotice.project_id);
-    } else if (notice.UpdateSpritNotice !== undefined) {
-      if (notice.UpdateSpritNotice.project_id == this.rootStore.projectStore.curProjectId && notice.UpdateSpritNotice.sprit_id == (this.rootStore.entryStore.curEntry?.entry_id ?? "")) {
-        this.rootStore.spritStore.incCurSpritVersion();
-      }
-    }
-  }
-
-  private async processIssueNotice(notice: NoticeType.issue.AllNotice) {
-    if (notice.NewIssueNotice !== undefined) {
-      await this.rootStore.projectStore.updateProjectIssueCount(notice.NewIssueNotice.project_id);
-      if (notice.NewIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        await this.rootStore.memberStore.updateIssueState(notice.NewIssueNotice.project_id, notice.NewIssueNotice.create_user_id);
-      }
-    } else if (notice.SetExecUserNotice !== undefined) {
-      await this.rootStore.projectStore.updateProjectIssueCount(notice.SetExecUserNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.SetExecUserNotice.issue_id);
-      if (notice.SetExecUserNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.SetExecUserNotice.exec_user_id != notice.SetExecUserNotice.old_exec_user_id) {
-          if (notice.SetExecUserNotice.exec_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetExecUserNotice.project_id, notice.SetExecUserNotice.exec_user_id);
-          }
-          if (notice.SetExecUserNotice.old_exec_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetExecUserNotice.project_id, notice.SetExecUserNotice.old_exec_user_id);
-          }
-        }
-      }
-    } else if (notice.SetCheckUserNotice !== undefined) {
-      this.rootStore.projectStore.updateProjectIssueCount(notice.SetCheckUserNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.SetCheckUserNotice.issue_id);
-      if (notice.SetCheckUserNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.SetCheckUserNotice.check_user_id != notice.SetCheckUserNotice.old_check_user_id) {
-          if (notice.SetCheckUserNotice.check_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetCheckUserNotice.project_id, notice.SetCheckUserNotice.check_user_id);
-          }
-          if (notice.SetCheckUserNotice.old_check_user_id != "") {
-            await this.rootStore.memberStore.updateIssueState(notice.SetCheckUserNotice.project_id, notice.SetCheckUserNotice.old_check_user_id);
-          }
-        }
-      }
-    } else if (notice.UpdateIssueNotice !== undefined) {
-      await this.rootStore.spritStore.updateIssue(notice.UpdateIssueNotice.issue_id);
-      if (notice.UpdateIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        //TODO
-      }
-    }
-    else if (notice.UpdateIssueStateNotice !== undefined) {
-      this.rootStore.projectStore.updateProjectIssueCount(notice.UpdateIssueStateNotice.project_id);
-      await this.rootStore.spritStore.updateIssue(notice.UpdateIssueStateNotice.issue_id);
-      if (notice.UpdateIssueStateNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        if (notice.UpdateIssueStateNotice.exec_user_id != "") {
-          await this.rootStore.memberStore.updateIssueState(notice.UpdateIssueStateNotice.project_id, notice.UpdateIssueStateNotice.exec_user_id);
-        }
-        if (notice.UpdateIssueStateNotice.check_user_id != "") {
-          await this.rootStore.memberStore.updateIssueState(notice.UpdateIssueStateNotice.project_id, notice.UpdateIssueStateNotice.check_user_id);
-        }
-        //TODO
-      }
-    } else if (notice.RemoveIssueNotice !== undefined) {
-      await this.rootStore.projectStore.updateProjectIssueCount(notice.RemoveIssueNotice.project_id);
-      await this.rootStore.spritStore.removeIssue(notice.RemoveIssueNotice.issue_id);
-      if (notice.RemoveIssueNotice.create_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.create_user_id);
-      }
-      if (notice.RemoveIssueNotice.exec_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.exec_user_id);
-      }
-      if (notice.RemoveIssueNotice.check_user_id != "") {
-        await this.rootStore.memberStore.updateIssueState(notice.RemoveIssueNotice.project_id, notice.RemoveIssueNotice.check_user_id);
-      }
-      if (notice.RemoveIssueNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        //TODO
-      }
-    } else if (notice.SetSpritNotice !== undefined) {
-      if ((this.rootStore.entryStore.curEntry?.entry_id ?? "") == notice.SetSpritNotice.old_sprit_id) {
-        await this.rootStore.spritStore.removeIssue(notice.SetSpritNotice.issue_id);
-      }
-      if ((this.rootStore.entryStore.curEntry?.entry_id ?? "") == notice.SetSpritNotice.new_sprit_id) {
-        await this.rootStore.spritStore.onNewIssue(notice.SetSpritNotice.issue_id);
-      }
-      if (notice.SetSpritNotice.project_id == this.rootStore.projectStore.curProjectId) {
-        //TODO
-      }
     }
   }
 

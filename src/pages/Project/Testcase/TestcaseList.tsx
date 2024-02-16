@@ -94,7 +94,10 @@ const TestcaseList = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 210px)", overflowY: "scroll", paddingRight: "20px" }}>
                                 {activeKey == "list" && (
-                                    <ListModeContent filterTitle={filterTitle} filterMyWatch={filterMyWatch} />
+                                    <ListModeContent filterTitle={filterTitle} filterMyWatch={filterMyWatch} resetFilter={() => {
+                                        setFilterTitle("");
+                                        setFilterMyWatch(false);
+                                    }} />
                                 )}
                             </div>
                         ),

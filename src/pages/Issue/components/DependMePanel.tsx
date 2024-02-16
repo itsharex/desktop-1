@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { observer } from 'mobx-react';
 import { Table } from 'antd';
 import { request } from '@/utils/request';
 import type { IssueInfo } from '@/api/project_issue';
@@ -9,7 +10,8 @@ import { get_issue_type_str } from '@/api/event_type';
 import { renderState, renderTitle } from "./dependComon";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
 import { useHistory } from "react-router-dom";
-
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 
 interface DependMePanelProps {
@@ -17,7 +19,7 @@ interface DependMePanelProps {
     inModal: boolean;
 }
 
-export const DependMePanel: React.FC<DependMePanelProps> = (props) => {
+export const DependMePanel: React.FC<DependMePanelProps> = observer((props) => {
     const history = useHistory();
 
     const userStore = useStores('userStore');
@@ -79,7 +81,19 @@ export const DependMePanel: React.FC<DependMePanelProps> = (props) => {
         loadIssue();
     }, [props.issueId])
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.IssueNotice?.UpdateIssueDepNotice != undefined && notice.IssueNotice.UpdateIssueDepNotice.dep_issue_id == props.issueId) {
+                loadIssue();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [props.issueId]);
+
     return (
         <Table rowKey={'issue_id'} dataSource={issueList} columns={issueColums} pagination={false} />
     );
-};
+});

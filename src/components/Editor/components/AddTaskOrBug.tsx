@@ -1,3 +1,4 @@
+import { observer } from 'mobx-react';
 import {
   ASSGIN_USER_ALL,
   ISSUE_STATE_CHECK,
@@ -37,6 +38,8 @@ import Pagination from '@/components/Pagination';
 import { getStateColor } from '@/pages/Issue/components/utils';
 import { REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import { list_requirement, list_multi_issue_link } from '@/api/project_requirement';
+import { LocalIssueStore } from '@/stores/local';
+import { useLocalObservable } from 'mobx-react';
 
 
 const PAGE_SIZE = 10;
@@ -54,9 +57,6 @@ type AddTaskOrBugProps = Omit<ModalProps, 'onOk'> & {
 
 const renderTitle = (
   row: IssueInfo,
-  // projectId: string,
-  // linkAuxStore: LinkAuxStore | undefined,
-  // history: History | undefined,
 ) => {
   return (
     <div>
@@ -104,7 +104,8 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
 
   const [activeKey, setActiveKey] = useState('task');
 
-  const [dataSource, setDataSource] = useState<IssueInfo[]>([]);
+  const issueStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+
   const [keyword, setKeyword] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>(props.issueIdList);
   const [includeClose, setIncludeClose] = useState(true);
@@ -160,7 +161,7 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
         limit: PAGE_SIZE,
       }),
     )
-    setDataSource(res.info_list);
+    issueStore.itemList = res.info_list;
     setTotalCount(res.total_count);
   };
 
@@ -182,7 +183,7 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
       filter_by_watch: false,
     }));
     if (reqRes.total_count == 0) {
-      setDataSource([]);
+      issueStore.itemList = [];
       setTotalCount(0);
       return;
     }
@@ -196,7 +197,7 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
       project_id: projectStore.curProjectId,
       issue_id_list: issueIdRes.issue_id_list,
     }));
-    setDataSource(res.info_list);
+    issueStore.itemList = res.info_list;
     setTotalCount(reqRes.total_count);
   };
 
@@ -214,6 +215,12 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
       loadIssueByReq();
     }
   }, [keyword, props.type, curPage, activeKey])
+
+  useEffect(() => {
+    return () => {
+      issueStore.unlisten();
+    };
+  }, []);
 
   const rowSelection = {
     onChange: (keys: React.Key[]) => {
@@ -402,7 +409,7 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
         rowKey={'issue_id'}
         columns={columns}
         scroll={{ x: 950 }}
-        dataSource={dataSource}
+        dataSource={issueStore.itemList}
         pagination={false}
         rowSelection={{
           type: 'checkbox',
@@ -424,4 +431,4 @@ const AddTaskOrBug: FC<AddTaskOrBugProps> = (props) => {
   );
 };
 
-export default AddTaskOrBug;
+export default observer(AddTaskOrBug);

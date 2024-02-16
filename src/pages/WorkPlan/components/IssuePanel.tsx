@@ -23,6 +23,7 @@ import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";
+import type { LocalIssueStore } from "@/stores/local";
 
 interface SubIssuePopoverProps {
     issueId: string;
@@ -87,13 +88,14 @@ interface IssuePanelProps {
     startTime: number;
     endTime: number;
     memberId: string;
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
 }
 
 
 const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const linkAuxStore = useStores('linkAuxStore');
     const memberStore = useStores('memberStore');
     const entryStore = useStores('entryStore');
@@ -104,16 +106,15 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
 
     const cancelLinkSprit = async (issueId: string) => {
         await request(cancel_link_sprit(userStore.sessionId, projectStore.curProjectId, issueId));
-        spritStore.removeIssue(issueId);
     }
 
     const showStage = (issueId: string) => {
-        const bug = spritStore.bugList.find(item => item.issue_id == issueId);
+        const bug = props.bugStore.itemList.find(item => item.issue_id == issueId);
         if (bug !== undefined) {
             setStageIssue(bug);
             return;
         }
-        const task = spritStore.taskList.find(item => item.issue_id == issueId);
+        const task = props.taskStore.itemList.find(item => item.issue_id == issueId);
         if (task !== undefined) {
             setStageIssue(task);
             return;
@@ -340,9 +341,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 itemList={memberSelectItems}
                 onChange={async (value) => {
                     const res = await updateExecUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
-                    if (res) {
-                        spritStore.updateIssue(row.issue_id);
-                    }
                     return res;
                 }} showEditIcon={true} />,
         },
@@ -358,9 +356,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 itemList={memberSelectItems}
                 onChange={async (value) => {
                     const res = await updateCheckUser(userStore.sessionId, row.project_id, row.issue_id, value as string);
-                    if (res) {
-                        spritStore.updateIssue(row.issue_id);
-                    }
                     return res;
                 }} showEditIcon={true} />,
         },
@@ -398,15 +393,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 onChange={async (value) => {
                     if (value === undefined) {
                         const ret = await cancelStartTime(userStore.sessionId, record.project_id, record.issue_id);
-                        if (ret) {
-                            await spritStore.updateIssue(record.issue_id);
-                        }
                         return ret;
                     }
                     const ret = await updateStartTime(userStore.sessionId, record.project_id, record.issue_id, value);
-                    if (ret) {
-                        await spritStore.updateIssue(record.issue_id);
-                    }
                     return ret;
                 }} showEditIcon={true} />,
         },
@@ -426,15 +415,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 onChange={async (value) => {
                     if (value === undefined) {
                         const ret = await cancelEndTime(userStore.sessionId, record.project_id, record.issue_id);
-                        if (ret) {
-                            await spritStore.updateIssue(record.issue_id);
-                        }
                         return ret;
                     }
                     const ret = await updateEndTime(userStore.sessionId, record.project_id, record.issue_id, value);
-                    if (ret) {
-                        await spritStore.updateIssue(record.issue_id);
-                    }
                     return ret;
                 }} showEditIcon={true} />,
         },
@@ -451,15 +434,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 onChange={async (value) => {
                     if (value === undefined) {
                         const ret = await cancelEstimateMinutes(userStore.sessionId, record.project_id, record.issue_id);
-                        if (ret) {
-                            await spritStore.updateIssue(record.issue_id);
-                        }
                         return ret;
                     }
                     const ret = await updateEstimateMinutes(userStore.sessionId, record.project_id, record.issue_id, value as number);
-                    if (ret) {
-                        await spritStore.updateIssue(record.issue_id);
-                    }
                     return ret;
                 }} showEditIcon={true} />
         },
@@ -476,15 +453,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 onChange={async (value) => {
                     if (value === undefined) {
                         const ret = await cancelRemainMinutes(userStore.sessionId, record.project_id, record.issue_id);
-                        if (ret) {
-                            await spritStore.updateIssue(record.issue_id);
-                        }
                         return ret;
                     }
                     const ret = await updateRemainMinutes(userStore.sessionId, record.project_id, record.issue_id, value as number);
-                    if (ret) {
-                        await spritStore.updateIssue(record.issue_id);
-                    }
                     return ret;
                 }} showEditIcon={true} />
         },
@@ -495,7 +466,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
                 <Table
                     rowKey="issue_id"
-                    dataSource={spritStore.taskList.filter(item => {
+                    dataSource={props.taskStore.itemList.filter(item => {
                         if (props.memberId == "") {
                             return true;
                         } else {
@@ -513,7 +484,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             <Card title="缺陷列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
                 <Table
                     rowKey="issue_id"
-                    dataSource={spritStore.bugList.filter(item => {
+                    dataSource={props.bugStore.itemList.filter(item => {
                         if (props.memberId == "") {
                             return true;
                         } else {
@@ -529,12 +500,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             </Card>
             {stageIssue !== null && <StageModel
                 issue={stageIssue}
-                onCancel={() => setStageIssue(null)}
-                onOk={() => {
-                    spritStore.updateIssue(stageIssue.issue_id).then(() => {
-                        setStageIssue(null);
-                    });
-                }}
+                onClose={() => setStageIssue(null)}
             />}
         </div>
     );

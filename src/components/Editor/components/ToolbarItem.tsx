@@ -25,6 +25,7 @@ import {
   WIDGET_TYPE_SPRIT_REF,
   WIDGET_TYPE_TLDRAW,
   WIDGET_TYPE_SWAGGER,
+  WIDGET_TYPE_TESTCASE_REF,
 } from '../widgets/index';
 import type { HeadingExtensionAttributes } from '@remirror/extension-heading';
 import { redoDepth, undoDepth } from '@remirror/pm/history';
@@ -330,6 +331,10 @@ const ContentWidget = observer((props: ContentWidgetProps) => {
         {
           key: WIDGET_TYPE_SPRIT_REF,
           label: '引用工作计划'
+        },
+        {
+          key: WIDGET_TYPE_TESTCASE_REF,
+          label: '引用测试用例'
         }
       ],
     });

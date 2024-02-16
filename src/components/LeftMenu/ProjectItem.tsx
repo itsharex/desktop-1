@@ -14,6 +14,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
 
     const appStore = useStores('appStore');
     const projectStore = useStores('projectStore');
+    const entryStore = useStores('entryStore');
 
     return (
         <div className={cls.project_child_wrap}>
@@ -28,6 +29,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                     if (appStore.inEdit) {
                         appStore.showCheckLeave(() => {
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
@@ -35,6 +37,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                         return;
                     }
                     projectStore.setCurProjectId(item.project_id).then(() => {
+                        entryStore.reset();
                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                         history.push(APP_PROJECT_HOME_PATH);
                     });
@@ -49,6 +52,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST;
                                         history.push(APP_PROJECT_HOME_PATH);
                                     });
@@ -56,6 +60,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
@@ -67,6 +72,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST;
                                         history.push(APP_PROJECT_HOME_PATH);
                                     });
@@ -74,6 +80,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
@@ -85,6 +92,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST;
                                         history.push(APP_PROJECT_HOME_PATH);
                                     });
@@ -92,6 +100,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
@@ -103,6 +112,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST;
                                         history.push(APP_PROJECT_HOME_PATH);
                                     });
@@ -110,6 +120,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST;
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
@@ -121,6 +132,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                         history.push(APP_PROJECT_MY_WORK_PATH);
                                     });
@@ -128,6 +140,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_MY_WORK_PATH);
                             });
@@ -139,6 +152,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             if (appStore.inEdit) {
                                 appStore.showCheckLeave(() => {
                                     projectStore.setCurProjectId(item.project_id).then(() => {
+                                        entryStore.reset();
                                         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                         history.push(APP_PROJECT_OVERVIEW_PATH);
                                     });
@@ -146,6 +160,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 return;
                             }
                             projectStore.setCurProjectId(item.project_id).then(() => {
+                                entryStore.reset();
                                 projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
                                 history.push(APP_PROJECT_OVERVIEW_PATH);
                             });

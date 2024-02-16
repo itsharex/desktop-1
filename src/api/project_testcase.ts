@@ -100,6 +100,13 @@ export type TestResultInfo = {
     update_time: number;
 };
 
+
+export type FolderOrCaseInfo = {
+    id: string;
+    dataType: "folder" | "case";
+    dataValue: FolderInfo | CaseInfo;
+};
+
 export type CreateFolderRequest = {
     session_id: string;
     project_id: string;
@@ -280,6 +287,18 @@ export type ListCaseFlatResponse = {
     code: number;
     err_msg: string;
     count: number;
+    case_list: CaseInfo[];
+};
+
+export type ListCaseByIdRequest = {
+    session_id: string;
+    project_id: string;
+    case_id_list: string[];
+};
+
+export type ListCaseByIdResponse = {
+    code: number;
+    err_msg: string;
     case_list: CaseInfo[];
 };
 
@@ -566,6 +585,15 @@ export async function list_case_flat(request: ListCaseFlatRequest): Promise<List
     const cmd = 'plugin:project_testcase_api|list_case_flat';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListCaseFlatResponse>(cmd, {
+        request,
+    });
+}
+
+// 按Id列出测试条目
+export async function list_case_by_id(request: ListCaseByIdRequest): Promise<ListCaseByIdResponse> {
+    const cmd = 'plugin:project_testcase_api|list_case_by_id';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListCaseByIdResponse>(cmd, {
         request,
     });
 }

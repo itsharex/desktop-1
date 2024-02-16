@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
+import { observer, useLocalObservable } from 'mobx-react';
 import CardWrap from "@/components/CardWrap";
 import s from './RequirementList.module.less';
 import Button from "@/components/Button";
 import { Card, Form, Input, Popover, Select, Space, Switch, Table, message } from "antd";
 import type { RequirementInfo, REQ_SORT_TYPE } from '@/api/project_requirement';
 import {
-    list_requirement, update_requirement, open_requirement, close_requirement, get_requirement,
+    list_requirement, update_requirement, open_requirement, close_requirement,
     REQ_SORT_UPDATE_TIME, REQ_SORT_CREATE_TIME, REQ_SORT_KANO, REQ_SORT_URGENT, REQ_SORT_IMPORTANT,
     update_tag_id_list
 } from '@/api/project_requirement';
@@ -25,6 +25,9 @@ import { PROJECT_SETTING_TAB } from "@/utils/constant";
 import { watch, unwatch, WATCH_TARGET_REQUIRE_MENT } from "@/api/project_watch";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import LinkIssuePanel from "./components/LinkIssuePanel";
+import { LocalRequirementStore } from "@/stores/local";
+import type * as NoticeType from '@/api/notice_type';
+import { listen } from '@tauri-apps/api/event';
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +38,8 @@ const RequirementList = () => {
 
     const history = useHistory();
 
+    const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
+
     const [keyword, setKeyword] = useState("");
     const [hasLinkIssue, setHasLinkIssue] = useState<boolean | null>(null);
     const [filterClosed, setFilterClosed] = useState<boolean | null>(null);
@@ -42,12 +47,10 @@ const RequirementList = () => {
 
     const [curPage, setCurPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-    const [reqInfoList, setReqInfoList] = useState<RequirementInfo[]>([]);
 
     const [filterTagId, setFilterTagId] = useState<string | null>(null);
     const [filterByWatch, setFilterByWatch] = useState(false);
 
-    const [dataVersion, setDataVersion] = useState(0);
 
     const loadReqInfoList = async () => {
         const res = await request(list_requirement({
@@ -67,22 +70,9 @@ const RequirementList = () => {
             filter_by_watch: filterByWatch,
         }));
         setTotalCount(res.total_count);
-        setReqInfoList(res.requirement_list);
+        requirementStore.itemList = res.requirement_list;
     }
 
-    const updateRequirement = async (requirementId: string) => {
-        const res = await request(get_requirement({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            requirement_id: requirementId,
-        }));
-        const tmpList = reqInfoList.slice();
-        const index = tmpList.findIndex(item => item.requirement_id == requirementId);
-        if (index != -1) {
-            tmpList[index] = res.requirement;
-            setReqInfoList(tmpList);
-        }
-    };
 
     const unwatchRequirement = async (requirementId: string) => {
         await request(unwatch({
@@ -91,7 +81,7 @@ const RequirementList = () => {
             target_type: WATCH_TARGET_REQUIRE_MENT,
             target_id: requirementId,
         }));
-        await updateRequirement(requirementId);
+        requirementStore.setWatch(requirementId, false);
     };
 
     const watchRequirement = async (requirementId: string) => {
@@ -101,7 +91,7 @@ const RequirementList = () => {
             target_type: WATCH_TARGET_REQUIRE_MENT,
             target_id: requirementId,
         }));
-        await updateRequirement(requirementId);
+        requirementStore.setWatch(requirementId, true);
     };
 
     const columns: ColumnsType<RequirementInfo> = [
@@ -176,21 +166,7 @@ const RequirementList = () => {
                                 project_id: row.project_id,
                                 requirement_id: row.requirement_id,
                                 tag_id_list: tagIdList,
-                            })).then(() => {
-                                const tmpList = reqInfoList.slice();
-                                const index = tmpList.findIndex(item => item.requirement_id == row.requirement_id);
-                                if (index != -1) {
-                                    tmpList[index].base_info.tag_id_list = tagIdList;
-                                    tmpList[index].tag_info_list = (projectStore.curProject?.tag_list ?? []).filter(tag => tag.use_in_req).filter(tag => tagIdList.includes(tag.tag_id)).map(tag => (
-                                        {
-                                            tag_id: tag.tag_id,
-                                            tag_name: tag.tag_name,
-                                            bg_color: tag.bg_color,
-                                        }
-                                    ));
-                                    setReqInfoList(tmpList);
-                                }
-                            });
+                            }));
                         }} />
 
                 </>
@@ -307,39 +283,59 @@ const RequirementList = () => {
 
     useEffect(() => {
         loadReqInfoList();
-    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch, dataVersion]);
+    }, [curPage, keyword, hasLinkIssue, filterClosed, sortType, filterTagId, filterByWatch]);
 
     useEffect(() => {
-        if (projectStore.projectModal.requirementId == "") {
-            if (filterClosed != null) {
-                setFilterClosed(null);
-            }
-            if (filterTagId != null) {
-                setFilterTagId(null);
-            }
-            if (curPage != 0) {
-                setCurPage(0);
-            } else {
-                setDataVersion(oldValue => oldValue + 1);
-            }
-        }
-    }, [projectStore.projectModal.requirementId])
+        return () => {
+          requirementStore.unlisten();
+        };
+      }, []);
 
     useEffect(() => {
-        if (projectStore.projectModal.createRequirement == false) {
-            if (filterClosed != null) {
-                setFilterClosed(null);
+        //处理新建需求通知
+        const unListenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
+            if (ev.payload.RequirementNotice?.NewRequirementNotice !== undefined) {
+                if (ev.payload.RequirementNotice.NewRequirementNotice.create_user_id == userStore.userInfo.userId && ev.payload.RequirementNotice.NewRequirementNotice.project_id == projectStore.curProjectId) {
+                    let hasChange = false;
+                    if (curPage != 0) {
+                        setCurPage(0);
+                        hasChange = true;
+                    }
+                    if (keyword != "") {
+                        setKeyword("");
+                        hasChange = true;
+                    }
+                    if (hasLinkIssue) {
+                        setHasLinkIssue(false);
+                        hasChange = true;
+                    }
+                    if (filterClosed) {
+                        setFilterClosed(false);
+                        hasChange = true;
+                    }
+                    if (sortType != REQ_SORT_UPDATE_TIME) {
+                        setSortType(REQ_SORT_UPDATE_TIME);
+                        hasChange = true;
+                    }
+                    if (filterTagId != null) {
+                        setFilterTagId(null);
+                        hasChange = true;
+                    }
+                    if (filterByWatch) {
+                        setFilterByWatch(false);
+                        hasChange = true;
+                    }
+                    if (!hasChange) {
+                        loadReqInfoList();
+                    }
+                }
             }
-            if (filterTagId != null) {
-                setFilterTagId(null);
-            }
-            if (curPage != 0) {
-                setCurPage(0);
-            } else {
-                setDataVersion(oldValue => oldValue + 1);
-            }
-        }
-    }, [projectStore.projectModal.createRequirement])
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [])
+
 
     return (
         <CardWrap title="需求列表" extra={
@@ -415,8 +411,8 @@ const RequirementList = () => {
                             </Form.Item>
                         </Form>
                     </Space>}>
-                    <div className={reqInfoList.length == 0 ? "" : s.listWrap}>
-                        <Table rowKey="requirement_id" columns={columns} dataSource={reqInfoList} pagination={false} scroll={{ x: 1800 }}
+                    <div className={requirementStore.itemList.length == 0 ? "" : s.listWrap}>
+                        <Table rowKey="requirement_id" columns={columns} dataSource={requirementStore.itemList} pagination={false} scroll={{ x: 1800 }}
                             expandable={{
                                 expandedRowRender: (row: RequirementInfo) => (
                                     <LinkIssuePanel requirementId={row.requirement_id} inModal={false} />

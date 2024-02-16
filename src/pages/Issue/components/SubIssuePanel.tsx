@@ -8,6 +8,9 @@ import { useStores } from "@/hooks";
 import Button from "@/components/Button";
 import { EditText } from "@/components/EditCell/EditText";
 import { CheckOutlined } from "@ant-design/icons";
+import { observer } from 'mobx-react';
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 interface SybIssuePanelProps {
     issueId: string;
@@ -15,7 +18,7 @@ interface SybIssuePanelProps {
     inModal: boolean;
 }
 
-export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
+export const SubIssuePanel: React.FC<SybIssuePanelProps> = observer((props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
@@ -51,7 +54,6 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
         if (res) {
             message.info("添加子任务成功");
             setShowAddSubIssue(false);
-            await loadSubIssue();
         }
     };
 
@@ -111,7 +113,6 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
                                         title: value.trim(),
                                     },
                                 }));
-                                await loadSubIssue();
                                 return true;
                             } catch (e) {
                                 console.log(e);
@@ -162,6 +163,18 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
         loadSubIssue();
     }, [props.issueId])
 
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.IssueNotice?.UpdateSubIssueNotice != undefined && notice.IssueNotice.UpdateSubIssueNotice.issue_id == props.issueId) {
+                loadSubIssue();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [props.issueId]);
+
     return (
         <Card bordered={false}
             bodyStyle={{ maxHeight: "calc(100vh - 370px)", overflowY: "scroll" }}
@@ -200,4 +213,4 @@ export const SubIssuePanel: React.FC<SybIssuePanelProps> = (props) => {
                 </Modal>)}
         </Card>
     );
-};
+});

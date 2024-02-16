@@ -265,7 +265,7 @@ const CreateModal = () => {
                         }} />
                 </Descriptions.Item>
                 <Descriptions.Item label="截止时间">
-                    <DatePicker style={{ width: "120px" }} allowClear onChange={value => setDeadLineTime(value)} />
+                    <DatePicker style={{ width: "120px" }} allowClear onChange={value => setDeadLineTime(value)} popupStyle={{ zIndex: 10000 }}/>
                 </Descriptions.Item>
             </Descriptions>
         </Modal>

@@ -129,7 +129,7 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
             }}>
             <Form layout="inline">
                 <Form.Item >
-                    <DatePicker.RangePicker popupStyle={{ zIndex: 4000 }}
+                    <DatePicker.RangePicker popupStyle={{ zIndex: 10000 }}
                         onChange={ts => {
                             if (Array.isArray(ts) && ts.length == 2) {
                                 setFromTime(ts[0]?.startOf("day").valueOf() ?? null);

@@ -9,6 +9,7 @@ import { writeBinaryFile, exists, removeFile } from '@tauri-apps/api/fs';
 import { BUG_LEVEL_BLOCKER, BUG_LEVEL_CRITICAL, BUG_LEVEL_MAJOR, BUG_LEVEL_MINOR, BUG_PRIORITY_HIGH, BUG_PRIORITY_IMMEDIATE, BUG_PRIORITY_LOW, BUG_PRIORITY_NORMAL, BUG_PRIORITY_URGENT, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO, TASK_PRIORITY_HIGH, TASK_PRIORITY_LOW, TASK_PRIORITY_MIDDLE, type IssueInfo } from "@/api/project_issue";
 import { request } from "@/utils/request";
 import { list_summary_item } from "@/api/project_sprit";
+import type { LocalIssueStore } from "@/stores/local";
 
 type IssueItem = {
     issueIndex: number;
@@ -60,13 +61,14 @@ const IssueColumns = [
 ];
 
 export interface ExportModalProps {
+    taskStore: LocalIssueStore;
+    bugStore: LocalIssueStore;
     onClose: () => void;
 }
 
 const ExportModal = (props: ExportModalProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const spritStore = useStores('spritStore');
     const entryStore = useStores('entryStore');
 
     const [exportTask, setExportTask] = useState(true);
@@ -166,7 +168,7 @@ const ExportModal = (props: ExportModalProps) => {
             { header: "软件版本", key: "softwareVersion", width: 14 },
             { header: "缺陷级别", key: "level", width: 14 },
         ];
-        for (const issue of spritStore.bugList) {
+        for (const issue of props.bugStore.itemList) {
             const item = convertIssueItem(issue);
             let priority = "";
             let level = "";
@@ -219,7 +221,7 @@ const ExportModal = (props: ExportModalProps) => {
             ...IssueColumns,
             { header: "优先级", key: "priority", width: 14 },
         ];
-        for (const issue of spritStore.taskList) {
+        for (const issue of props.taskStore.itemList) {
             const item = convertIssueItem(issue);
             let priority = "";
             if (issue.extra_info.ExtraTaskInfo != undefined) {
