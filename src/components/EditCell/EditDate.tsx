@@ -37,6 +37,7 @@ export const EditDate: React.FC<EditDateProps> = (props) => {
                 <Space>
                     <DatePicker
                         disabledDate={props.disabledDate}
+                        popupStyle={{ zIndex: 10000 }}
                         autoFocus
                         allowClear={false}
                         open={true}

@@ -46,6 +46,9 @@ export const Widget: React.FC<WidgetProps> = (props) => {
     case widgets.WIDGET_TYPE_SWAGGER: {
       return <widgets.SwaggerWidget {...widgetProps} />
     }
+    case widgets.WIDGET_TYPE_TESTCASE_REF: {
+      return <widgets.TestcaseRefWidget {...widgetProps}/>
+    }
     default: {
       return <div>不支持的插件</div>;
     }

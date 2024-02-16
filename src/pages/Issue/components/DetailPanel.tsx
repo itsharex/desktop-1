@@ -6,7 +6,7 @@ import { FILE_OWNER_TYPE_ISSUE } from "@/api/fs";
 import type { IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
 import { ISSUE_STATE_PROCESS, ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO, get as get_issue, remove as remove_issue } from "@/api/project_issue";
 import { request } from "@/utils/request";
-import { Button, Card, Form, Popover, Space, Tooltip, message } from "antd";
+import { Button, Card, Descriptions, Popover, Space, Tooltip, message } from "antd";
 import { EditText } from "@/components/EditCell/EditText";
 import { EditOutlined, MoreOutlined } from "@ant-design/icons";
 import { cancelDeadLineTime, cancelEndTime, cancelEstimateMinutes, cancelRemainMinutes, cancelStartTime, getMemberSelectItems, getStateColor, updateCheckUser, updateDeadLineTime, updateEndTime, updateEstimateMinutes, updateExecUser, updateExtraInfo, updateProcessStage, updateRemainMinutes, updateStartTime, updateTitle } from "./utils";
@@ -153,9 +153,10 @@ const DetailPanel = () => {
                             </div>
                         )}
                     </Card>
-                    <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>其他配置</span>} headStyle={{ padding: "0px 10px" }} bordered={false} >
-                        <Form labelCol={{ span: 3 }}>
-                            <Form.Item label="当前状态">
+                    <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>其他配置</span>} headStyle={{ padding: "0px 10px" }} bordered={false}
+                        bodyStyle={{ padding: "0px 0px" }}>
+                        <Descriptions bordered>
+                            <Descriptions.Item label="当前状态">
                                 <div
                                     tabIndex={0}
                                     style={{
@@ -181,9 +182,9 @@ const DetailPanel = () => {
                                     <Tooltip title={`${issueInfo.user_issue_perm.next_state_list.length > 0 ? "" : "请等待同事更新状态"}`}>{issueState[issueInfo.state].label}</Tooltip>
                                     {(!projectStore.isClosed) && issueInfo.user_issue_perm.next_state_list.length > 0 && <a><EditOutlined /></a>}
                                 </div>
-                            </Form.Item>
+                            </Descriptions.Item>
                             {issueInfo.state == ISSUE_STATE_PROCESS && (
-                                <Form.Item label="处理子阶段">
+                                <Descriptions.Item label="处理子阶段">
                                     <EditSelect
                                         allowClear={false}
                                         editable={(!projectStore.isClosed) && (userStore.userInfo.userId == issueInfo.exec_user_id)}
@@ -207,11 +208,11 @@ const DetailPanel = () => {
                                         ]} onChange={async (value) => {
                                             return await updateProcessStage(userStore.sessionId, projectStore.curProjectId, issueInfo.issue_id, value as PROCESS_STAGE);
                                         }} showEditIcon={true} />
-                                </Form.Item>
+                                </Descriptions.Item>
                             )}
                             {projectStore.projectModal.issueType == ISSUE_TYPE_BUG && (
                                 <>
-                                    <Form.Item label="级别">
+                                    <Descriptions.Item label="级别">
                                         <EditSelect
                                             allowClear={false}
                                             editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update}
@@ -224,8 +225,8 @@ const DetailPanel = () => {
                                                     },
                                                 });
                                             }} showEditIcon={true} />
-                                    </Form.Item>
-                                    <Form.Item label="优先级">
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="优先级">
                                         <EditSelect
                                             allowClear={false}
                                             editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update}
@@ -240,8 +241,8 @@ const DetailPanel = () => {
                                                 });
 
                                             }} showEditIcon={true} />
-                                    </Form.Item>
-                                    <Form.Item label="软件版本">
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="软件版本">
                                         <EditText editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update}
                                             content={issueInfo.extra_info.ExtraBugInfo?.software_version ?? ""}
                                             onChange={async (value: string) => {
@@ -252,11 +253,11 @@ const DetailPanel = () => {
                                                     },
                                                 });
                                             }} showEditIcon={true} />
-                                    </Form.Item>
+                                    </Descriptions.Item>
                                 </>
                             )}
                             {projectStore.projectModal.issueType == ISSUE_TYPE_TASK && (
-                                <Form.Item label="优先级">
+                                <Descriptions.Item label="优先级">
                                     <EditSelect
                                         allowClear={false}
                                         editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update}
@@ -271,9 +272,9 @@ const DetailPanel = () => {
                                             });
 
                                         }} showEditIcon={true} />
-                                </Form.Item>
+                                </Descriptions.Item>
                             )}
-                            <Form.Item label="处理人">
+                            <Descriptions.Item label="处理人">
                                 <EditSelect
                                     allowClear={false}
                                     editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_assign_exec_user}
@@ -286,8 +287,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="验收人">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="验收人">
                                 <EditSelect
                                     allowClear={false}
                                     editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_assign_check_user}
@@ -300,8 +301,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="截止时间">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="截止时间">
                                 <EditDate
                                     editable={(!projectStore.isClosed) && projectStore.isAdmin && issueInfo.user_issue_perm.can_update}
                                     hasTimeStamp={issueInfo.has_dead_line_time}
@@ -320,8 +321,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="预估开始时间">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="预估开始时间">
                                 <EditDate
                                     editable={(!projectStore.isClosed) && issueInfo.exec_user_id == userStore.userInfo.userId && issueInfo.state == ISSUE_STATE_PROCESS}
                                     hasTimeStamp={issueInfo.has_start_time}
@@ -340,8 +341,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="预估完成时间">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="预估完成时间">
                                 <EditDate
                                     editable={(!projectStore.isClosed) && (issueInfo.exec_user_id == userStore.userInfo.userId) && (issueInfo.state == ISSUE_STATE_PROCESS)}
                                     hasTimeStamp={issueInfo.has_end_time}
@@ -360,8 +361,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="预估工时">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="预估工时">
                                 <EditSelect
                                     allowClear={true}
                                     editable={(!projectStore.isClosed) && (issueInfo.exec_user_id == userStore.userInfo.userId) && (issueInfo.state == ISSUE_STATE_PROCESS)}
@@ -381,8 +382,8 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                            <Form.Item label="剩余工时">
+                            </Descriptions.Item>
+                            <Descriptions.Item label="剩余工时">
                                 <EditSelect
                                     allowClear={true}
                                     editable={(!projectStore.isClosed) && (issueInfo.exec_user_id == userStore.userInfo.userId) && (issueInfo.state == ISSUE_STATE_PROCESS)}
@@ -402,8 +403,9 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
-                            </Form.Item>
-                        </Form>
+                            </Descriptions.Item>
+                        </Descriptions>
+
                         {showStageModal && (
                             <StageModel
                                 issue={issueInfo}
