@@ -82,7 +82,7 @@ const Toolbar: React.FC = observer(() => {
         <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
           e.stopPropagation();
           e.preventDefault();
-          projectStore.showChatAndComment = !projectStore.showChatAndComment;
+          projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
         }}>
           <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0)} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
             <MessageTwoTone style={{ fontSize: "24px" }} twoToneColor={projectStore.showChatAndComment ? ["white", "orange"] : ["white", "#929CB0"]} />

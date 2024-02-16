@@ -80,7 +80,7 @@ export default class ProjectStore {
 
       this.setCodeCommentInfo("", "");
       this.showProjectSetting = null;
-      this.showChatAndComment = false;
+      this.setShowChatAndComment(false, "chat");
       this.projectHome.contentActiveKey = "folder";
       this.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
     }
@@ -480,16 +480,22 @@ export default class ProjectStore {
 
   //显示沟通和评论
   private _showChatAndComment: boolean = false;
+  private _showChatAndCommentTab: "chat" | "comment" | "member" = "chat";
 
   get showChatAndComment(): boolean {
     return this._showChatAndComment;
   }
 
-  set showChatAndComment(val: boolean) {
+  get showChatAndCommentTab(): "chat" | "comment" | "member" {
+    return this._showChatAndCommentTab;
+  }
+
+  setShowChatAndComment(val: boolean, tab: "chat" | "comment" | "member") {
     runInAction(() => {
       this._showChatAndComment = val;
+      this._showChatAndCommentTab = tab;
     });
-    if (val) {
+    if (val && tab == "chat") {
       this.curProject?.chat_store.loadGroupMember();
       this.curProject?.chat_store.loadLastMsg();
     }

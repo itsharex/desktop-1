@@ -5,21 +5,26 @@ import UnreadCommentList from "./UnreadCommentList";
 import { useStores } from "@/hooks";
 import ChatGroupList from "./ChatGroupList";
 import Button from "@/components/Button";
-import { DeleteOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, UserSwitchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, UserAddOutlined, UserSwitchOutlined } from "@ant-design/icons";
 import SelectGroupMemberModal from "./components/SelectGroupMemberModal";
 import { create_group, update_group, update_group_member, leave_group, remove_group } from "@/api/project_chat";
 import { request } from "@/utils/request";
 import ChatMsgList from "./ChatMsgList";
+import InviteListModal from "./components/InviteListModal";
+import MemberList from "./MemberList";
+import MemberDetail from "./MemberDetail";
 
 const ChatAndCommentPanel = () => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
+    const memberStore = useStores('memberStore');
+    const appStore = useStores('appStore');
 
-    const [activeKey, setActiveKey] = useState("chat");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
     const [showUpdateGroupModal, setShowUpdateGroupModal] = useState(false);
     const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
     const [showRemoveGroupModal, setShowRemoveGroupModal] = useState(false);
+    const [showInviteListModal, setShowInviteListModal] = useState(false);
 
     const createChatGroup = async (newTitle: string, newUserIdList: string[]) => {
         if (newUserIdList.length < 2) {
@@ -83,8 +88,8 @@ const ChatAndCommentPanel = () => {
         <>
             <Tabs style={{ width: "100%" }} type="card"
                 tabBarStyle={{ height: "45px", marginBottom: "0px" }}
-                activeKey={activeKey}
-                onChange={key => setActiveKey(key)}
+                activeKey={projectStore.showChatAndCommentTab}
+                onChange={key => projectStore.setShowChatAndComment(true, (key as ("chat" | "comment" | "member")))}
                 items={[
                     {
                         key: "chat",
@@ -96,7 +101,7 @@ const ChatAndCommentPanel = () => {
                             </div>),
                         children: (
                             <div style={{ height: "calc(100vh - 136px)", overflowY: projectStore.curProject?.chat_store.curGroupId == "" ? "auto" : "hidden" }}>
-                                {activeKey == "chat" && (
+                                {projectStore.showChatAndCommentTab == "chat" && (
                                     <>
                                         {projectStore.curProjectId != "" && projectStore.curProject?.chat_store.curGroupId == "" && <ChatGroupList />}
                                         {projectStore.curProjectId != "" && projectStore.curProject?.chat_store.curGroupId != "" && <ChatMsgList />}
@@ -115,14 +120,28 @@ const ChatAndCommentPanel = () => {
                             </div>),
                         children: (
                             <div style={{ height: "calc(100vh - 136px)", overflowY: "auto" }}>
-                                {activeKey == "comment" && (<UnreadCommentList />)}
+                                {projectStore.showChatAndCommentTab == "comment" && (<UnreadCommentList />)}
+                            </div>
+                        ),
+                    },
+                    {
+                        key: "member",
+                        label: "项目成员",
+                        children: (
+                            <div style={{ height: "calc(100vh - 136px)", overflowY: "hidden" }}>
+                                {projectStore.showChatAndCommentTab == "member" && (
+                                    <>
+                                        {projectStore.curProjectId != "" && memberStore.showDetailMemberId == "" && <MemberList />}
+                                        {projectStore.curProjectId != "" && memberStore.showDetailMemberId != "" && <MemberDetail />}
+                                    </>
+                                )}
                             </div>
                         ),
                     },
 
                 ]} tabBarExtraContent={
                     <div style={{ marginRight: "10px" }}>
-                        {activeKey == "chat" && (
+                        {projectStore.showChatAndCommentTab == "chat" && (
                             <>
                                 {projectStore.curProjectId != "" && projectStore.curProject?.chat_store.curGroupId == "" && (
                                     <Button type="link" icon={<PlusOutlined />} onClick={e => {
@@ -172,6 +191,32 @@ const ChatAndCommentPanel = () => {
                                 )}
                             </>
                         )}
+                        {projectStore.showChatAndCommentTab == "member" && (
+                            <>
+                                {!(projectStore.curProject?.closed) && projectStore.isAdmin && appStore.clientCfg?.can_invite && (
+                                    <Space>
+                                        <Button style={{ minWidth: 0 }} icon={<UserAddOutlined />}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                memberStore.showInviteMember = true;
+                                            }}>邀请成员</Button>
+                                        <Popover trigger="click" placement="bottom" content={
+                                            <div style={{ padding: "10px 10px" }}>
+                                                <Button type="link" onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    setShowInviteListModal(true);
+                                                }}>查看未过期邀请记录</Button>
+                                            </div>
+                                        }>
+                                            <MoreOutlined />
+                                        </Popover>
+                                    </Space>
+                                )}
+                            </>
+
+                        )}
                     </div>
                 } />
             {showCreateGroupModal == true && (
@@ -203,18 +248,21 @@ const ChatAndCommentPanel = () => {
             {showRemoveGroupModal == true && projectStore.curProject != undefined && projectStore.curProject.chat_store.curGroup != undefined && (
                 <Modal open title="删除沟通群"
                     okText="删除" okButtonProps={{ danger: true }}
-                    onCancel={e=>{
+                    onCancel={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         setShowRemoveGroupModal(false);
                     }}
-                    onOk={e=>{
+                    onOk={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         removeGroup();
                     }}>
                     是否删除沟通群{projectStore.curProject.chat_store.curGroup.groupInfo.title}?
                 </Modal>
+            )}
+            {showInviteListModal == true && (
+                <InviteListModal onClose={() => setShowInviteListModal(false)} />
             )}
         </>
     );

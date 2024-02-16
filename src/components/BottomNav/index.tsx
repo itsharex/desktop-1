@@ -1,4 +1,4 @@
-import { Button,Popover,Tooltip } from 'antd';
+import { Button, Tooltip } from 'antd';
 import React from 'react';
 import s from './index.module.less';
 import {
@@ -10,7 +10,6 @@ import { SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react';
 import AlarmHeader from './AlarmHeader';
 import ProjectTipList from '../Header/ProjectTipList';
-import MemberList from './MemberList';
 
 const RightFloat = observer(() => {
   const projectStore = useStores('projectStore');
@@ -21,16 +20,6 @@ const RightFloat = observer(() => {
       <div className={s.member_wrap}>
         {location.pathname.startsWith(APP_PROJECT_OVERVIEW_PATH) && (
           <UserOutlined />
-        )}
-        {location.pathname.startsWith(APP_PROJECT_OVERVIEW_PATH) == false && (
-          <Popover
-            trigger="hover" placement="topLeft" destroyTooltipOnHide
-            mouseLeaveDelay={1}
-            content={
-              <MemberList />
-            }>
-            <UserOutlined />
-          </Popover>
         )}
       </div>
       {projectStore.isAdmin && (

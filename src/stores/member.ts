@@ -25,6 +25,10 @@ export class WebMemberInfo {
   last_event?: PluginEvent = undefined;
   issue_member_state?: IssueMemberState = undefined;
   short_note_list: ShortNote[] = [];
+
+  get member_user_id() {
+    return this.member.member_user_id;
+  }
 }
 
 class MemberStore {
@@ -37,6 +41,7 @@ class MemberStore {
   private _memberMap: Map<string, WebMemberInfo> = new Map();
 
 
+
   async loadMemberList(projectId: string) {
     const res = await request(
       list_member(this.rootStore.userStore.sessionId, projectId, false, []),
@@ -44,6 +49,7 @@ class MemberStore {
     if (!res) {
       return;
     }
+    this.showDetailMemberId = "";
     //跳转member列表顺序
     const tmpMemberList = res.member_list.filter(item => item.member_user_id == this.rootStore.userStore.userInfo.userId);
     res.member_list.filter(item => item.member_user_id != this.rootStore.userStore.userInfo.userId).forEach(item => tmpMemberList.push(item));
@@ -225,8 +231,9 @@ class MemberStore {
       const memberList = this._memberList.slice();
       const index = memberList.findIndex((item) => item.member.project_id == projectId && item.member.member_user_id == memberUserId);
       if (index == -1) {
-        memberList.push({ member: res.member, short_note_list: [] });
-        this._memberMap.set(memberUserId, { member: res.member, short_note_list: [] });
+        const newMember = new WebMemberInfo(res.member);
+        memberList.push(newMember);
+        this._memberMap.set(memberUserId, newMember);
       } else {
         memberList[index].member = res.member;
         const memberInfo = this._memberMap.get(memberUserId);

@@ -434,7 +434,7 @@ const ProjectQuickAccess = () => {
         if (info.key.startsWith(MENU_KEY_MEMBER_PREFIX)) {
             const memberUserId = info.key.substring(MENU_KEY_MEMBER_PREFIX.length);
             memberStore.showDetailMemberId = memberUserId;
-            history.push(APP_PROJECT_OVERVIEW_PATH);
+            projectStore.setShowChatAndComment(true, "member");
         }
     }
 
