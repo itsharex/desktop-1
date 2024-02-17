@@ -351,6 +351,7 @@ const ProjectQuickAccess = () => {
     const onMenuClick = async (info: MenuInfo) => {
         switch (info.key) {
             case MENU_KEY_SHOW_INVITE_MEMBER:
+                projectStore.setShowChatAndComment(true, "member");
                 memberStore.showInviteMember = true;
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_IDEA:
@@ -434,7 +435,7 @@ const ProjectQuickAccess = () => {
         if (info.key.startsWith(MENU_KEY_MEMBER_PREFIX)) {
             const memberUserId = info.key.substring(MENU_KEY_MEMBER_PREFIX.length);
             memberStore.showDetailMemberId = memberUserId;
-            history.push(APP_PROJECT_OVERVIEW_PATH);
+            projectStore.setShowChatAndComment(true, "member");
         }
     }
 

@@ -31,7 +31,7 @@ const TestcaseList = () => {
             subWidth += 200;
         }
         if (projectStore.showChatAndComment) {
-            subWidth += 300;
+            subWidth += 400;
         }
         return `calc(100vw - ${subWidth}px)`;
     };

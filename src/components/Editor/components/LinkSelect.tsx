@@ -4,7 +4,7 @@ import type { ModalProps } from 'antd';
 import { Button } from 'antd';
 import { Modal, Input } from 'antd';
 import type { LinkInfo } from '@/stores/linkAux';
-import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkDataAnnoInfo } from '@/stores/linkAux';
+import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkDataAnnoInfo, LinkTestCaseInfo } from '@/stores/linkAux';
 import { useStores } from '@/hooks';
 import {
   list as list_issue,
@@ -23,11 +23,12 @@ import { list_requirement, REQ_SORT_UPDATE_TIME } from '@/api/project_requiremen
 import type { EntryInfo } from "@/api/project_entry";
 import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { CheckOutlined } from '@ant-design/icons';
-import { LocalIssueStore, LocalRequirementStore } from '@/stores/local';
+import { LocalIssueStore, LocalRequirementStore, LocalTestcaseStore } from '@/stores/local';
+import { list_case_flat } from '@/api/project_testcase';
 
 const PAGE_SIZE = 6;
 
-type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "sprit" | "board" | "apicoll" | "dataanno" | "externe";
+type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "testcase" | "sprit" | "board" | "apicoll" | "dataanno" | "externe";
 
 export interface LinkSelectProps {
   title: string;
@@ -35,6 +36,7 @@ export interface LinkSelectProps {
   showRequirement: boolean;
   showTask: boolean;
   showBug: boolean;
+  showTestcase: boolean;
   showSprit: boolean;
   showBoard: boolean;
   showApiColl: boolean;
@@ -59,6 +61,8 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     defaultTab = 'task';
   } else if (props.showBug) {
     defaultTab = 'bug';
+  } else if (props.showTestcase) {
+    defaultTab = "testcase";
   } else if (props.showSprit) {
     defaultTab = "sprit";
   } else if (props.showBoard) {
@@ -74,6 +78,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   const requirementStore = useLocalObservable(() => new LocalRequirementStore(userStore.sessionId, projectStore.curProjectId));
   const taskStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
   const bugStore = useLocalObservable(() => new LocalIssueStore(userStore.sessionId, projectStore.curProjectId, ""));
+  const testcaseStore = useLocalObservable(() => new LocalTestcaseStore(userStore.sessionId, projectStore.curProjectId, ""));
 
   const [docList, setDocList] = useState([] as EntryInfo[]);
   const [spritList, setSpritList] = useState([] as EntryInfo[]);
@@ -121,6 +126,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     tabList.push({
       label: '缺陷',
       value: 'bug',
+    });
+  }
+  if (props.showTestcase) {
+    tabList.push({
+      label: '测试用例',
+      value: 'testcase',
     });
   }
   if (props.showApiColl) {
@@ -217,6 +228,30 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   }, [tab, keyword, myWatch, curPage]);
 
   useEffect(() => {
+    if (tab != "testcase") {
+      return;
+    }
+    request(list_case_flat({
+      session_id: userStore.sessionId,
+      project_id: projectStore.curProjectId,
+      list_param: {
+        filter_by_title: keyword != '',
+        title: keyword,
+        my_watch: myWatch,
+      },
+      offset: curPage * PAGE_SIZE,
+      limit: PAGE_SIZE,
+    })).then((res) => {
+      testcaseStore.itemList = res.case_list.map(item => ({
+        id: item.case_id,
+        dataType: "case",
+        dataValue: item,
+      }))
+      setTotalCount(res.count);
+    })
+  }, [tab, keyword, myWatch, curPage]);
+
+  useEffect(() => {
     if (["doc", "board", "sprit", "apicoll", "dataanno"].includes(tab) == false) {
       return;
     }
@@ -304,6 +339,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   useEffect(() => {
     return () => {
       requirementStore.unlisten();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      testcaseStore.unlisten();
     };
   }, []);
 
@@ -485,6 +526,36 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                 e.preventDefault();
                 props.onOk(new LinkBugInfo(item.basic_info.title, projectStore.curProjectId, item.issue_id));
               }}>{item.issue_index}&nbsp;&nbsp;{item.basic_info.title}</List.Item>
+            )} />
+        </Card>
+      );
+    } else if (props.showTestcase && tab == "testcase") {
+      return (
+        <Card bordered={false} title="测试用例"
+          extra={
+            <Form layout='inline'>
+              <Form.Item label="我的关注">
+                <Checkbox checked={myWatch} onChange={e => {
+                  e.stopPropagation();
+                  setMyWatch(e.target.checked);
+                }} />
+              </Form.Item>
+              <Form.Item label="标题">
+                <Input value={keyword} onChange={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setKeyword(e.target.value.trim());
+                }} />
+              </Form.Item>
+            </Form>
+          }>
+          <List rowKey="id" dataSource={testcaseStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+            renderItem={item => (
+              <List.Item style={{ cursor: "pointer" }} onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.onOk(new LinkTestCaseInfo(item.dataValue.title, projectStore.curProjectId, item.id));
+              }}>{item.dataValue.title}</List.Item>
             )} />
         </Card>
       );

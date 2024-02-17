@@ -1,4 +1,4 @@
-import type { IssueInfo } from "@/api/project_issue";
+import type { ISSUE_TYPE, IssueInfo } from "@/api/project_issue";
 import { get as get_issue } from "@/api/project_issue";
 import { makeAutoObservable, runInAction } from "mobx";
 import { listen, type UnlistenFn, type Event } from '@tauri-apps/api/event';
@@ -6,10 +6,11 @@ import type * as NoticeType from '@/api/notice_type';
 import { request } from "@/utils/request";
 
 export class LocalIssueStore {
-    constructor(sessionId: string, projectId: string, spritId: string) {
+    constructor(sessionId: string, projectId: string, spritId: string, issueType: ISSUE_TYPE | null = null) {
         this._sessionId = sessionId;
         this._projectId = projectId;
         this._spritId = spritId;
+        this._issueType = issueType;
         makeAutoObservable(this);
         listen<NoticeType.AllNotice>('notice', (ev) => {
             this.processEvent(ev);
@@ -19,6 +20,7 @@ export class LocalIssueStore {
     private _sessionId: string;
     private _projectId: string;
     private _spritId: string;
+    private _issueType: ISSUE_TYPE | null;
     private _unlistenFn: UnlistenFn | null = null;
 
     private _itemList = [] as IssueInfo[];
@@ -53,6 +55,9 @@ export class LocalIssueStore {
                     this.itemList = tmpList;
                 } else if (ev.payload.IssueNotice.SetSpritNotice.old_sprit_id != this._spritId && ev.payload.IssueNotice.SetSpritNotice.new_sprit_id == this._spritId) {
                     const res = await request(get_issue(this._sessionId, this._projectId, issueId));
+                    if (this._issueType != null && this._issueType != res.info.issue_type) {
+                        return;
+                    }
                     const tmpList = this._itemList.slice();
                     tmpList.unshift(res.info);
                     this.itemList = tmpList;

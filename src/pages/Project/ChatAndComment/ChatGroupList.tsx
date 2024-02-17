@@ -43,7 +43,7 @@ const ChatGroupList = () => {
                         </>
                     }>
                     {item.lastMsg != null && (
-                        <Space style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "250px" }}>
+                        <Space style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "350px" }}>
                             <UserPhoto logoUri={item.lastMsg.send_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
                             <span>{item.lastMsg.send_display_name}:</span>
                             <div title={get_content_text(item.lastMsg.content)}>{get_content_text(item.lastMsg.content)}</div>

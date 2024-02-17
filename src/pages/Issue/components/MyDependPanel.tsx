@@ -168,6 +168,7 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = observer((props) => {
                     showRequirement={false}
                     showTask={true}
                     showBug={true}
+                    showTestcase={false}
                     showExterne={false}
                     showApiColl={false}
                     showBoard={false}

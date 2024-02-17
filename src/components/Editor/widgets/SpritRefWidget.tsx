@@ -14,7 +14,7 @@ import { request } from '@/utils/request';
 import { issueState, ISSUE_STATE_COLOR_ENUM } from '@/utils/constant';
 import moment from 'moment';
 import s from './IssueRefWidget.module.less';
-import { LinkOutlined,  } from '@ant-design/icons';
+import { LinkOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { LinkBugInfo, LinkSpritInfo, LinkTaskInfo } from '@/stores/linkAux';
 import type { EntryInfo } from "@/api/project_entry"
