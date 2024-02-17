@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { observer } from 'mobx-react';
 import { Button, Card, Popover, Space } from "antd";
 import { useStores } from "@/hooks";
-import { InfoCircleOutlined, RollbackOutlined } from "@ant-design/icons";
+import { DoubleLeftOutlined, InfoCircleOutlined, RollbackOutlined } from "@ant-design/icons";
 import { get_content_text, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
 import { LIST_MSG_AFTER, LIST_MSG_BEFORE, send_msg, clear_unread } from "@/api/project_chat";
@@ -139,15 +139,15 @@ const ChatMsgList = () => {
 
     return (
         <Card title={
-            <Space>
-                <Button type="link" icon={<RollbackOutlined />} onClick={e => {
+            <Space size="small">
+                <Button type="link" icon={<DoubleLeftOutlined />} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
                     if (projectStore.curProject !== undefined) {
                         projectStore.curProject.chat_store.curGroupId = "";
                     }
-                }} style={{ minWidth: 0, padding: "0px 0px" }} />
-                {projectStore.curProject?.chat_store.curGroup?.groupInfo.title ?? ""}
+                }} style={{ minWidth: 0, padding: "0px 0px" }} title="返回"/>
+                <span style={{ fontSize: "16px", fontWeight: 600 }}>{projectStore.curProject?.chat_store.curGroup?.groupInfo.title ?? ""}</span>
             </Space>
         }
             headStyle={{ padding: "0px 0px" }} bordered={false}
