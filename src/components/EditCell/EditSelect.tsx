@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Select } from 'antd';
 import { EditOutlined } from "@ant-design/icons";
 
@@ -33,6 +33,12 @@ export const EditSelect: React.FC<EditSelectProps> = (props) => {
             </span>
         );
     }
+
+    useEffect(() => {
+        if (!inEdit) {
+            setCurValue(props.curValue);
+        }
+    }, [props.curValue]);
 
     return (
         <span onClick={e => {

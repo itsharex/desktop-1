@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Space } from 'antd'
 import { EditOutlined } from "@ant-design/icons";
 import Button from "../Button";
@@ -15,6 +15,11 @@ export const EditTextArea: React.FC<EditTextAreaProps> = (props) => {
     const [inEdit, setInEdit] = useState(false);
     const [content, setContent] = useState(props.content);
 
+    useEffect(() => {
+        if (!inEdit) {
+            setContent(props.content);
+        }
+    }, [props.content]);
 
     return (
         <span onClick={e => {
