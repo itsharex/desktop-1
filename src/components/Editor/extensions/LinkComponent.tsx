@@ -12,6 +12,7 @@ import type {
   LinkBoardInfo,
   LinkApiCollInfo,
   LinkDataAnnoInfo,
+  LinkTestCaseInfo,
 } from '@/stores/linkAux';
 import { LINK_TARGET_TYPE } from '@/stores/linkAux';
 import { useStores } from '@/hooks';
@@ -23,6 +24,7 @@ import { LinkOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { get_requirement } from '@/api/project_requirement';
 import { get_session } from '@/api/user';
 import { get as get_entry } from "@/api/project_entry";
+import { get_case } from "@/api/project_testcase";
 
 const Link: React.FC<{
   link: LinkInfo;
@@ -69,6 +71,18 @@ const Link: React.FC<{
       const res = await request(get_issue(sessionId, bugLink.projectId, bugLink.issueId));
       if (res) {
         setTitle('缺陷:' + res.info.basic_info.title);
+      }
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE) {
+      setTitle('测试用例:' + link.linkContent);
+      const testcaseLink = link as unknown as LinkTestCaseInfo;
+      const res = await request(get_case({
+        session_id: sessionId,
+        project_id: testcaseLink.projectId,
+        case_id: testcaseLink.testCaseId,
+        sprit_id: "",
+      }));
+      if (res) {
+        setTitle('测试用例:' + res.case_detail.case_info.title);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DOC) {
       setTitle('文档:' + link.linkContent);

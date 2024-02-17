@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { observer } from 'mobx-react';
 import { Button, Card, Popover, Space } from "antd";
 import { useStores } from "@/hooks";
-import { DoubleLeftOutlined, InfoCircleOutlined, RollbackOutlined } from "@ant-design/icons";
+import { DoubleLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { get_content_text, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
 import { LIST_MSG_AFTER, LIST_MSG_BEFORE, send_msg, clear_unread } from "@/api/project_chat";
@@ -13,7 +13,6 @@ import GroupMemberList from "./components/GroupMemberList";
 const ChatMsgList = () => {
     const userStore = useStores("userStore");
     const projectStore = useStores('projectStore');
-
 
     const msgListDiv = useRef<HTMLDivElement>(null);
     const [hasContent, setHasContent] = useState(false);
