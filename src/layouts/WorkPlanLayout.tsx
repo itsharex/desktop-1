@@ -16,7 +16,7 @@ const WorkPlanLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   const calcWidth = () => {
     let subWidth = 60;
     if (projectStore.showChatAndComment) {
-      subWidth += 300;
+      subWidth += 400;
     }
     if (appStore.focusMode == false) {
       subWidth += 200;
