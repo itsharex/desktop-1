@@ -409,7 +409,10 @@ const DetailPanel = () => {
                         {showStageModal && (
                             <StageModel
                                 issue={issueInfo}
-                                onClose={() => setShowStageModal(false)}
+                                onClose={() => {
+                                    loadIssuelInfo();
+                                    setShowStageModal(false);
+                                }}
                             />)}
                     </Card>
                 </>

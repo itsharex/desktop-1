@@ -41,6 +41,7 @@ const LinkBtn = observer(() => {
           showRequirement={projectStore.curProjectId != ""}
           showTask={projectStore.curProjectId != ""}
           showBug={projectStore.curProjectId != ""}
+          showTestcase={projectStore.curProjectId != ""}
           showDoc={projectStore.curProjectId != ""}
           showBoard={projectStore.curProjectId != ""}
           showSprit={projectStore.curProjectId != ""}
