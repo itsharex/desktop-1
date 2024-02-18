@@ -53,7 +53,7 @@ const CreateBulletinModal = () => {
 
     return (
         <Modal title="创建公告" open okText="创建" okButtonProps={{ disabled: title.trim() == "" }}
-            width="calc(100vw - 600px)"
+            width="calc(100vw - 400px)"
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();

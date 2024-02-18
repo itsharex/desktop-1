@@ -182,4 +182,17 @@ export class ProjectModalStore {
             this._createBulletin = val;
         });
     }
+
+    //显示公告
+    private _bulletinId = "";
+
+    get bulletinId() {
+        return this._bulletinId;
+    }
+
+    set bulletinId(val: string) {
+        runInAction(() => {
+            this._bulletinId = val;
+        });
+    }
 }
