@@ -8,8 +8,6 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import { useHistory } from "react-router-dom";
 import { LinkIdeaPageInfo } from "@/stores/linkAux";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
-import { request } from "@/utils/request";
-import { update_setting } from '@/api/project';
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 
@@ -34,10 +32,6 @@ const MENU_KEY_CREATE_TEST_CASE = "create.testcase";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
-const MENU_KEY_LAYOUT_PREFIX = "layout.";
-const MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT = "layout.toolbar.extev";
-const MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO = "layout.overview.prjinfo";
-const MENU_KEY_LAYOUT_OVERVIEW_BULLETIN = "layout.overview.bulletin";
 
 const MENU_KEY_ENTRY_CREATE_SPRIT = "project.entry.sprit.create";
 const MENU_KEY_ENTRY_CREATE_DOC = "project.entry.doc.create";
@@ -57,7 +51,6 @@ const MENU_KEY_HOME_MYWORK = MENU_KEY_HOME_PREFIX + "mywork";
 const MENU_KEY_HOME_OVERVIEW = MENU_KEY_HOME_PREFIX + "overview";
 
 const ProjectQuickAccess = () => {
-    const userStore = useStores('userStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
     const projectStore = useStores('projectStore');
@@ -67,41 +60,6 @@ const ProjectQuickAccess = () => {
     const history = useHistory();
 
     const [items, setItems] = useState<MenuProps['items']>([]);
-
-    const calcLayoutItems = (): ItemType => {
-        const retItem = {
-            key: "layout",
-            label: "布局设置",
-            children: [
-                {
-                    key: "layout.toolbar",
-                    label: "右侧工具栏",
-                    children: [
-                        {
-                            key: MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT,
-                            label: `${projectStore.curProject?.setting.disable_ext_event == true ? "打开" : "关闭"}外部事件接入`
-                        },
-
-                    ],
-                },
-                {
-                    key: "layout.overview",
-                    label: "项目概览",
-                    children: [
-                        {
-                            key: MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO,
-                            label: `${projectStore.curProject?.setting.hide_project_info == true ? "显示" : "隐藏"}项目信息`
-                        },
-                        {
-                            key: MENU_KEY_LAYOUT_OVERVIEW_BULLETIN,
-                            label: `${projectStore.curProject?.setting.hide_bulletin == true ? "显示" : "隐藏"}项目公告`
-                        },
-                    ],
-                }
-            ],
-        };
-        return retItem;
-    }
 
     const calcItems = () => {
         const tmpItems: MenuProps['items'] = [
@@ -280,36 +238,11 @@ const ProjectQuickAccess = () => {
                 },
             ],
         });
-        if (projectStore.isAdmin) {
-            tmpItems.push(calcLayoutItems());
-        }
-        if (projectStore.curProject?.setting.disable_ext_event != true && projectStore.isAdmin) {
-            tmpItems.push({
-                key: MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS,
-                label: "查看第三方接入",
-            });
-        }
+        tmpItems.push({
+            key: MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS,
+            label: "查看第三方接入",
+        });
         setItems(tmpItems);
-    };
-
-    const adjustLayout = async (key: string) => {
-        if (projectStore.curProject == undefined) {
-            return;
-        }
-        const newSetting = { ...projectStore.curProject.setting };
-        if (key == MENU_KEY_LAYOUT_TOOLBAR_EXT_EVENT) {
-            newSetting.disable_ext_event = !projectStore.curProject.setting.disable_ext_event;
-        } else if (key == MENU_KEY_LAYOUT_OVERVIEW_PROJECT_INFO) {
-            newSetting.hide_project_info = !projectStore.curProject.setting.hide_project_info;
-        } else if (key == MENU_KEY_LAYOUT_OVERVIEW_BULLETIN) {
-            newSetting.hide_bulletin = !projectStore.curProject.setting.hide_bulletin;
-        }
-        await request(update_setting({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            setting: newSetting,
-        }));
-        await projectStore.updateProject(projectStore.curProjectId);
     };
 
     const gotoHomePage = async (key: string) => {
@@ -426,9 +359,7 @@ const ProjectQuickAccess = () => {
                 entryStore.createEntryType = ENTRY_TYPE_DATA_ANNO;
                 break;
             default:
-                if (info.key.startsWith(MENU_KEY_LAYOUT_PREFIX)) {
-                    adjustLayout(info.key);
-                } else if (info.key.startsWith(MENU_KEY_HOME_PREFIX)) {
+                if (info.key.startsWith(MENU_KEY_HOME_PREFIX)) {
                     gotoHomePage(info.key);
                 }
         }

@@ -1,21 +1,16 @@
 import React from "react";
-import { observer } from 'mobx-react';
 import s from './index.module.less';
 import ProjectInfoPanel from "./components/ProjectInfoPanel";
 import { Collapse, Popover } from "antd";
-import BulletinListPanel from "./components/BulletinListPanel";
-import { useStores } from "@/hooks";
 import ProjectFsList from "./components/ProjectFsList";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 
 const ProjectOverview = () => {
-    const projectStore = useStores('projectStore');
 
     return (
         <div className={s.overview_wrap}>
-            {(projectStore.curProject?.setting.hide_project_info ?? false) == false && <ProjectInfoPanel />}
-            {(projectStore.curProject?.setting.hide_bulletin ?? false) == false && <BulletinListPanel />}
+            <ProjectInfoPanel />
 
             <Collapse bordered={true} className={s.other_wrap}>
                 <Collapse.Panel key="storage" header={<h1 className={s.head}>项目存储</h1>} extra={
@@ -36,4 +31,4 @@ const ProjectOverview = () => {
     );
 };
 
-export default observer(ProjectOverview);
+export default ProjectOverview;

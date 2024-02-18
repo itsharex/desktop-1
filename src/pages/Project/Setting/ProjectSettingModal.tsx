@@ -3,7 +3,6 @@ import { observer } from 'mobx-react';
 import { Modal, Tabs, message } from "antd";
 import { useStores } from "@/hooks";
 import { PROJECT_SETTING_TAB } from "@/utils/constant";
-import LayoutSettingPanel from "./components/LayoutSettingPanel";
 import AlarmSettingPanel from "./components/AlarmSettingPanel";
 import TipListSettingPanel from "./components/TipListSettingPanel";
 import TagListSettingPanel from "./components/TagListSettingPanel";
@@ -19,9 +18,7 @@ const ProjectSettingModal = () => {
     const [disableTabs, setDisableTabs] = useState(false);
 
     useEffect(() => {
-        if (projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT) {
-            setActiveKey("layout");
-        } else if (projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM) {
+        if (projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM) {
             setActiveKey("alarm");
         } else if (projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST) {
             setActiveKey("tips");
@@ -54,9 +51,7 @@ const ProjectSettingModal = () => {
         >
             <Tabs activeKey={activeKey} tabPosition="left"
                 onChange={key => {
-                    if (key == "layout") {
-                        projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT;
-                    } else if (key == "alarm") {
+                    if (key == "alarm") {
                         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
                     } else if (key == "tips") {
                         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST;
@@ -70,9 +65,7 @@ const ProjectSettingModal = () => {
                         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_DEV_CLOUD;
                     }
                 }}>
-                <Tabs.TabPane key="layout" tab="界面布局" disabled={disableTabs}>
-                    {activeKey == "layout" && <LayoutSettingPanel onChange={value => setDisableTabs(value)} title="界面布局" />}
-                </Tabs.TabPane>
+
                 <Tabs.TabPane key="devcloud" tab="研发环境" disabled={disableTabs}>
                     {activeKey == "devcloud" && <DevCloudSettingPanel onChange={value => setDisableTabs(value)} title="研发环境" />}
                 </Tabs.TabPane>

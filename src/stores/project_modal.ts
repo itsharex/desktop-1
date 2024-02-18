@@ -169,4 +169,17 @@ export class ProjectModalStore {
             this._ideaKeyword = val;
         });
     }
+
+    //创建公告
+    private _createBulletin = false;
+
+    get createBulletin() {
+        return this._createBulletin;
+    }
+
+    set createBulletin(val: boolean) {
+        runInAction(() => {
+            this._createBulletin = val;
+        });
+    }
 }

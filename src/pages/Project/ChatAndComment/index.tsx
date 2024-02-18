@@ -13,6 +13,7 @@ import ChatMsgList from "./ChatMsgList";
 import InviteListModal from "./components/InviteListModal";
 import MemberList from "./MemberList";
 import MemberDetail from "./MemberDetail";
+import BulletinList from "./BulletinList";
 
 const ChatAndCommentPanel = () => {
     const userStore = useStores('userStore');
@@ -89,7 +90,7 @@ const ChatAndCommentPanel = () => {
             <Tabs style={{ width: "100%" }} type="card"
                 tabBarStyle={{ height: "45px", marginBottom: "0px" }}
                 activeKey={projectStore.showChatAndCommentTab}
-                onChange={key => projectStore.setShowChatAndComment(true, (key as ("chat" | "comment" | "member")))}
+                onChange={key => projectStore.setShowChatAndComment(true, (key as ("chat" | "comment" | "bulletin" | "member")))}
                 items={[
                     {
                         key: "chat",
@@ -123,6 +124,21 @@ const ChatAndCommentPanel = () => {
                                 {projectStore.showChatAndCommentTab == "comment" && (<UnreadCommentList />)}
                             </div>
                         ),
+                    },
+                    {
+                        key: "bulletin",
+                        label: (
+                            <div style={{ paddingRight: "20px" }}>
+                                <Badge count={ (projectStore.curProject?.project_status.bulletin_count ?? 0)} offset={[10, 0]} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
+                                    公告
+                                </Badge>
+                            </div>
+                        ),
+                        children: (
+                            <div style={{ height: "calc(100vh - 136px)", overflowY: "hidden" }}>
+                                {projectStore.showChatAndCommentTab == "bulletin" && (<BulletinList />)}
+                            </div>
+                        )
                     },
                     {
                         key: "member",
@@ -191,6 +207,13 @@ const ChatAndCommentPanel = () => {
                                 )}
                             </>
                         )}
+                        {projectStore.showChatAndCommentTab == "bulletin" && projectStore.isAdmin && !projectStore.isClosed && (
+                            <Button onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                projectStore.projectModal.createBulletin = true;
+                            }}>发布公告</Button>
+                        )}
                         {projectStore.showChatAndCommentTab == "member" && (
                             <>
                                 {!(projectStore.curProject?.closed) && projectStore.isAdmin && appStore.clientCfg?.can_invite && (
@@ -200,7 +223,7 @@ const ChatAndCommentPanel = () => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
                                                 memberStore.showInviteMember = true;
-                                            }}>邀请成员</Button>
+                                            }}>邀请</Button>
                                         <Popover trigger="click" placement="bottom" content={
                                             <div style={{ padding: "10px 10px" }}>
                                                 <Button type="link" onClick={e => {
@@ -215,7 +238,6 @@ const ChatAndCommentPanel = () => {
                                     </Space>
                                 )}
                             </>
-
                         )}
                     </div>
                 } />

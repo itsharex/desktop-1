@@ -94,7 +94,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       projectStore.setCurProjectId(res.project_id).then(() => {
         projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
         history.push(APP_PROJECT_OVERVIEW_PATH);
-        projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT;
+        projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
       });
     } catch (e) {
       console.log(e);
