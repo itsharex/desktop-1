@@ -5,7 +5,7 @@ import { Badge, Divider, Switch, Tooltip } from 'antd';
 import style from './index.module.less';
 import { useStores } from '@/hooks';
 import { observer } from 'mobx-react';
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, APP_PROJECT_WORK_PLAN_PATH, PROJECT_SETTING_TAB } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
 import { MessageTwoTone } from '@ant-design/icons';
 
 
@@ -35,11 +35,10 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
   };
 
   useEffect(() => {
-    if (projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT) {
-      setShowTip(true);
-    } else {
+    if (projectStore.showProjectSetting == null) {
       setShowTip(false);
-      setTimeout(() => setShowTip(undefined), 100);
+    } else {
+      setShowTip(true);
     }
   }, [projectStore.showProjectSetting]);
 
@@ -84,7 +83,7 @@ const Toolbar: React.FC = observer(() => {
           e.preventDefault();
           projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
         }}>
-          <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0)} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
+          <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0) + (projectStore.curProject?.project_status.bulletin_count ?? 0)} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
             <MessageTwoTone style={{ fontSize: "24px" }} twoToneColor={projectStore.showChatAndComment ? ["white", "orange"] : ["white", "#929CB0"]} />
           </Badge>
           <br />
@@ -134,7 +133,7 @@ const Toolbar: React.FC = observer(() => {
         badge={projectStore.curProject?.project_status.new_event_count || 0}
       />
 
-      {projectStore.curProject?.setting.disable_ext_event != true && projectStore.curProject?.user_project_perm?.can_admin && (
+      {projectStore.curProject?.user_project_perm?.can_admin && (
         <>
           <Divider />
           <Item id="access" pathname={pathname} title="第三方接入" />

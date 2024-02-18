@@ -591,9 +591,6 @@ class LinkAuxStore {
 
   //跳转到第三方接入列表
   goToExtEventList(history: History) {
-    if (this.rootStore.projectStore.curProject?.setting.disable_ext_event == true) {
-      return;
-    }
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/access"));
   }
 

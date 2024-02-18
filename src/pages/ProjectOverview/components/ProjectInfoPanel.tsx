@@ -70,6 +70,7 @@ const ProjectInfoPanel = () => {
   return (
     <Card
       headStyle={{ backgroundColor: "#f5f5f5" }}
+      style={{ marginBottom: "10px" }}
       title={
         <Space>
           <span style={{ fontSize: "16px", fontWeight: 600 }}>项目名称: </span>

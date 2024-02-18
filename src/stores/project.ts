@@ -480,17 +480,17 @@ export default class ProjectStore {
 
   //显示沟通和评论
   private _showChatAndComment: boolean = false;
-  private _showChatAndCommentTab: "chat" | "comment" | "member" = "chat";
+  private _showChatAndCommentTab: "chat" | "comment" | "bulletin" | "member" = "chat";
 
   get showChatAndComment(): boolean {
     return this._showChatAndComment;
   }
 
-  get showChatAndCommentTab(): "chat" | "comment" | "member" {
+  get showChatAndCommentTab(): "chat" | "comment" | "bulletin" | "member" {
     return this._showChatAndCommentTab;
   }
 
-  setShowChatAndComment(val: boolean, tab: "chat" | "comment" | "member") {
+  setShowChatAndComment(val: boolean, tab: "chat" | "comment" | "bulletin" | "member") {
     runInAction(() => {
       this._showChatAndComment = val;
       this._showChatAndCommentTab = tab;

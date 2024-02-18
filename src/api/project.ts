@@ -19,7 +19,7 @@ export type Setting = {
   // disable_member_appraise: boolean;
   // disable_test_case: boolean;
   // disable_server_agent: boolean;
-  disable_ext_event: boolean;
+  // disable_ext_event: boolean;
   // disable_app_store: boolean;
   // disable_data_anno: boolean;
   // disable_api_collection: boolean;
@@ -38,8 +38,8 @@ export type Setting = {
   hide_custom_event_for_admin: boolean;
 
   //项目概览页面相关
-  hide_project_info: boolean;
-  hide_bulletin: boolean;
+  // hide_project_info: boolean;
+  // hide_bulletin: boolean;
   // hide_extra_info: boolean;
 
   // hide_watch_doc: boolean;

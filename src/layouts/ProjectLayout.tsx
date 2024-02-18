@@ -18,6 +18,8 @@ import CreateRequirementModal from "@/pages/Project/Requirement/CreateModal";
 import IssueDetailModal from '@/pages/Issue/IssueDetailModal';
 import CreateIssueModal from '@/pages/Issue/CreateModal';
 import IdeaTipModal from '@/pages/Idea/IdeaTipModal';
+import CreateBulletinModal from '@/pages/Project/ChatAndComment/components/CreateBulletinModal';
+import ViewBulletinModal from '@/pages/Project/ChatAndComment/components/ViewBulletinModal';
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -81,6 +83,12 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             )}
             {projectStore.curProjectId != "" && projectStore.projectModal.ideaKeyword != "" && (
                 <IdeaTipModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.createBulletin == true && (
+                <CreateBulletinModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.bulletinId != "" && (
+                <ViewBulletinModal />
             )}
         </div>
     );

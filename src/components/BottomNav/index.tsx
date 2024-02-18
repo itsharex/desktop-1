@@ -26,15 +26,15 @@ const RightFloat = observer(() => {
               e.preventDefault();
               projectStore.setShowChatAndComment(true, "member");
               memberStore.showInviteMember = true;
-            }}>邀请成员</Button>
+            }}>邀请</Button>
         </div>
       )}
       {projectStore.isAdmin && (
-        <Tooltip title="项目设置" placement='left' color='orange' overlayInnerStyle={{ color: 'black', marginTop: "10px" }} open={projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT}>
+        <Tooltip title="项目设置" placement='left' color='orange' overlayInnerStyle={{ color: 'black', marginTop: "10px" }} open={projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM}>
           <Button type="link" className={s.setting_btn} onClick={e => {
             e.stopPropagation();
             e.preventDefault();
-            projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT;
+            projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
           }}><SettingOutlined /></Button>
         </Tooltip>
       )}
