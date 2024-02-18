@@ -17,6 +17,7 @@ import RequirementDetailModal from '@/pages/Project/Requirement/RequirementDetai
 import CreateRequirementModal from "@/pages/Project/Requirement/CreateModal";
 import IssueDetailModal from '@/pages/Issue/IssueDetailModal';
 import CreateIssueModal from '@/pages/Issue/CreateModal';
+import IdeaTipModal from '@/pages/Idea/IdeaTipModal';
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -77,6 +78,9 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
             )}
             {projectStore.curProjectId != "" && projectStore.projectModal.createIssue == true && (
                 <CreateIssueModal />
+            )}
+            {projectStore.curProjectId != "" && projectStore.projectModal.ideaKeyword != "" && (
+                <IdeaTipModal />
             )}
         </div>
     );

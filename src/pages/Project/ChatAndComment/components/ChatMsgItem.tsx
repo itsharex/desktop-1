@@ -132,7 +132,7 @@ const ChatMsgItem = (props: ChatMsgItemProps) => {
                                         onClick={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
-                                            linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", [item]), history);
+                                            linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", [item], "", true), history);
                                         }}>{item}</a>
                                 ))}
                             </div>

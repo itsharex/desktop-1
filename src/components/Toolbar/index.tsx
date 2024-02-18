@@ -97,7 +97,7 @@ const Toolbar: React.FC = observer(() => {
       <Item
         id="idea"
         pathname={pathname}
-        title="知识点"
+        title="知识点仓库"
       />
       <Divider />
 
