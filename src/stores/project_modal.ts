@@ -156,4 +156,17 @@ export class ProjectModalStore {
     get createIssueLinkSpritId() {
         return this._createIssueLinkSpritId;
     }
+
+    //知识点提示
+    private _ideaKeyword = "";
+
+    get ideaKeyword() {
+        return this._ideaKeyword;
+    }
+
+    set ideaKeyword(val: string) {
+        runInAction(() => {
+            this._ideaKeyword = val;
+        });
+    }
 }

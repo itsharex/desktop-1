@@ -39,7 +39,7 @@ const RenderDocBtns = (props: RenderDocBtnsProps) => {
                 <Button key={keyword} type="link" style={{ minWidth: 0 }} onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
-                  linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", [keyword]), history);
+                  linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", [keyword], "", true), history);
                 }}>{keyword}</Button>
               ))}
             </div>

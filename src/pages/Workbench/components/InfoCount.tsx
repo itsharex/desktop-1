@@ -4,12 +4,12 @@ import memberIcon from '@/assets/allIcon/icon-member.png';
 import { useStores } from '@/hooks';
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import { Button } from 'antd';
+import { Button, Modal, message } from 'antd';
 import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
-import { APP_PROJECT_MANAGER_PATH } from '@/utils/constant';
+import { APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 
 
 
@@ -18,9 +18,11 @@ const InfoCount = () => {
 
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
+  const appStore = useStores('appStore');
 
   const [myTodoCount, setMyTodoCount] = useState(0);
   const [showMyTodoModal, setShowMyTodoModal] = useState(false);
+  const [showExit, setShowExit] = useState(false);
 
   const loadMyTodoCount = async () => {
     if (userStore.sessionId == "") {
@@ -41,7 +43,23 @@ const InfoCount = () => {
       <div className={s.left_wrap}>
         <UserPhoto logoUri={userStore.userInfo.logoUri} />
         <div className={s.content}>
-          <div className={s.name}>欢迎您！{userStore.userInfo.displayName}</div>
+          <div className={s.name}>
+            欢迎您！{userStore.userInfo.displayName}
+            {userStore.sessionId !== "" && (
+              <>
+                (<a style={{ fontSize: "12px" }} onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (appStore.inEdit) {
+                    message.info("请先保存修改内容");
+                    return;
+                  }
+                  setShowExit(true);
+                  userStore.accountsModal = false;
+                }}>退出登录</a>)
+              </>
+            )}
+          </div>
           <div
             className={s.account}
             onClick={() => {
@@ -91,6 +109,24 @@ const InfoCount = () => {
 
       {showMyTodoModal == true && (
         <MyTodoListModal onCount={value => setMyTodoCount(value)} onClose={() => setShowMyTodoModal(false)} />
+      )}
+      {showExit == true && (
+        <Modal
+          open={showExit}
+          title="退出"
+          onCancel={() => setShowExit(false)}
+          onOk={() => {
+            userStore.logout();
+            setShowExit(false);
+            if (location.pathname.startsWith(WORKBENCH_PATH) || location.pathname.startsWith(PUB_RES_PATH)) {
+              //do nothing
+            } else {
+              history.push(WORKBENCH_PATH);
+            }
+          }}
+        >
+          <p style={{ textAlign: 'center' }}>是否确认退出?</p>
+        </Modal>
       )}
     </div>
   );
