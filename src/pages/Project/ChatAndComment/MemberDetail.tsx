@@ -332,7 +332,7 @@ const MemberDetail = () => {
                             <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
-                    <Card title="用户行为" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                    <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
                         <MemberEventList lastEventTime={memberInfo.last_event?.event_time ?? 0} memberUserId={memberInfo.member.member_user_id} />
                     </Card>
                 </>
