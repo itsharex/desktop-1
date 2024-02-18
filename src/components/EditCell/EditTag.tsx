@@ -15,7 +15,9 @@ export const EditTag: React.FC<EditTagProps> = (props) => {
     const [tagIdList, setTagIdList] = useState(props.tagIdList);
 
     useEffect(() => {
-        setTagIdList(props.tagIdList);
+        if (!inEdit) {
+            setTagIdList(props.tagIdList);
+        }
     }, [props.tagIdList]);
 
     return (
@@ -53,7 +55,7 @@ export const EditTag: React.FC<EditTagProps> = (props) => {
                 <div style={{ display: "flex" }}>
                     {tagIdList.length == 0 && "-"}
                     {props.tagDefList.filter(tagDef => tagIdList.includes(tagDef.tag_id)).map(tagDef => (
-                        <span style={{ padding: "2px 4px", marginRight:"4px", backgroundColor: tagDef.bg_color }} key={tagDef.tag_id}>{tagDef.tag_name}</span>
+                        <span style={{ padding: "2px 4px", marginRight: "4px", backgroundColor: tagDef.bg_color }} key={tagDef.tag_id}>{tagDef.tag_name}</span>
                     ))}
                     {props.editable == true && (
                         <a style={{ marginLeft: "10px" }} onClick={e => {

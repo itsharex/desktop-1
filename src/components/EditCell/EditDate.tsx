@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from 'moment';
 import type { Moment } from 'moment';
 import { CloseCircleOutlined, EditOutlined } from "@ant-design/icons";
@@ -17,6 +17,13 @@ export const EditDate: React.FC<EditDateProps> = (props) => {
     const [inEdit, setInEdit] = useState(false);
     const [hasTimeStamp, setHasTimeStamp] = useState(props.hasTimeStamp);
     const [timeStamp, setTimeStamp] = useState(props.timeStamp);
+
+    useEffect(() => {
+        if (!inEdit) {
+            setHasTimeStamp(props.hasTimeStamp);
+            setTimeStamp(props.timeStamp);
+        }
+    }, [props.hasTimeStamp, props.timeStamp]);
 
     return (
         <span onClick={e => {

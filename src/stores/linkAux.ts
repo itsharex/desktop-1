@@ -206,13 +206,14 @@ export class LinkCodeCommentInfo {
 }
 
 export class LinkIdeaPageInfo {
-  constructor(content: string, projectId: string, tagId: string, keywordList: string[], ideaId: string = "") {
+  constructor(content: string, projectId: string, tagId: string, keywordList: string[], ideaId: string = "", showTip: boolean = false) {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_IDEA_PAGE;
     this.linkContent = content;
     this.projectId = projectId;
     this.tagId = tagId;
     this.keywordList = keywordList;
     this.ideaId = ideaId;
+    this.showTip = showTip;
   }
   linkTargeType: LINK_TARGET_TYPE;
   linkContent: string;
@@ -220,6 +221,7 @@ export class LinkIdeaPageInfo {
   tagId: string;
   keywordList: string[];
   ideaId: string;
+  showTip: boolean;
 }
 
 
@@ -426,12 +428,18 @@ class LinkAuxStore {
       if (this.rootStore.projectStore.curProjectId != ideaPageLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(ideaPageLink.projectId);
       }
-      const state: LinkIdeaPageState = {
-        keywordList: ideaPageLink.keywordList,
-        tagId: ideaPageLink.tagId,
-        ideaId: ideaPageLink.ideaId,
-      };
-      history.push(this.genUrl(ideaPageLink.projectId, pathname, "/idea"), state);
+      if (ideaPageLink.showTip) {
+        if (ideaPageLink.keywordList.length > 0) {
+          this.rootStore.projectStore.projectModal.ideaKeyword = ideaPageLink.keywordList[0];
+        }
+      } else {
+        const state: LinkIdeaPageState = {
+          keywordList: ideaPageLink.keywordList,
+          tagId: ideaPageLink.tagId,
+          ideaId: ideaPageLink.ideaId,
+        };
+        history.push(this.genUrl(ideaPageLink.projectId, pathname, "/idea"), state);
+      }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_ENTRY) {
       const entryLink = link as LinkEntryInfo;
       if (this.rootStore.projectStore.curProjectId != entryLink.projectId) {

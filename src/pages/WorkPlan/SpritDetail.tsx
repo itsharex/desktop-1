@@ -27,6 +27,7 @@ import AddTestCaseModal from "./components/AddTestCaseModal";
 import { LocalIssueStore, LocalTestcaseStore } from "@/stores/local";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
+import { list_by_sprit } from "@/api/project_testcase";
 
 export interface SpritStatus {
     taskCount: number;
@@ -191,11 +192,29 @@ const SpritDetail = () => {
         }
     };
 
+    const loadTestcaseList = async () => {
+        if (entryStore.curEntry == null) {
+            return;
+        }
+        const res = await request(list_by_sprit({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            sprit_id: entryStore.curEntry.entry_id,
+        }));
+
+        testcaseStore.itemList = res.case_list.map(item => ({
+            id: item.case_id,
+            dataType: "case",
+            dataValue: item,
+        }))
+    };
+
     useEffect(() => {
         if (entryStore.curEntry != null) {
             loadSpritInfo();
             loadIssueList(ISSUE_TYPE_TASK);
             loadIssueList(ISSUE_TYPE_BUG);
+            loadTestcaseList();
         }
     }, [entryStore.curEntry]);
 
@@ -407,7 +426,7 @@ const SpritDetail = () => {
                 <AddIssueModal onClose={() => setShowAddIssueModal(false)} />
             )}
             {showExportModal == true && (
-                <ExportModal onClose={() => setShowExportModal(false)} taskStore={taskStore} bugStore={bugStore} />
+                <ExportModal onClose={() => setShowExportModal(false)} taskStore={taskStore} bugStore={bugStore} testcaseStore={testcaseStore} />
             )}
             {showAddTestCaseModal == true && (
                 <AddTestCaseModal onClose={() => setShowAddTestCaseModal(false)} checkedKeys={testcaseStore.itemList.map(item => item.id)} />

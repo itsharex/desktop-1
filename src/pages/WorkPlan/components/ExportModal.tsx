@@ -9,7 +9,8 @@ import { writeBinaryFile, exists, removeFile } from '@tauri-apps/api/fs';
 import { BUG_LEVEL_BLOCKER, BUG_LEVEL_CRITICAL, BUG_LEVEL_MAJOR, BUG_LEVEL_MINOR, BUG_PRIORITY_HIGH, BUG_PRIORITY_IMMEDIATE, BUG_PRIORITY_LOW, BUG_PRIORITY_NORMAL, BUG_PRIORITY_URGENT, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO, TASK_PRIORITY_HIGH, TASK_PRIORITY_LOW, TASK_PRIORITY_MIDDLE, type IssueInfo } from "@/api/project_issue";
 import { request } from "@/utils/request";
 import { list_summary_item } from "@/api/project_sprit";
-import type { LocalIssueStore } from "@/stores/local";
+import type { LocalIssueStore, LocalTestcaseStore } from "@/stores/local";
+import type { CaseInfo } from "@/api/project_testcase";
 
 type IssueItem = {
     issueIndex: number;
@@ -63,6 +64,7 @@ const IssueColumns = [
 export interface ExportModalProps {
     taskStore: LocalIssueStore;
     bugStore: LocalIssueStore;
+    testcaseStore: LocalTestcaseStore;
     onClose: () => void;
 }
 
@@ -73,6 +75,7 @@ const ExportModal = (props: ExportModalProps) => {
 
     const [exportTask, setExportTask] = useState(true);
     const [exportBug, setExportBug] = useState(true);
+    const [exportTestcase, setExportTestcase] = useState(true);
     const [exportSummary, setExportSummary] = useState(true);
     const [localPath, setLocalPath] = useState("");
 
@@ -245,6 +248,38 @@ const ExportModal = (props: ExportModalProps) => {
         }
     };
 
+    const runExportTestcase = (workbook: Workbook) => {
+        const sheet = workbook.addWorksheet("测试用例");
+
+        sheet.columns = [
+            { header: "标题", key: "title", width: 100 },
+            { header: "测试方式", key: "testMethod", width: 40 },
+            { header: "测试结果", key: "resultCount", width: 14 },
+            { header: "时间", key: "createTime", width: 20 },
+        ];
+        for (const item of props.testcaseStore.itemList) {
+            const tmpList = [] as string[];
+            if ((item.dataValue as CaseInfo).test_method.unit_test) {
+                tmpList.push("单元测试");
+            }
+            if ((item.dataValue as CaseInfo).test_method.ci_test) {
+                tmpList.push("集成测试");
+            }
+            if ((item.dataValue as CaseInfo).test_method.load_test) {
+                tmpList.push("压力测试");
+            }
+            if ((item.dataValue as CaseInfo).test_method.manual_test) {
+                tmpList.push("手动测试");
+            }
+            sheet.addRow({
+                title: (item.dataValue as CaseInfo).title,
+                testMethod: tmpList.join(","),
+                resultCount: (item.dataValue as CaseInfo).result_count,
+                createTime: new Date((item.dataValue as CaseInfo).create_time),
+            });
+        }
+    };
+
     const runExportSummary = async (workbook: Workbook) => {
         const res = await request(list_summary_item({
             session_id: userStore.sessionId,
@@ -253,7 +288,6 @@ const ExportModal = (props: ExportModalProps) => {
             filter_by_tag_id: false,
             tag_id: "",
         }));
-
 
         const sheet = workbook.addWorksheet("工作总结");
         sheet.columns = [
@@ -282,6 +316,9 @@ const ExportModal = (props: ExportModalProps) => {
         }
         if (exportBug) {
             runExportBug(workbook);
+        }
+        if (exportTestcase) {
+            await runExportTestcase(workbook);
         }
         if (exportSummary) {
             await runExportSummary(workbook);
@@ -337,6 +374,12 @@ const ExportModal = (props: ExportModalProps) => {
                     <Checkbox checked={exportBug} onChange={e => {
                         e.stopPropagation();
                         setExportBug(e.target.checked);
+                    }} />
+                </Form.Item>
+                <Form.Item label="测试用例">
+                    <Checkbox checked={exportTestcase} onChange={e => {
+                        e.stopPropagation();
+                        setExportTestcase(e.target.checked);
                     }} />
                 </Form.Item>
                 <Form.Item label="工作总结">

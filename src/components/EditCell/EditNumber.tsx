@@ -18,7 +18,7 @@ export const EditNumber: React.FC<EditNumberProps> = (props) => {
     const [value, setValue] = useState(props.value);
 
     useEffect(() => {
-        if (props.value !== undefined) {
+        if (props.value !== undefined && inEdit == false) {
             setValue(props.value);
         }
     }, [props.value])

@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { CaseInfo, FolderOrCaseInfo } from "@/api/project_testcase";
-import { unlink_sprit, list_by_sprit } from "@/api/project_testcase";
+import { unlink_sprit } from "@/api/project_testcase";
 import { Button, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/lib/table";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
@@ -24,23 +24,6 @@ const TestPlanPanel = (props: TestPlanPanelProps) => {
     const entryStore = useStores('entryStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
-
-    const loadTestcaseList = async () => {
-        if (entryStore.curEntry == null) {
-            return;
-        }
-        const res = await request(list_by_sprit({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            sprit_id: entryStore.curEntry.entry_id,
-        }));
-
-        props.testcaseStore.itemList = res.case_list.map(item => ({
-            id: item.case_id,
-            dataType: "case",
-            dataValue: item,
-        }))
-    };
 
     const unlinkTestCase = async (caseId: string) => {
         if (entryStore.curEntry == null) {
@@ -128,10 +111,6 @@ const TestPlanPanel = (props: TestPlanPanelProps) => {
             render: (_, row: FolderOrCaseInfo) => moment(row.dataValue.create_time).format("YYYY-MM-DD HH:mm"),
         }
     ];
-
-    useEffect(() => {
-        loadTestcaseList();
-    }, [entryStore.curEntry?.entry_id]);
 
     return (
         <Table rowKey="id" dataSource={props.testcaseStore.itemList} columns={columns} pagination={false} scroll={{ x: 1100 }} />
