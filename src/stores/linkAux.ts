@@ -8,7 +8,6 @@ import {
   APP_PROJECT_KB_BOARD_PATH,
   APP_PROJECT_KB_DOC_PATH,
   APP_PROJECT_MY_WORK_PATH,
-  APP_PROJECT_OVERVIEW_PATH,
   APP_PROJECT_PATH,
   APP_PROJECT_WORK_PLAN_PATH,
 } from '@/utils/constant';
@@ -574,6 +573,11 @@ class LinkAuxStore {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/bug"), state);
   }
 
+  //跳转到项目信息
+  gotoOverview(history: History) {
+    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/overview"));
+  }
+
   //调整到测试用例列表
   goToTestCaseList(history: History) {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/testcase"));
@@ -692,8 +696,6 @@ class LinkAuxStore {
       return APP_PROJECT_KB_BOARD_PATH + newSuffix;
     } else if (pathname.startsWith(APP_PROJECT_MY_WORK_PATH)) {
       return APP_PROJECT_MY_WORK_PATH + newSuffix;
-    } else if (pathname.startsWith(APP_PROJECT_OVERVIEW_PATH)) {
-      return APP_PROJECT_OVERVIEW_PATH + newSuffix;
     }
     const projectInfo = this.rootStore.projectStore.getProject(projectId);
     if (projectInfo == undefined) {

@@ -22,7 +22,6 @@ import {
   WORKBENCH_PATH,
   ADMIN_PATH_APPSTORE_CATE_SUFFIX,
   ADMIN_PATH_APPSTORE_APP_SUFFIX,
-  APP_PROJECT_OVERVIEW_PATH,
   PUB_RES_PATH,
   APP_PROJECT_WORK_PLAN_PATH,
   ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX,
@@ -56,7 +55,6 @@ import MenuAdmin from '@/pages/Admin/ClientAdmin/MenuAdmin';
 import RequirementList from '@/pages/Project/Requirement/RequirementList';
 import AppCateList from '@/pages/Admin/AppAdmin/AppCateList';
 import AppList from '@/pages/Admin/AppAdmin/AppList';
-import OverviewLayout from '@/layouts/OverviewLayout';
 import IdeaPage from '@/pages/Idea/IdeaPage';
 import PubRes from '@/pages/PubRes';
 import WorkPlanLayout from '@/layouts/WorkPlanLayout';
@@ -77,6 +75,7 @@ import RecommendAuditList from '@/pages/Admin/GroupAdmin/RecommendAuditList';
 import CloudIndex from '@/pages/Project/Cloud/index';
 import DevPkgList from '@/pages/Admin/DevContainerAdmin/DevPkgList';
 import TestcaseList from '@/pages/Project/Testcase/TestcaseList';
+import ProjectOverview from "@/pages/Project/Overview";
 
 export interface IRouteConfig {
   // 路由路径
@@ -154,6 +153,12 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       path: prefix + "/cloud",
       title: "研发环境",
       component: CloudIndex,
+      exact: true,
+    },
+    {
+      path: prefix + "/overview",
+      title: "项目信息",
+      component: ProjectOverview,
       exact: true,
     },
   ];
@@ -234,12 +239,6 @@ const routesConfig: IRouteConfig[] = [
             title: "我的工作",
             component: MyWorkLayout,
             routes: getToolbarRoute(APP_PROJECT_MY_WORK_PATH),
-          },
-          {
-            path: APP_PROJECT_OVERVIEW_PATH,
-            title: '项目概览',
-            component: OverviewLayout,
-            routes: getToolbarRoute(APP_PROJECT_OVERVIEW_PATH),
           }
         ],
       },

@@ -8,7 +8,7 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import { useHistory } from "react-router-dom";
 import { LinkIdeaPageInfo } from "@/stores/linkAux";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
@@ -33,6 +33,9 @@ const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
 
+const MENU_KEY_SHOW_TOOL_BAR_OVERVIEW = "toolbar.overview.show";
+
+
 const MENU_KEY_ENTRY_CREATE_SPRIT = "project.entry.sprit.create";
 const MENU_KEY_ENTRY_CREATE_DOC = "project.entry.doc.create";
 const MENU_KEY_ENTRY_CREATE_PAGES = "project.entry.pages.create";
@@ -48,7 +51,6 @@ const MENU_KEY_HOME_DOC = MENU_KEY_HOME_PREFIX + "doc";
 const MENU_KEY_HOME_BOARD = MENU_KEY_HOME_PREFIX + "board";
 const MENU_KEY_HOME_PAGES = MENU_KEY_HOME_PREFIX + "pages";
 const MENU_KEY_HOME_MYWORK = MENU_KEY_HOME_PREFIX + "mywork";
-const MENU_KEY_HOME_OVERVIEW = MENU_KEY_HOME_PREFIX + "overview";
 
 const ProjectQuickAccess = () => {
     const memberStore = useStores('memberStore');
@@ -90,10 +92,6 @@ const ProjectQuickAccess = () => {
                     {
                         key: MENU_KEY_HOME_MYWORK,
                         label: "我的工作",
-                    },
-                    {
-                        key: MENU_KEY_HOME_OVERVIEW,
-                        label: "项目概览",
                     },
                 ],
             },
@@ -242,6 +240,10 @@ const ProjectQuickAccess = () => {
             key: MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS,
             label: "查看第三方接入",
         });
+        tmpItems.push({
+            key: MENU_KEY_SHOW_TOOL_BAR_OVERVIEW,
+            label: "查看项目信息",
+        });
         setItems(tmpItems);
     };
 
@@ -262,8 +264,6 @@ const ProjectQuickAccess = () => {
                 projectStore.projectHome.homeType = homeType;
                 if (key == MENU_KEY_HOME_MYWORK) {
                     history.push(APP_PROJECT_MY_WORK_PATH);
-                } else if (key == MENU_KEY_HOME_OVERVIEW) {
-                    history.push(APP_PROJECT_OVERVIEW_PATH);
                 } else {
                     history.push(APP_PROJECT_HOME_PATH);
                 }
@@ -274,8 +274,6 @@ const ProjectQuickAccess = () => {
         projectStore.projectHome.homeType = homeType;
         if (key == MENU_KEY_HOME_MYWORK) {
             history.push(APP_PROJECT_MY_WORK_PATH);
-        } else if (key == MENU_KEY_HOME_OVERVIEW) {
-            history.push(APP_PROJECT_OVERVIEW_PATH);
         } else {
             history.push(APP_PROJECT_HOME_PATH);
         }
@@ -357,6 +355,9 @@ const ProjectQuickAccess = () => {
                 break;
             case MENU_KEY_ENTRY_CREATE_DATA_ANNO:
                 entryStore.createEntryType = ENTRY_TYPE_DATA_ANNO;
+                break;
+            case MENU_KEY_SHOW_TOOL_BAR_OVERVIEW:
+                linkAuxStore.gotoOverview(history);
                 break;
             default:
                 if (info.key.startsWith(MENU_KEY_HOME_PREFIX)) {

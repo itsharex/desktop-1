@@ -1,4 +1,4 @@
-import { Button, Descriptions, Modal, Space, Spin, Table } from "antd";
+import { Button, Card, Descriptions, Modal, Space, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
@@ -95,19 +95,23 @@ const ProjectFsList = () => {
         },
         {
             title: "文件数量",
-            dataIndex: "file_count",
-        },
-        {
-            title: "最大文件数量",
-            render: (_, row: FsStatus) => row.max_filecount <= 0 ? "无限制" : row.max_filecount
+            render: (_, row: FsStatus) => (
+                <span>
+                    {row.file_count}
+                    &nbsp;/&nbsp;
+                    {row.max_filecount <= 0 ? "无限制" : row.max_filecount}
+                </span>
+            ),
         },
         {
             title: "存储空间",
-            render: (_, row: FsStatus) => getSizeStr(row.total_file_size),
-        },
-        {
-            title: "最大存储空间",
-            render: (_, row: FsStatus) => row.max_total_size <= 0 ? "无限制" : getSizeStr(row.max_total_size),
+            render: (_, row: FsStatus) => (
+                <span>
+                    {getSizeStr(row.total_file_size)}
+                    &nbsp;/&nbsp;
+                    {row.max_total_size <= 0 ? "无限制" : getSizeStr(row.max_total_size)}
+                </span>
+            ),
         },
         {
             title: "上次清理时间",
@@ -137,7 +141,7 @@ const ProjectFsList = () => {
     }, []);
 
     return (
-        <>
+        <Card title="项目存储" headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 600 }} style={{ marginBottom: "10px" }}>
             <Table rowKey="fs_id" dataSource={fsStatusList} columns={columns} pagination={false} />
             {gcFsId != "" && (
                 <Modal open title="清理空间" footer={null} onCancel={e => {
@@ -163,7 +167,7 @@ const ProjectFsList = () => {
                     )}
                 </Modal>
             )}
-        </>
+        </Card>
     );
 };
 

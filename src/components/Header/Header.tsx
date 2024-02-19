@@ -9,7 +9,7 @@ import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, Parti
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
-import { APP_GROUP_HOME_PATH, APP_GROUP_PATH, APP_GROUP_POST_LIST_PATH, APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH } from '@/utils/constant';
+import { APP_GROUP_HOME_PATH, APP_GROUP_PATH, APP_GROUP_POST_LIST_PATH, APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from '@/utils/constant';
 import { useHistory, useLocation } from 'react-router-dom';
 import ProjectQuickAccess from './ProjectQuickAccess';
 import { ENTRY_TYPE_SPRIT } from '@/api/project_entry';
@@ -213,13 +213,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                   <span>我的工作</span>
                 </>
               )}
-              {location.pathname.startsWith(APP_PROJECT_OVERVIEW_PATH) && (
-                <>
-                  <span>/</span>
-                  <span>项目概览</span>
-                </>
-              )}
-              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false && location.pathname.startsWith(APP_PROJECT_OVERVIEW_PATH) == false
+              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false 
                 && location.pathname.startsWith(APP_PROJECT_HOME_PATH) == false
                 && entryStore.curEntry != null && (
                   <>

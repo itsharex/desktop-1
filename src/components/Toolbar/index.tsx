@@ -5,7 +5,7 @@ import { Badge, Divider, Switch, Tooltip } from 'antd';
 import style from './index.module.less';
 import { useStores } from '@/hooks';
 import { observer } from 'mobx-react';
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_OVERVIEW_PATH, APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
 import { MessageTwoTone } from '@ant-design/icons';
 
 
@@ -29,8 +29,6 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
       history.push(APP_PROJECT_KB_BOARD_PATH + '/' + id);
     } else if (props.pathname.startsWith(APP_PROJECT_MY_WORK_PATH)) {
       history.push(APP_PROJECT_MY_WORK_PATH + "/" + id);
-    } else if (props.pathname.startsWith(APP_PROJECT_OVERVIEW_PATH)) {
-      history.push(APP_PROJECT_OVERVIEW_PATH + '/' + id);
     }
   };
 
@@ -147,6 +145,8 @@ const Toolbar: React.FC = observer(() => {
             <Item id="cloud" pathname={pathname} title="研发环境" />
           </>
         )}
+      <Divider />
+      <Item id="overview" pathname={pathname} title="项目信息" />
     </div>
   );
 });
