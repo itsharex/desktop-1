@@ -15,6 +15,7 @@ import style from './style.module.less';
 import LoginModal from '@/pages/User/LoginModal';
 import GlobalServerModal from '@/components/GlobalSetting/GlobalServerModal';
 import StartMinApp from '@/components/MinApp/StartMinApp';
+import { HotkeysProvider } from 'react-hotkeys-hook';
 
 const { Content } = Layout;
 
@@ -39,25 +40,27 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   });
 
   return (
-    <Layout className={style.basicLayout}>
-      {appStore.focusMode == false && <LeftMenu />}
-      <Layout>
-        <Header />
-        <Content
-          className={classNames(
-            style.basicContent,
-            pathname !== WORKBENCH_PATH && style.showbottomnav,
-          )}
-        >
-          {renderRoutes(route.routes, { sessionId: userStore.sessionId, projectId: curProjectId })}
-        </Content>
-        {curProjectId && <Toolbar />}
-        {curProjectId != '' && <BottomNav />}
+    <HotkeysProvider>
+      <Layout className={style.basicLayout}>
+        {appStore.focusMode == false && <LeftMenu />}
+        <Layout>
+          <Header />
+          <Content
+            className={classNames(
+              style.basicContent,
+              pathname !== WORKBENCH_PATH && style.showbottomnav,
+            )}
+          >
+            {renderRoutes(route.routes, { sessionId: userStore.sessionId, projectId: curProjectId })}
+          </Content>
+          {curProjectId && <Toolbar />}
+          {curProjectId != '' && <BottomNav />}
+        </Layout>
+        {userStore.showUserLogin && <LoginModal />}
+        {appStore.showGlobalServerModal && <GlobalServerModal />}
+        {appStore.openMinAppId != "" && <StartMinApp />}
       </Layout>
-      {userStore.showUserLogin && <LoginModal />}
-      {appStore.showGlobalServerModal && <GlobalServerModal />}
-      {appStore.openMinAppId != "" && <StartMinApp />}
-    </Layout>
+    </HotkeysProvider>
   );
 };
 

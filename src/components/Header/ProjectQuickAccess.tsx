@@ -6,10 +6,12 @@ import type { MenuProps } from 'antd';
 import { useStores } from "@/hooks";
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import { useHistory } from "react-router-dom";
-import { LinkIdeaPageInfo } from "@/stores/linkAux";
+import { ISSUE_TAB_LIST_TYPE, LinkIdeaPageInfo } from "@/stores/linkAux";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
+import { useHotkeys } from 'react-hotkeys-hook';
+
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
 const MENU_KEY_MEMBER_PREFIX = "member:";
@@ -35,6 +37,7 @@ const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
 
 const MENU_KEY_SHOW_TOOL_BAR_OVERVIEW = "toolbar.overview.show";
 
+const MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT = "toolbar.chatAndComment.show"
 
 const MENU_KEY_ENTRY_CREATE_SPRIT = "project.entry.sprit.create";
 const MENU_KEY_ENTRY_CREATE_DOC = "project.entry.doc.create";
@@ -62,6 +65,7 @@ const ProjectQuickAccess = () => {
     const history = useHistory();
 
     const [items, setItems] = useState<MenuProps['items']>([]);
+    const [_, setCreateFlag] = useState(false);
 
     const calcItems = () => {
         const tmpItems: MenuProps['items'] = [
@@ -71,27 +75,27 @@ const ProjectQuickAccess = () => {
                 children: [
                     {
                         key: MENU_KEY_HOME_CONTENT,
-                        label: "内容面板",
+                        label: "内容面板(alt+0)",
                     },
                     {
                         key: MENU_KEY_HOME_WORK_PLAN,
-                        label: "工作计划",
+                        label: "工作计划(alt+1)",
                     },
                     {
                         key: MENU_KEY_HOME_DOC,
-                        label: "项目文档",
+                        label: "项目文档(alt+2)",
                     },
                     {
                         key: MENU_KEY_HOME_BOARD,
-                        label: "信息面板",
+                        label: "信息面板(alt+3)",
                     },
                     {
                         key: MENU_KEY_HOME_PAGES,
-                        label: "静态网页",
+                        label: "静态网页(alt+4)",
                     },
                     {
                         key: MENU_KEY_HOME_MYWORK,
-                        label: "我的工作",
+                        label: "我的工作(alt+9)",
                     },
                 ],
             },
@@ -123,23 +127,23 @@ const ProjectQuickAccess = () => {
             children: [
                 {
                     key: MENU_KEY_ENTRY_CREATE_SPRIT,
-                    label: "创建工作计划",
+                    label: "创建工作计划(ctrl+n w)",
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_DOC,
-                    label: "创建文档",
+                    label: "创建文档(ctrl+n d)",
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_PAGES,
-                    label: "创建静态网页",
+                    label: "创建静态网页(ctrl+n p)",
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_BOARD,
-                    label: "创建信息面板",
+                    label: "创建信息面板(ctrl+n o)",
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_FILE,
-                    label: "创建文件",
+                    label: "创建文件(ctrl+n f)",
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_API_COLL,
@@ -153,6 +157,11 @@ const ProjectQuickAccess = () => {
         });
 
         tmpItems.push({
+            key: MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT,
+            label: "项目沟通(alt+c)",
+        });
+
+        tmpItems.push({
             key: MENU_KEY_SHOW_TOOL_BAR_IDEA,
             label: "项目知识点",
         });
@@ -163,11 +172,11 @@ const ProjectQuickAccess = () => {
             children: [
                 {
                     key: MENU_KEY_SHOW_TOOL_BAR_REQUIRE_MENT,
-                    label: "查看项目需求",
+                    label: "查看项目需求(alt+r)",
                 },
                 {
                     key: MENU_KEY_CREATE_REQUIRE_MENT,
-                    label: "创建项目需求",
+                    label: "创建项目需求(ctrl+n r)",
                 },
             ],
         });
@@ -181,11 +190,11 @@ const ProjectQuickAccess = () => {
                 },
                 {
                     key: MENU_KEY_SHOW_TOOL_BAR_TASK_ALL,
-                    label: "查看所有任务",
+                    label: "查看所有任务(alt+t)",
                 },
                 {
                     key: MENU_KEY_CREATE_TASK,
-                    label: "创建任务",
+                    label: "创建任务(ctrl+n t)",
                 }
             ],
         });
@@ -199,11 +208,11 @@ const ProjectQuickAccess = () => {
                 },
                 {
                     key: MENU_KEY_SHOW_TOOL_BAR_BUG_ALL,
-                    label: "查看所有缺陷",
+                    label: "查看所有缺陷(alt+b)",
                 },
                 {
                     key: MENU_KEY_CREATE_BUG,
-                    label: "创建缺陷",
+                    label: "创建缺陷(ctrl+n b)",
                 }
             ],
         });
@@ -227,7 +236,7 @@ const ProjectQuickAccess = () => {
             children: [
                 {
                     key: MENU_KEY_SHOW_TOOL_BAR_EVENTS,
-                    label: "查看研发行为",
+                    label: "查看工作记录(alt+e)",
                 },
                 {
                     key: MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE,
@@ -279,8 +288,8 @@ const ProjectQuickAccess = () => {
         }
     }
 
-    const onMenuClick = async (info: MenuInfo) => {
-        switch (info.key) {
+    const processMenuKey = async (key: string) => {
+        switch (key) {
             case MENU_KEY_SHOW_INVITE_MEMBER:
                 projectStore.setShowChatAndComment(true, "member");
                 memberStore.showInviteMember = true;
@@ -295,7 +304,12 @@ const ProjectQuickAccess = () => {
                 projectStore.projectModal.createRequirement = true;
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_TASK_MY:
-                linkAuxStore.goToTaskList(undefined, history);
+                linkAuxStore.goToTaskList({
+                    stateList: [],
+                    execUserIdList: [],
+                    checkUserIdList: [],
+                    tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME,
+                }, history);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_TASK_ALL:
                 linkAuxStore.goToTaskList({
@@ -308,7 +322,12 @@ const ProjectQuickAccess = () => {
                 linkAuxStore.goToCreateTask("", projectStore.curProjectId, history);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_BUG_MY:
-                linkAuxStore.goToBugList(undefined, history);
+                linkAuxStore.goToBugList({
+                    stateList: [],
+                    execUserIdList: [],
+                    checkUserIdList: [],
+                    tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ASSGIN_ME,
+                }, history);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_BUG_ALL:
                 linkAuxStore.goToBugList({
@@ -359,17 +378,121 @@ const ProjectQuickAccess = () => {
             case MENU_KEY_SHOW_TOOL_BAR_OVERVIEW:
                 linkAuxStore.gotoOverview(history);
                 break;
+            case MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT:
+                projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
+                break;
             default:
-                if (info.key.startsWith(MENU_KEY_HOME_PREFIX)) {
-                    gotoHomePage(info.key);
+                if (key.startsWith(MENU_KEY_HOME_PREFIX)) {
+                    gotoHomePage(key);
                 }
         }
-        if (info.key.startsWith(MENU_KEY_MEMBER_PREFIX)) {
-            const memberUserId = info.key.substring(MENU_KEY_MEMBER_PREFIX.length);
+        if (key.startsWith(MENU_KEY_MEMBER_PREFIX)) {
+            const memberUserId = key.substring(MENU_KEY_MEMBER_PREFIX.length);
             memberStore.showDetailMemberId = memberUserId;
             projectStore.setShowChatAndComment(true, "member");
         }
     }
+
+    const onMenuClick = async (info: MenuInfo) => {
+        processMenuKey(info.key);
+    }
+
+    useHotkeys("alt+0", () => processMenuKey(MENU_KEY_HOME_CONTENT));
+    useHotkeys("alt+1", () => processMenuKey(MENU_KEY_HOME_WORK_PLAN));
+    useHotkeys("alt+2", () => processMenuKey(MENU_KEY_HOME_DOC));
+    useHotkeys("alt+3", () => processMenuKey(MENU_KEY_HOME_BOARD));
+    useHotkeys("alt+4", () => processMenuKey(MENU_KEY_HOME_PAGES));
+    useHotkeys("alt+9", () => processMenuKey(MENU_KEY_HOME_MYWORK));
+    useHotkeys("alt+c", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT));
+    useHotkeys("alt+f", () => appStore.focusMode = !appStore.focusMode);
+    useHotkeys("alt+r", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_REQUIRE_MENT));
+    useHotkeys("alt+t", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_TASK_ALL));
+    useHotkeys("alt+b", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_BUG_ALL));
+    useHotkeys("alt+e", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_EVENTS));
+
+    useHotkeys("ctrl+n", () => {
+        setCreateFlag(true);
+        setTimeout(() => {
+            setCreateFlag(oldValue => {
+                if (oldValue) {
+                    processMenuKey(MENU_KEY_ENTRY_CREATE_SPRIT);
+                }
+                return false;
+            });
+        }, 1000);
+    });
+
+    useHotkeys("w", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_SPRIT);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("d", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_DOC);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("o", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_BOARD);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("p", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_PAGES);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("f", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_FILE);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("r", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_CREATE_REQUIRE_MENT);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("t", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_CREATE_TASK);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("b", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_CREATE_BUG);
+            }
+            return false;
+        });
+    });
 
     useEffect(() => {
         calcItems();
