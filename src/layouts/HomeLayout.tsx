@@ -6,16 +6,21 @@ import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import style from './style.module.less';
 import { renderRoutes } from 'react-router-config';
 import ProjectHome from '@/pages/Project/Home';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const HomeLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
-    const { pathname } = useLocation();
+  const { pathname } = useLocation();
 
-    return (<>
+  return (
+    <ErrorBoundary>
+      <>
         <ProjectHome />
         {pathname != APP_PROJECT_HOME_PATH && (
-      <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>
-    )}
-    </>);
+          <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>
+        )}
+      </>
+    </ErrorBoundary>
+  );
 };
 
 export default observer(HomeLayout);

@@ -20,6 +20,7 @@ import CreateIssueModal from '@/pages/Issue/CreateModal';
 import IdeaTipModal from '@/pages/Idea/IdeaTipModal';
 import CreateBulletinModal from '@/pages/Project/ChatAndComment/components/CreateBulletinModal';
 import ViewBulletinModal from '@/pages/Project/ChatAndComment/components/ViewBulletinModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
@@ -28,69 +29,71 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
     const entryStore = useStores("entryStore");
 
     return (
-        <div className={style.projectLayout}>
-            <div style={{ flex: 1 }}>
-                {renderRoutes(route.routes)}
-            </div>
-            {projectStore.showChatAndComment && (
-                <div style={{ width: "400px", marginRight: "60px", borderLeft: "1px solid #e4e4e8" }}>
-                    <div style={{ width: "390px", backgroundColor: "white", margin: "5px 5px", height: "calc(100vh - 96px)", borderRadius: "10px" }}>
-                        <ChatAndCommentPanel />
-                    </div>
+        <ErrorBoundary>
+            <div className={style.projectLayout}>
+                <div style={{ flex: 1 }}>
+                    {renderRoutes(route.routes)}
                 </div>
-            )}
-            {projectStore.showChatAndComment == false && <div style={{ width: "60px" }} />}
+                {projectStore.showChatAndComment && (
+                    <div style={{ width: "400px", marginRight: "60px", borderLeft: "1px solid #e4e4e8" }}>
+                        <div style={{ width: "390px", backgroundColor: "white", margin: "5px 5px", height: "calc(100vh - 96px)", borderRadius: "10px" }}>
+                            <ChatAndCommentPanel />
+                        </div>
+                    </div>
+                )}
+                {projectStore.showChatAndComment == false && <div style={{ width: "60px" }} />}
 
-            {projectStore.codeCommentThreadId != "" && (
-                <CodeCommentThreadModal threadId={projectStore.codeCommentThreadId} commentId={projectStore.codeCommentId} />
-            )}
-            {projectStore.curProjectId != "" && projectStore.showProjectSetting != null && (
-                <ProjectSettingModal />
-            )}
-            {projectStore.curProjectId != "" && ideaStore.showCreateIdea == true && (
-                <CreateIdeaModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.showPostHookModal == true && (
-                <GitPostHookModal />
-            )}
-            {projectStore.curProjectId != "" && entryStore.editEntryId != "" && (
-                <UpdateEntryModal />
-            )}
-            {entryStore.createEntryType != null && (
-                <CreateEntryModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.testCaseId != "" && (
-                <TestcaseDetailModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.createTestCase == true && (
-                <CreateTestCaseModal
-                    onCancel={() => projectStore.projectModal.setCreateTestCase(false, "", false)}
-                    onOk={() => {
-                        projectStore.projectModal.setCreateTestCase(false, "", false);
-                    }} />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.requirementId != "" && (
-                <RequirementDetailModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.createRequirement == true && (
-                <CreateRequirementModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.issueId != "" && (
-                <IssueDetailModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.createIssue == true && (
-                <CreateIssueModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.ideaKeyword != "" && (
-                <IdeaTipModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.createBulletin == true && (
-                <CreateBulletinModal />
-            )}
-            {projectStore.curProjectId != "" && projectStore.projectModal.bulletinId != "" && (
-                <ViewBulletinModal />
-            )}
-        </div>
+                {projectStore.codeCommentThreadId != "" && (
+                    <CodeCommentThreadModal threadId={projectStore.codeCommentThreadId} commentId={projectStore.codeCommentId} />
+                )}
+                {projectStore.curProjectId != "" && projectStore.showProjectSetting != null && (
+                    <ProjectSettingModal />
+                )}
+                {projectStore.curProjectId != "" && ideaStore.showCreateIdea == true && (
+                    <CreateIdeaModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.showPostHookModal == true && (
+                    <GitPostHookModal />
+                )}
+                {projectStore.curProjectId != "" && entryStore.editEntryId != "" && (
+                    <UpdateEntryModal />
+                )}
+                {entryStore.createEntryType != null && (
+                    <CreateEntryModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.testCaseId != "" && (
+                    <TestcaseDetailModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.createTestCase == true && (
+                    <CreateTestCaseModal
+                        onCancel={() => projectStore.projectModal.setCreateTestCase(false, "", false)}
+                        onOk={() => {
+                            projectStore.projectModal.setCreateTestCase(false, "", false);
+                        }} />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.requirementId != "" && (
+                    <RequirementDetailModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.createRequirement == true && (
+                    <CreateRequirementModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.issueId != "" && (
+                    <IssueDetailModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.createIssue == true && (
+                    <CreateIssueModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.ideaKeyword != "" && (
+                    <IdeaTipModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.createBulletin == true && (
+                    <CreateBulletinModal />
+                )}
+                {projectStore.curProjectId != "" && projectStore.projectModal.bulletinId != "" && (
+                    <ViewBulletinModal />
+                )}
+            </div>
+        </ErrorBoundary>
     );
 };
 

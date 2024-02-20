@@ -16,6 +16,8 @@ import LoginModal from '@/pages/User/LoginModal';
 import GlobalServerModal from '@/components/GlobalSetting/GlobalServerModal';
 import StartMinApp from '@/components/MinApp/StartMinApp';
 import { HotkeysProvider } from 'react-hotkeys-hook';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
 
 const { Content } = Layout;
 
@@ -45,14 +47,16 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
         {appStore.focusMode == false && <LeftMenu />}
         <Layout>
           <Header />
-          <Content
-            className={classNames(
-              style.basicContent,
-              pathname !== WORKBENCH_PATH && style.showbottomnav,
-            )}
-          >
-            {renderRoutes(route.routes, { sessionId: userStore.sessionId, projectId: curProjectId })}
-          </Content>
+          <ErrorBoundary>
+            <Content
+              className={classNames(
+                style.basicContent,
+                pathname !== WORKBENCH_PATH && style.showbottomnav,
+              )}
+            >
+              {renderRoutes(route.routes, { sessionId: userStore.sessionId, projectId: curProjectId })}
+            </Content>
+          </ErrorBoundary>
           {curProjectId && <Toolbar />}
           {curProjectId != '' && <BottomNav />}
         </Layout>
