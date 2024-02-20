@@ -23,7 +23,7 @@
     opacity: 0.6;
   }
 
-  @menuItems: idea, task, bug, setting, invite, record, access, appraise, appstore, sprit, req, dataanno, apicoll, code, cloud, testcase;
+  @menuItems: idea, task, bug, setting, invite, record, access, appraise, appstore, sprit, req, dataanno, apicoll, code, cloud, testcase, overview;
 
   .for(@data, @i: 1) when(@i =< length(@data)) {
     @item: extract(@data, @i);
@@ -64,7 +64,7 @@
     top: 1px;
   }
 
-  :global(.ant-switch-small.ant-switch-checked .ant-switch-handle){
+  :global(.ant-switch-small.ant-switch-checked .ant-switch-handle) {
     left: calc(100% - 8px);
   }
 }

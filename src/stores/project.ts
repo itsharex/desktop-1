@@ -4,7 +4,7 @@ import type { ProjectInfo, TagInfo } from '@/api/project';
 import { list as listProject, get_project as getProject, list_tag, TAG_SCOPRE_ALL, set_weight } from '@/api/project';
 import { request } from '@/utils/request';
 import type { PROJECT_SETTING_TAB } from '@/utils/constant';
-import { APP_PROJECT_OVERVIEW_PATH, PROJECT_HOME_TYPE } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH, PROJECT_HOME_TYPE } from '@/utils/constant';
 import { get_member_state as get_my_issue_state } from '@/api/project_issue';
 import type { History } from 'history';
 import { get_alarm_state } from "@/api/project_alarm";
@@ -407,7 +407,7 @@ export default class ProjectStore {
     } else {
       this.setCurProjectId(newProjectId);
       this.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
-      history.push(APP_PROJECT_OVERVIEW_PATH);
+      history.push(APP_PROJECT_HOME_PATH);
     }
   }
 
@@ -480,17 +480,17 @@ export default class ProjectStore {
 
   //显示沟通和评论
   private _showChatAndComment: boolean = false;
-  private _showChatAndCommentTab: "chat" | "comment" | "member" = "chat";
+  private _showChatAndCommentTab: "chat" | "comment" | "bulletin" | "member" = "chat";
 
   get showChatAndComment(): boolean {
     return this._showChatAndComment;
   }
 
-  get showChatAndCommentTab(): "chat" | "comment" | "member" {
+  get showChatAndCommentTab(): "chat" | "comment" | "bulletin" | "member" {
     return this._showChatAndCommentTab;
   }
 
-  setShowChatAndComment(val: boolean, tab: "chat" | "comment" | "member") {
+  setShowChatAndComment(val: boolean, tab: "chat" | "comment" | "bulletin" | "member") {
     runInAction(() => {
       this._showChatAndComment = val;
       this._showChatAndCommentTab = tab;

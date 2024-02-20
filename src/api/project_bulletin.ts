@@ -11,6 +11,7 @@ export type BulletinInfoKey = {
     update_display_name: string;
     update_logo_uri: string;
     update_time: number;
+    my_un_read: boolean;
 };
 
 export type CreateRequest = {

@@ -50,6 +50,7 @@ export namespace project {
   export type CreateBulletinNotice = {
     project_id: string;
     bulletin_id: string;
+    create_user_id: string;
   }
 
   export type UpdateBulletinNotice = {

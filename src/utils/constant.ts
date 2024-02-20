@@ -13,7 +13,6 @@ export const APP_PROJECT_KB_PATH = '/app/project/kb';
 export const APP_PROJECT_KB_DOC_PATH = '/app/project/kb/doc';
 export const APP_PROJECT_KB_BOARD_PATH = '/app/project/kb/board';
 export const APP_PROJECT_MY_WORK_PATH = '/app/project/my_work';
-export const APP_PROJECT_OVERVIEW_PATH = '/app/project/overview';
 
 export const APP_GROUP_PATH = '/app/group';
 export const APP_GROUP_HOME_PATH = '/app/group/home';
@@ -177,7 +176,6 @@ export const filterDocItemList = [
 ];
 
 export enum PROJECT_SETTING_TAB {
-  PROJECT_SETTING_LAYOUT,
   PROJECT_SETTING_ALARM,
   PROJECT_SETTING_TIPLIST,
   PROJECT_SETTING_TAGLIST,
