@@ -1,5 +1,5 @@
 import { MenuOutlined } from "@ant-design/icons";
-import { Dropdown } from "antd";
+import { Dropdown, Modal } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { MenuProps } from 'antd';
@@ -11,6 +11,7 @@ import type { ItemType } from "antd/lib/menu/hooks/useItems";
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 import { useHotkeys } from 'react-hotkeys-hook';
+import HotkeyHelpInfo from "@/pages/Project/Overview/components/HotkeyHelpInfo";
 
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
@@ -55,6 +56,8 @@ const MENU_KEY_HOME_BOARD = MENU_KEY_HOME_PREFIX + "board";
 const MENU_KEY_HOME_PAGES = MENU_KEY_HOME_PREFIX + "pages";
 const MENU_KEY_HOME_MYWORK = MENU_KEY_HOME_PREFIX + "mywork";
 
+const MENU_KEY_SHOW_HELP = "help.show"
+
 const ProjectQuickAccess = () => {
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
@@ -66,6 +69,7 @@ const ProjectQuickAccess = () => {
 
     const [items, setItems] = useState<MenuProps['items']>([]);
     const [_, setCreateFlag] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     const calcItems = () => {
         const tmpItems: MenuProps['items'] = [
@@ -253,6 +257,10 @@ const ProjectQuickAccess = () => {
             key: MENU_KEY_SHOW_TOOL_BAR_OVERVIEW,
             label: "查看项目信息",
         });
+        tmpItems.push({
+            key: MENU_KEY_SHOW_HELP,
+            label: "快捷键帮助(alt+h)",
+        });
         setItems(tmpItems);
     };
 
@@ -381,6 +389,9 @@ const ProjectQuickAccess = () => {
             case MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT:
                 projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
                 break;
+            case MENU_KEY_SHOW_HELP:
+                setShowHelp(oldValue => !oldValue);
+                break;
             default:
                 if (key.startsWith(MENU_KEY_HOME_PREFIX)) {
                     gotoHomePage(key);
@@ -409,6 +420,7 @@ const ProjectQuickAccess = () => {
     useHotkeys("alt+t", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_TASK_ALL));
     useHotkeys("alt+b", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_BUG_ALL));
     useHotkeys("alt+e", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_EVENTS));
+    useHotkeys("alt+h", () => processMenuKey(MENU_KEY_SHOW_HELP));
 
     useHotkeys("ctrl+n", () => {
         setCreateFlag(true);
@@ -499,11 +511,24 @@ const ProjectQuickAccess = () => {
     }, [projectStore.curProject?.setting, projectStore.curProjectId, memberStore.memberList]);
 
     return (
-        <Dropdown overlayStyle={{ minWidth: "100px" }} menu={{ items, subMenuCloseDelay: 0.05, onClick: (info: MenuInfo) => onMenuClick(info) }} trigger={["click"]} >
-            <a onClick={(e) => e.preventDefault()} style={{ margin: "0px 10px", color: "orange", fontSize: "18px" }} title="项目快捷菜单">
-                <MenuOutlined />
-            </a>
-        </Dropdown >
+        <>
+            <Dropdown overlayStyle={{ minWidth: "100px" }} menu={{ items, subMenuCloseDelay: 0.05, onClick: (info: MenuInfo) => onMenuClick(info) }} trigger={["click"]} >
+                <a onClick={(e) => e.preventDefault()} style={{ margin: "0px 10px", color: "orange", fontSize: "18px" }} title="项目快捷菜单">
+                    <MenuOutlined />
+                </a>
+            </Dropdown >
+            {showHelp == true && (
+                <Modal open title="快捷键帮助" footer={null}
+                    bodyStyle={{ height: "calc(100vh - 300px)", overflowY: "scroll",padding:"0px 0px" }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowHelp(false);
+                    }}>
+                    <HotkeyHelpInfo />
+                </Modal>
+            )}
+        </>
     );
 };
 
