@@ -134,7 +134,7 @@ const TestcaseList = () => {
                         )}
                         {activeKey == "list" && (
                             <Form layout="inline">
-                                <Form.Item label="只看我的关注">
+                                <Form.Item label="我的关注">
                                     <Checkbox checked={filterMyWatch} onChange={e => {
                                         e.stopPropagation();
                                         setFilterMyWatch(e.target.checked);
