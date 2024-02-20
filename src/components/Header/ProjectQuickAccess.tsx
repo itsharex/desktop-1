@@ -324,6 +324,7 @@ const ProjectQuickAccess = () => {
                     stateList: [],
                     execUserIdList: [],
                     checkUserIdList: [],
+                    tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL,
                 }, history);
                 break;
             case MENU_KEY_CREATE_TASK:
@@ -342,6 +343,7 @@ const ProjectQuickAccess = () => {
                     stateList: [],
                     execUserIdList: [],
                     checkUserIdList: [],
+                    tabType: ISSUE_TAB_LIST_TYPE.ISSUE_TAB_LIST_ALL,
                 }, history);
                 break;
             case MENU_KEY_CREATE_BUG:
