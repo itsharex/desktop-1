@@ -369,6 +369,9 @@ class LinkAuxStore {
       const taskLink = link as LinkTaskInfo;
       if (this.rootStore.projectStore.curProjectId != taskLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(taskLink.projectId);
+        if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
+          history.push(APP_PROJECT_HOME_PATH);
+        }
       }
       this.rootStore.projectStore.projectModal.setIssueIdAndType(taskLink.issueId, ISSUE_TYPE_TASK);
       this.rootStore.projectStore.projectModal.issueTab = taskLink.showTab;
@@ -376,6 +379,9 @@ class LinkAuxStore {
       const bugLink = link as LinkBugInfo;
       if (this.rootStore.projectStore.curProjectId != bugLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(bugLink.projectId);
+        if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
+          history.push(APP_PROJECT_HOME_PATH);
+        }
       }
       this.rootStore.projectStore.projectModal.setIssueIdAndType(bugLink.issueId, ISSUE_TYPE_BUG);
       this.rootStore.projectStore.projectModal.issueTab = bugLink.showTab;
@@ -410,6 +416,9 @@ class LinkAuxStore {
       const reqLink = link as LinkRequirementInfo;
       if (this.rootStore.projectStore.curProjectId != reqLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(reqLink.projectId);
+        if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
+          history.push(APP_PROJECT_HOME_PATH);
+        }
       }
       this.rootStore.projectStore.projectModal.requirementId = reqLink.requirementId;
       this.rootStore.projectStore.projectModal.requirementTab = reqLink.showTab;
