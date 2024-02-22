@@ -314,17 +314,18 @@ const ProjectHome = () => {
                             {projectStore.projectHome.contentActiveKey != "folder" && (
                                 <Form layout="inline">
                                     <FilterTwoTone style={{ fontSize: "24px", marginRight: "10px" }} />
-                                    <Form.Item label="过滤标题">
-                                        <Input style={{ minWidth: "100px" }} value={projectStore.projectHome.contentKeyword} onChange={e => {
+                                    <Form.Item>
+                                        <Input style={{ width: "140px" }} value={projectStore.projectHome.contentKeyword} onChange={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
                                             projectStore.projectHome.contentKeyword = e.target.value.trim();
-                                        }} allowClear />
+                                        }} allowClear placeholder="请输入标题关键词" />
                                     </Form.Item>
                                     {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).length > 0 && (
-                                        <Form.Item label="过滤标签">
+                                        <Form.Item>
                                             <Select mode="multiple" style={{ minWidth: "100px" }}
-                                                allowClear value={projectStore.projectHome.contentTagIdList} onChange={value => projectStore.projectHome.contentTagIdList = value}>
+                                                allowClear value={projectStore.projectHome.contentTagIdList} onChange={value => projectStore.projectHome.contentTagIdList = value}
+                                                placeholder="请选择标签">
                                                 {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).map(item => (
                                                     <Select.Option key={item.tag_id} value={item.tag_id}>
                                                         <div style={{ backgroundColor: item.bg_color, padding: "0px 4px" }}>{item.tag_name}</div></Select.Option>
@@ -344,7 +345,7 @@ const ProjectHome = () => {
                                             <Select.Option value={ENTRY_TYPE_DATA_ANNO}>数据标注</Select.Option>
                                         </Select>
                                     </Form.Item>
-                                    <Form.Item label="只看我的关注">
+                                    <Form.Item label="我的关注">
                                         <Switch checked={projectStore.projectHome.contentFilterByWatch} onChange={value => projectStore.projectHome.contentFilterByWatch = value} />
                                     </Form.Item>
                                 </Form>

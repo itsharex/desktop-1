@@ -387,12 +387,14 @@ class NoticeStore {
       }
     }
 
-    await appWindow.show();
-    await appWindow.unminimize();
-    await appWindow.setAlwaysOnTop(true);
-    setTimeout(() => {
-      appWindow.setAlwaysOnTop(false);
-    }, 200);
+    if (ev.shortNoteModeType != SHORT_NOTE_MODE_SHOW) {
+      await appWindow.show();
+      await appWindow.unminimize();
+      await appWindow.setAlwaysOnTop(true);
+      setTimeout(() => {
+        appWindow.setAlwaysOnTop(false);
+      }, 200);
+    }
   }
 
 }

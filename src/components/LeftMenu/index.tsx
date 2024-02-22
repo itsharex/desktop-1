@@ -33,6 +33,7 @@ const LeftMenu: React.FC = () => {
 
       <div>
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(WORKBENCH_PATH) ? cls.active_menu : ""}`}
+          style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();

@@ -29,7 +29,6 @@ const ProjectTipList = () => {
                 return value;
             });
             if (tmpList.length > 0) {
-
                 setTipIndex(value => {
                     if (value + 1 >= tmpList.length) {
                         return 0;
@@ -38,7 +37,7 @@ const ProjectTipList = () => {
                     }
                 })
             }
-        }, 120000);
+        }, 60 * 1000);
         return () => {
             clearInterval(t);
         };

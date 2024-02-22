@@ -7,6 +7,7 @@ import { APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
 import style from './style.module.less';
 import { renderRoutes } from 'react-router-config';
 import { useStores } from '@/hooks';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const WorkPlanLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   const projectStore = useStores('projectStore');
@@ -25,12 +26,14 @@ const WorkPlanLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   };
 
   return (
-    <div style={{ width: calcWidth()}}>
-      <WorkPlan />
-      {pathname != APP_PROJECT_WORK_PLAN_PATH && (
-        <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>
-      )}
-    </div>
+    <ErrorBoundary>
+      <div style={{ width: calcWidth() }}>
+        <WorkPlan />
+        {pathname != APP_PROJECT_WORK_PLAN_PATH && (
+          <div className={style.toolsModel}>{renderRoutes(route.routes)}</div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 };
 

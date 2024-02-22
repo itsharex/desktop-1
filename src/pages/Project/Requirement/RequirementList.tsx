@@ -362,7 +362,7 @@ const RequirementList = () => {
                 <Card bordered={false}
                     extra={<Space>
                         <Form layout="inline">
-                            <Form.Item label="只看我的关注">
+                            <Form.Item label="我的关注">
                                 <Switch checked={filterByWatch} onChange={value => {
                                     setFilterByWatch(value);
                                 }} />
