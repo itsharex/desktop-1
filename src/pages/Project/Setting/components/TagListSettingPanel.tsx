@@ -75,7 +75,6 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
                     use_in_task: tagInfo.info.use_in_task,
                     use_in_bug: tagInfo.info.use_in_bug,
                     use_in_req: tagInfo.info.use_in_req,
-                    use_in_idea: tagInfo.info.use_in_idea,
                     use_in_sprit_summary: tagInfo.info.use_in_sprit_summary,
                     use_in_entry: tagInfo.info.use_in_entry,
                 }));
@@ -95,7 +94,6 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
                     use_in_task: tagInfo.info.use_in_task,
                     use_in_bug: tagInfo.info.use_in_bug,
                     use_in_req: tagInfo.info.use_in_req,
-                    use_in_idea: tagInfo.info.use_in_idea,
                     use_in_sprit_summary: tagInfo.info.use_in_sprit_summary,
                     use_in_entry: tagInfo.info.use_in_entry,
                 }));
@@ -241,25 +239,6 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
             ),
         },
         {
-            title: "知识点",
-            width: 20,
-            render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_idea}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
-                        const tmpList = tagList.slice();
-                        const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
-                        if (index != -1) {
-                            tmpList[index].info.use_in_idea = e.target.checked;
-                            tmpList[index].hasUpdate = true;
-                            setTagList(tmpList);
-                            setHasChange(true);
-                        }
-                    }} />
-            ),
-        },
-        {
             title: "工作总结",
             width: 20,
             render: (_, row: ExTagInfo) => (
@@ -324,7 +303,6 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
                                 use_in_task: true,
                                 use_in_bug: true,
                                 use_in_req: true,
-                                use_in_idea: true,
                                 use_in_sprit_summary: true,
                                 use_in_entry: true,
                             },

@@ -598,13 +598,11 @@ pub mod idea {
     pub enum Event {
         CreateIdeaEvent(events_idea::CreateIdeaEvent),
         UpdateIdeaContentEvent(events_idea::UpdateIdeaContentEvent),
-        UpdateIdeaTagEvent(events_idea::UpdateIdeaTagEvent),
         UpdateIdeaKeywordEvent(events_idea::UpdateIdeaKeywordEvent),
-        LockIdeaEvent(events_idea::LockIdeaEvent),
-        UnlockIdeaEvent(events_idea::UnlockIdeaEvent),
         RemoveIdeaEvent(events_idea::RemoveIdeaEvent),
         SetAppraiseEvent(events_idea::SetAppraiseEvent),
         CancelAppraiseEvent(events_idea::CancelAppraiseEvent),
+        ImportIdeaEvent(events_idea::ImportIdeaEvent),
     }
 
     pub fn decode_event(data: &Any) -> Option<Event> {
@@ -616,21 +614,9 @@ pub mod idea {
             if let Ok(ev) = events_idea::UpdateIdeaContentEvent::decode(data.value.as_slice()) {
                 return Some(Event::UpdateIdeaContentEvent(ev));
             }
-        } else if data.type_url == events_idea::UpdateIdeaTagEvent::type_url() {
-            if let Ok(ev) = events_idea::UpdateIdeaTagEvent::decode(data.value.as_slice()) {
-                return Some(Event::UpdateIdeaTagEvent(ev));
-            }
         } else if data.type_url == events_idea::UpdateIdeaKeywordEvent::type_url() {
             if let Ok(ev) = events_idea::UpdateIdeaKeywordEvent::decode(data.value.as_slice()) {
                 return Some(Event::UpdateIdeaKeywordEvent(ev));
-            }
-        } else if data.type_url == events_idea::LockIdeaEvent::type_url() {
-            if let Ok(ev) = events_idea::LockIdeaEvent::decode(data.value.as_slice()) {
-                return Some(Event::LockIdeaEvent(ev));
-            }
-        } else if data.type_url == events_idea::UnlockIdeaEvent::type_url() {
-            if let Ok(ev) = events_idea::UnlockIdeaEvent::decode(data.value.as_slice()) {
-                return Some(Event::UnlockIdeaEvent(ev));
             }
         } else if data.type_url == events_idea::RemoveIdeaEvent::type_url() {
             if let Ok(ev) = events_idea::RemoveIdeaEvent::decode(data.value.as_slice()) {
@@ -643,6 +629,10 @@ pub mod idea {
         } else if data.type_url == events_idea::CancelAppraiseEvent::type_url() {
             if let Ok(ev) = events_idea::CancelAppraiseEvent::decode(data.value.as_slice()) {
                 return Some(Event::CancelAppraiseEvent(ev));
+            }
+        } else if data.type_url == events_idea::ImportIdeaEvent::type_url() {
+            if let Ok(ev) = events_idea::ImportIdeaEvent::decode(data.value.as_slice()) {
+                return Some(Event::ImportIdeaEvent(ev));
             }
         }
         None

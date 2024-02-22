@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import type { Idea, APPRAISE_TYPE } from "@/api/project_idea";
 import {
     APPRAISE_AGREE, APPRAISE_DIS_AGREE, set_appraise, cancel_appraise,
-    lock_idea, unlock_idea, update_idea_content, remove_idea, update_idea_tag, update_idea_keyword
+    update_idea_content, remove_idea, update_idea_keyword
 } from "@/api/project_idea";
 import { Card, Input, Modal, Popover, Select, Space, Tag, message } from "antd";
 import { ReadOnlyEditor, useCommonEditor } from '@/components/Editor';
 import s from "./IdeaContent.module.less";
-import { DislikeFilled, DislikeOutlined, EditOutlined, LikeFilled, LikeOutlined, LockOutlined, MoreOutlined, UnlockOutlined } from "@ant-design/icons";
+import { DislikeFilled, DislikeOutlined, EditOutlined, LikeFilled, LikeOutlined, MoreOutlined } from "@ant-design/icons";
 import { observer } from 'mobx-react';
 import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
@@ -29,9 +29,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
 
     const [title, setTitle] = useState(props.idea.basic_info.title);
     const [inEditContent, setInEditContent] = useState(false);
-
-    const [inEditTag, setInEditTag] = useState(false);
-    const [tagIdList, setTagIdList] = useState(props.idea.basic_info.tag_id_list);
 
     const [inEditKeyword, setInEditKeyword] = useState(false);
     const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
@@ -72,24 +69,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
         props.onChange();
     };
 
-    const lockIdea = async () => {
-        await request(lock_idea({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-        }));
-        props.onChange();
-    };
-
-    const unLockIdea = async () => {
-        await request(unlock_idea({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-        }));
-        props.onChange();
-    };
-
     const updateContent = async () => {
         if (title.trim() == "") {
             message.error("标题不能为空");
@@ -119,17 +98,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
         props.onRemove();
     }
 
-    const updateTag = async () => {
-        await request(update_idea_tag({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-            tag_id_list: tagIdList,
-        }));
-        setInEditTag(false);
-        props.onChange();
-    };
-
     const updateKeyword = async () => {
         await request(update_idea_keyword({
             session_id: userStore.sessionId,
@@ -146,25 +114,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             <div className={s.content}>
                 <Card title={
                     <Space style={{ fontSize: "20px" }}>
-                        {props.idea.locked == true && (
-                            <Button type="text" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px" }} disabled={!props.idea.user_perm.can_change_lock}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    unLockIdea();
-                                }}>
-                                <LockOutlined />
-                            </Button>)}
-                        {props.idea.locked == false && (
-                            <Button type="text" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px" }} disabled={!props.idea.user_perm.can_change_lock}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    lockIdea();
-                                }}
-                            >
-                                <UnlockOutlined />
-                            </Button>)}
                         {inEditContent == false && props.idea.basic_info.title}
                         {inEditContent == true && (
                             <Input value={title} style={{ width: "calc(100vw - 1000px)" }} onChange={e => {
@@ -249,51 +198,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             </div>
             <div className={s.side}>
                 <div className={s.extra_info}>
-                    <h3>标签:</h3>
-                    {inEditTag == false && (
-                        <div>
-                            {(projectStore.curProject?.tag_list ?? []).filter(tag => tag.use_in_idea).filter(tag => props.idea.basic_info.tag_id_list.includes(tag.tag_id)).map(tag => (
-                                <Tag key={tag.tag_id}><span style={{ backgroundColor: tag.bg_color, padding: "0px 4px" }}>{tag.tag_name}</span></Tag>
-                            ))}
-                            {props.idea.user_perm.can_update && <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setInEditTag(true);
-                            }}><EditOutlined /></a>}
-                        </div>
-                    )}
-                    {inEditTag == true && (
-                        <>
-                            <Select value={tagIdList.filter(tagId => (projectStore.curProject?.tag_list ?? []).filter(tagDef => tagDef.use_in_idea).map(tagDef => tagDef.tag_id).includes(tagId))} mode="multiple" style={{ width: "100%" }}
-                                onChange={value => {
-                                    if ((value as string[]).length > 0) {
-                                        setTagIdList(value as string[]);
-                                    }
-                                }}
-                                placement="topLeft">
-                                {(projectStore.curProject?.tag_list ?? []).filter(tag => tag.use_in_idea).map(tag => (
-                                    <Select.Option key={tag.tag_id} value={tag.tag_id}>
-                                        <span style={{ backgroundColor: tag.bg_color, padding: "0px 4px" }}>{tag.tag_name}</span>
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                            <div className={s.btn_wrap}>
-                                <Space className={s.btn}>
-                                    <Button type="default" onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setTagIdList(props.idea.basic_info.tag_id_list);
-                                        setInEditTag(false);
-                                    }}>取消</Button>
-                                    <Button onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        updateTag();
-                                    }}>保存</Button>
-                                </Space>
-                            </div>
-                        </>
-                    )}
                     <h3>关键词:</h3>
                     {inEditKeyword == false && (
                         <div>

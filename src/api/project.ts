@@ -83,7 +83,6 @@ export type TagInfo = {
   use_in_task: boolean;
   use_in_bug: boolean;
   use_in_req: boolean;
-  use_in_idea: boolean;
   use_in_sprit_summary: boolean;
   use_in_entry: boolean;
 };
@@ -122,6 +121,7 @@ export type ProjectInfo = {
   test_result_fs_id: string;
 
   default_chat_group_id: string;
+  default_idea_group_id: string;
 
   // default_doc_space_id: string;
   user_project_perm: UserProjectPerm;
@@ -191,7 +191,6 @@ export type AddTagRequest = {
   use_in_task: boolean;
   use_in_bug: boolean;
   use_in_req: boolean;
-  use_in_idea: boolean;
   use_in_sprit_summary: boolean;
   use_in_entry: boolean;
 };
@@ -211,7 +210,6 @@ export type UpdateTagRequest = {
   use_in_task: boolean;
   use_in_bug: boolean;
   use_in_req: boolean;
-  use_in_idea: boolean;
   use_in_sprit_summary: boolean;
   use_in_entry: boolean;
 };

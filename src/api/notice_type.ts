@@ -347,8 +347,51 @@ export namespace idea {
     remove_keyword_list: string[];
   };
 
+  export type CreateGroupNotice = {
+    project_id: string;
+  };
+
+  export type UpdateGroupNotice = {
+    project_id: string;
+    idea_group_id: string;
+  }
+
+  export type RemoveGroupNotice = {
+    project_id: string;
+    idea_group_id: string;
+  };
+
+  export type CreateIdeaNotice = {
+    project_id: string;
+    idea_group_id: string;
+  };
+
+  export type UpdateIdeaNotice = {
+    project_id: string;
+    idea_id: string;
+  };
+
+  export type RemoveIdeaNotice = {
+    project_id: string;
+    idea_id: string;
+  };
+
+  export type MoveIdeaNotice = {
+    project_id: string;
+    idea_id: string;
+    from_idea_group_id: string;
+    to_idea_group_id: string;
+  };
+
   export type AllNotice = {
     KeywordChangeNotice?: KeywordChangeNotice;
+    CreateGroupNotice?: CreateGroupNotice;
+    UpdateGroupNotice?: UpdateGroupNotice;
+    RemoveGroupNotice?: RemoveGroupNotice;
+    CreateIdeaNotice?: CreateIdeaNotice;
+    UpdateIdeaNotice?: UpdateIdeaNotice;
+    RemoveIdeaNotice?: RemoveIdeaNotice;
+    MoveIdeaNotice?: MoveIdeaNotice;
   };
 }
 

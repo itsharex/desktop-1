@@ -23,7 +23,7 @@ const CreateModal = () => {
         fsId: projectStore.curProject?.idea_fs_id ?? "",
         ownerType: FILE_OWNER_TYPE_PROJECT,
         ownerId: projectStore.curProjectId,
-        projectId:projectStore.curProjectId,
+        projectId: projectStore.curProjectId,
         historyInToolbar: false,
         clipboardInToolbar: false,
         commonInToolbar: true,
@@ -32,7 +32,6 @@ const CreateModal = () => {
     });
 
     const [title, setTitle] = useState(ideaStore.createTitle);
-    const [tagIdList, setTagIdList] = useState<string[]>([]);
     const [keywordList, setKeywordList] = useState<string[]>([]);
 
 
@@ -58,8 +57,12 @@ const CreateModal = () => {
             basic_info: {
                 title: title.trim(),
                 content: JSON.stringify(content),
-                tag_id_list: tagIdList,
                 keyword_list: keywordList,
+            },
+            idea_group_id: "", //TODO
+            idea_perm: { //TODO
+                update_for_all: true,
+                extra_update_user_id_list: [],
             },
         }));
         //变更文件Owner
@@ -95,16 +98,6 @@ const CreateModal = () => {
                     <div className="_editChatContext">
                         {editor}
                     </div>
-                </Form.Item>
-                <Form.Item label="标签">
-                    <Select mode="multiple" onChange={value => setTagIdList(value as string[])}
-                        placement="topLeft" placeholder="请选择对应的知识点标签">
-                        {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_idea).map(item => (
-                            <Select.Option key={item.tag_id} value={item.tag_id}>
-                                <span style={{ backgroundColor: item.bg_color, padding: "4px 4px" }}>{item.tag_name}</span>
-                            </Select.Option>
-                        ))}
-                    </Select>
                 </Form.Item>
                 <Form.Item label="关键词">
                     <Select mode="tags" onChange={value => setKeywordList((value as string[]).map(item => item.toLowerCase()))}

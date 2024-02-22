@@ -40,19 +40,6 @@ const TagListPanel= () => {
                         }}
                     >全部知识点</div>
                 </List.Item>
-                {(projectStore.curProject?.tag_list??[]).filter(item=>item.use_in_idea).map(item => (
-                    <List.Item key={item.tag_id} className={item.tag_id == state?.tagId ? s.cur_tag : ""} style={{ padding: "0px 0px" }}>
-                        <div className={s.tag} style={{ backgroundColor: item.bg_color }}
-                            onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                if (state?.tagId != item.tag_id) {
-                                    linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, item.tag_id, state?.keywordList ?? []), history);
-                                }
-                            }}
-                        >{item.tag_name}</div>
-                    </List.Item>
-                ))}
             </List>
         </div>
     );

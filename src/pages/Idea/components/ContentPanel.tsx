@@ -67,11 +67,11 @@ const ContentPanel = () => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
             list_param: {
-                filter_by_tag: state?.tagId != "",
-                tag_id_list: state!.tagId == "" ? [] : [state!.tagId],
                 filter_by_keyword: keywordList.length > 0,
                 keyword_list: keywordList,
                 keyword_search_type: keywordSearchType,
+                filter_by_group_or_store_id: false, //TODO
+                group_or_store_id: "",//TODO
             },
             sort_type: keywordList.length > 0 ? IDEA_SORT_APPRAISE : IDEA_SORT_UPDATE_TIME,
             offset: PAGE_SIZE * curPage,
