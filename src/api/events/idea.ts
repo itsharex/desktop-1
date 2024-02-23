@@ -48,7 +48,6 @@ function get_update_idea_content_simple_content(
   ];
 }
 
-
 export type UpdateIdeaKeywordEvent = {
   idea_id: string;
   title: string;
@@ -134,8 +133,11 @@ function get_import_idea_simple_content(ev: PluginEvent,
   skip_prj_name: boolean,
   inner: ImportIdeaEvent,
 ): LinkInfo[] {
-  //TODO
-  return [];
+  return [
+    new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 导入知识点`),
+    new LinkIdeaPageInfo(inner.name, ev.project_id, inner.idea_group_id, []),
+    new LinkNoneInfo(`共导入${inner.count}条。`),
+  ];
 }
 
 export class AllIdeaEvent {
