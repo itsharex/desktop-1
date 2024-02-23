@@ -77,6 +77,9 @@ export default class ProjectStore {
         this.rootStore.memberStore.loadMemberList(val),
         this.rootStore.ideaStore.loadKeyword(val),
       ]);
+      this.rootStore.ideaStore.searchKeywords = [];
+      this.rootStore.ideaStore.curIdeaGroupId = "";
+      this.rootStore.ideaStore.curIdeaId = "";
 
       this.setCodeCommentInfo("", "");
       this.showProjectSetting = null;

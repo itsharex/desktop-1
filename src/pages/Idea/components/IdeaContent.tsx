@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import type { Idea, APPRAISE_TYPE } from "@/api/project_idea";
+import type { Idea, APPRAISE_TYPE, IdeaGroup } from "@/api/project_idea";
 import {
     APPRAISE_AGREE, APPRAISE_DIS_AGREE, set_appraise, cancel_appraise,
-    update_idea_content, remove_idea, update_idea_keyword
+    update_idea_content, remove_idea, update_idea_keyword, move_idea,
 } from "@/api/project_idea";
-import { Card, Input, Modal, Popover, Select, Space, Tag, message } from "antd";
+import { Card, Divider, Input, Modal, Popover, Select, Space, Tag, message } from "antd";
 import { ReadOnlyEditor, useCommonEditor } from '@/components/Editor';
 import s from "./IdeaContent.module.less";
 import { DislikeFilled, DislikeOutlined, EditOutlined, LikeFilled, LikeOutlined, MoreOutlined } from "@ant-design/icons";
@@ -15,17 +15,20 @@ import Button from "@/components/Button";
 import { FILE_OWNER_TYPE_IDEA } from "@/api/fs";
 import IdeaAppraiseModal from "./IdeaAppraiseModal";
 import IdeaEventModal from "./IdeaEventModal";
+import UserPhoto from "@/components/Portrait/UserPhoto";
+import EditPermModal from "./EditPermModal";
+import { EditSelect } from "@/components/EditCell/EditSelect";
 
 interface IdeaContentProps {
     idea: Idea;
-    onChange: () => void;
-    onRemove: () => void;
+    groupList: IdeaGroup[];
 }
 
 const IdeaContent: React.FC<IdeaContentProps> = (props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const ideaStore = useStores('ideaStore');
+    const memberStore = useStores('memberStore');
 
     const [title, setTitle] = useState(props.idea.basic_info.title);
     const [inEditContent, setInEditContent] = useState(false);
@@ -36,6 +39,8 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
     const [showAppraise, setShowAppraise] = useState(false);
     const [showEvent, setShowEvent] = useState(false);
     const [showRemove, setShowRemove] = useState(false);
+
+    const [showEditPermModal, setShowEditPermModal] = useState(false);
 
     const { editor, editorRef } = useCommonEditor({
         content: props.idea.basic_info.content,
@@ -57,7 +62,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             idea_id: props.idea.idea_id,
             appraise_type: appraiseType,
         }));
-        props.onChange();
     };
 
     const cancelAgree = async () => {
@@ -66,7 +70,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             project_id: projectStore.curProjectId,
             idea_id: props.idea.idea_id,
         }));
-        props.onChange();
     };
 
     const updateContent = async () => {
@@ -84,7 +87,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             title: title.trim(),
             content: JSON.stringify(content),
         }));
-        props.onChange();
         setInEditContent(false);
     };
 
@@ -95,7 +97,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             idea_id: props.idea.idea_id,
         }));
         setShowRemove(false);
-        props.onRemove();
     }
 
     const updateKeyword = async () => {
@@ -106,7 +107,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             keyword_list: keywordList,
         }));
         setInEditKeyword(false);
-        props.onChange();
     }
 
     return (
@@ -152,6 +152,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                                                     setShowAppraise(true);
                                                 }}>查看评价详情</Button>
                                             </div>
+                                            <Divider style={{ margin: "4px" }} />
                                             <div>
                                                 <Button type="link" danger disabled={!props.idea.user_perm.can_remove} onClick={e => {
                                                     e.stopPropagation();
@@ -242,6 +243,59 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                             </div>
                         </>
                     )}
+                    <h3>分组</h3>
+                    <div>
+                        <EditSelect editable={props.idea.user_perm.can_update} curValue={props.idea.idea_group_id} itemList={props.groupList.map(item => ({
+                            value: item.idea_group_id,
+                            label: item.name,
+                            color: "black"
+                        }))}
+                            onChange={async (value: string | number | undefined) => {
+                                try {
+                                    await request(move_idea({
+                                        session_id: userStore.sessionId,
+                                        project_id: projectStore.curProjectId,
+                                        idea_id: props.idea.idea_id,
+                                        idea_group_id: value as string,
+                                    }));
+                                    message.info("设置成功");
+                                    return true;
+                                } catch (e) {
+                                    console.log(e);
+                                    return false;
+                                }
+                            }} showEditIcon={true} allowClear={false} width="100%" />
+                    </div>
+                    <h3>编辑权限</h3>
+                    {props.idea.idea_perm.update_for_all == true && (
+                        <Space>
+                            <span>全体成员可编辑</span>
+                            {props.idea.user_perm.can_update && (
+                                <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowEditPermModal(true);
+                                }} />
+                            )}
+                        </Space>
+                    )}
+                    {props.idea.idea_perm.update_for_all == false && (
+                        <div>
+                            {props.idea.idea_perm.extra_update_user_id_list.map(userId => memberStore.getMember(userId)).filter(member => member != undefined).map(member => (
+                                <Tag key={member?.member.member_user_id}>
+                                    <Space>
+                                        <UserPhoto logoUri={member?.member.logo_uri ?? ""} style={{ width: "16px", borderRadius: "10px" }} />
+                                        {member?.member.display_name}
+                                    </Space>
+                                </Tag>
+                            ))}
+                            {props.idea.user_perm.can_update && <a onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowEditPermModal(true);
+                            }}><EditOutlined /></a>}
+                        </div>
+                    )}
                 </div>
                 <div className={s.agree_wrap}>
                     <div>
@@ -304,6 +358,9 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                     }}>
                     是否删除知识点&nbsp;{props.idea.basic_info.title}?
                 </Modal>
+            )}
+            {showEditPermModal == true && (
+                <EditPermModal ideaId={props.idea.idea_id} ideaPerm={props.idea.idea_perm} onClose={() => setShowEditPermModal(false)} />
             )}
         </div>
     );

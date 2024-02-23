@@ -139,6 +139,18 @@ export type ListGroupResponse = {
     group_list: IdeaGroup[];
 };
 
+export type GetGroupRequest = {
+    session_id: string;
+    project_id: string;
+    idea_group_id: string;
+};
+
+export type GetGroupResponse = {
+    code: number;
+    err_msg: string;
+    group: IdeaGroup;
+}
+
 export type RemoveGroupRequest = {
     session_id: string;
     project_id: string;
@@ -350,6 +362,15 @@ export async function list_group(request: ListGroupRequest): Promise<ListGroupRe
     const cmd = 'plugin:project_idea_api|list_group';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个点子分组
+export async function get_group(request: GetGroupRequest): Promise<GetGroupResponse> {
+    const cmd = 'plugin:project_idea_api|get_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetGroupResponse>(cmd, {
         request,
     });
 }
