@@ -1,9 +1,61 @@
-import { Form, Input, InputNumber, Modal, Tabs, message } from "antd";
-import React, { useState } from "react";
+import { Button, Card, Form, Input, InputNumber, List, Modal, Tabs, message } from "antd";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { create_group } from "@/api/project_idea";
+import type { IdeaStoreCate, IdeaStore } from "@/api/project_idea";
+import { create_group, list_store_cate, list_store, import_store } from "@/api/project_idea";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
+
+
+interface ImportIdeaStoreProps {
+    importStoreId: string;
+    onChange: (newStoreId: string) => void;
+}
+
+const ImportIdeaStore = observer((props: ImportIdeaStoreProps) => {
+    const [storeCateList, setStoreCateList] = useState([] as IdeaStoreCate[]);
+    const [storeList, setStoreList] = useState([] as IdeaStore[]);
+
+    const loadStoreCateList = async () => {
+        const res = await request(list_store_cate({}));
+        setStoreCateList(res.cate_list);
+    };
+
+    const loadStoreList = async () => {
+        const res = await request(list_store({
+            filter_by_store_cate_id: false,
+            store_cate_id: "",
+        }));
+        setStoreList(res.store_list);
+    };
+
+
+    useEffect(() => {
+        loadStoreCateList();
+        loadStoreList();
+    }, []);
+
+    return (
+        <div style={{ maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}>
+            {storeCateList.map(cateItem => (
+                <Card title={cateItem.name} bordered={false}>
+                    <List rowKey="idea_store_id" dataSource={storeList.filter(storeItem => storeItem.store_cate_id == cateItem.store_cate_id)}
+                        grid={{ gutter: 16 }}
+                        renderItem={storeItem => (
+                            <List.Item>
+                                <Button type="text" style={{ backgroundColor: (storeItem.idea_store_id == props.importStoreId) ? "#0078F7" : "#eee" }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        props.onChange(storeItem.idea_store_id);
+                                    }}>{storeItem.name}</Button>
+                            </List.Item>
+                        )} />
+                </Card>
+            ))}
+        </div>
+    );
+});
 
 export interface CreateOrImportGroupModalProps {
     onClose: () => void;
@@ -18,8 +70,12 @@ const CreateOrImportGroupModal = (props: CreateOrImportGroupModalProps) => {
     const [groupName, setGroupName] = useState("");
     const [groupWeight, setGroupWeight] = useState(0);
 
+    const [importStoreId, setImportStoreId] = useState("");
+
     const isValid = () => {
         if (activeKey == "add" && groupName != "") {
+            return true;
+        } else if (activeKey == "import" && importStoreId != "") {
             return true;
         }
         return false;
@@ -39,11 +95,25 @@ const CreateOrImportGroupModal = (props: CreateOrImportGroupModalProps) => {
         props.onClose();
     };
 
+    const importStore = async () => {
+        if (importStoreId == "") {
+            return;
+        }
+        await request(import_store({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            idea_store_id: importStoreId,
+        }));
+        message.info("导入知识库成功");
+        setImportStoreId("");
+        props.onClose();
+    };
+
     return (
         <Modal open
             okText={activeKey == "add" ? "创建" : "导入"}
             okButtonProps={{ disabled: !isValid() }}
-            bodyStyle={{padding:"4px 10px"}}
+            bodyStyle={{ padding: "4px 10px" }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -55,7 +125,7 @@ const CreateOrImportGroupModal = (props: CreateOrImportGroupModalProps) => {
                 if (activeKey == "add") {
                     createGroup();
                 } else if (activeKey == "import") {
-                    //TODO
+                    importStore();
                 }
             }}>
             <Tabs activeKey={activeKey} onChange={key => setActiveKey(key as "add" | "import")}
@@ -86,6 +156,7 @@ const CreateOrImportGroupModal = (props: CreateOrImportGroupModalProps) => {
                     {
                         key: "import",
                         label: "导入知识点仓库",
+                        children: <ImportIdeaStore importStoreId={importStoreId} onChange={newStoreId => setImportStoreId(newStoreId)} />,
                     }
                 ]} />
         </Modal>
