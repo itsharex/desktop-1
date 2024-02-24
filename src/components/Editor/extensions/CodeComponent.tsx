@@ -307,6 +307,8 @@ export type EditCodeProps = NodeViewComponentProps & {
 
 export const EditCode: React.FC<EditCodeProps> = (props) => {
   const [lang, setLang] = useState(props.lang);
+  const [code, setCode] = useState(props.code);
+
   const { deleteCode } = useCommands();
   const removeNode = () => {
     deleteCode((props.getPosition as () => number)());
@@ -333,7 +335,7 @@ export const EditCode: React.FC<EditCodeProps> = (props) => {
         </div>
 
         <CodeEditor
-          defaultValue={props.code}
+          value={code}
           language={lang}
           minHeight={200}
           placeholder="请输入代码"
@@ -344,6 +346,7 @@ export const EditCode: React.FC<EditCodeProps> = (props) => {
               lang: lang,
               code: e.target.value,
             });
+            setCode(e.target.value);
           }}
           style={{
             fontSize: 14,

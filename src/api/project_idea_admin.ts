@@ -128,9 +128,8 @@ export type AdminRemoveIdeaResponse = {
 };
 
 
-export type AdminListIdeaRequest  = {
+export type AdminListIdeaRequest = {
     admin_session_id: string;
-    idea_store_id: string;
     list_param: ListIdeaParam;
     offset: number;
     limit: number;
@@ -141,6 +140,17 @@ export type AdminListIdeaResponse = {
     err_msg: string;
     total_count: number;
     idea_list: IdeaInStore[];
+};
+
+export type AdminGetIdeaRequest = {
+    admin_session_id: string;
+    idea_id: string;
+};
+
+export type AdminGetIdeaResponse = {
+    code: number;
+    err_msg: string;
+    idea: IdeaInStore;
 };
 
 //创建点子库类别
@@ -247,6 +257,15 @@ export async function list_idea(request: AdminListIdeaRequest): Promise<AdminLis
     const cmd = 'plugin:project_idea_admin_api|list_idea';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminListIdeaResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个点子
+export async function get_idea(request: AdminGetIdeaRequest): Promise<AdminGetIdeaResponse> {
+    const cmd = 'plugin:project_idea_admin_api|get_idea';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<AdminGetIdeaResponse>(cmd, {
         request,
     });
 }

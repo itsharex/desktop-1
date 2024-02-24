@@ -100,6 +100,7 @@ export type IdeaStore = {
     name: string;
     weight: number;
     idea_count: number;
+    store_cate_id: string;
 };
 
 export type CreateGroupRequest = {
@@ -319,6 +320,7 @@ export type ListStoreCateResponse = {
 };
 
 export type ListStoreRequest = {
+    filter_by_store_cate_id: boolean;
     store_cate_id: string;
 };
 
