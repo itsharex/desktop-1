@@ -28,6 +28,7 @@ import { LocalIssueStore, LocalTestcaseStore } from "@/stores/local";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
 import { list_by_sprit } from "@/api/project_testcase";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export interface SpritStatus {
     taskCount: number;
@@ -368,44 +369,70 @@ const SpritDetail = () => {
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.issue_list_type != ISSUE_LIST_KANBAN && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>列表</span>} key="issue">
                                 {spritTab == "issue" && (
-                                    <IssuePanel spritId={entryStore.curEntry?.entry_id ?? ""} startTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.start_time ?? 0}
-                                        endTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.end_time ?? 0}
-                                        memberId={selMemberUserId} taskStore={taskStore} bugStore={bugStore} />
+                                    <ErrorBoundary>
+                                        <IssuePanel spritId={entryStore.curEntry?.entry_id ?? ""} startTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.start_time ?? 0}
+                                            endTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.end_time ?? 0}
+                                            memberId={selMemberUserId} taskStore={taskStore} bugStore={bugStore} />
+                                    </ErrorBoundary>
                                 )}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.issue_list_type != ISSUE_LIST_LIST && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>看板</span>} key="kanban">
-                                {spritTab == "kanban" && <KanbanPanel memberId={selMemberUserId} spritInfo={spritInfo} entryInfo={entryStore.curEntry} taskStore={taskStore} bugStore={bugStore} />}
+                                {spritTab == "kanban" && (
+                                    <ErrorBoundary>
+                                        <KanbanPanel memberId={selMemberUserId} spritInfo={spritInfo} entryInfo={entryStore.curEntry} taskStore={taskStore} bugStore={bugStore} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
 
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_gantt_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>甘特图</span>} key="gantt">
-                                {spritTab == "gantt" && <GanttPanel spritName={entryStore.curEntry?.entry_title ?? ""}
-                                    startTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.start_time ?? 0}
-                                    endTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.end_time ?? 0}
-                                    taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />}
+                                {spritTab == "gantt" && (
+                                    <ErrorBoundary>
+                                        <GanttPanel spritName={entryStore.curEntry?.entry_title ?? ""}
+                                            startTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.start_time ?? 0}
+                                            endTime={entryStore.curEntry?.extra_info.ExtraSpritInfo?.end_time ?? 0}
+                                            taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_burndown_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>燃尽图</span>} key="burnDown">
-                                {spritTab == "burnDown" && <BurnDownPanel spritInfo={spritInfo} taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />}
+                                {spritTab == "burnDown" && (
+                                    <ErrorBoundary>
+                                        <BurnDownPanel spritInfo={spritInfo} taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_stat_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>统计信息</span>} key="statistics">
-                                {spritTab == "statistics" && <StatPanel taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />}
+                                {spritTab == "statistics" && (
+                                    <ErrorBoundary>
+                                        <StatPanel taskStore={taskStore} bugStore={bugStore} spritStatus={spritStatus} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_test_plan_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>测试计划</span>} key="testplan">
-                                {spritTab == "testplan" && <TestPlanPanel testcaseStore={testcaseStore} />}
+                                {spritTab == "testplan" && (
+                                    <ErrorBoundary>
+                                        <TestPlanPanel testcaseStore={testcaseStore} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
                         {entryStore.curEntry?.extra_info.ExtraSpritInfo?.hide_summary_panel == false && (
                             <Tabs.TabPane tab={<span style={{ fontSize: "16px", fontWeight: 500 }}>工作总结</span>} key="summary">
-                                {spritTab == "summary" && <SummaryPanel state={spritInfo.summary_state} />}
+                                {spritTab == "summary" && (
+                                    <ErrorBoundary>
+                                        <SummaryPanel state={spritInfo.summary_state} />
+                                    </ErrorBoundary>
+                                )}
                             </Tabs.TabPane>
                         )}
                     </Tabs>

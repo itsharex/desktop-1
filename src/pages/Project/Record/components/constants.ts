@@ -946,20 +946,8 @@ export const ideaEvOptionList: CheckboxOptionType[] = [
         value: "update_idea_content",
     },
     {
-        label: "更新知识点标签",
-        value: "update_idea_tag",
-    },
-    {
         label: "更新知识点关键词",
         value: "update_idea_keyword",
-    },
-    {
-        label: "锁定知识点",
-        value: "lock_idea",
-    },
-    {
-        label: "解锁知识点",
-        value: "unlock_idea",
     },
     {
         label: "删除知识点",
@@ -973,19 +961,21 @@ export const ideaEvOptionList: CheckboxOptionType[] = [
         label: "取消评价知识点",
         value: "cancel_appraise",
     },
+    {
+        label: "导入知识点",
+        value: "import_idea",
+    }
 ]
 
 export const calcIdeaEvCfg = (values: string[] | undefined): IdeaEvCfg => {
     const ret: IdeaEvCfg = {
         create_idea: false,
         update_idea_content: false,
-        update_idea_tag: false,
         update_idea_keyword: false,
-        lock_idea: false,
-        unlock_idea: false,
         remove_idea: false,
         set_appraise: false,
         cancel_appraise: false,
+        import_idea: false,
     }
     if (values == undefined) {
         return ret;
@@ -995,20 +985,16 @@ export const calcIdeaEvCfg = (values: string[] | undefined): IdeaEvCfg => {
             ret.create_idea = true;
         } else if (value == "update_idea_content") {
             ret.update_idea_content = true;
-        } else if (value == "update_idea_tag") {
-            ret.update_idea_tag = true;
         } else if (value == "update_idea_keyword") {
             ret.update_idea_keyword = true;
-        } else if (value == "lock_idea") {
-            ret.lock_idea = true;
-        } else if (value == "unlock_idea") {
-            ret.unlock_idea = true;
         } else if (value == "remove_idea") {
             ret.remove_idea = true;
         } else if (value == "set_appraise") {
             ret.set_appraise = true;
         } else if (value == "cancel_appraise") {
             ret.cancel_appraise = true;
+        } else if (value == "import_idea") {
+            ret.import_idea = true;
         }
     });
     return ret;
@@ -1022,17 +1008,8 @@ export const genIdeaEvCfgValues = (cfg: IdeaEvCfg): string[] => {
     if (cfg.update_idea_content) {
         retList.push("update_idea_content");
     }
-    if (cfg.update_idea_tag) {
-        retList.push("update_idea_tag");
-    }
     if (cfg.update_idea_keyword) {
         retList.push("update_idea_keyword");
-    }
-    if (cfg.lock_idea) {
-        retList.push("lock_idea");
-    }
-    if (cfg.unlock_idea) {
-        retList.push("unlock_idea");
     }
     if (cfg.remove_idea) {
         retList.push("remove_idea");
@@ -1042,6 +1019,9 @@ export const genIdeaEvCfgValues = (cfg: IdeaEvCfg): string[] => {
     }
     if (cfg.cancel_appraise) {
         retList.push("cancel_appraise");
+    }
+    if (cfg.import_idea) {
+        retList.push("import_idea");
     }
     return retList;
 }

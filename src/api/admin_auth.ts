@@ -75,6 +75,20 @@ export type DevContainerPerm = {
     remove_package_version: boolean;
 };
 
+export type IdeaStorePerm = {
+    read: boolean;
+    create_store_cate: boolean;
+    update_store_cate: boolean;
+    remove_store_cate: boolean;
+    create_store: boolean;
+    update_store: boolean;
+    move_store: boolean;
+    remove_store: boolean;
+    create_idea: boolean;
+    update_idea: boolean;
+    move_idea: boolean;
+    remove_idea: boolean;
+};
 
 export type AdminPermInfo = {
     user_perm: UserPerm;
@@ -85,6 +99,7 @@ export type AdminPermInfo = {
     docker_template_perm: DockerTemplatePerm;
     group_perm: GroupPerm;
     dev_container_perm: DevContainerPerm;
+    idea_store_perm: IdeaStorePerm;
     global_server: boolean;
 };
 

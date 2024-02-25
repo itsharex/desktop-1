@@ -40,6 +40,9 @@ import {
   ADMIN_PATH_GROUP_LIST_SUFFIX,
   ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX,
   ADMIN_PATH_DEV_CONTAINER_PKG_SUFFIX,
+  ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
+  ADMIN_PATH_IDEA_STORE_SUFFIX,
+  ADMIN_PATH_IDEA_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -76,6 +79,9 @@ import CloudIndex from '@/pages/Project/Cloud/index';
 import DevPkgList from '@/pages/Admin/DevContainerAdmin/DevPkgList';
 import TestcaseList from '@/pages/Project/Testcase/TestcaseList';
 import ProjectOverview from "@/pages/Project/Overview";
+import IdeaStoreCateList from '@/pages/Admin/IdeaAdmin/IdeaStoreCateList';
+import IdeaStoreList from '@/pages/Admin/IdeaAdmin/IdeaStoreList';
+import IdeaList from '@/pages/Admin/IdeaAdmin/IdeaList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -350,6 +356,24 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_APPSTORE_APP_SUFFIX,
         title: "应用管理",
         component: AppList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
+        title: "知识库类别管理",
+        component: IdeaStoreCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_IDEA_STORE_SUFFIX,
+        title: "知识库管理",
+        component: IdeaStoreList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_IDEA_SUFFIX,
+        title: "知识点管理",
+        component: IdeaList,
         exact: true,
       },
       {

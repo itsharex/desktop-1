@@ -12,6 +12,7 @@ const HotkeyHelpInfo = () => {
             <Descriptions.Item label="alt+9">跳转到 我的工作</Descriptions.Item>
             <Descriptions.Item label="alt+c">打开/关闭 项目沟通</Descriptions.Item>
             <Descriptions.Item label="alt+f">进入/退出 专注模式</Descriptions.Item>
+            <Descriptions.Item label="alt+i">查看 项目知识点</Descriptions.Item>
             <Descriptions.Item label="alt+r">查看 项目需求列表</Descriptions.Item>
             <Descriptions.Item label="alt+t">查看 所有任务</Descriptions.Item>
             <Descriptions.Item label="alt+b">查看 所有缺陷</Descriptions.Item>

@@ -169,12 +169,47 @@ pub mod idea {
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     pub enum Notice {
         KeywordChangeNotice(notices_idea::KeywordChangeNotice),
+        CreateGroupNotice(notices_idea::CreateGroupNotice),
+        UpdateGroupNotice(notices_idea::UpdateGroupNotice),
+        RemoveGroupNotice(notices_idea::RemoveGroupNotice),
+        CreateIdeaNotice(notices_idea::CreateIdeaNotice),
+        UpdateIdeaNotice(notices_idea::UpdateIdeaNotice),
+        RemoveIdeaNotice(notices_idea::RemoveIdeaNotice),
+        MoveIdeaNotice(notices_idea::MoveIdeaNotice),
     }
 
     pub fn decode_notice(data: &Any) -> Option<Notice> {
         if data.type_url == notices_idea::KeywordChangeNotice::type_url() {
             if let Ok(notice) = notices_idea::KeywordChangeNotice::decode(data.value.as_slice()) {
                 return Some(Notice::KeywordChangeNotice(notice));
+            }
+        } else if data.type_url == notices_idea::CreateGroupNotice::type_url() {
+            if let Ok(notice) = notices_idea::CreateGroupNotice::decode(data.value.as_slice()) {
+                return Some(Notice::CreateGroupNotice(notice));
+            }
+        } else if data.type_url == notices_idea::UpdateGroupNotice::type_url() {
+            if let Ok(notice) = notices_idea::UpdateGroupNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateGroupNotice(notice));
+            }
+        } else if data.type_url == notices_idea::RemoveGroupNotice::type_url() {
+            if let Ok(notice) = notices_idea::RemoveGroupNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveGroupNotice(notice));
+            }
+        } else if data.type_url == notices_idea::CreateIdeaNotice::type_url() {
+            if let Ok(notice) = notices_idea::CreateIdeaNotice::decode(data.value.as_slice()) {
+                return Some(Notice::CreateIdeaNotice(notice));
+            }
+        } else if data.type_url == notices_idea::UpdateIdeaNotice::type_url() {
+            if let Ok(notice) = notices_idea::UpdateIdeaNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateIdeaNotice(notice));
+            }
+        } else if data.type_url == notices_idea::RemoveIdeaNotice::type_url() {
+            if let Ok(notice) = notices_idea::RemoveIdeaNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveIdeaNotice(notice));
+            }
+        } else if data.type_url == notices_idea::MoveIdeaNotice::type_url() {
+            if let Ok(notice) = notices_idea::MoveIdeaNotice::decode(data.value.as_slice()) {
+                return Some(Notice::MoveIdeaNotice(notice));
             }
         }
         None

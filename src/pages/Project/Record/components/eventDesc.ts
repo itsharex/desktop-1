@@ -222,10 +222,6 @@ const ideaEventList: EventDesc[] = [
                 desc: "知识点标题",
             },
             {
-                key: "tag_list",
-                desc: "知识点标签列表",
-            },
-            {
                 key: "keyword_list",
                 desc: "关键词列表",
             },
@@ -250,28 +246,6 @@ const ideaEventList: EventDesc[] = [
         ]
     },
     {
-        id: "UpdateIdeaTagEvent",
-        name: "修改知识点标签",
-        attrList: [
-            {
-                key: "idea_id",
-                desc: "知识点ID",
-            },
-            {
-                key: "title",
-                desc: "知识点标题",
-            },
-            {
-                key: "old_tag_list",
-                desc: "旧知识点标签列表",
-            },
-            {
-                key: "new_tag_list",
-                desc: "新知识点标签列表",
-            },
-        ]
-    },
-    {
         id: "UpdateIdeaKeywordEvent",
         name: "修改知识点关键词",
         attrList: [
@@ -290,34 +264,6 @@ const ideaEventList: EventDesc[] = [
             {
                 key: "new_keyword_list",
                 desc: "新关键词列表",
-            },
-        ]
-    },
-    {
-        id: "LockIdeaEvent",
-        name: "锁定知识点",
-        attrList: [
-            {
-                key: "idea_id",
-                desc: "知识点ID",
-            },
-            {
-                key: "title",
-                desc: "知识点标题",
-            },
-        ]
-    },
-    {
-        id: "UnlockIdeaEvent",
-        name: "解锁知识点",
-        attrList: [
-            {
-                key: "idea_id",
-                desc: "知识点ID",
-            },
-            {
-                key: "title",
-                desc: "知识点标题",
             },
         ]
     },
@@ -370,6 +316,24 @@ const ideaEventList: EventDesc[] = [
                 desc: "评价类型"
             }
         ]
+    },
+    {
+        id: "ImportIdeaEvent",
+        name: "导入知识点",
+        attrList: [
+            {
+                key: "idea_group_id",
+                desc: "知识点分组ID",
+            },
+            {
+                key: "name",
+                desc: "知识点分组名称",
+            },
+            {
+                key: "count",
+                desc: "导入数量",
+            }
+        ],
     },
 ];
 
