@@ -38,7 +38,7 @@ const ImportIdeaStore = observer((props: ImportIdeaStoreProps) => {
     return (
         <div style={{ maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}>
             {storeCateList.map(cateItem => (
-                <Card title={cateItem.name} bordered={false}>
+                <Card title={<span style={{ fontSize: "14px", fontWeight: 600 }}>知识库&nbsp;{cateItem.name}</span>} bordered={false}>
                     <List rowKey="idea_store_id" dataSource={storeList.filter(storeItem => storeItem.store_cate_id == cateItem.store_cate_id)}
                         grid={{ gutter: 16 }}
                         renderItem={storeItem => (
@@ -48,7 +48,7 @@ const ImportIdeaStore = observer((props: ImportIdeaStoreProps) => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         props.onChange(storeItem.idea_store_id);
-                                    }}>{storeItem.name}</Button>
+                                    }} disabled={storeItem.idea_count == 0}>{storeItem.name}({storeItem.idea_count})</Button>
                             </List.Item>
                         )} />
                 </Card>
