@@ -109,13 +109,11 @@ export type CodeEvCfg = {
 export type IdeaEvCfg = {
     create_idea: boolean;
     update_idea_content: boolean;
-    update_idea_tag: boolean;
     update_idea_keyword: boolean;
-    lock_idea: boolean;
-    unlock_idea: boolean;
     remove_idea: boolean;
     set_appraise: boolean;
     cancel_appraise: boolean;
+    import_idea: boolean;
 };
 
 export type DataAnnoEvCfg = {
@@ -246,13 +244,11 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
         cfg.idea_ev_cfg = {
             create_idea: false,
             update_idea_content: false,
-            update_idea_tag: false,
             update_idea_keyword: false,
-            lock_idea: false,
-            unlock_idea: false,
             remove_idea: false,
             set_appraise: false,
             cancel_appraise: false,
+            import_idea: false,
         };
     }
     if (cfg.data_anno_ev_cfg == undefined || cfg.data_anno_ev_cfg == null) {
@@ -346,13 +342,11 @@ export async function list(request: ListRequest): Promise<ListResponse> {
             info.event_cfg.idea_ev_cfg = {
                 create_idea: false,
                 update_idea_content: false,
-                update_idea_tag: false,
                 update_idea_keyword: false,
-                lock_idea: false,
-                unlock_idea: false,
                 remove_idea: false,
                 set_appraise: false,
                 cancel_appraise: false,
+                import_idea: false,
             };
         }
         if (info.event_cfg.data_anno_ev_cfg == undefined || info.event_cfg.data_anno_ev_cfg == null) {

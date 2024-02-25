@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import type { Idea, APPRAISE_TYPE } from "@/api/project_idea";
+import type { Idea, APPRAISE_TYPE, IdeaGroup } from "@/api/project_idea";
 import {
     APPRAISE_AGREE, APPRAISE_DIS_AGREE, set_appraise, cancel_appraise,
-    lock_idea, unlock_idea, update_idea_content, remove_idea, update_idea_tag, update_idea_keyword
+    update_idea_content, remove_idea, update_idea_keyword, move_idea,
 } from "@/api/project_idea";
-import { Card, Input, Modal, Popover, Select, Space, Tag, message } from "antd";
+import { Card, Divider, Input, Modal, Popover, Select, Space, Tag, message } from "antd";
 import { ReadOnlyEditor, useCommonEditor } from '@/components/Editor';
 import s from "./IdeaContent.module.less";
-import { DislikeFilled, DislikeOutlined, EditOutlined, LikeFilled, LikeOutlined, LockOutlined, MoreOutlined, UnlockOutlined } from "@ant-design/icons";
+import { DislikeFilled, DislikeOutlined, EditOutlined, LikeFilled, LikeOutlined, MoreOutlined } from "@ant-design/icons";
 import { observer } from 'mobx-react';
 import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
@@ -15,23 +15,23 @@ import Button from "@/components/Button";
 import { FILE_OWNER_TYPE_IDEA } from "@/api/fs";
 import IdeaAppraiseModal from "./IdeaAppraiseModal";
 import IdeaEventModal from "./IdeaEventModal";
+import UserPhoto from "@/components/Portrait/UserPhoto";
+import EditPermModal from "./EditPermModal";
+import { EditSelect } from "@/components/EditCell/EditSelect";
 
 interface IdeaContentProps {
     idea: Idea;
-    onChange: () => void;
-    onRemove: () => void;
+    groupList: IdeaGroup[];
 }
 
 const IdeaContent: React.FC<IdeaContentProps> = (props) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const ideaStore = useStores('ideaStore');
+    const memberStore = useStores('memberStore');
 
     const [title, setTitle] = useState(props.idea.basic_info.title);
     const [inEditContent, setInEditContent] = useState(false);
-
-    const [inEditTag, setInEditTag] = useState(false);
-    const [tagIdList, setTagIdList] = useState(props.idea.basic_info.tag_id_list);
 
     const [inEditKeyword, setInEditKeyword] = useState(false);
     const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
@@ -39,6 +39,8 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
     const [showAppraise, setShowAppraise] = useState(false);
     const [showEvent, setShowEvent] = useState(false);
     const [showRemove, setShowRemove] = useState(false);
+
+    const [showEditPermModal, setShowEditPermModal] = useState(false);
 
     const { editor, editorRef } = useCommonEditor({
         content: props.idea.basic_info.content,
@@ -60,7 +62,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             idea_id: props.idea.idea_id,
             appraise_type: appraiseType,
         }));
-        props.onChange();
     };
 
     const cancelAgree = async () => {
@@ -69,25 +70,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             project_id: projectStore.curProjectId,
             idea_id: props.idea.idea_id,
         }));
-        props.onChange();
-    };
-
-    const lockIdea = async () => {
-        await request(lock_idea({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-        }));
-        props.onChange();
-    };
-
-    const unLockIdea = async () => {
-        await request(unlock_idea({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-        }));
-        props.onChange();
     };
 
     const updateContent = async () => {
@@ -105,7 +87,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             title: title.trim(),
             content: JSON.stringify(content),
         }));
-        props.onChange();
         setInEditContent(false);
     };
 
@@ -116,19 +97,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             idea_id: props.idea.idea_id,
         }));
         setShowRemove(false);
-        props.onRemove();
     }
-
-    const updateTag = async () => {
-        await request(update_idea_tag({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            idea_id: props.idea.idea_id,
-            tag_id_list: tagIdList,
-        }));
-        setInEditTag(false);
-        props.onChange();
-    };
 
     const updateKeyword = async () => {
         await request(update_idea_keyword({
@@ -138,7 +107,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             keyword_list: keywordList,
         }));
         setInEditKeyword(false);
-        props.onChange();
     }
 
     return (
@@ -146,25 +114,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             <div className={s.content}>
                 <Card title={
                     <Space style={{ fontSize: "20px" }}>
-                        {props.idea.locked == true && (
-                            <Button type="text" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px" }} disabled={!props.idea.user_perm.can_change_lock}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    unLockIdea();
-                                }}>
-                                <LockOutlined />
-                            </Button>)}
-                        {props.idea.locked == false && (
-                            <Button type="text" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px" }} disabled={!props.idea.user_perm.can_change_lock}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    lockIdea();
-                                }}
-                            >
-                                <UnlockOutlined />
-                            </Button>)}
                         {inEditContent == false && props.idea.basic_info.title}
                         {inEditContent == true && (
                             <Input value={title} style={{ width: "calc(100vw - 1000px)" }} onChange={e => {
@@ -203,6 +152,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                                                     setShowAppraise(true);
                                                 }}>查看评价详情</Button>
                                             </div>
+                                            <Divider style={{ margin: "4px" }} />
                                             <div>
                                                 <Button type="link" danger disabled={!props.idea.user_perm.can_remove} onClick={e => {
                                                     e.stopPropagation();
@@ -249,51 +199,6 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
             </div>
             <div className={s.side}>
                 <div className={s.extra_info}>
-                    <h3>标签:</h3>
-                    {inEditTag == false && (
-                        <div>
-                            {(projectStore.curProject?.tag_list ?? []).filter(tag => tag.use_in_idea).filter(tag => props.idea.basic_info.tag_id_list.includes(tag.tag_id)).map(tag => (
-                                <Tag key={tag.tag_id}><span style={{ backgroundColor: tag.bg_color, padding: "0px 4px" }}>{tag.tag_name}</span></Tag>
-                            ))}
-                            {props.idea.user_perm.can_update && <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setInEditTag(true);
-                            }}><EditOutlined /></a>}
-                        </div>
-                    )}
-                    {inEditTag == true && (
-                        <>
-                            <Select value={tagIdList.filter(tagId => (projectStore.curProject?.tag_list ?? []).filter(tagDef => tagDef.use_in_idea).map(tagDef => tagDef.tag_id).includes(tagId))} mode="multiple" style={{ width: "100%" }}
-                                onChange={value => {
-                                    if ((value as string[]).length > 0) {
-                                        setTagIdList(value as string[]);
-                                    }
-                                }}
-                                placement="topLeft">
-                                {(projectStore.curProject?.tag_list ?? []).filter(tag => tag.use_in_idea).map(tag => (
-                                    <Select.Option key={tag.tag_id} value={tag.tag_id}>
-                                        <span style={{ backgroundColor: tag.bg_color, padding: "0px 4px" }}>{tag.tag_name}</span>
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                            <div className={s.btn_wrap}>
-                                <Space className={s.btn}>
-                                    <Button type="default" onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setTagIdList(props.idea.basic_info.tag_id_list);
-                                        setInEditTag(false);
-                                    }}>取消</Button>
-                                    <Button onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        updateTag();
-                                    }}>保存</Button>
-                                </Space>
-                            </div>
-                        </>
-                    )}
                     <h3>关键词:</h3>
                     {inEditKeyword == false && (
                         <div>
@@ -337,6 +242,59 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                                 </Space>
                             </div>
                         </>
+                    )}
+                    <h3>分组</h3>
+                    <div>
+                        <EditSelect editable={props.idea.user_perm.can_update} curValue={props.idea.idea_group_id} itemList={props.groupList.map(item => ({
+                            value: item.idea_group_id,
+                            label: item.name,
+                            color: "black"
+                        }))}
+                            onChange={async (value: string | number | undefined) => {
+                                try {
+                                    await request(move_idea({
+                                        session_id: userStore.sessionId,
+                                        project_id: projectStore.curProjectId,
+                                        idea_id: props.idea.idea_id,
+                                        idea_group_id: value as string,
+                                    }));
+                                    message.info("设置成功");
+                                    return true;
+                                } catch (e) {
+                                    console.log(e);
+                                    return false;
+                                }
+                            }} showEditIcon={true} allowClear={false} width="100%" />
+                    </div>
+                    <h3>编辑权限</h3>
+                    {props.idea.idea_perm.update_for_all == true && (
+                        <Space>
+                            <span>全体成员可编辑</span>
+                            {props.idea.user_perm.can_update && (
+                                <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowEditPermModal(true);
+                                }} />
+                            )}
+                        </Space>
+                    )}
+                    {props.idea.idea_perm.update_for_all == false && (
+                        <div>
+                            {props.idea.idea_perm.extra_update_user_id_list.map(userId => memberStore.getMember(userId)).filter(member => member != undefined).map(member => (
+                                <Tag key={member?.member.member_user_id}>
+                                    <Space>
+                                        <UserPhoto logoUri={member?.member.logo_uri ?? ""} style={{ width: "16px", borderRadius: "10px" }} />
+                                        {member?.member.display_name}
+                                    </Space>
+                                </Tag>
+                            ))}
+                            {props.idea.user_perm.can_update && <a onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowEditPermModal(true);
+                            }}><EditOutlined /></a>}
+                        </div>
                     )}
                 </div>
                 <div className={s.agree_wrap}>
@@ -400,6 +358,9 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                     }}>
                     是否删除知识点&nbsp;{props.idea.basic_info.title}?
                 </Modal>
+            )}
+            {showEditPermModal == true && (
+                <EditPermModal ideaId={props.idea.idea_id} ideaPerm={props.idea.idea_perm} onClose={() => setShowEditPermModal(false)} />
             )}
         </div>
     );

@@ -35,6 +35,10 @@ export const ADMIN_PATH_PROJECT_CREATE_SUFFIX = '/admin/project/create';
 export const ADMIN_PATH_APPSTORE_CATE_SUFFIX = '/admin/appstore/cate';
 export const ADMIN_PATH_APPSTORE_APP_SUFFIX = '/admin/appstore/app';
 
+export const ADMIN_PATH_IDEA_STORE_CATE_SUFFIX = "/admin/ideastore/cate";
+export const ADMIN_PATH_IDEA_STORE_SUFFIX = "/admin/ideastore/store";
+export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
+
 export const ADMIN_PATH_GROUP_LIST_SUFFIX = '/admin/group/list';
 export const ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX = '/admin/group/audit_recommend';
 

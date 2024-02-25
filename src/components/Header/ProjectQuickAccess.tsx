@@ -167,7 +167,7 @@ const ProjectQuickAccess = () => {
 
         tmpItems.push({
             key: MENU_KEY_SHOW_TOOL_BAR_IDEA,
-            label: "项目知识点",
+            label: "项目知识点(alt+i)",
         });
 
         tmpItems.push({
@@ -418,6 +418,7 @@ const ProjectQuickAccess = () => {
     useHotkeys("alt+9", () => processMenuKey(MENU_KEY_HOME_MYWORK));
     useHotkeys("alt+c", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT));
     useHotkeys("alt+f", () => appStore.focusMode = !appStore.focusMode);
+    useHotkeys("alt+i", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_IDEA));
     useHotkeys("alt+r", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_REQUIRE_MENT));
     useHotkeys("alt+t", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_TASK_ALL));
     useHotkeys("alt+b", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_BUG_ALL));
@@ -521,7 +522,7 @@ const ProjectQuickAccess = () => {
             </Dropdown >
             {showHelp == true && (
                 <Modal open title="快捷键帮助" footer={null}
-                    bodyStyle={{ height: "calc(100vh - 300px)", overflowY: "scroll",padding:"0px 0px" }}
+                    bodyStyle={{ height: "calc(100vh - 300px)", overflowY: "scroll", padding: "0px 0px" }}
                     onCancel={e => {
                         e.stopPropagation();
                         e.preventDefault();

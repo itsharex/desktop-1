@@ -30,7 +30,7 @@ export default class IdeaStore {
     }
 
     updateKeyword(addList: string[], removeList: string[]) {
-        const tmpList = this._keywordList.filter(item => removeList.includes(item));
+        const tmpList = this._keywordList.filter(item => removeList.includes(item) == false);
         runInAction(() => {
             this._keywordList = tmpList.concat(addList);
         });
@@ -65,6 +65,41 @@ export default class IdeaStore {
             this._showCreateIdea = false;
             this._createTitle = "";
             this._createContent = "";
+        });
+    }
+
+    //列表页相关参数
+    private _searchKeywords = [] as string[];
+    private _curIdeaId = ""; //只显示单个idea
+    private _curIdeaGroupId = "";
+
+    get searchKeywords() {
+        return this._searchKeywords;
+    }
+
+    set searchKeywords(val: string[]) {
+        runInAction(() => {
+            this._searchKeywords = val;
+        });
+    }
+
+    get curIdeaId() {
+        return this._curIdeaId;
+    }
+
+    set curIdeaId(val: string) {
+        runInAction(() => {
+            this._curIdeaId = val;
+        });
+    }
+
+    get curIdeaGroupId() {
+        return this._curIdeaGroupId;
+    }
+
+    set curIdeaGroupId(val: string) {
+        runInAction(() => {
+            this._curIdeaGroupId = val;
         });
     }
 }

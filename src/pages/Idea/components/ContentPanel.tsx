@@ -1,32 +1,27 @@
 import { Card, Form, List, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import s from "./ContentPanel.module.less";
-import type { Idea, KEYWORD_SEARCH_TYPE } from "@/api/project_idea";
+import type { Idea, IdeaGroup, KEYWORD_SEARCH_TYPE } from "@/api/project_idea";
 import { get_idea, list_idea, IDEA_SORT_APPRAISE, IDEA_SORT_UPDATE_TIME, KEYWORD_SEARCH_AND, KEYWORD_SEARCH_OR } from "@/api/project_idea";
 import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
 import IdeaContent from "./IdeaContent";
 import { runInAction } from "mobx";
-import type { LinkIdeaPageState } from "@/stores/linkAux";
 import { LinkIdeaPageInfo } from "@/stores/linkAux";
 import Button from "@/components/Button";
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 const PAGE_SIZE = 10;
 
-const ContentPanel = () => {
-    const history = useHistory();
-    const location = useLocation();
+export interface ContentPanelProps {
+    groupList: IdeaGroup[];
+}
 
-    let state: LinkIdeaPageState | undefined = location.state as LinkIdeaPageState | undefined;
-    if (state == undefined) {
-        state = {
-            keywordList: [],
-            tagId: "",
-            ideaId: "",
-        }
-    }
+const ContentPanel = (props: ContentPanelProps) => {
+    const history = useHistory();
 
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
@@ -34,7 +29,6 @@ const ContentPanel = () => {
     const linkAuxStore = useStores('linkAuxStore');
     const appStore = useStores('appStore');
 
-    const [keywordList, setKeywordList] = useState(state.keywordList);
     const [keywordSearchType, setKeywordSearchType] = useState<KEYWORD_SEARCH_TYPE>(KEYWORD_SEARCH_AND);
 
     const localStore = useLocalObservable(() => ({
@@ -67,13 +61,13 @@ const ContentPanel = () => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
             list_param: {
-                filter_by_tag: state?.tagId != "",
-                tag_id_list: state!.tagId == "" ? [] : [state!.tagId],
-                filter_by_keyword: keywordList.length > 0,
-                keyword_list: keywordList,
+                filter_by_keyword: ideaStore.searchKeywords.length > 0,
+                keyword_list: ideaStore.searchKeywords,
                 keyword_search_type: keywordSearchType,
+                filter_by_group_or_store_id: ideaStore.curIdeaGroupId != "",
+                group_or_store_id: ideaStore.curIdeaGroupId,
             },
-            sort_type: keywordList.length > 0 ? IDEA_SORT_APPRAISE : IDEA_SORT_UPDATE_TIME,
+            sort_type: ideaStore.searchKeywords.length > 0 ? IDEA_SORT_APPRAISE : IDEA_SORT_UPDATE_TIME,
             offset: PAGE_SIZE * curPage,
             limit: PAGE_SIZE,
         }));
@@ -85,23 +79,69 @@ const ContentPanel = () => {
         const res = await request(get_idea({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
-            idea_id: state?.ideaId ?? "",
+            idea_id: ideaStore.curIdeaId,
         }));
         localStore.setIdeaList([res.idea]);
     };
 
     useEffect(() => {
-        if (state?.ideaId != "") {
+        if (ideaStore.curIdeaId != "") {
             loadIdea();
         } else {
             loadIdeaList();
         }
-    }, [keywordList, curPage, state.tagId, state.ideaId, keywordSearchType, location.search]);
+    }, [ideaStore.searchKeywords, curPage, ideaStore.curIdeaGroupId, ideaStore.curIdeaId, keywordSearchType]);
+
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.IdeaNotice !== undefined) {
+                console.log("xxxxxx", notice.IdeaNotice);
+            }
+            if (notice.IdeaNotice?.MoveIdeaNotice != undefined && notice.IdeaNotice.MoveIdeaNotice.project_id == projectStore.curProjectId) {
+                if (ideaStore.curIdeaId != "") {
+                    loadIdea();
+                } else {
+                    loadIdeaList();
+                }
+            } else if (notice.IdeaNotice?.CreateIdeaNotice != undefined && notice.IdeaNotice.CreateIdeaNotice.project_id == projectStore.curProjectId) {
+                let hasChange = false;
+                if (ideaStore.searchKeywords.length > 0) {
+                    ideaStore.searchKeywords = [];
+                    hasChange = true;
+                }
+                setCurPage(oldValue => {
+                    if (oldValue != 0) {
+                        hasChange = true;
+                    }
+                    return 0;
+                });
+                if (hasChange == false) {
+                    if (ideaStore.curIdeaId != "") {
+                        loadIdea();
+                    } else {
+                        loadIdeaList();
+                    }
+                }
+            } else if (notice.IdeaNotice?.UpdateIdeaNotice != undefined && notice.IdeaNotice.UpdateIdeaNotice.project_id == projectStore.curProjectId) {
+                updateIdea(notice.IdeaNotice.UpdateIdeaNotice.idea_id);
+            } else if (notice.IdeaNotice?.RemoveIdeaNotice != undefined && notice.IdeaNotice.RemoveIdeaNotice.project_id == projectStore.curProjectId) {
+                if (ideaStore.curIdeaId != "") {
+                    loadIdea();
+                } else {
+                    loadIdeaList();
+                }
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, [])
 
     return (
-        <Card title="知识点列表" bordered={false} extra={
+        <Card bordered={false} extra={
             <>
-                {state.ideaId == "" && (
+                {ideaStore.curIdeaId == "" && (
                     <Form layout="inline">
                         <Form.Item label="关键词模式">
                             <Select value={keywordSearchType} style={{ width: "120px" }} onChange={value => setKeywordSearchType(value as KEYWORD_SEARCH_TYPE)}>
@@ -110,7 +150,7 @@ const ContentPanel = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item label="关键词">
-                            <Select value={keywordList} onChange={value => setKeywordList(value as string[])} mode="multiple"
+                            <Select value={ideaStore.searchKeywords} onChange={value => ideaStore.searchKeywords = (value as string[])} mode="multiple"
                                 style={{ minWidth: "300px" }}>
                                 {ideaStore.keywordList.map(item => (
                                     <Select.Option key={item} value={item}>{item}</Select.Option>
@@ -119,11 +159,11 @@ const ContentPanel = () => {
                         </Form.Item>
                     </Form>
                 )}
-                {state.ideaId != "" && (
+                {ideaStore.curIdeaId != "" && (
                     <Button type="link" onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, state?.tagId ?? "", state?.keywordList ?? []), history);
+                        linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", ideaStore.searchKeywords), history);
                     }}>正在查看单个知识点，查看全部知识点</Button>
                 )}
             </>
@@ -131,7 +171,7 @@ const ContentPanel = () => {
             <div className={s.content_list}>
                 <List dataSource={localStore.ideaList} split={false} renderItem={item => (
                     <List.Item key={item.idea_id}>
-                        <IdeaContent idea={item} onChange={() => updateIdea(item.idea_id)} onRemove={() => loadIdeaList()} />
+                        <IdeaContent idea={item} groupList={props.groupList} />
                     </List.Item>
                 )} pagination={{
                     total: totalCount,

@@ -16,30 +16,41 @@ export const KEYWORD_SEARCH_OR: KEYWORD_SEARCH_TYPE = 1;
 export type BasicIdea = {
     title: string;
     content: string;
-    tag_id_list: string[];
     keyword_list: string[];
 };
 
 export type UserPerm = {
     can_update: boolean;
     can_remove: boolean;
-    can_change_lock: boolean;
     can_appraise: boolean;
+    can_move: boolean;
 };
 
-export type IdeaTag  = {
-    tag_id: string;
-    tag_name: string;
-    bg_color: string;
+export type IdeaGroup = {
+    idea_group_id: string;
+    name: string;
+    weight: number;
+    idea_count: number;
+    create_user_id: string;
+    create_display_name: string;
+    create_logo_uri: string;
+    update_user_id: string;
+    update_display_name: string;
+    update_logo_uri: string;
+    create_time: number;
+    update_time: number;
+};
+
+export type IdeaPerm = {
+    update_for_all: boolean;
+    extra_update_user_id_list: string[];
 };
 
 export type Idea = {
     idea_id: string;
     basic_info: BasicIdea;
-    tag_info_list: IdeaTag[];
     agree_count: number;
     disagree_count: number;
-    locked: boolean;
     user_perm: UserPerm;
     has_my_appraise: boolean;
     my_appraise_type: APPRAISE_TYPE;
@@ -51,14 +62,22 @@ export type Idea = {
     update_logo_uri: string;
     create_time: number;
     update_time: number;
+    idea_group_id: string;
+    idea_perm: IdeaPerm;
 };
 
+export type IdeaInStore = {
+    idea_id: string;
+    basic_info: BasicIdea;
+    idea_store_id: string;
+}
+
 export type ListIdeaParam = {
-    filter_by_tag: boolean;
-    tag_id_list: string[];
     filter_by_keyword: boolean;
     keyword_list: string[];
     keyword_search_type: KEYWORD_SEARCH_TYPE;
+    filter_by_group_or_store_id: boolean;
+    group_or_store_id: string;
 };
 
 export type Appraise = {
@@ -69,10 +88,87 @@ export type Appraise = {
     time_stamp: number;
 };
 
+export type IdeaStoreCate = {
+    store_cate_id: string;
+    name: string;
+    weight: number;
+    store_count: number;
+};
+
+export type IdeaStore = {
+    idea_store_id: string;
+    name: string;
+    weight: number;
+    idea_count: number;
+    store_cate_id: string;
+};
+
+export type CreateGroupRequest = {
+    session_id: string;
+    project_id: string;
+    name: string;
+    weight: number;
+};
+
+export type CreateGroupResponse = {
+    code: number;
+    err_msg: string;
+    idea_group_id: string;
+};
+
+export type UpdateGroupRequest = {
+    session_id: string;
+    project_id: string;
+    idea_group_id: string;
+    name: string;
+    weight: number;
+};
+
+export type UpdateGroupResponse = {
+    code: number;
+    err_msg: string;
+};
+
+export type ListGroupRequest = {
+    session_id: string;
+    project_id: string;
+};
+
+export type ListGroupResponse = {
+    code: number;
+    err_msg: string;
+    group_list: IdeaGroup[];
+};
+
+export type GetGroupRequest = {
+    session_id: string;
+    project_id: string;
+    idea_group_id: string;
+};
+
+export type GetGroupResponse = {
+    code: number;
+    err_msg: string;
+    group: IdeaGroup;
+}
+
+export type RemoveGroupRequest = {
+    session_id: string;
+    project_id: string;
+    idea_group_id: string;
+};
+
+export type RemoveGroupResponse = {
+    code: number;
+    err_msg: string;
+};
+
 export type CreateIdeaRequest = {
     session_id: string;
     project_id: string;
     basic_info: BasicIdea;
+    idea_group_id: string;
+    idea_perm: IdeaPerm;
 };
 
 export type CreateIdeaResponse = {
@@ -80,7 +176,6 @@ export type CreateIdeaResponse = {
     err_msg: string;
     idea_id: string;
 };
-
 
 export type UpdateIdeaContentRequest = {
     session_id: string;
@@ -95,20 +190,6 @@ export type UpdateIdeaContentResponse = {
     err_msg: string;
 };
 
-
-export type UpdateIdeaTagRequest = {
-    session_id: string;
-    project_id: string;
-    idea_id: string;
-    tag_id_list: string[];
-};
-
-export type UpdateIdeaTagResponse = {
-    code: number;
-    err_msg: string;
-};
-
-
 export type UpdateIdeaKeywordRequest = {
     session_id: string;
     project_id: string;
@@ -121,6 +202,17 @@ export type UpdateIdeaKeywordResponse = {
     err_msg: string;
 };
 
+export type UpdateIdeaPermRequest = {
+    session_id: string;
+    project_id: string;
+    idea_id: string;
+    idea_perm: IdeaPerm;
+};
+
+export type UpdateIdeaPermResponse = {
+    code: number;
+    err_msg: string;
+};
 
 export type GetIdeaRequest = {
     session_id: string;
@@ -133,7 +225,6 @@ export type GetIdeaResponse = {
     err_msg: string;
     idea: Idea;
 };
-
 
 export type ListIdeaRequest = {
     session_id: string;
@@ -149,32 +240,7 @@ export type ListIdeaResponse = {
     err_msg: string;
     total_count: number;
     idea_list: Idea[];
-}
-
-
-export type LockIdeaRequest = {
-    session_id: string;
-    project_id: string;
-    idea_id: string;
 };
-
-export type LockIdeaResponse = {
-    code: number;
-    err_msg: string;
-}
-
-
-export type UnlockIdeaRequest = {
-    session_id: string;
-    project_id: string;
-    idea_id: string;
-};
-
-export type UnlockIdeaResponse = {
-    code: number;
-    err_msg: string;
-};
-
 
 export type RemoveIdeaRequest = {
     session_id: string;
@@ -187,7 +253,6 @@ export type RemoveIdeaResponse = {
     err_msg: string;
 };
 
-
 export type ListAllKeywordRequest = {
     session_id: string;
     project_id: string;
@@ -199,6 +264,16 @@ export type ListAllKeywordResponse = {
     keyword_list: string[];
 };
 
+export type MoveIdeaRequest = {
+    session_id: string;
+    project_id: string;
+    idea_id: string;
+    idea_group_id: string;
+}
+export type MoveIdeaResponse = {
+    code: number;
+    err_msg: string;
+};
 
 export type SetAppraiseRequest = {
     session_id: string;
@@ -236,6 +311,81 @@ export type ListAppraiseResponse = {
     appraise_list: Appraise[];
 }
 
+export type ListStoreCateRequest = {};
+
+export type ListStoreCateResponse = {
+    code: number;
+    err_msg: string;
+    cate_list: IdeaStoreCate[];
+};
+
+export type ListStoreRequest = {
+    filter_by_store_cate_id: boolean;
+    store_cate_id: string;
+};
+
+export type ListStoreResponse = {
+    code: number;
+    err_msg: string;
+    store_list: IdeaStore[];
+};
+
+export type ImportStoreRequest = {
+    session_id: string;
+    project_id: string;
+    idea_store_id: string;
+};
+
+export type ImportStoreResponse = {
+    code: number;
+    err_msg: string;
+};
+
+//创建点子分组
+export async function create_group(request: CreateGroupRequest): Promise<CreateGroupResponse> {
+    const cmd = 'plugin:project_idea_api|create_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<CreateGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//更新点子分组
+export async function update_group(request: UpdateGroupRequest): Promise<UpdateGroupResponse> {
+    const cmd = 'plugin:project_idea_api|update_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<UpdateGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//列出点子分组
+export async function list_group(request: ListGroupRequest): Promise<ListGroupResponse> {
+    const cmd = 'plugin:project_idea_api|list_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个点子分组
+export async function get_group(request: GetGroupRequest): Promise<GetGroupResponse> {
+    const cmd = 'plugin:project_idea_api|get_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//删除点子分组
+export async function remove_group(request: RemoveGroupRequest): Promise<RemoveGroupResponse> {
+    const cmd = 'plugin:project_idea_api|remove_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<RemoveGroupResponse>(cmd, {
+        request,
+    });
+}
+
 //创建点子
 export async function create_idea(request: CreateIdeaRequest): Promise<CreateIdeaResponse> {
     const cmd = 'plugin:project_idea_api|create_idea';
@@ -254,20 +404,20 @@ export async function update_idea_content(request: UpdateIdeaContentRequest): Pr
     });
 }
 
-//更新点子标签
-export async function update_idea_tag(request: UpdateIdeaTagRequest): Promise<UpdateIdeaTagResponse> {
-    const cmd = 'plugin:project_idea_api|update_idea_tag';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<UpdateIdeaTagResponse>(cmd, {
-        request,
-    });
-}
-
 //更新点子关键词
 export async function update_idea_keyword(request: UpdateIdeaKeywordRequest): Promise<UpdateIdeaKeywordResponse> {
     const cmd = 'plugin:project_idea_api|update_idea_keyword';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<UpdateIdeaKeywordResponse>(cmd, {
+        request,
+    });
+}
+
+//更新点子权限
+export async function update_idea_perm(request: UpdateIdeaPermRequest): Promise<UpdateIdeaPermResponse> {
+    const cmd = 'plugin:project_idea_api|update_idea_perm';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<UpdateIdeaPermResponse>(cmd, {
         request,
     });
 }
@@ -290,24 +440,6 @@ export async function list_idea(request: ListIdeaRequest): Promise<ListIdeaRespo
     });
 }
 
-//锁定点子
-export async function lock_idea(request: LockIdeaRequest): Promise<LockIdeaResponse> {
-    const cmd = 'plugin:project_idea_api|lock_idea';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<LockIdeaResponse>(cmd, {
-        request,
-    });
-}
-
-//解锁点子
-export async function unlock_idea(request: UnlockIdeaRequest): Promise<UnlockIdeaResponse> {
-    const cmd = 'plugin:project_idea_api|unlock_idea';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<UnlockIdeaResponse>(cmd, {
-        request,
-    });
-}
-
 //删除点子
 export async function remove_idea(request: RemoveIdeaRequest): Promise<RemoveIdeaResponse> {
     const cmd = 'plugin:project_idea_api|remove_idea';
@@ -322,6 +454,15 @@ export async function list_all_keyword(request: ListAllKeywordRequest): Promise<
     const cmd = 'plugin:project_idea_api|list_all_keyword';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListAllKeywordResponse>(cmd, {
+        request,
+    });
+}
+
+//移动点子
+export async function move_idea(request: MoveIdeaRequest): Promise<MoveIdeaResponse> {
+    const cmd = 'plugin:project_idea_api|move_idea';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<MoveIdeaResponse>(cmd, {
         request,
     });
 }
@@ -349,6 +490,34 @@ export async function list_appraise(request: ListAppraiseRequest): Promise<ListA
     const cmd = 'plugin:project_idea_api|list_appraise';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListAppraiseResponse>(cmd, {
+        request,
+    });
+}
+
+//列出点子库类别
+export async function list_store_cate(request: ListStoreCateRequest): Promise<ListStoreCateResponse> {
+    const cmd = 'plugin:project_idea_api|list_store_cate';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListStoreCateResponse>(cmd, {
+        request,
+    });
+}
+
+//列出点子库
+export async function list_store(request: ListStoreRequest): Promise<ListStoreResponse> {
+    const cmd = 'plugin:project_idea_api|list_store';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListStoreResponse>(cmd, {
+        request,
+    });
+}
+
+
+//导入点子库
+export async function import_store(request: ImportStoreRequest): Promise<ImportStoreResponse> {
+    const cmd = 'plugin:project_idea_api|import_store';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ImportStoreResponse>(cmd, {
         request,
     });
 }
