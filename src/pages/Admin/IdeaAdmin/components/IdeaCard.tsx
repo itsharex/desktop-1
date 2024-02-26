@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import type { IdeaInStore } from "@/api/project_idea";
-import { Card, Form, Input, Modal, Popover, Select, Space, message } from "antd";
+import { Card, Form, Modal, Popover, Select, Space, message } from "antd";
 import { AdminPermInfo, get_admin_session } from "@/api/admin_auth";
 import Button from "@/components/Button";
-import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
-import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
+import { ReadOnlyEditor } from "@/components/Editor";
 import { MoreOutlined } from "@ant-design/icons";
-import { update_idea, remove_idea, move_idea } from "@/api/project_idea_admin";
+import { remove_idea, move_idea } from "@/api/project_idea_admin";
 import { request } from "@/utils/request";
 import StoreListModal from "./StoreListModal";
+import UpdateIdeaModal from "./UpdateIdeaModal";
 
 export interface IdeaCardProps {
     idea: IdeaInStore;
@@ -18,46 +18,11 @@ export interface IdeaCardProps {
 }
 
 const IdeaCard = (props: IdeaCardProps) => {
-    const [inEdit, setInEdit] = useState(false);
-    const [title, setTitle] = useState("");
     const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
 
     const [showMoveModal, setShowMoveModal] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
-
-    const { editor, editorRef } = useCommonEditor({
-        content: "",
-        fsId: "",
-        ownerType: FILE_OWNER_TYPE_NONE,
-        ownerId: "",
-        projectId: "",
-        historyInToolbar: false,
-        clipboardInToolbar: false,
-        commonInToolbar: true,
-        widgetInToolbar: false,
-        showReminder: false,
-    });
-
-    const updateIdea = async () => {
-        if (title.trim() == "" || keywordList.length == 0) {
-            return;
-        }
-        const sessionId = await get_admin_session();
-        const content = editorRef.current?.getContent() ?? {
-            type: 'doc',
-        };
-        await request(update_idea({
-            admin_session_id: sessionId,
-            idea_id: props.idea.idea_id,
-            basic_info: {
-                title: title.trim(),
-                content: JSON.stringify(content),
-                keyword_list: keywordList,
-            },
-        }));
-        setInEdit(false);
-        props.onChange();
-    };
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     const removeIdea = async () => {
         const sessionId = await get_admin_session();
@@ -86,86 +51,48 @@ const IdeaCard = (props: IdeaCardProps) => {
         <Card title={
             <Form layout="inline">
                 <Form.Item label="标题">
-                    {inEdit == false && props.idea.basic_info.title}
-                    {inEdit == true && (
-                        <Input value={title} onChange={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setTitle(e.target.value.trim());
-                        }} style={{ width: "calc(100vw - 600px)" }} />
-                    )}
+                    {props.idea.basic_info.title}
                 </Form.Item>
             </Form>
         } style={{ width: "100%" }}
             extra={
                 <Space>
-                    {inEdit == false && (
-                        <>
-                            <Button disabled={!(props.permInfo.idea_store_perm.update_idea)} onClick={e => {
-                                e.stopPropagation();
-                                setTitle(props.idea.basic_info.title);
-                                setKeywordList(props.idea.basic_info.keyword_list);
-                                const t = setInterval(() => {
-                                    if (editorRef.current != null) {
-                                        clearInterval(t);
-                                        editorRef.current.setContent(props.idea.basic_info.content);
-                                    }
-                                }, 100);
-                                setInEdit(true);
-                            }}>编辑</Button>
-                            <Popover placement="bottom" trigger="click" content={
-                                <Space direction="vertical" size="small" style={{ padding: "10px 10px" }}>
-                                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                        disabled={!(props.permInfo.idea_store_perm.move_idea)}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowMoveModal(true);
-                                        }}>移动</Button>
-                                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} danger
-                                        disabled={!(props.permInfo.idea_store_perm.remove_idea)}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowRemoveModal(true);
-                                        }}>删除</Button>
-                                </Space>
-                            }>
-                                <MoreOutlined />
-                            </Popover>
-                        </>
-                    )}
-                    {inEdit == true && (
-                        <>
-                            <Button type="default" onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setInEdit(false);
-                            }}>取消</Button>
-                            <Button disabled={title == "" || keywordList.length == 0}
+                    <Button type="link" disabled={!(props.permInfo.idea_store_perm.update_idea)}
+                        style={{ minWidth: 0, padding: "0px 0px" }}
+                        onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setShowUpdateModal(true);
+                        }}>编辑</Button>
+                    <Popover placement="bottom" trigger="click" content={
+                        <Space direction="vertical" size="small" style={{ padding: "10px 10px" }}>
+                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                disabled={!(props.permInfo.idea_store_perm.move_idea)}
                                 onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    updateIdea();
-                                }}>保存</Button>
-                        </>
-                    )}
+                                    setShowMoveModal(true);
+                                }}>移动</Button>
+                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} danger
+                                disabled={!(props.permInfo.idea_store_perm.remove_idea)}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowRemoveModal(true);
+                                }}>删除</Button>
+                        </Space>
+                    }>
+                        <MoreOutlined />
+                    </Popover>
                 </Space>
             }>
             <Form labelCol={{ span: 1 }}>
                 <Form.Item label="关键词">
                     <Select mode="tags" value={keywordList} onChange={value => setKeywordList((value as string[]).map(item => item.toLowerCase()))}
-                        placement="topLeft" placeholder="请设置知识点相关的关键词" disabled={!inEdit} />
+                        placement="topLeft" placeholder="请设置知识点相关的关键词" disabled />
                 </Form.Item>
                 <Form.Item label="内容">
-                    {inEdit == false && (
-                        <ReadOnlyEditor content={props.idea.basic_info.content} />
-                    )}
-                    {inEdit == true && (
-                        <div className="_editChatContext">
-                            {editor}
-                        </div>
-                    )}
+                    <ReadOnlyEditor content={props.idea.basic_info.content} />
                 </Form.Item>
             </Form>
             {showRemoveModal == true && (
@@ -188,6 +115,13 @@ const IdeaCard = (props: IdeaCardProps) => {
                 <StoreListModal disableStoreId={props.idea.idea_store_id}
                     onCancel={() => setShowMoveModal(false)}
                     onOk={newStoreId => moveIdea(newStoreId)} />
+            )}
+            {showUpdateModal == true && (
+                <UpdateIdeaModal idea={props.idea} onCancel={() => setShowUpdateModal(false)}
+                    onOk={() => {
+                        setShowUpdateModal(false);
+                        props.onChange();
+                    }} />
             )}
         </Card>
     );

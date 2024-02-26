@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { Form, Input, Modal, Select, message } from "antd";
-import { get_admin_session } from '@/api/admin_auth';
+import type { IdeaInStore } from "@/api/project_idea";
 import { useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
+import { Form, Input, Modal, Select } from "antd";
+import { update_idea } from "@/api/project_idea_admin";
 import { request } from "@/utils/request";
-import { create_idea } from "@/api/project_idea_admin";
+import { get_admin_session } from "@/api/admin_auth";
 
-export interface CreateIdeaModalProps {
-    ideaStoreId: string;
+
+export interface UpdateIdeaModalProps {
+    idea: IdeaInStore;
     onCancel: () => void;
     onOk: () => void;
 }
 
-const CreateIdeaModal = (props: CreateIdeaModalProps) => {
-    const [title, setTitle] = useState("");
-    const [keywordList, setKeywordList] = useState<string[]>([]);
+const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
+    const [title, setTitle] = useState(props.idea.basic_info.title);
+    const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
 
     const { editor, editorRef } = useCommonEditor({
         content: "",
@@ -29,17 +31,17 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
         showReminder: false,
     });
 
-    const createIdea = async () => {
+    const updateIdea = async () => {
         if (title.trim() == "") {
             return;
         }
-        const sessionId = await get_admin_session();
         const content = editorRef.current?.getContent() ?? {
             type: 'doc',
         };
-        await request(create_idea({
+        const sessionId = await get_admin_session();
+        await request(update_idea({
             admin_session_id: sessionId,
-            idea_store_id: props.ideaStoreId,
+            idea_id: props.idea.idea_id,
             basic_info: {
                 title: title.trim(),
                 content: JSON.stringify(content),
@@ -47,12 +49,11 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
             },
         }));
         props.onOk();
-        message.info("创建成功");
     };
 
     return (
-        <Modal open title="创建知识点"
-            okText="创建" okButtonProps={{ disabled: (keywordList.length == 0 || title.trim() == "") }}
+        <Modal open title="更新知识点"
+            okText="更新" okButtonProps={{ disabled: (keywordList.length == 0 || title.trim() == "") }}
             width={800}
             onCancel={e => {
                 e.stopPropagation();
@@ -62,7 +63,7 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
             onOk={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                createIdea();
+                updateIdea();
             }}>
             <Form labelCol={{ span: 3 }}>
                 <Form.Item label="标题">
@@ -86,4 +87,4 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
     );
 };
 
-export default CreateIdeaModal;
+export default UpdateIdeaModal;
