@@ -3,9 +3,8 @@ import React, { useState } from 'react';
 import { ComponentsTheme } from '@remirror/theme';
 import { Menu, Modal, Popover } from 'antd';
 import { useCommands } from '@remirror/react';
-import { PhotoshopPicker } from 'react-color';
+import { SwatchesPicker } from 'react-color';
 import { MenuOutlined } from '@ant-design/icons';
-
 
 const TableCellMenuButton: React.FC<TableCellMenuComponentProps> = ({ setPopupOpen }) => {
     return (
@@ -41,7 +40,7 @@ const TableCellMenu: React.FC<TableCellMenuComponentProps> = (props) => {
     const [curColor, setCurColor] = useState<string | undefined>(undefined);
 
     return (
-        <>
+        <div >
             <Popover open={props.popupOpen} placement='right' content={
                 <Menu mode="vertical" style={{ listStyle: "none" }} items={[
                     {
@@ -166,19 +165,28 @@ const TableCellMenu: React.FC<TableCellMenuComponentProps> = (props) => {
                 <TableCellMenuButton {...props} />
             </Popover>
             {showColorModal == true && (
-                <Modal closable={false} open footer={null} bodyStyle={{ padding: "0px 0px" }} width={500}>
-                    <PhotoshopPicker header='选择背景色'
-                        color={curColor}
-                        onChange={color => setCurColor(color.hex)}
-                        onCancel={() => setShowColorModal(false)}
-                        onAccept={() => {
+                <Modal open title="选择颜色" bodyStyle={{ padding: "0px 0px", height: "400px", overflowY: "scroll", overflowX: "hidden" }} width={300}
+                    okButtonProps={{ disabled: curColor == undefined }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setCurColor(undefined);
+                        setShowColorModal(false);
+                    }}
+                    onOk={e => {
+                        if (curColor != undefined) {
                             commands.setTableCellBackground(curColor ?? null);
+                            setCurColor(undefined);
                             setShowColorModal(false);
-                        }}
+                        }
+                    }}>
+                    <SwatchesPicker
+                        height={580}
+                        onChange={color => setCurColor(color.hex)}
                     />
                 </Modal>
             )}
-        </>
+        </div>
     );
 };
 

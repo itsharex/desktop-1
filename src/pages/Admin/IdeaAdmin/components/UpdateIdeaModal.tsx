@@ -19,7 +19,7 @@ const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
     const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
 
     const { editor, editorRef } = useCommonEditor({
-        content: "",
+        content: props.idea.basic_info.content,
         fsId: "",
         ownerType: FILE_OWNER_TYPE_NONE,
         ownerId: "",
