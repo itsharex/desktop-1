@@ -32,8 +32,10 @@ const IdeaTipModal = () => {
                 filter_by_keyword: true,
                 keyword_list: [projectStore.projectModal.ideaKeyword],
                 keyword_search_type: KEYWORD_SEARCH_OR,
-                filter_by_group_or_store_id: false, //TODO
-                group_or_store_id: "", //TODO
+                filter_by_group_or_store_id: false,
+                group_or_store_id: "",
+                filter_by_title_keyword: false,
+                title_keyword: "",
             },
             sort_type: IDEA_SORT_APPRAISE,
             offset: curPage * PAGE_SIZE,

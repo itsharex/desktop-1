@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Form, List, Select } from "antd";
+import { Card, Form, Input, List, Select } from "antd";
 import type { AdminPermInfo } from "@/api/admin_auth";
 import type { IdeaStore, IdeaInStore } from "@/api/project_idea";
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
@@ -21,6 +21,7 @@ const IdeaList = () => {
 
     const [storeList, setStoreList] = useState([] as IdeaStore[]);
     const [curStoreId, setCurCateId] = useState("");
+    const [titleKeyword, setTitleKeyword] = useState("");
 
     const [ideaList, setIdeaList] = useState([] as IdeaInStore[]);
     const [totalCount, setTotalCount] = useState(0);
@@ -56,6 +57,8 @@ const IdeaList = () => {
                 keyword_search_type: KEYWORD_SEARCH_AND,
                 filter_by_group_or_store_id: true,
                 group_or_store_id: curStoreId,
+                filter_by_title_keyword: titleKeyword != "", 
+                title_keyword: titleKeyword, 
             },
             offset: curPage * PAGE_SIZE,
             limit: PAGE_SIZE,
@@ -93,7 +96,15 @@ const IdeaList = () => {
 
     useEffect(() => {
         loadIdeaList();
-    }, [curPage, curStoreId]);
+    }, [curPage]);
+
+    useEffect(() => {
+        if (curPage != 0) {
+            setCurPage(0);
+        } else {
+            loadIdeaList();
+        }
+    }, [curStoreId, titleKeyword]);
 
     return (
         <Card title="知识点"
@@ -111,6 +122,13 @@ const IdeaList = () => {
                                         <Select.Option key={item.idea_store_id} value={item.idea_store_id}>{item.name}</Select.Option>
                                     ))}
                                 </Select>
+                            </Form.Item>
+                            <Form.Item label="过滤标题">
+                                <Input value={titleKeyword} onChange={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setTitleKeyword(e.target.value.trim());
+                                }} />
                             </Form.Item>
                             <Form.Item>
                                 <Button

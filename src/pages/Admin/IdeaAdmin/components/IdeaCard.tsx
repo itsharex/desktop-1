@@ -20,7 +20,7 @@ export interface IdeaCardProps {
 const IdeaCard = (props: IdeaCardProps) => {
     const [inEdit, setInEdit] = useState(false);
     const [title, setTitle] = useState("");
-    const [keywordList, setKeywordList] = useState([] as string[]);
+    const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
 
     const [showMoveModal, setShowMoveModal] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);

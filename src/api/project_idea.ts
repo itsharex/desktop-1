@@ -78,6 +78,8 @@ export type ListIdeaParam = {
     keyword_search_type: KEYWORD_SEARCH_TYPE;
     filter_by_group_or_store_id: boolean;
     group_or_store_id: string;
+    filter_by_title_keyword: boolean;
+    title_keyword: string;
 };
 
 export type Appraise = {

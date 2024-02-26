@@ -1,4 +1,4 @@
-import { Card, Form, List, Select } from "antd";
+import { Card, Form, Input, List, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
 import { useHistory } from "react-router-dom";
@@ -30,6 +30,7 @@ const ContentPanel = (props: ContentPanelProps) => {
     const appStore = useStores('appStore');
 
     const [keywordSearchType, setKeywordSearchType] = useState<KEYWORD_SEARCH_TYPE>(KEYWORD_SEARCH_AND);
+    const [titleKeyword, setTitleKeyword] = useState("");
 
     const localStore = useLocalObservable(() => ({
         ideaList: [] as Idea[],
@@ -66,6 +67,8 @@ const ContentPanel = (props: ContentPanelProps) => {
                 keyword_search_type: keywordSearchType,
                 filter_by_group_or_store_id: ideaStore.curIdeaGroupId != "",
                 group_or_store_id: ideaStore.curIdeaGroupId,
+                filter_by_title_keyword: titleKeyword != "",
+                title_keyword: titleKeyword,
             },
             sort_type: ideaStore.searchKeywords.length > 0 ? IDEA_SORT_APPRAISE : IDEA_SORT_UPDATE_TIME,
             offset: PAGE_SIZE * curPage,
@@ -90,14 +93,23 @@ const ContentPanel = (props: ContentPanelProps) => {
         } else {
             loadIdeaList();
         }
-    }, [ideaStore.searchKeywords, curPage, ideaStore.curIdeaGroupId, ideaStore.curIdeaId, keywordSearchType]);
+    }, [curPage]);
+
+    useEffect(() => {
+        if (curPage != 0) {
+            setCurPage(0);
+        } else {
+            if (ideaStore.curIdeaId != "") {
+                loadIdea();
+            } else {
+                loadIdeaList();
+            }
+        }
+    }, [ideaStore.searchKeywords, ideaStore.curIdeaGroupId, ideaStore.curIdeaId, keywordSearchType, titleKeyword]);
 
     useEffect(() => {
         const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
             const notice = ev.payload;
-            if (notice.IdeaNotice !== undefined) {
-                console.log("xxxxxx", notice.IdeaNotice);
-            }
             if (notice.IdeaNotice?.MoveIdeaNotice != undefined && notice.IdeaNotice.MoveIdeaNotice.project_id == projectStore.curProjectId) {
                 if (ideaStore.curIdeaId != "") {
                     loadIdea();
@@ -143,6 +155,13 @@ const ContentPanel = (props: ContentPanelProps) => {
             <>
                 {ideaStore.curIdeaId == "" && (
                     <Form layout="inline">
+                        <Form.Item label="过滤标题">
+                            <Input value={titleKeyword} onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setTitleKeyword(e.target.value.trim());
+                            }} />
+                        </Form.Item>
                         <Form.Item label="关键词模式">
                             <Select value={keywordSearchType} style={{ width: "120px" }} onChange={value => setKeywordSearchType(value as KEYWORD_SEARCH_TYPE)}>
                                 <Select.Option value={KEYWORD_SEARCH_AND}>匹配所有关键词</Select.Option>
