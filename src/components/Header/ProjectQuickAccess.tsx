@@ -8,10 +8,11 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import { useHistory } from "react-router-dom";
 import { ISSUE_TAB_LIST_TYPE, LinkIdeaPageInfo } from "@/stores/linkAux";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constant";
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 import { useHotkeys } from 'react-hotkeys-hook';
 import HotkeyHelpInfo from "@/pages/Project/Overview/components/HotkeyHelpInfo";
+import { MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
 
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
@@ -265,15 +266,15 @@ const ProjectQuickAccess = () => {
     };
 
     const gotoHomePage = async (key: string) => {
-        let homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
+        let homeType = MAIN_CONTENT_CONTENT_LIST;
         if (key == MENU_KEY_HOME_WORK_PLAN) {
-            homeType = PROJECT_HOME_TYPE.PROJECT_HOME_WORK_PLAN_LIST;
+            homeType = MAIN_CONTENT_SPRIT_LIST;
         } else if (key == MENU_KEY_HOME_DOC) {
-            homeType = PROJECT_HOME_TYPE.PROJECT_HOME_DOC_LIST;
+            homeType = MAIN_CONTENT_DOC_LIST;
         } else if (key == MENU_KEY_HOME_BOARD) {
-            homeType = PROJECT_HOME_TYPE.PROJECT_HOME_BOARD_LIST;
+            homeType = MAIN_CONTENT_BOARD_LIST;
         } else if (key == MENU_KEY_HOME_PAGES) {
-            homeType = PROJECT_HOME_TYPE.PROJECT_HOME_PAGES_LIST;
+            homeType = MAIN_CONTENT_PAGES_LIST;
         }
         if (appStore.inEdit) {
             appStore.showCheckLeave(() => {

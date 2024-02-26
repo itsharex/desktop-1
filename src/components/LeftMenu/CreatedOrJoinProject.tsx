@@ -1,13 +1,13 @@
-import { Form, Input, message, Modal, Tabs } from 'antd';
+import { Form, Input, message, Modal, Select, Tabs } from 'antd';
 import type { FC } from 'react';
 import React, { useState } from 'react';
 import type { BasicProjectInfo } from '@/api/project';
-import { add_tag, create, update_tip_list } from '@/api/project';
+import { add_tag, create, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_tip_list } from '@/api/project';
 import { useStores } from '@/hooks';
 import { request } from '@/utils/request';
 import { useCommonEditor } from '@/components/Editor';
 import { useHistory } from 'react-router-dom';
-import { APP_PROJECT_HOME_PATH, PROJECT_HOME_TYPE, PROJECT_SETTING_TAB } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH, PROJECT_SETTING_TAB } from '@/utils/constant';
 import { join } from '@/api/project_member';
 import { unixTipList } from '@/pages/Project/Setting/components/TipListSettingPanel';
 import randomColor from 'randomcolor';
@@ -28,6 +28,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
   const projectStore = useStores('projectStore');
 
   const [prjName, setPrjName] = useState("");
+  const [mainContent, setMainContent] = useState(MAIN_CONTENT_CONTENT_LIST);
   const [activeKey, setActiveKey] = useState("create");
   const [linkText, setLinkText] = useState('');
 
@@ -53,7 +54,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       project_desc: JSON.stringify(content),
     };
     try {
-      const res = await request(create(userStore.sessionId, data));
+      const res = await request(create(userStore.sessionId, data, mainContent)); 
       message.success('创建项目成功');
       //设置经验集锦
       const tipList = unixTipList.split("\n").map(tip => tip.trim()).filter(tip => tip != "");
@@ -91,7 +92,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       await projectStore.updateProject(res.project_id);
       onChange(false);
       projectStore.setCurProjectId(res.project_id).then(() => {
-        projectStore.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
+        projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
         history.push(APP_PROJECT_HOME_PATH);
         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
       });
@@ -147,6 +148,18 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
                     e.preventDefault();
                     setPrjName(e.target.value.trim());
                   }} />
+                </Form.Item>
+                <Form.Item label="默认内容入口">
+                  <Select value={mainContent} onChange={value => {
+                    setMainContent(value);
+                  }}>
+                    <Select.Option value={MAIN_CONTENT_CONTENT_LIST}>内容面板</Select.Option>
+                    <Select.Option value={MAIN_CONTENT_SPRIT_LIST}>工作计划</Select.Option>
+                    <Select.Option value={MAIN_CONTENT_DOC_LIST}>项目文档</Select.Option>
+                    <Select.Option value={MAIN_CONTENT_BOARD_LIST}>信息面板</Select.Option>
+                    <Select.Option value={MAIN_CONTENT_PAGES_LIST}>静态网页</Select.Option>
+                    <Select.Option value={MAIN_CONTENT_MY_WORK}>我的工作</Select.Option>
+                  </Select>
                 </Form.Item>
                 <Form.Item label="项目介绍">
                   <div className="_projectEditContext" style={{ marginTop: '-12px' }}>

@@ -28,7 +28,7 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment, { type Moment } from "moment";
 import s from "./UpdateEntryModal.module.less";
 import { request } from "@/utils/request";
-import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH, PROJECT_HOME_TYPE } from "@/utils/constant";
+import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
 import { useHistory } from "react-router-dom";
 import { DeleteOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
@@ -43,6 +43,7 @@ import { create_custom } from "@/api/http_custom";
 import { Command } from "@tauri-apps/api/shell";
 import { create as create_data_anno } from "@/api/data_anno_project";
 import { getDefaultConfig } from "@/pages/DataAnno/components/defaultConfig";
+import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
 
 
 interface PathWrap {
@@ -487,7 +488,7 @@ const CreateEntryModal = () => {
                         setTitle(e.target.value.trim());
                     }} />
                 </Form.Item>
-                {projectStore.projectHome.homeType == PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT && (
+                {projectStore.projectHome.homeType == MAIN_CONTENT_CONTENT_LIST && (
                     <Form.Item label="类型">
                         <Radio.Group value={entryStore.createEntryType} onChange={e => {
                             e.stopPropagation();

@@ -127,7 +127,8 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                     <>
                         {inEditContent == false && (
                             <Space size="small">
-                                <Button disabled={!props.idea.user_perm.can_update}
+                                <Button type="link" disabled={!props.idea.user_perm.can_update}
+                                    style={{ minWidth: 0, padding: "0px 0px" }}
                                     onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();

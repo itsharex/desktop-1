@@ -96,7 +96,7 @@ async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
                 let cur_value = handle.state::<CurSession>().inner();
                 let cur_session = cur_value.0.lock().await;
                 if let Some(cur_session_id) = cur_session.clone() {
-                    session_id = cur_session_id;
+                    session_id.clone_from(&cur_session_id);
                 }
             }
             if session_id != "" {
