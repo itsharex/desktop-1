@@ -1,10 +1,10 @@
 import type { RootStore } from './index';
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { ProjectInfo, TagInfo } from '@/api/project';
-import { list as listProject, get_project as getProject, list_tag, TAG_SCOPRE_ALL, set_weight } from '@/api/project';
+import { list as listProject, get_project as getProject, list_tag, TAG_SCOPRE_ALL, set_weight, MAIN_CONTENT_CONTENT_LIST } from '@/api/project';
 import { request } from '@/utils/request';
 import type { PROJECT_SETTING_TAB } from '@/utils/constant';
-import { APP_PROJECT_HOME_PATH, PROJECT_HOME_TYPE } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { get_member_state as get_my_issue_state } from '@/api/project_issue';
 import type { History } from 'history';
 import { get_alarm_state } from "@/api/project_alarm";
@@ -85,7 +85,7 @@ export default class ProjectStore {
       this.showProjectSetting = null;
       this.setShowChatAndComment(false, "chat");
       this.projectHome.contentActiveKey = "folder";
-      this.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
+      this.projectHome.homeType = this.getProject(val)?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST;
     }
   }
 
@@ -409,7 +409,7 @@ export default class ProjectStore {
       history.push('/app/workbench');
     } else {
       this.setCurProjectId(newProjectId);
-      this.projectHome.homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
+      this.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
       history.push(APP_PROJECT_HOME_PATH);
     }
   }

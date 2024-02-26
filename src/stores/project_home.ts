@@ -1,24 +1,25 @@
+import type { MAIN_CONTENT_TYPE } from '@/api/project';
+import { MAIN_CONTENT_CONTENT_LIST } from '@/api/project';
 import { type ENTRY_TYPE, ENTRY_TYPE_NULL } from '@/api/project_entry';
-import { PROJECT_HOME_TYPE } from '@/utils/constant';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 export class ProjectHomeStore {
     constructor() {
         makeAutoObservable(this);
     }
-    private _homeType = PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT;
+    private _homeType = MAIN_CONTENT_CONTENT_LIST;
 
     get homeType() {
         return this._homeType;
     }
 
-    set homeType(val: PROJECT_HOME_TYPE) {
+    set homeType(val: MAIN_CONTENT_TYPE) {
         if (val == this._homeType) {
             return;
         }
         runInAction(() => {
             this._homeType = val;
-            if (val == PROJECT_HOME_TYPE.PROJECT_HOME_CONTENT) {
+            if (val == MAIN_CONTENT_CONTENT_LIST) {
                 this._contentCurPage = 0;
                 this._contentTotalCount = 0;
                 this._contentKeyword = "";

@@ -6,9 +6,17 @@ export const TAG_SCOPRE_ALL: TAG_SCOPRE_TYPE = 0;
 export const TAG_SCOPRE_TASK: TAG_SCOPRE_TYPE = 2;
 export const TAG_SCOPRE_BUG: TAG_SCOPRE_TYPE = 3;
 export const TAG_SCOPRE_REQ: TAG_SCOPRE_TYPE = 4;
-export const TAG_SCOPRE_IDEA: TAG_SCOPRE_TYPE = 5;
+// export const TAG_SCOPRE_IDEA: TAG_SCOPRE_TYPE = 5;
 export const TAG_SCOPRE_SPRIT_SUMMARY: TAG_SCOPRE_TYPE = 6;
 export const TAG_SCOPRE_ENTRY: TAG_SCOPRE_TYPE = 7;
+
+export type MAIN_CONTENT_TYPE = number;
+export const MAIN_CONTENT_CONTENT_LIST: MAIN_CONTENT_TYPE = 0;  //内容面板
+export const MAIN_CONTENT_SPRIT_LIST: MAIN_CONTENT_TYPE = 1;    //工作计划
+export const MAIN_CONTENT_DOC_LIST: MAIN_CONTENT_TYPE = 2;      //项目文档
+export const MAIN_CONTENT_BOARD_LIST: MAIN_CONTENT_TYPE = 3;    //信息面板
+export const MAIN_CONTENT_PAGES_LIST: MAIN_CONTENT_TYPE = 4;    //静态网页
+export const MAIN_CONTENT_MY_WORK: MAIN_CONTENT_TYPE = 99;  //我的工作
 
 export type BasicProjectInfo = {
   project_name: string;
@@ -25,6 +33,7 @@ export type Setting = {
   // disable_api_collection: boolean;
   // disable_code_comment: boolean;
   // disable_ci_cd: boolean;
+  main_content: MAIN_CONTENT_TYPE,
 
   // disable_chat: boolean;
   // disable_kb: boolean;
@@ -258,10 +267,12 @@ export type SetWeightResponse = {
 export async function create(
   session_id: string,
   basic_info: BasicProjectInfo,
+  main_content: MAIN_CONTENT_TYPE,
 ): Promise<CreateResponse> {
   const request = {
     session_id,
     basic_info,
+    main_content,
   };
   const cmd = 'plugin:project_api|create';
   console.log(`%c${cmd}`, 'color:#0f0;', request);

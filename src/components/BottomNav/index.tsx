@@ -34,7 +34,7 @@ const RightFloat = observer(() => {
           <Button type="link" className={s.setting_btn} onClick={e => {
             e.stopPropagation();
             e.preventDefault();
-            projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
+            projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_LAYOUT;
           }}><SettingOutlined /></Button>
         </Tooltip>
       )}
