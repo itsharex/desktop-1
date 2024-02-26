@@ -41,7 +41,7 @@ const filterIssueList = (taskList: IssueInfo[], bugList: IssueInfo[], state: ISS
             }
         }
     });
-    console.log(taskList, bugList, memberId);
+    console.log("xxxxxxxx", taskList, bugList, memberId);
     retList.sort((a: IssueInfo, b: IssueInfo) => b.update_time - a.update_time);
     return retList;
 }
@@ -239,7 +239,9 @@ const CloseIssueColumn = observer((props: KanbanPanelProps) => {
     const [{ isOver, canDrop }, drop] = useDrop(() => ({
         accept: DND_ITEM_TYPE,
         drop: (item: IssueInfo) => setClose(item),
-        canDrop: (item: IssueInfo) => item.user_issue_perm.next_state_list.includes(ISSUE_STATE_CLOSE),
+        canDrop: (item: IssueInfo) => {
+            return item.user_issue_perm.next_state_list.includes(ISSUE_STATE_CLOSE)
+        },
         collect: monitor => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop(),

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import { useDrag } from 'react-dnd';
@@ -223,10 +223,28 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const linkAuxStore = useStores('linkAuxStore');
     const memberStore = useStores('memberStore');
 
+    const [curIssue, setCurIssue] = useState<IssueInfo | null>(null);
+
+    const canDrag = (): boolean => {
+        let tmpIssue: IssueInfo | null = null;
+        setCurIssue(oldValue => {
+            tmpIssue = oldValue;
+            return oldValue;
+        });
+        return tmpIssue!.user_issue_perm.next_state_list.length != 0 || tmpIssue!.user_issue_perm.can_opt_sub_issue;
+    };
+
     const [{ isDragging }, drag] = useDrag(() => ({
         type: DND_ITEM_TYPE,
-        item: props.issue,
-        canDrag: props.issue.user_issue_perm.next_state_list.length != 0 || props.issue.user_issue_perm.can_opt_sub_issue,
+        item: () => {
+            let tmpIssue: IssueInfo | null = null;
+            setCurIssue(oldValue => {
+                tmpIssue = oldValue;
+                return oldValue;
+            });
+            return tmpIssue!;
+        },
+        canDrag: () => canDrag(),
         collect: monitor => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -237,265 +255,275 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const [showCheckUserModal, setShowCheckUserModal] = useState(false);
     const [showEstimateModal, setShowEstimateModal] = useState(false);
 
-    return (
-        <div ref={drag} style={{
-            display: isDragging ? "none" : "block",
-            cursor: isDragging ? "pointer" : "move",
-        }} onMouseEnter={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            setHover(true);
-        }}
-            onMouseLeave={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                setHover(false);
-            }}>
-            <div className={classNames(s.card_wrap, (props.issue.user_issue_perm.next_state_list.length == 0 && props.issue.user_issue_perm.can_opt_sub_issue == false) ? s.disable : "")} style={{ borderLeft: `6px solid rgb(${getColor(props.issue.state)} / 80%)` }}>
-                <div className={s.head}>
-                    <div style={{ flex: 1, fontSize: "14px", fontWeight: 600 }}>{`${props.issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"} #${props.issue.issue_index}`}</div>
-                    {hover == true && (
-                        <Space>
-                            <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                showShortNote(userStore.sessionId, {
-                                    shortNoteType: props.issue.issue_type == ISSUE_TYPE_TASK ? SHORT_NOTE_TASK : SHORT_NOTE_BUG,
-                                    data: props.issue,
-                                }, projectStore.curProject?.basic_info.project_name ?? "");
+    useEffect(() => {
+        setCurIssue(props.issue);
+    }, [props.issue]);
 
-                            }}><ExportOutlined style={{ width: "20px" }} /></a>
-                            <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
+    return (
+        <>
+            {curIssue != null && (
+                <div ref={drag} style={{
+                    display: isDragging ? "none" : "block",
+                    cursor: isDragging ? "pointer" : "move",
+                }} onMouseEnter={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setHover(true);
+                }}
+                    onMouseLeave={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setHover(false);
+                    }}>
+
+                    <div className={classNames(s.card_wrap, (props.issue.user_issue_perm.next_state_list.length == 0 && props.issue.user_issue_perm.can_opt_sub_issue == false) ? s.disable : "")} style={{ borderLeft: `6px solid rgb(${getColor(props.issue.state)} / 80%)` }}>
+                        <div className={s.head}>
+                            <div style={{ flex: 1, fontSize: "14px", fontWeight: 600 }}>{`${props.issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"} #${props.issue.issue_index}`}</div>
+                            {hover == true && (
+                                <Space>
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        showShortNote(userStore.sessionId, {
+                                            shortNoteType: props.issue.issue_type == ISSUE_TYPE_TASK ? SHORT_NOTE_TASK : SHORT_NOTE_BUG,
+                                            data: props.issue,
+                                        }, projectStore.curProject?.basic_info.project_name ?? "");
+
+                                    }}><ExportOutlined style={{ width: "20px" }} /></a>
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        if (props.issue.issue_type == ISSUE_TYPE_TASK) {
+                                            linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id), history);
+                                        } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
+                                            linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id), history);
+                                        }
+                                    }}><EditOutlined style={{ width: "20px" }} /></a>
+                                </Space>
+                            )}
+                        </div>
+                        <EditText editable={hover && props.issue.user_issue_perm.can_update} content={props.issue.basic_info.title}
+                            fontSize="16px" fontWeight={500} width="190px"
+                            showEditIcon onClick={() => {
                                 if (props.issue.issue_type == ISSUE_TYPE_TASK) {
                                     linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id), history);
                                 } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
                                     linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id), history);
                                 }
-                            }}><EditOutlined style={{ width: "20px" }} /></a>
-                        </Space>
-                    )}
-                </div>
-                <EditText editable={hover && props.issue.user_issue_perm.can_update} content={props.issue.basic_info.title}
-                    fontSize="16px" fontWeight={500} width="190px"
-                    showEditIcon onClick={() => {
-                        if (props.issue.issue_type == ISSUE_TYPE_TASK) {
-                            linkAuxStore.goToLink(new LinkTaskInfo("", props.issue.project_id, props.issue.issue_id), history);
-                        } else if (props.issue.issue_type == ISSUE_TYPE_BUG) {
-                            linkAuxStore.goToLink(new LinkBugInfo("", props.issue.project_id, props.issue.issue_id), history);
-                        }
-                    }} onChange={async value => {
-                        if (value.trim() == "") {
-                            return false;
-                        }
-                        try {
-                            await updateTitle(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value.trim());
-                            return true;
-                        } catch (e) {
-                            console.log(e);
-                            return false;
-                        }
-                    }} />
-                {props.issue.exec_user_id != "" && (
-                    <div className={s.member}>
-                        <Space>
-                            <span>执行人:</span>
-                            <UserPhoto logoUri={memberStore.getMember(props.issue.exec_user_id)?.member.logo_uri ?? ""} width="16px"
-                                style={{ borderRadius: "10px" }} />
-                            <span>{props.issue.exec_display_name}</span>
-                        </Space>
-                    </div>
-                )}
-                {props.issue.check_user_id != "" && (
-                    <div className={s.member}>
-                        <Space>
-                            <span>检查人:</span>
-                            <UserPhoto logoUri={memberStore.getMember(props.issue.check_user_id)?.member.logo_uri ?? ""} width="16px"
-                                style={{ borderRadius: "10px" }} />
-                            <span>{props.issue.check_display_name}</span>
-                        </Space>
-                    </div>
-                )}
-                {hover && props.issue.sub_issue_status.total_count > 0 && (
-                    <>
-                        <h2 style={{ fontSize: "16px", fontWeight: 600, marginTop: "10px" }}>子任务</h2>
-                        <ul style={{ listStyleType: "disc", marginLeft: "20px" }}>
-                            {props.issue.sub_issue_status.sub_issue_list.map(subItem => (
-                                <li key={subItem.sub_issue_id} style={{ textDecoration: subItem.done ? "line-through" : "" }}>{subItem.title}</li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-                {props.issue.state == ISSUE_STATE_PROCESS && (
-                    <>
-                        <div>
-                            <Space>
-                                <span style={{ lineHeight: "30px" }}>预估开始时间:</span>
-                                <EditDate
-                                    editable={(!projectStore.isClosed) && props.issue.exec_user_id == userStore.userInfo.userId && props.issue.state == ISSUE_STATE_PROCESS}
-                                    hasTimeStamp={props.issue.has_start_time}
-                                    timeStamp={props.issue.start_time}
-                                    onChange={async (value) => {
-                                        if (value === undefined) {
-                                            const ret = await cancelStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
-                                            return ret;
-                                        }
-                                        const ret = await updateStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
-                                        return ret;
-                                    }}
-                                    showEditIcon={hover}
-                                />
-                            </Space>
-                        </div>
-                        <div>
-                            <Space>
-                                <span style={{ lineHeight: "30px" }}>预估结束时间:</span>
-                                <EditDate
-                                    editable={(!projectStore.isClosed) && props.issue.exec_user_id == userStore.userInfo.userId && props.issue.state == ISSUE_STATE_PROCESS}
-                                    hasTimeStamp={props.issue.has_end_time}
-                                    timeStamp={props.issue.end_time}
-                                    onChange={async (value) => {
-                                        if (value === undefined) {
-                                            const ret = await cancelEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
-                                            return ret;
-                                        }
-                                        const ret = await updateEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
-                                        return ret;
-                                    }}
-                                    showEditIcon={hover}
-                                />
-                            </Space>
-                        </div>
-                    </>
-                )}
-                {props.issue.estimate_minutes > 0 && props.issue.remain_minutes >= 0 && props.issue.state == ISSUE_STATE_PROCESS && (
-                    <div>
-                        <Progress
-                            percent={Math.round((props.issue.estimate_minutes - props.issue.remain_minutes) / props.issue.estimate_minutes * 100)}
-                            size="small"
-                            showInfo={false} />
-                        <div style={{ display: "flex", justifyContent: "flex-end", paddingBottom: "10px" }}>
-                            {props.issue.remain_minutes > props.issue.estimate_minutes && <WarningOutlined style={{ fontSize: "16px", paddingRight: "6px", color: "red" }} />}
-                            {(props.issue.remain_minutes / 60).toFixed(1)}小时(剩余)&nbsp;/&nbsp;{(props.issue.estimate_minutes / 60).toFixed(1)}小时(预估)
-                            {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
-                                <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowEstimateModal(true);
-                                }}>&nbsp;<EditOutlined /></a>
-                            )}
-                        </div>
-                    </div>
-                )}
+                            }} onChange={async value => {
+                                if (value.trim() == "") {
+                                    return false;
+                                }
+                                try {
+                                    await updateTitle(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value.trim());
+                                    return true;
+                                } catch (e) {
+                                    console.log(e);
+                                    return false;
+                                }
+                            }} />
+                        {props.issue.exec_user_id != "" && (
+                            <div className={s.member}>
+                                <Space>
+                                    <span>执行人:</span>
+                                    <UserPhoto logoUri={memberStore.getMember(props.issue.exec_user_id)?.member.logo_uri ?? ""} width="16px"
+                                        style={{ borderRadius: "10px" }} />
+                                    <span>{props.issue.exec_display_name}</span>
+                                </Space>
+                            </div>
+                        )}
+                        {props.issue.check_user_id != "" && (
+                            <div className={s.member}>
+                                <Space>
+                                    <span>检查人:</span>
+                                    <UserPhoto logoUri={memberStore.getMember(props.issue.check_user_id)?.member.logo_uri ?? ""} width="16px"
+                                        style={{ borderRadius: "10px" }} />
+                                    <span>{props.issue.check_display_name}</span>
+                                </Space>
+                            </div>
+                        )}
+                        {hover && props.issue.sub_issue_status.total_count > 0 && (
+                            <>
+                                <h2 style={{ fontSize: "16px", fontWeight: 600, marginTop: "10px" }}>子任务</h2>
+                                <ul style={{ listStyleType: "disc", marginLeft: "20px" }}>
+                                    {props.issue.sub_issue_status.sub_issue_list.map(subItem => (
+                                        <li key={subItem.sub_issue_id} style={{ textDecoration: subItem.done ? "line-through" : "" }}>{subItem.title}</li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && (
+                            <>
+                                <div>
+                                    <Space>
+                                        <span style={{ lineHeight: "30px" }}>预估开始时间:</span>
+                                        <EditDate
+                                            editable={(!projectStore.isClosed) && props.issue.exec_user_id == userStore.userInfo.userId && props.issue.state == ISSUE_STATE_PROCESS}
+                                            hasTimeStamp={props.issue.has_start_time}
+                                            timeStamp={props.issue.start_time}
+                                            onChange={async (value) => {
+                                                if (value === undefined) {
+                                                    const ret = await cancelStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
+                                                    return ret;
+                                                }
+                                                const ret = await updateStartTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
+                                                return ret;
+                                            }}
+                                            showEditIcon={hover}
+                                        />
+                                    </Space>
+                                </div>
+                                <div>
+                                    <Space>
+                                        <span style={{ lineHeight: "30px" }}>预估结束时间:</span>
+                                        <EditDate
+                                            editable={(!projectStore.isClosed) && props.issue.exec_user_id == userStore.userInfo.userId && props.issue.state == ISSUE_STATE_PROCESS}
+                                            hasTimeStamp={props.issue.has_end_time}
+                                            timeStamp={props.issue.end_time}
+                                            onChange={async (value) => {
+                                                if (value === undefined) {
+                                                    const ret = await cancelEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id);
+                                                    return ret;
+                                                }
+                                                const ret = await updateEndTime(userStore.sessionId, props.issue.project_id, props.issue.issue_id, value);
+                                                return ret;
+                                            }}
+                                            showEditIcon={hover}
+                                        />
+                                    </Space>
+                                </div>
+                            </>
+                        )}
+                        {props.issue.estimate_minutes > 0 && props.issue.remain_minutes >= 0 && props.issue.state == ISSUE_STATE_PROCESS && (
+                            <div>
+                                <Progress
+                                    percent={Math.round((props.issue.estimate_minutes - props.issue.remain_minutes) / props.issue.estimate_minutes * 100)}
+                                    size="small"
+                                    showInfo={false} />
+                                <div style={{ display: "flex", justifyContent: "flex-end", paddingBottom: "10px" }}>
+                                    {props.issue.remain_minutes > props.issue.estimate_minutes && <WarningOutlined style={{ fontSize: "16px", paddingRight: "6px", color: "red" }} />}
+                                    {(props.issue.remain_minutes / 60).toFixed(1)}小时(剩余)&nbsp;/&nbsp;{(props.issue.estimate_minutes / 60).toFixed(1)}小时(预估)
+                                    {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
+                                        <a onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setShowEstimateModal(true);
+                                        }}>&nbsp;<EditOutlined /></a>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
 
-                {props.issue.issue_type == ISSUE_TYPE_TASK && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                        <span style={{ color: taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].color }}>
-                            优先级{taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].label}
-                        </span>
-                    </Tag>
-                )}
-                {props.issue.issue_type == ISSUE_TYPE_BUG && (
-                    <>
-                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                            <span style={{ color: bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].color }}>{bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].label}</span>
-                        </Tag>
-                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                            缺陷级别:&nbsp;
-                            <span style={{ color: bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].color }}>{bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].label}</span>
-                        </Tag>
-                    </>
-                )}
-                {props.issue.exec_user_id == "" && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", color: "red", marginTop: "10px" }}>
-                        <span style={{ color: "red" }}>
-                            <WarningOutlined />&nbsp;未设置执行人
-                        </span>
-                        {props.issue.user_issue_perm.can_assign_exec_user && hover && (
-                            <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setShowExecUserModal(true);
-                            }}>&nbsp;<PlusOutlined /></a>
-                        )}
-                    </Tag>
-                )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.estimate_minutes <= 0 && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估时间</span>
-                        {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
-                            <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setShowEstimateModal(true);
-                            }}>&nbsp;<EditOutlined /></a>
-                        )}
-                    </Tag>
-                )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time == false && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估开始时间</span>
-                    </Tag>
-                )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time == false && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估结束时间</span>
-                    </Tag>
-                )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time &&
-                    (props.issue.start_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.start_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
-                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                            <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估开始时间不合理</span>
-                        </Tag>
-                    )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time &&
-                    (props.issue.end_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.end_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
-                        <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                            <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间不合理</span>
-                        </Tag>
-                    )}
-                {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time && props.issue.has_end_time && props.issue.end_time <= props.issue.start_time && (
-                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间早于预估开始时间</span>
-                    </Tag>
-                )}
-                {hover && (
-                    <div>
-                        {props.issue.re_open_count > 0 && (
+                        {props.issue.issue_type == ISSUE_TYPE_TASK && (
                             <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
-                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;重新打开次数&nbsp;{props.issue.re_open_count}</span>
+                                <span style={{ color: taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].color }}>
+                                    优先级{taskPriority[props.issue.extra_info.ExtraTaskInfo?.priority ?? 0].label}
+                                </span>
                             </Tag>
                         )}
-
-                        {props.issue.check_user_id == "" && (
-                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        {props.issue.issue_type == ISSUE_TYPE_BUG && (
+                            <>
+                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                    <span style={{ color: bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].color }}>{bugPriority[props.issue.extra_info.ExtraBugInfo?.priority ?? 0].label}</span>
+                                </Tag>
+                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                    缺陷级别:&nbsp;
+                                    <span style={{ color: bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].color }}>{bugLevel[props.issue.extra_info.ExtraBugInfo?.level ?? 0].label}</span>
+                                </Tag>
+                            </>
+                        )}
+                        {props.issue.exec_user_id == "" && (
+                            <Tag style={{ border: "none", backgroundColor: "#fffaea", color: "red", marginTop: "10px" }}>
                                 <span style={{ color: "red" }}>
-                                    <WarningOutlined />&nbsp;未设置检查人
+                                    <WarningOutlined />&nbsp;未设置执行人
                                 </span>
-                                {props.issue.user_issue_perm.can_assign_check_user && hover && (
+                                {props.issue.user_issue_perm.can_assign_exec_user && hover && (
                                     <a onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
-                                        setShowCheckUserModal(true);
+                                        setShowExecUserModal(true);
                                     }}>&nbsp;<PlusOutlined /></a>
                                 )}
                             </Tag>
                         )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.estimate_minutes <= 0 && (
+                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估时间</span>
+                                {props.issue.exec_user_id == userStore.userInfo.userId && hover && (
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowEstimateModal(true);
+                                    }}>&nbsp;<EditOutlined /></a>
+                                )}
+                            </Tag>
+                        )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time == false && (
+                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估开始时间</span>
+                            </Tag>
+                        )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time == false && (
+                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;未设置预估结束时间</span>
+                            </Tag>
+                        )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time &&
+                            (props.issue.start_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.start_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
+                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                    <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估开始时间不合理</span>
+                                </Tag>
+                            )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_end_time &&
+                            (props.issue.end_time < (props.entryInfo?.extra_info.ExtraSpritInfo?.start_time ?? 0) || props.issue.end_time > (props.entryInfo?.extra_info.ExtraSpritInfo?.end_time ?? 0)) && (
+                                <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                    <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间不合理</span>
+                                </Tag>
+                            )}
+                        {props.issue.state == ISSUE_STATE_PROCESS && props.issue.has_start_time && props.issue.has_end_time && props.issue.end_time <= props.issue.start_time && (
+                            <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间早于预估开始时间</span>
+                            </Tag>
+                        )}
+                        {hover && (
+                            <div>
+                                {props.issue.re_open_count > 0 && (
+                                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;重新打开次数&nbsp;{props.issue.re_open_count}</span>
+                                    </Tag>
+                                )}
+
+                                {props.issue.check_user_id == "" && (
+                                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                                        <span style={{ color: "red" }}>
+                                            <WarningOutlined />&nbsp;未设置检查人
+                                        </span>
+                                        {props.issue.user_issue_perm.can_assign_check_user && hover && (
+                                            <a onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setShowCheckUserModal(true);
+                                            }}>&nbsp;<PlusOutlined /></a>
+                                        )}
+                                    </Tag>
+                                )}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-            {showExecUserModal == true && (
-                <SelectExecMemberModal issue={props.issue} onClose={() => setShowExecUserModal(false)} />
+
+                    {showExecUserModal == true && (
+                        <SelectExecMemberModal issue={props.issue} onClose={() => setShowExecUserModal(false)} />
+                    )}
+                    {showCheckUserModal == true && (
+                        <SelectCheckMemberModal issue={props.issue} onClose={() => setShowCheckUserModal(false)} />
+                    )}
+                    {showEstimateModal == true && (
+                        <EstimateModal issue={props.issue} onClose={() => setShowEstimateModal(false)} />
+                    )}
+                </div>
             )}
-            {showCheckUserModal == true && (
-                <SelectCheckMemberModal issue={props.issue} onClose={() => setShowCheckUserModal(false)} />
-            )}
-            {showEstimateModal == true && (
-                <EstimateModal issue={props.issue} onClose={() => setShowEstimateModal(false)} />
-            )}
-        </div>
+        </>
     );
 };
 
