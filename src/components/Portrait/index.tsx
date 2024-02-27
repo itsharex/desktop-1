@@ -14,8 +14,6 @@ import UserPhoto from '@/components/Portrait/UserPhoto';
 import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import { EditText } from '../EditCell/EditText';
-import { remove_info_file } from '@/api/local_api';
-import { exit } from '@tauri-apps/api/process';
 
 const Portrait = ({ ...props }) => {
   const location = useLocation();
@@ -132,13 +130,6 @@ const Portrait = ({ ...props }) => {
           <Quitsvg />
           退出登录
         </div>
-        <div className={s.exit} style={{ color: "red" }} onClick={e => {
-          e.stopPropagation();
-          e.preventDefault();
-          remove_info_file().then(() => {
-            exit(0);
-          });
-        }}>关闭应用</div>
         {passwordVisible && (
           <PasswordModal {...props} visible={passwordVisible} onCancel={setPasswordVisible} />
         )}
