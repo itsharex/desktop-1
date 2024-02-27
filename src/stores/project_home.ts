@@ -38,7 +38,7 @@ export class ProjectHomeStore {
     }
 
     //内容面板相关
-    private _contentActiveKey: "folder" | "list" | "close" = "folder";
+    private _contentActiveKey: "folder" | "list"  = "folder";
     private _contentCurPage = 0;
     private _contentTotalCount = 0;
     private _contentKeyword = "";
@@ -50,7 +50,7 @@ export class ProjectHomeStore {
         return this._contentActiveKey;
     }
 
-    set contentActiveKey(val: "folder" | "list" | "close") {
+    set contentActiveKey(val: "folder" | "list") {
         runInAction(() => {
             this._contentActiveKey = val;
             this._contentCurPage = 0;

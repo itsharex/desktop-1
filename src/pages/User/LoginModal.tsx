@@ -63,17 +63,28 @@ const LoginModal = () => {
         setUserName(localStorage.getItem(`${defaultAddr}:username`) ?? "");
     };
 
+    const getCurServerName = () => {
+        const index = serverList.findIndex(item => item.addr == defaultAddr);
+        if (index != -1) {
+            return serverList[index].name;
+        }
+        return "";
+    };
+
     const getLoginTagStr = () => {
+        const serverName = getCurServerName();
         if (loginTab == "login") {
-            return "请登录";
+            return `请登录`;
         } else if (loginTab == "reset") {
-            return "重置密码";
+            return `重置密码(服务器:${serverName})`;
         } else if (loginTab == "register") {
-            return "注册账号";
+            return `注册账号(服务器:${serverName})`;
         } else {
-            return "登录管理后台";
+            return `登录管理后台(服务器:${serverName})`;
         }
     }
+
+    
 
     useEffect(() => {
         loadServerList();
@@ -228,7 +239,7 @@ const LoginModal = () => {
                 </Form>
             )}
             {loginTab == "reset" && (<Reset onClose={() => setLoginTab("login")} />)}
-            {loginTab == "adminLogin" && (<AdminLogin />)}
+            {loginTab == "adminLogin" && (<AdminLogin onClose={() => setLoginTab("login")}/>)}
             {loginTab == "register" && (<Register
                 onCancel={() => setLoginTab("login")}
                 onOk={name => {

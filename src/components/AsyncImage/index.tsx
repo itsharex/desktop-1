@@ -36,7 +36,6 @@ const AsyncImage: React.FC<AsyncImageProps> = (props) => {
                 asName = parts[2];
             }
             asName = asName.replaceAll(/\s/g, "");
-            console.log("xxxxx", asName);
             let sessionId = ""
             if (location.pathname.startsWith("/admin/")) {
                 sessionId = await get_admin_session();

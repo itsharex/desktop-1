@@ -41,7 +41,6 @@ const filterIssueList = (taskList: IssueInfo[], bugList: IssueInfo[], state: ISS
             }
         }
     });
-    console.log("xxxxxxxx", taskList, bugList, memberId);
     retList.sort((a: IssueInfo, b: IssueInfo) => b.update_time - a.update_time);
     return retList;
 }

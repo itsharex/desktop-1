@@ -64,7 +64,6 @@ const FolderModeContent = (props: FolderModeContentProps) => {
             });
         }
         testcaseStore.itemList = tmpList;
-        console.log("xxxxxx", testcaseStore.itemList);
     };
 
     const removeData = async () => {
