@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import { useDrag } from 'react-dnd';
@@ -223,10 +223,28 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const linkAuxStore = useStores('linkAuxStore');
     const memberStore = useStores('memberStore');
 
+    const [_, setCurIssue] = useState(props.issue);
+
+    const canDrag = (): boolean => {
+        let tmpIssue = props.issue;
+        setCurIssue(oldValue => {
+            tmpIssue = oldValue;
+            return oldValue;
+        });
+        return tmpIssue.user_issue_perm.next_state_list.length != 0 || tmpIssue.user_issue_perm.can_opt_sub_issue;
+    };
+
     const [{ isDragging }, drag] = useDrag(() => ({
         type: DND_ITEM_TYPE,
-        item: props.issue,
-        canDrag: props.issue.user_issue_perm.next_state_list.length != 0 || props.issue.user_issue_perm.can_opt_sub_issue,
+        item: () => {
+            let tmpIssue = props.issue;
+            setCurIssue(oldValue => {
+                tmpIssue = oldValue;
+                return oldValue;
+            });
+            return tmpIssue;
+        },
+        canDrag: () => canDrag(),
         collect: monitor => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -237,7 +255,12 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
     const [showCheckUserModal, setShowCheckUserModal] = useState(false);
     const [showEstimateModal, setShowEstimateModal] = useState(false);
 
+    useEffect(() => {
+        setCurIssue(props.issue);
+    }, [props.issue]);
+
     return (
+
         <div ref={drag} style={{
             display: isDragging ? "none" : "block",
             cursor: isDragging ? "pointer" : "move",
@@ -251,6 +274,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                 e.preventDefault();
                 setHover(false);
             }}>
+
             <div className={classNames(s.card_wrap, (props.issue.user_issue_perm.next_state_list.length == 0 && props.issue.user_issue_perm.can_opt_sub_issue == false) ? s.disable : "")} style={{ borderLeft: `6px solid rgb(${getColor(props.issue.state)} / 80%)` }}>
                 <div className={s.head}>
                     <div style={{ flex: 1, fontSize: "14px", fontWeight: 600 }}>{`${props.issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"} #${props.issue.issue_index}`}</div>
@@ -486,6 +510,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                     </div>
                 )}
             </div>
+
             {showExecUserModal == true && (
                 <SelectExecMemberModal issue={props.issue} onClose={() => setShowExecUserModal(false)} />
             )}
@@ -496,6 +521,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                 <EstimateModal issue={props.issue} onClose={() => setShowEstimateModal(false)} />
             )}
         </div>
+
     );
 };
 
