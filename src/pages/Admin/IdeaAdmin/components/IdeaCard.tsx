@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { IdeaInStore } from "@/api/project_idea";
 import { Card, Form, Modal, Popover, Select, Space, message } from "antd";
 import { AdminPermInfo, get_admin_session } from "@/api/admin_auth";
@@ -46,6 +46,10 @@ const IdeaCard = (props: IdeaCardProps) => {
         props.onRemove();
         message.info("移动成功");
     };
+
+    useEffect(() => {
+        setKeywordList(props.idea.basic_info.keyword_list);
+    }, [props.idea.basic_info.keyword_list]);
 
     return (
         <Card title={
