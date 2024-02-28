@@ -102,7 +102,6 @@ export type EntryInfo = {
     watch_user_list: WatchUser[];
     tag_list: EntryTag[];
     entry_perm: EntryPerm;
-    mark_remove: boolean;
     mark_sys: boolean;
     parent_folder_id: string;
     create_user_id: string;
@@ -123,8 +122,6 @@ export type ListParam = {
     tag_id_list: string[];
     filter_by_keyword: boolean;
     keyword: string;
-    filter_by_mark_remove: boolean;
-    mark_remove: boolean;
     filter_by_entry_type: boolean;
     entry_type_list: ENTRY_TYPE[];
 };
@@ -204,6 +201,17 @@ export type GetResponse = {
     entry: EntryInfo;
 };
 
+export type RemoveRequest = {
+    session_id: string;
+    project_id: string;
+    entry_id: string;
+};
+
+export type RemoveResponse = {
+    code: number;
+    err_msg: string;
+};
+
 export type UpdateTagRequest = {
     session_id: string;
     project_id: string;
@@ -240,18 +248,6 @@ export type UpdatePermResponse = {
     err_msg: string;
 };
 
-export type UpdateMarkRemoveRequest = {
-    session_id: string;
-    project_id: string;
-    entry_id: string;
-    mark_remove: boolean;
-};
-
-export type UpdateMarkRemoveResponse = {
-    code: number;
-    err_msg: string;
-};
-
 export type UpdateExtraInfoRequest = {
     session_id: string;
     project_id: string;
@@ -283,28 +279,6 @@ export type UpdateMarkSysRequest = {
 };
 
 export type UpdateMarkSysResponse = {
-    code: number;
-    err_msg: string;
-};
-
-export type RemovePagesRequest = {
-    session_id: string;
-    project_id: string;
-    entry_id: string;
-};
-
-export type RemovePagesResponse = {
-    code: number;
-    err_msg: string;
-};
-
-export type RemoveFileRequest = {
-    session_id: string;
-    project_id: string;
-    entry_id: string;
-};
-
-export type RemoveFileResponse = {
     code: number;
     err_msg: string;
 };
@@ -448,6 +422,15 @@ export async function get(request: GetRequest): Promise<GetResponse> {
     });
 }
 
+//删除入口
+export async function remove(request: RemoveRequest): Promise<RemoveResponse> {
+    const cmd = 'plugin:project_entry_api|remove';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<RemoveResponse>(cmd, {
+        request,
+    });
+}
+
 //更新标签
 export async function update_tag(request: UpdateTagRequest): Promise<UpdateTagResponse> {
     const cmd = 'plugin:project_entry_api|update_tag';
@@ -475,15 +458,6 @@ export async function update_perm(request: UpdatePermRequest): Promise<UpdatePer
     });
 }
 
-//更新删除标记
-export async function update_mark_remove(request: UpdateMarkRemoveRequest): Promise<UpdateMarkRemoveResponse> {
-    const cmd = 'plugin:project_entry_api|update_mark_remove';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<UpdateMarkRemoveResponse>(cmd, {
-        request,
-    });
-}
-
 //更新系统面板标记
 export async function update_mark_sys(request: UpdateMarkSysRequest): Promise<UpdateMarkSysResponse> {
     const cmd = 'plugin:project_entry_api|update_mark_sys';
@@ -498,24 +472,6 @@ export async function update_extra_info(request: UpdateExtraInfoRequest): Promis
     const cmd = 'plugin:project_entry_api|update_extra_info';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<UpdateExtraInfoResponse>(cmd, {
-        request,
-    });
-}
-
-//删除静态网页
-export async function remove_pages(request: RemovePagesRequest): Promise<RemovePagesResponse> {
-    const cmd = 'plugin:project_entry_api|remove_pages';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<RemovePagesResponse>(cmd, {
-        request,
-    });
-}
-
-//删除文件
-export async function remove_file(request: RemoveFileRequest): Promise<RemoveFileResponse> {
-    const cmd = 'plugin:project_entry_api|remove_file';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<RemoveFileResponse>(cmd, {
         request,
     });
 }

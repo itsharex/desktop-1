@@ -75,7 +75,7 @@ const ViewBulletinModal = () => {
             project_id: projectStore.curProjectId,
             bulletin_id: projectStore.projectModal.bulletinId,
         }));
-        message.info("删除成功");
+        message.info("移至回收站成功");
         projectStore.projectModal.bulletinId = "";
     };
 
@@ -114,7 +114,7 @@ const ViewBulletinModal = () => {
                                             e.stopPropagation();
                                             e.preventDefault();
                                             removeBulletin();
-                                        }}>删除公告</Button>
+                                        }}>移至回收站</Button>
                                     </div>
                                 }>
                                     <MoreOutlined />

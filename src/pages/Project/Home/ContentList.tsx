@@ -100,8 +100,6 @@ const ProjectHome = () => {
                     tag_id_list: projectStore.projectHome.contentTagIdList,
                     filter_by_keyword: projectStore.projectHome.contentKeyword.length > 0,
                     keyword: projectStore.projectHome.contentKeyword,
-                    filter_by_mark_remove: true,
-                    mark_remove: false,
                     filter_by_entry_type: projectStore.projectHome.contentEntryType != ENTRY_TYPE_NULL,
                     entry_type_list: projectStore.projectHome.contentEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.projectHome.contentEntryType],
                 };

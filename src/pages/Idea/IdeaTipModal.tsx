@@ -29,7 +29,7 @@ const IdeaTipModal = () => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
             list_param: {
-                filter_by_keyword: true,
+                filter_by_keyword: projectStore.projectModal.ideaKeyword.trim() != "",
                 keyword_list: [projectStore.projectModal.ideaKeyword],
                 keyword_search_type: KEYWORD_SEARCH_OR,
                 filter_by_group_or_store_id: false,

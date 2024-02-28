@@ -74,7 +74,7 @@ export type CreateRequirementEvent = {
     skip_prj_name: boolean,
     inner: RemoveRequirementEvent,
   ): LinkInfo[] {
-    return [new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 删除需求 ${inner.title}`)];
+    return [new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 把 需求 ${inner.title} 移至回收站`)];
   }
 
   export type LinkIssueEvent = {

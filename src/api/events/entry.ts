@@ -1,7 +1,7 @@
 import type { PluginEvent } from '../events';
 import type { LinkInfo } from '@/stores/linkAux';
 import { LinkNoneInfo, LinkSpritInfo, LinkDocInfo, LinkBoardInfo } from '@/stores/linkAux';
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from '../project_entry';
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from '../project_entry';
 
 
 function gen_simple_content(
@@ -21,6 +21,12 @@ function gen_simple_content(
         typeName = "静态网页";
     } else if (entry_type == ENTRY_TYPE_BOARD) {
         typeName = "信息面板";
+    } else if (entry_type == ENTRY_TYPE_FILE){
+        typeName = "文件";
+    } else if (entry_type == ENTRY_TYPE_API_COLL){
+        typeName = "接口集合";
+    } else if (entry_type == ENTRY_TYPE_DATA_ANNO) {
+        typeName = "数据标注";
     }
     const retList = [
         new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} ${action_name} ${typeName}`),
@@ -51,37 +57,6 @@ function get_create_simple_content(
         inner.entry_id, inner.entry_type, inner.entry_title);
 }
 
-export type OpenEvent = {
-    entry_id: string;
-    entry_type: number;
-    entry_title: string;
-};
-
-function get_open_simple_content(
-    ev: PluginEvent,
-    skip_prj_name: boolean,
-    inner: CreateEvent,
-): LinkInfo[] {
-    return gen_simple_content(ev, skip_prj_name, "打开",
-        inner.entry_id, inner.entry_type, inner.entry_title);
-
-}
-
-export type CloseEvent = {
-    entry_id: string;
-    entry_type: number;
-    entry_title: string;
-};
-
-function get_close_simple_content(
-    ev: PluginEvent,
-    skip_prj_name: boolean,
-    inner: CreateEvent,
-): LinkInfo[] {
-    return gen_simple_content(ev, skip_prj_name, "关闭",
-        inner.entry_id, inner.entry_type, inner.entry_title);
-
-}
 
 export type RemoveEvent = {
     entry_id: string;
@@ -94,15 +69,13 @@ function get_remove_simple_content(
     skip_prj_name: boolean,
     inner: CreateEvent,
 ): LinkInfo[] {
-    return gen_simple_content(ev, skip_prj_name, "删除",
+    return gen_simple_content(ev, skip_prj_name, "移至回收站",
         inner.entry_id, inner.entry_type, inner.entry_title);
 
 }
 
 export class AllEntryEvent {
     CreateEvent?: CreateEvent;
-    OpenEvent?: OpenEvent;
-    CloseEvent?: CloseEvent;
     RemoveEvent?: RemoveEvent;
 }
 
@@ -113,10 +86,6 @@ export function get_entry_simple_content(
 ): LinkInfo[] {
     if (inner.CreateEvent !== undefined) {
         return get_create_simple_content(ev, skip_prj_name, inner.CreateEvent);
-    } else if (inner.OpenEvent !== undefined) {
-        return get_open_simple_content(ev, skip_prj_name, inner.OpenEvent);
-    } else if (inner.CloseEvent !== undefined) {
-        return get_close_simple_content(ev, skip_prj_name, inner.CloseEvent);
     } else if (inner.RemoveEvent !== undefined) {
         return get_remove_simple_content(ev, skip_prj_name, inner.RemoveEvent);
     }

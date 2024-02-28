@@ -251,7 +251,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoveDataInfo(row);
-                        }}>删除</Button>
+                        }}>移至回收站</Button>
                 </Space>
             ),
         },
@@ -301,8 +301,8 @@ const FolderModeContent = (props: FolderModeContentProps) => {
         <div>
             <Table rowKey="id" dataSource={testcaseStore.itemList} columns={columns} pagination={false} scroll={{ x: 1400 }} />
             {removeDataInfo != null && (
-                <Modal open title={`删除${removeDataInfo.dataType == "folder" ? "目录" : "测试用例"}`}
-                    okText="删除" okButtonProps={{ danger: true }}
+                <Modal open title="移至回收站"
+                    okText="移至" okButtonProps={{ danger: true }}
                     onCancel={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -313,7 +313,7 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                         e.preventDefault();
                         removeData();
                     }}>
-                    是否删除{removeDataInfo.dataType == "folder" ? "目录" : "测试用例"}&nbsp;{removeDataInfo.dataValue.title}&nbsp;?
+                    是否把{removeDataInfo.dataType == "folder" ? "目录" : "测试用例"}&nbsp;{removeDataInfo.dataValue.title}&nbsp;移至回收站?
                 </Modal>
             )}
             {moveDataInfo != null && (

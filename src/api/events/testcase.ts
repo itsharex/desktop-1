@@ -50,7 +50,7 @@ function get_remove_case_simple_content(
     inner: RemoveCaseEvent,
 ): LinkInfo[] {
     return [
-        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 删除测试用例 ${inner.case_title}`),
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 把 测试用例 ${inner.case_title} 移至回收站`),
     ];
 }
 

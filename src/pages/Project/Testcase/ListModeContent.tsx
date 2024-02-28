@@ -188,7 +188,7 @@ const ListModeContent = (props: ListModeContentProps) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setRemoveCaseInfo(row.dataValue as CaseInfo);
-                    }}>删除</Button>
+                    }}>移至回收站</Button>
             ),
         },
         {
@@ -248,8 +248,8 @@ const ListModeContent = (props: ListModeContentProps) => {
                 scroll={{ x: 1200 }}
                 pagination={{ current: curPage + 1, total: totalCount, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1) }} />
             {removeCaseInfo != null && (
-                <Modal open title="删除测试用例"
-                    okText="删除" okButtonProps={{ danger: true }}
+                <Modal open title="移至回收站"
+                    okText="移至" okButtonProps={{ danger: true }}
                     onCancel={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -260,7 +260,7 @@ const ListModeContent = (props: ListModeContentProps) => {
                         e.preventDefault();
                         removeCase();
                     }}>
-                    是否删除测试用例&nbsp;{removeCaseInfo.title}&nbsp;?
+                    是否把测试用例&nbsp;{removeCaseInfo.title}&nbsp;移至回收站?
                 </Modal>
             )}
         </div>
