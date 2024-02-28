@@ -120,7 +120,7 @@ const DetailPanel = () => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
                                                 removeIssue();
-                                            }}>删除</Button>
+                                            }}>移至回收站</Button>
                                         </div>
                                     }>
                                         <MoreOutlined />

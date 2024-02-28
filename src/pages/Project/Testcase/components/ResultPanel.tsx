@@ -49,7 +49,7 @@ const ResultCard = observer((props: ResultCardProps) => {
         }));
         setShowRemoveModal(false);
         props.onChange();
-        message.info("删除成功");
+        message.info("移至回收站成功");
     };
 
     const updateResult = async () => {

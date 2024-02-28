@@ -28,12 +28,12 @@ const RemoveEntryModal = (props: RemoveEntryModalProps) => {
             entryStore.curEntry = null;
         }
         props.onRemove();
-        message.info("删除成功");
+        message.info("移至回收站成功");
     };
 
     return (
-        <Modal open title={`删除${getEntryTypeStr(props.entryInfo.entry_type)}`}
-            okText="删除" okButtonProps={{ danger: true }}
+        <Modal open title="移至回收站"
+            okText="移至" okButtonProps={{ danger: true }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -45,11 +45,9 @@ const RemoveEntryModal = (props: RemoveEntryModalProps) => {
                 removeEntry();
             }}>
             <p>
-                是否删除&nbsp;{getEntryTypeStr(props.entryInfo.entry_type)}&nbsp;{props.entryInfo.entry_title}&nbsp;?
+                是否把&nbsp;{getEntryTypeStr(props.entryInfo.entry_type)}&nbsp;{props.entryInfo.entry_title}&nbsp;移至回收站?
             </p>
-            <p style={{ color: "red" }}>
-                删除后数据将不可恢复!!!
-            </p>
+            
         </Modal>
     );
 };

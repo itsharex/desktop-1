@@ -159,7 +159,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                                                     e.stopPropagation();
                                                     e.preventDefault();
                                                     setShowRemove(true);
-                                                }}>删除知识点</Button>
+                                                }}>移至回收站</Button>
                                             </div>
                                         </div>
                                     }>
@@ -345,8 +345,8 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                 <IdeaEventModal ideaId={props.idea.idea_id} onCancel={() => setShowEvent(false)} />
             )}
             {showRemove == true && (
-                <Modal open title="删除知识点"
-                    okText="删除" okButtonProps={{ danger: true }}
+                <Modal open title="移至回收站"
+                    okText="移至" okButtonProps={{ danger: true }}
                     onCancel={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -357,7 +357,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
                         e.preventDefault();
                         removeIdea();
                     }}>
-                    是否删除知识点&nbsp;{props.idea.basic_info.title}?
+                    是否把知识点&nbsp;{props.idea.basic_info.title}&nbsp;移至回收站?
                 </Modal>
             )}
             {showEditPermModal == true && (

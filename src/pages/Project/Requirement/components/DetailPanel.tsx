@@ -193,7 +193,7 @@ const DetailPanel = () => {
                                                     e.stopPropagation();
                                                     e.preventDefault();
                                                     setShowRemoveModal(true);
-                                                }}>删除需求</Button>
+                                                }}>移至回收站</Button>
                                         </Space>
                                     }>
                                         <MoreOutlined />
@@ -236,8 +236,8 @@ const DetailPanel = () => {
                         </Form>
                     </Card>
                     {showRemoveModal == true && (
-                        <Modal open title="删除项目需求"
-                            okText="删除" okButtonProps={{ danger: true }}
+                        <Modal open title="移至回收站"
+                            okText="移至" okButtonProps={{ danger: true }}
                             onCancel={e => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -248,7 +248,7 @@ const DetailPanel = () => {
                                 e.preventDefault();
                                 removeRequirement();
                             }}>
-                            是否删除项目需求&nbsp;{reqInfo.base_info.title}&nbsp;?
+                            是否把项目需求&nbsp;{reqInfo.base_info.title}&nbsp;移至回收站?
                         </Modal>
                     )}
                 </>
