@@ -37,9 +37,11 @@ const MENU_KEY_SHOW_TOOL_BAR_EVENTS = "toolbar.events.show";
 const MENU_KEY_SHOW_TOOL_BAR_EVENTS_SUBSCRIBE = "toolbar.eventsSubscribe.show";
 const MENU_KEY_SHOW_TOOL_BAR_EXT_EVENTS = "toolbar.extEvents.show";
 
+const MENU_KEY_SHOW_TOOL_BAR_RECYCLE = "toolbar.recycle.show";
 const MENU_KEY_SHOW_TOOL_BAR_OVERVIEW = "toolbar.overview.show";
 
 const MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT = "toolbar.chatAndComment.show"
+
 
 const MENU_KEY_ENTRY_CREATE_SPRIT = "project.entry.sprit.create";
 const MENU_KEY_ENTRY_CREATE_DOC = "project.entry.doc.create";
@@ -255,6 +257,10 @@ const ProjectQuickAccess = () => {
             label: "查看第三方接入",
         });
         tmpItems.push({
+            key: MENU_KEY_SHOW_TOOL_BAR_RECYCLE,
+            label: "查看回收站"
+        });
+        tmpItems.push({
             key: MENU_KEY_SHOW_TOOL_BAR_OVERVIEW,
             label: "查看项目信息",
         });
@@ -390,8 +396,11 @@ const ProjectQuickAccess = () => {
             case MENU_KEY_SHOW_TOOL_BAR_OVERVIEW:
                 linkAuxStore.gotoOverview(history);
                 break;
+            case MENU_KEY_SHOW_TOOL_BAR_RECYCLE:
+                linkAuxStore.gotoRecycle(history);
+                break;
             case MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT:
-                if(!projectStore.showChatAndComment){
+                if (!projectStore.showChatAndComment) {
                     linkAuxStore.pickupToolbar(history);
                 }
                 projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");

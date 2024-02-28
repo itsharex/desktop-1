@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import type { CaseDetailInfo, TestMethod, PermSetting } from "@/api/project_testcase";
-import { get_case, update_case, update_case_content, update_case_perm } from "@/api/project_testcase";
+import { get_case, remove_case, update_case, update_case_content, update_case_perm } from "@/api/project_testcase";
 import { request } from "@/utils/request";
-import { Button, Card, Checkbox, Form, Select, Space } from "antd";
+import { Button, Card, Checkbox, Form, Popover, Select, Space } from "antd";
 import { EditText } from "@/components/EditCell/EditText";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_TEST_CASE } from "@/api/fs";
 import UserPhoto from "@/components/Portrait/UserPhoto";
+import { MoreOutlined } from "@ant-design/icons";
 
-const DetailPanel = () => {
+export interface DetailPanelProps {
+    onRemove: () => void;
+}
+
+const DetailPanel = (props: DetailPanelProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
@@ -106,6 +111,18 @@ const DetailPanel = () => {
         })
     };
 
+    const removeCase = async () => {
+        if (detailInfo == null) {
+            return;
+        }
+        await request(remove_case({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            case_id: detailInfo.case_info.case_id,
+        }));
+        props.onRemove();
+    };
+
     useEffect(() => {
         loadDetailInfo();
     }, [projectStore.projectModal.testCaseId]);
@@ -149,17 +166,34 @@ const DetailPanel = () => {
                         extra={
                             <Space>
                                 {inEditContent == false && detailInfo.case_info.user_perm.can_update && (
-                                    <Button type="primary" onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setInEditContent(true);
-                                        const t = setInterval(() => {
-                                            if (editorRef.current != null) {
-                                                editorRef.current.setContent(detailInfo.content);
-                                                clearInterval(t);
-                                            }
-                                        }, 100);
-                                    }}>编辑内容</Button>
+                                    <>
+                                        <Button type="primary" onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setInEditContent(true);
+                                            const t = setInterval(() => {
+                                                if (editorRef.current != null) {
+                                                    editorRef.current.setContent(detailInfo.content);
+                                                    clearInterval(t);
+                                                }
+                                            }, 100);
+                                        }}>编辑内容</Button>
+                                        {detailInfo != null && (
+                                            <Popover trigger="click" placement="bottom" content={
+                                                <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                                    <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!detailInfo.case_info.user_perm.can_remove}
+                                                        onClick={e => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            removeCase();
+                                                        }}>移至回收站</Button>
+                                                </Space>
+                                            }>
+                                                <MoreOutlined />
+                                            </Popover>
+                                        )}
+
+                                    </>
                                 )}
                                 {inEditContent == true && (
                                     <>

@@ -4,9 +4,9 @@ import type { FolderInfo, CaseInfo, FolderOrCaseInfo } from "@/api/project_testc
 import { list_folder, list_case, remove_case, remove_folder, update_case, update_folder } from "@/api/project_testcase";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
-import { Button, Modal, Space, Table, Tag } from "antd";
+import { Button, Modal, Popover, Space, Table, Tag } from "antd";
 import type { ColumnsType } from 'antd/lib/table';
-import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { FileOutlined, FolderOpenOutlined, MoreOutlined } from "@ant-design/icons";
 import { EditText } from "@/components/EditCell/EditText";
 import { watch, unwatch, WATCH_TARGET_TEST_CASE } from "@/api/project_watch";
 import UserPhoto from "@/components/Portrait/UserPhoto";
@@ -134,9 +134,9 @@ const FolderModeContent = (props: FolderModeContentProps) => {
         },
         {
             title: "名称",
-            width: 300,
+            width: 500,
             render: (_, row: FolderOrCaseInfo) => (
-                <Space>
+                <Space size="middle">
                     {row.dataType == "folder" && <FolderOpenOutlined />}
                     {row.dataType == "case" && <FileOutlined />}
                     <EditText editable={row.dataValue.user_perm.can_update} content={row.dataValue.title}
@@ -174,6 +174,23 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                                 return false;
                             }
                         }} />
+                    <Popover trigger="click" placement="bottom" content={
+                        <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                            <Button type="link"  style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_update} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setMoveDataInfo(row);
+                            }}>移动</Button>
+                            <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_remove}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setRemoveDataInfo(row);
+                                }}>移至回收站</Button>
+                        </Space>
+                    }>
+                        <MoreOutlined />
+                    </Popover>
                 </Space>
             ),
             fixed: true,
@@ -233,25 +250,6 @@ const FolderModeContent = (props: FolderModeContentProps) => {
                                 &nbsp;{item.member.display_name}
                             </Tag>
                         ))}
-                </Space>
-            ),
-        },
-        {
-            title: "操作",
-            width: 200,
-            render: (_, row: FolderOrCaseInfo) => (
-                <Space>
-                    <Button type="link" disabled={!row.dataValue.user_perm.can_update} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMoveDataInfo(row);
-                    }}>移动</Button>
-                    <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_remove}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setRemoveDataInfo(row);
-                        }}>移至回收站</Button>
                 </Space>
             ),
         },

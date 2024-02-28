@@ -9,8 +9,7 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import s from "./Card.module.less";
 import PagesModal from "./components/PagesModal";
-import EntryOptCol from "./components/EntryOptCol";
-
+import EntryEditCol from "./components/EntryEditCol";
 
 const PagesList = () => {
     const projectStore = useStores('projectStore');
@@ -40,6 +39,7 @@ const PagesList = () => {
                         e.preventDefault();
                         setEntryInfo(row.value as EntryInfo);
                     }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</span>
+                    <EntryEditCol entryInfo={row.value as EntryInfo}/>
                 </Space>
             ),
         },
@@ -52,13 +52,6 @@ const PagesList = () => {
                         <Tag key={tag.tag_id} style={{ backgroundColor: tag.bg_color }}>{tag.tag_name}</Tag>
                     ))}
                 </Space>
-            ),
-        },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: EntryOrFolderInfo) => (
-                <EntryOptCol entryInfo={row.value as EntryInfo} />
             ),
         },
         {
