@@ -50,12 +50,6 @@ export type GetResponse = {
   info: SpritInfo;
 };
 
-export type RemoveResponse = {
-  code: number;
-  err_msg: string;
-};
-
-
 export type UpdateBurnDownRequest = {
   session_id: string;
   project_id: string;
@@ -190,25 +184,6 @@ export async function get(
   console.log(`%c${cmd}`, 'color:#0f0;', request);
 
   return invoke<GetResponse>(cmd, {
-    request,
-  });
-}
-
-//删除工作计划信息
-export async function remove(
-  session_id: string,
-  project_id: string,
-  sprit_id: string,
-): Promise<RemoveResponse> {
-  const cmd = 'plugin:project_sprit_api|remove';
-  const request = {
-    session_id,
-    project_id,
-    sprit_id,
-  };
-  console.log(`%c${cmd}`, 'color:#0f0;', request);
-
-  return invoke<RemoveResponse>(cmd, {
     request,
   });
 }

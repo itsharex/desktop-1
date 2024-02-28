@@ -1,15 +1,11 @@
 import React from "react";
 import { observer } from 'mobx-react';
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, type EntryInfo, remove_file, remove_pages, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
+import { type EntryInfo, remove as remove_entry } from "@/api/project_entry";
 import { Modal, message } from "antd";
 import { getEntryTypeStr } from "./common";
 import { useStores } from "@/hooks";
-import { remove_doc } from "@/api/project_doc";
-import { remove as remove_sprit } from "@/api/project_sprit";
 import { request } from "@/utils/request";
-import { remove_board } from "@/api/project_board";
-import {remove as remove_api_coll} from "@/api/api_collection";
-import {remove as remove_data_anno} from "@/api/data_anno_project";
+
 
 export interface RemoveEntryModalProps {
     entryInfo: EntryInfo;
@@ -23,45 +19,11 @@ const RemoveEntryModal = (props: RemoveEntryModalProps) => {
     const entryStore = useStores('entryStore');
 
     const removeEntry = async () => {
-        if (props.entryInfo.entry_type == ENTRY_TYPE_SPRIT) {
-            await request(remove_sprit(userStore.sessionId, projectStore.curProjectId, props.entryInfo.entry_id));
-        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DOC) {
-            await request(remove_doc({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                doc_id: props.entryInfo.entry_id,
-            }));
-        } else if (props.entryInfo.entry_type == ENTRY_TYPE_PAGES) {
-            await request(remove_pages({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                entry_id: props.entryInfo.entry_id,
-            }));
-        } else if (props.entryInfo.entry_type == ENTRY_TYPE_BOARD) {
-            await request(remove_board({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                board_id: props.entryInfo.entry_id,
-            }));
-        } else if (props.entryInfo.entry_type == ENTRY_TYPE_FILE) {
-            await request(remove_file({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                entry_id: props.entryInfo.entry_id,
-            }));
-        } else if(props.entryInfo.entry_type == ENTRY_TYPE_API_COLL){
-            await request(remove_api_coll({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                api_coll_id: props.entryInfo.entry_id,
-            }));
-        }else if(props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO){
-            await request(remove_data_anno({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                anno_project_id: props.entryInfo.entry_id,
-            }));
-        }
+        await request(remove_entry({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            entry_id: props.entryInfo.entry_id,
+        }));
         if (entryStore.curEntry != null && entryStore.curEntry.entry_id == props.entryInfo.entry_id) {
             entryStore.curEntry = null;
         }

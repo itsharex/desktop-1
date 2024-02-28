@@ -86,17 +86,6 @@ export type GetDocResponse = {
     doc: Doc;
 };
 
-export type RemoveDocRequest = {
-    session_id: string;
-    project_id: string;
-    doc_id: string;
-};
-
-export type RemoveDocResponse = {
-    code: number;
-    err_msg: string;
-};
-
 export type ListDocHistoryRequest = {
     session_id: string;
     project_id: string;
@@ -188,16 +177,6 @@ export async function get_doc(request: GetDocRequest): Promise<GetDocResponse> {
     const cmd = 'plugin:project_doc_api|get_doc';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<GetDocResponse>(cmd, {
-        request,
-    });
-}
-
-
-//删除文档
-export async function remove_doc(request: RemoveDocRequest): Promise<RemoveDocResponse> {
-    const cmd = 'plugin:project_doc_api|remove_doc';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<RemoveDocResponse>(cmd, {
         request,
     });
 }

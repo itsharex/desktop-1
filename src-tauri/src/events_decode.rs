@@ -28,6 +28,8 @@ pub mod project {
         CustomEvent(events_project::CustomEvent),
         WatchEvent(events_project::WatchEvent),
         UnwatchEvent(events_project::UnwatchEvent),
+        RecoverFromRecycleEvent(events_project::RecoverFromRecycleEvent),
+        RemoveFromRecycleEvent(events_project::RemoveFromRecycleEvent),
     }
 
     pub fn decode_event(data: &Any) -> Option<Event> {
@@ -124,6 +126,14 @@ pub mod project {
         } else if data.type_url == events_project::UnwatchEvent::type_url() {
             if let Ok(ev) = events_project::UnwatchEvent::decode(data.value.as_slice()) {
                 return Some(Event::UnwatchEvent(ev));
+            }
+        } else if data.type_url == events_project::RecoverFromRecycleEvent::type_url() {
+            if let Ok(ev) = events_project::RecoverFromRecycleEvent::decode(data.value.as_slice()) {
+                return Some(Event::RecoverFromRecycleEvent(ev));
+            }
+        } else if data.type_url == events_project::RemoveFromRecycleEvent::type_url() {
+            if let Ok(ev) = events_project::RemoveFromRecycleEvent::decode(data.value.as_slice()) {
+                return Some(Event::RemoveFromRecycleEvent(ev));
             }
         }
         None
@@ -700,8 +710,6 @@ pub mod entry {
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
     pub enum Event {
         CreateEvent(events_entry::CreateEvent),
-        OpenEvent(events_entry::OpenEvent),
-        CloseEvent(events_entry::CloseEvent),
         RemoveEvent(events_entry::RemoveEvent),
     }
 
@@ -709,14 +717,6 @@ pub mod entry {
         if data.type_url == events_entry::CreateEvent::type_url() {
             if let Ok(ev) = events_entry::CreateEvent::decode(data.value.as_slice()) {
                 return Some(Event::CreateEvent(ev));
-            }
-        } else if data.type_url == events_entry::OpenEvent::type_url() {
-            if let Ok(ev) = events_entry::OpenEvent::decode(data.value.as_slice()) {
-                return Some(Event::OpenEvent(ev));
-            }
-        } else if data.type_url == events_entry::CloseEvent::type_url() {
-            if let Ok(ev) = events_entry::CloseEvent::decode(data.value.as_slice()) {
-                return Some(Event::CloseEvent(ev));
             }
         } else if data.type_url == events_entry::RemoveEvent::type_url() {
             if let Ok(ev) = events_entry::RemoveEvent::decode(data.value.as_slice()) {

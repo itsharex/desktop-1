@@ -57,31 +57,6 @@ async fn get<R: Runtime>(
 }
 
 #[tauri::command]
-async fn remove<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: RemoveRequest,
-) -> Result<RemoveResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectSpritApiClient::new(chan.unwrap());
-    match client.remove(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == remove_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("remove".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn update_burn_down<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -314,7 +289,6 @@ impl<R: Runtime> ProjectSpritApiPlugin<R> {
             invoke_handler: Box::new(tauri::generate_handler![
                 create,
                 get,
-                remove,
                 update_burn_down,
                 list_burn_down,
                 set_summary_state,

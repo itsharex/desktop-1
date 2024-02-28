@@ -32,13 +32,6 @@ const SelectApiCollModal = (props: SelectApiCollModalProps) => {
 
 
     const loadApiCollList = async () => {
-        // const res = await request(list_apicoll({
-        //     session_id: userStore.sessionId,
-        //     project_id: projectStore.curProjectId,
-        //     filter_by_watch: false,
-        //     offset: PAGE_SIZE * curPage,
-        //     limit: PAGE_SIZE,
-        // }));
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
@@ -48,8 +41,6 @@ const SelectApiCollModal = (props: SelectApiCollModalProps) => {
                 tag_id_list: [],
                 filter_by_keyword: false,
                 keyword: "",
-                filter_by_mark_remove: true,
-                mark_remove: false,
                 filter_by_entry_type: true,
                 entry_type_list: [ENTRY_TYPE_API_COLL],
             },

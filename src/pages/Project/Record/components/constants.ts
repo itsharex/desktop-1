@@ -94,7 +94,15 @@ export const projectEvOptionList: CheckboxOptionType[] = [
     {
         label: "取消关注",
         value: "unwatch"
-    }
+    },
+    {
+        label: "从回收站恢复",
+        value: "recoverFromRecycle",
+    },
+    {
+        label: "从回收站删除",
+        value: "removeFromRecycle",
+    },
 ];
 
 export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => {
@@ -121,6 +129,8 @@ export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => 
         custom_event: false,
         watch: false,
         unwatch: false,
+        recover_from_recycle: false,
+        remove_from_recycle: false,
     };
     if (values == undefined) {
         return ret;
@@ -170,6 +180,10 @@ export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => 
             ret.watch = true
         } else if (value == "unwatch") {
             ret.unwatch = true
+        } else if (value == "recoverFromRecycle") {
+            ret.recover_from_recycle = true
+        } else if (value == "removeFromRecycle") {
+            ret.remove_from_recycle = true
         }
     });
     return ret;
@@ -242,6 +256,12 @@ export const genProjectEvCfgValues = (cfg: ProjectEvCfg): string[] => {
     }
     if (cfg.unwatch) {
         retList.push("unwatch");
+    }
+    if (cfg.recover_from_recycle) {
+        retList.push("recoverFromRecycle");
+    }
+    if (cfg.remove_from_recycle) {
+        retList.push("removeFromRecycle");
     }
     return retList;
 }
@@ -1113,14 +1133,6 @@ export const entryEvOptionList: CheckboxOptionType[] = [
         value: "create",
     },
     {
-        label: "打开内容",
-        value: "open",
-    },
-    {
-        label: "关闭内容",
-        value: "close",
-    },
-    {
         label: "删除内容",
         value: "remove",
     },
@@ -1129,8 +1141,6 @@ export const entryEvOptionList: CheckboxOptionType[] = [
 export const calcEntryEvCfg = (values: string[] | undefined): EntryEvCfg => {
     const ret: EntryEvCfg = {
         create: false,
-        open: false,
-        close: false,
         remove: false,
     };
     if (values == undefined) {
@@ -1139,10 +1149,6 @@ export const calcEntryEvCfg = (values: string[] | undefined): EntryEvCfg => {
     values.forEach(value => {
         if (value == "create") {
             ret.create = true;
-        } else if (value == "open") {
-            ret.open = true;
-        } else if (value == "close") {
-            ret.close = true;
         } else if (value == "remove") {
             ret.remove = true;
         }
@@ -1154,12 +1160,6 @@ export const genEntryEvCfgValues = (cfg: EntryEvCfg): string[] => {
     const retList: string[] = [];
     if (cfg.create) {
         retList.push("create");
-    }
-    if (cfg.open) {
-        retList.push("open");
-    }
-    if (cfg.close) {
-        retList.push("close");
     }
     if (cfg.remove) {
         retList.push("remove");

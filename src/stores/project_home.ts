@@ -32,7 +32,6 @@ export class ProjectHomeStore {
                 this._otherKeyword = "";
                 this._otherTagIdList = [] as string[];
                 this._otherFilterByWatch = false;
-                this._otherMarkRemove = false;
             }
         });
     }
@@ -129,7 +128,6 @@ export class ProjectHomeStore {
     private _otherKeyword = "";
     private _otherTagIdList = [] as string[];
     private _otherFilterByWatch = false;
-    private _otherMarkRemove = false;
 
     get otherCurPage() {
         return this._otherCurPage;
@@ -178,16 +176,6 @@ export class ProjectHomeStore {
     set otherFilterByWatch(val: boolean) {
         runInAction(() => {
             this._otherFilterByWatch = val;
-        });
-    }
-
-    get otherMarkRemove() {
-        return this._otherMarkRemove;
-    }
-
-    set otherMarkRemove(val: boolean) {
-        runInAction(() => {
-            this._otherMarkRemove = val;
         });
     }
 }

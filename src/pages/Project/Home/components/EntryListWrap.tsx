@@ -33,8 +33,6 @@ const EntryListWrap = (props: EntryListWrapProps) => {
                 tag_id_list: projectStore.projectHome.otherTagIdList,
                 filter_by_keyword: projectStore.projectHome.otherKeyword != "",
                 keyword: projectStore.projectHome.otherKeyword,
-                filter_by_mark_remove: true,
-                mark_remove: projectStore.projectHome.otherMarkRemove,
                 filter_by_entry_type: true,
                 entry_type_list: [props.entryType],
             },
@@ -85,15 +83,12 @@ const EntryListWrap = (props: EntryListWrapProps) => {
         if (projectStore.projectHome.otherFilterByWatch) {
             projectStore.projectHome.otherFilterByWatch = false;
         }
-        if (projectStore.projectHome.otherMarkRemove) {
-            projectStore.projectHome.otherMarkRemove = false;
-        }
         setDataVersion(oldValue => oldValue + 1);
     }, [projectStore.curProjectId]);
 
     useEffect(() => {
         loadEntryList();
-    }, [projectStore.projectHome.otherCurPage, dataVersion, projectStore.projectHome.otherKeyword, projectStore.projectHome.otherTagIdList, projectStore.projectHome.otherFilterByWatch, projectStore.projectHome.otherMarkRemove, entryStore.dataVersion]);
+    }, [projectStore.projectHome.otherCurPage, dataVersion, projectStore.projectHome.otherKeyword, projectStore.projectHome.otherTagIdList, projectStore.projectHome.otherFilterByWatch, entryStore.dataVersion]);
 
     return (
         <Card title={<span style={{ fontSize: "20px", fontWeight: 700 }}>{getEntryTypeName()}</span>}
@@ -107,7 +102,7 @@ const EntryListWrap = (props: EntryListWrapProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             projectStore.projectHome.otherKeyword = e.target.value.trim();
-                        }} allowClear placeholder="请输入标题关键词"/>
+                        }} allowClear placeholder="请输入标题关键词" />
                     </Form.Item>
                     {(projectStore.curProject?.tag_list ?? []).filter(item => item.use_in_entry).length > 0 && (
                         <Form.Item>
@@ -123,9 +118,6 @@ const EntryListWrap = (props: EntryListWrapProps) => {
                     )}
                     <Form.Item label="我的关注">
                         <Switch checked={projectStore.projectHome.otherFilterByWatch} onChange={value => projectStore.projectHome.otherFilterByWatch = value} />
-                    </Form.Item>
-                    <Form.Item label="回收站">
-                        <Switch checked={projectStore.projectHome.otherMarkRemove} onChange={value => projectStore.projectHome.otherMarkRemove = value} />
                     </Form.Item>
                     <Form.Item>
                         <Button type="primary" icon={<PlusOutlined />} onClick={e => {
