@@ -60,17 +60,6 @@ export type UpdateResponse = {
     err_msg: string;
 };
 
-export type RemoveRequest = {
-    session_id: string;
-    project_id: string;
-    anno_project_id: string;
-};
-
-export type RemoveResponse = {
-    code: number;
-    err_msg: string;
-};
-
 export type GetRequest = {
     session_id: string;
     project_id: string;
@@ -139,15 +128,6 @@ export async function update(request: UpdateRequest): Promise<UpdateResponse> {
     const cmd = 'plugin:data_anno_project_api|update';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<UpdateResponse>(cmd, {
-        request,
-    });
-}
-
-//删除标注项目
-export async function remove(request: RemoveRequest): Promise<RemoveResponse> {
-    const cmd = 'plugin:data_anno_project_api|remove';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<RemoveResponse>(cmd, {
         request,
     });
 }

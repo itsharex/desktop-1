@@ -704,6 +704,23 @@ class LinkAuxStore {
     }
     return APP_PROJECT_HOME_PATH + newSuffix;
   }
+
+  pickupToolbar(history: History) {
+    let backUrl = "";
+    const pathname = history.location.pathname;
+    if (pathname.startsWith(APP_PROJECT_HOME_PATH)) {
+      backUrl = APP_PROJECT_HOME_PATH;
+    } else if (pathname.startsWith(APP_PROJECT_WORK_PLAN_PATH)) {
+      backUrl = APP_PROJECT_WORK_PLAN_PATH;
+    } else if (pathname.startsWith(APP_PROJECT_KB_DOC_PATH)) {
+      backUrl = APP_PROJECT_KB_DOC_PATH;
+    } else if (pathname.startsWith(APP_PROJECT_KB_BOARD_PATH)) {
+      backUrl = APP_PROJECT_KB_BOARD_PATH;
+    } else if (pathname.startsWith(APP_PROJECT_MY_WORK_PATH)) {
+      backUrl = APP_PROJECT_MY_WORK_PATH;
+    }
+    history.push(backUrl);
+  }
 }
 
 export default LinkAuxStore;

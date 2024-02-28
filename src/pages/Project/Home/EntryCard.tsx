@@ -1,8 +1,8 @@
-import { Button, Card, Modal, Popover, Space, Tag, message } from "antd";
 import React, { useState } from "react";
+import { Button, Card, Popover, Space, Tag, message } from "antd";
 import { observer } from 'mobx-react';
 import type { EntryInfo } from "@/api/project_entry";
-import { update_mark_remove, update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY } from "@/api/project_entry";
+import { update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY } from "@/api/project_entry";
 import s from "./Card.module.less";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
@@ -39,7 +39,6 @@ const EntryCard = (props: EntryCardPorps) => {
     const boardStore = useStores('boardStore');
     const linkAuxStore = useStores('linkAuxStore');
 
-    const [showCloseModal, setShowCloseModal] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
@@ -89,16 +88,6 @@ const EntryCard = (props: EntryCardPorps) => {
         return "white";
     };
 
-    const setRemoveMark = async (value: boolean) => {
-        await request(update_mark_remove({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            entry_id: props.entryInfo.entry_id,
-            mark_remove: value,
-        }));
-        props.onRemove();
-    };
-
     const setSysMark = async (value: boolean) => {
         await request(update_mark_sys({
             session_id: userStore.sessionId,
@@ -121,7 +110,7 @@ const EntryCard = (props: EntryCardPorps) => {
             return boardIcon;
         } else if (props.entryInfo.entry_type == ENTRY_TYPE_API_COLL) {
             return apiCollIcon;
-        } else if(props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
+        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
             return dataAnnoIcon;
         }
         return "";
@@ -219,61 +208,37 @@ const EntryCard = (props: EntryCardPorps) => {
                     )}
                     <Popover trigger="click" placement="bottom" content={
                         <Space direction="vertical" style={{ padding: "10px 10px" }}>
-                            {props.entryInfo.mark_remove == false && (
-                                <>
-                                    {props.canMove && (
-                                        <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowMoveModal(true);
-                                        }}>移动到目录</Button>
-                                    )}
-                                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                        disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowCloseModal(true);
-                                        }}>移至回收站</Button>
-                                    {props.entryInfo.mark_sys == false && (
-                                        <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                            disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                                setSysMark(true);
-                                            }}>标记为系统面板</Button>
-                                    )}
-                                    {props.entryInfo.mark_sys == true && (
-                                        <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                            disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                                setSysMark(false);
-                                            }}>取消系统面板标记</Button>
-                                    )}
-                                </>
+                            {props.canMove && (
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowMoveModal(true);
+                                }}>移动到目录</Button>
                             )}
-                            {props.entryInfo.mark_remove == true && (
-                                <>
-                                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                        disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setRemoveMark(false).then(() => {
-                                                message.info("恢复成功");
-                                            });
-                                        }}>恢复</Button>
-                                    <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }}
-                                        disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowRemoveModal(true);
-                                        }}>删除</Button>
-                                </>
+                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                disabled={!props.entryInfo.can_remove}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowRemoveModal(true);
+                                }}>移至回收站</Button>
+                            {props.entryInfo.mark_sys == false && (
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                    disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSysMark(true);
+                                    }}>标记为系统面板</Button>
+                            )}
+                            {props.entryInfo.mark_sys == true && (
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                    disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSysMark(false);
+                                    }}>取消系统面板标记</Button>
                             )}
                         </Space>
                     }>
@@ -298,27 +263,6 @@ const EntryCard = (props: EntryCardPorps) => {
                     ))}
                 </div>
             </a>
-            {showCloseModal == true && (
-                <Modal open title={`移至回收站`}
-                    mask={false}
-                    okText="移动"
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowCloseModal(false);
-                    }}
-                    onOk={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveMark(true).then(() => {
-                            setShowCloseModal(false);
-                            message.info("移至回收站成功");
-                        });
-                    }}>
-                    <p>移动内容入口&nbsp;{props.entryInfo.entry_title}&nbsp;至回收站。</p>
-                    <p>移至回收站后可以在回收站列表下找到。</p>
-                </Modal>
-            )}
             {showRemoveModal == true && (
                 <RemoveEntryModal entryInfo={props.entryInfo} onRemove={() => {
                     props.onRemove();

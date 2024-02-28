@@ -114,7 +114,6 @@ const BulletinList = () => {
             } else if (notice.ProjectNotice?.UpdateBulletinNotice !== undefined && notice.ProjectNotice.UpdateBulletinNotice.project_id == projectStore.curProjectId) {
                 onUpdate(notice.ProjectNotice.UpdateBulletinNotice.bulletin_id);
             } else if (notice.ProjectNotice?.RemoveBulletinNotice !== undefined && notice.ProjectNotice.RemoveBulletinNotice.project_id == projectStore.curProjectId) {
-                console.log("xxxxxx", notice.ProjectNotice?.RemoveBulletinNotice);
                 const bulletinId = notice.ProjectNotice.RemoveBulletinNotice.bulletin_id;
                 setBulletinList(oldList => {
                     const tmpList = oldList.filter(item => item.bulletin_id != bulletinId);

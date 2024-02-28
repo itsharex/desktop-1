@@ -131,8 +131,6 @@ const WatchEntryList = (props: WatchEntryListProps) => {
                 tag_id_list: [],
                 filter_by_keyword: false,
                 keyword: "",
-                filter_by_mark_remove: true,
-                mark_remove: false,
                 filter_by_entry_type: true,
                 entry_type_list: [props.entryType],
             },

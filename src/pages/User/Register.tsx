@@ -75,7 +75,7 @@ const Register = (props: RegisterProps) => {
 
     return (
         <>
-            <Divider  style={{ margin: "4px 0px", fontSize: "16px", fontWeight: 600 }}>1. 获取注册码</Divider>
+            <Divider style={{ margin: "4px 0px", fontSize: "16px", fontWeight: 600 }}>1. 获取注册码</Divider>
             <Form labelCol={{ span: 3 }}>
                 <Form.Item label="账号" help={
                     <>
@@ -88,7 +88,7 @@ const Register = (props: RegisterProps) => {
                         setUserName(e.target.value);
                     }} placeholder="请输入手机号或邮箱地址" />
                 </Form.Item>
-                {captchaData != "" && (
+                {isValieUserName() && captchaData != "" && (
                     <Form.Item style={{ position: "relative", marginBottom: "30px" }}>
                         <Space style={{ position: "absolute", right: "10px" }}>
                             <img src={captchaData} height={32} style={{ cursor: "pointer" }} onClick={e => {
@@ -110,52 +110,56 @@ const Register = (props: RegisterProps) => {
                     </Form.Item>
                 )}
             </Form>
-            <Divider style={{ margin: "4px 0px", fontSize: "16px", fontWeight: 600 }}>2. 设置昵称和密码</Divider>
-            <Form labelCol={{ span: 3 }}>
-                <Form.Item label="注册码">
-                    <Input value={regCode} onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRegCode(e.target.value.trim());
-                    }} placeholder="请输入注册码(请等待接收注册码)" />
-                </Form.Item>
-                <Form.Item label="昵称">
-                    <Input value={nickName} onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setNickName(e.target.value.trim());
-                    }} placeholder="请输入昵称" />
-                </Form.Item>
-                <Form.Item label="密码" help={
-                    <>
-                        {password.length > 0 && (password.length < 6 || password.length > 12) &&
-                            <span style={{ color: "red" }}>
-                                密码长度需要在6-12位
-                            </span>}
-                    </>
-                }>
-                    <Input.Password value={password} placeholder="请输入密码" onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setPassword(e.target.value.trim());
-                    }} />
-                </Form.Item>
-                <Form.Item label="确认密码" help={
-                    <>
-                        {rePassword != password && rePassword.length > 0 &&
-                            <span style={{ color: "red" }}>
-                                和上面设置的密码不一致
-                            </span>}
-                    </>
-                }>
-                    <Input.Password value={rePassword} placeholder="请重复刚才的密码" onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRePassword(e.target.value.trim());
-                    }} />
-                </Form.Item>
+            {captchaValue.length >= 4 && (
+                <>
+                    <Divider style={{ margin: "4px 0px", fontSize: "16px", fontWeight: 600 }}>2. 设置昵称和密码</Divider>
+                    <Form labelCol={{ span: 3 }}>
+                        <Form.Item label="注册码">
+                            <Input value={regCode} onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setRegCode(e.target.value.trim());
+                            }} placeholder="请输入注册码(请等待接收注册码)" />
+                        </Form.Item>
+                        <Form.Item label="昵称">
+                            <Input value={nickName} onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setNickName(e.target.value.trim());
+                            }} placeholder="请输入昵称" />
+                        </Form.Item>
+                        <Form.Item label="密码" help={
+                            <>
+                                {password.length > 0 && (password.length < 6 || password.length > 12) &&
+                                    <span style={{ color: "red" }}>
+                                        密码长度需要在6-12位
+                                    </span>}
+                            </>
+                        }>
+                            <Input.Password value={password} placeholder="请输入密码" onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setPassword(e.target.value.trim());
+                            }} />
+                        </Form.Item>
+                        <Form.Item label="确认密码" help={
+                            <>
+                                {rePassword != password && rePassword.length > 0 &&
+                                    <span style={{ color: "red" }}>
+                                        和上面设置的密码不一致
+                                    </span>}
+                            </>
+                        }>
+                            <Input.Password value={rePassword} placeholder="请重复刚才的密码" onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setRePassword(e.target.value.trim());
+                            }} />
+                        </Form.Item>
+                    </Form>
+                </>
+            )}
 
-            </Form>
             <Form style={{ display: "relative", marginBottom: "50px" }}>
                 <Space style={{ position: "absolute", right: "10px" }} size="middle">
                     <Button onClick={e => {

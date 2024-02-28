@@ -989,6 +989,42 @@ const projectEventList: EventDesc[] = [
             }
         ],
     },
+    {
+        id: "RecoverFromRecycleEvent",
+        name: "从回收站恢复",
+        attrList: [
+            {
+                key: "recycle_item_id",
+                desc: "删除对象ID"
+            },
+            {
+                key: "recycle_item_type",
+                desc: "删除对象类型"
+            },
+            {
+                key: "title",
+                desc: "删除对象标题"
+            }
+        ],
+    },
+    {
+        id: "RemoveFromRecycleEvent",
+        name: "从回收站删除",
+        attrList: [
+            {
+                key: "recycle_item_id",
+                desc: "删除对象ID"
+            },
+            {
+                key: "recycle_item_type",
+                desc: "删除对象类型"
+            },
+            {
+                key: "title",
+                desc: "删除对象标题"
+            }
+        ],
+    },
 ];
 
 const issueEventList: EventDesc[] = [
@@ -2701,42 +2737,6 @@ const entryEventList: EventDesc[] = [
     {
         id: "CreateEvent",
         name: "创建内容",
-        attrList: [
-            {
-                key: "entry_id",
-                desc: "内容ID",
-            },
-            {
-                key: "entry_type",
-                desc: "内容类型",
-            },
-            {
-                key: "entry_title",
-                desc: "内容标题",
-            }
-        ],
-    },
-    {
-        id: "OpenEvent",
-        name: "打开内容",
-        attrList: [
-            {
-                key: "entry_id",
-                desc: "内容ID",
-            },
-            {
-                key: "entry_type",
-                desc: "内容类型",
-            },
-            {
-                key: "entry_title",
-                desc: "内容标题",
-            }
-        ],
-    },
-    {
-        id: "CloseEvent",
-        name: "关闭内容",
         attrList: [
             {
                 key: "entry_id",

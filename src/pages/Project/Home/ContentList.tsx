@@ -100,24 +100,10 @@ const ProjectHome = () => {
                     tag_id_list: projectStore.projectHome.contentTagIdList,
                     filter_by_keyword: projectStore.projectHome.contentKeyword.length > 0,
                     keyword: projectStore.projectHome.contentKeyword,
-                    filter_by_mark_remove: true,
-                    mark_remove: false,
                     filter_by_entry_type: projectStore.projectHome.contentEntryType != ENTRY_TYPE_NULL,
                     entry_type_list: projectStore.projectHome.contentEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.projectHome.contentEntryType],
                 };
-            } else if (projectStore.projectHome.contentActiveKey == "close") {
-                listParam = {
-                    filter_by_watch: projectStore.projectHome.contentFilterByWatch,
-                    filter_by_tag_id: projectStore.projectHome.contentTagIdList.length > 0,
-                    tag_id_list: projectStore.projectHome.contentTagIdList,
-                    filter_by_keyword: projectStore.projectHome.contentKeyword.length > 0,
-                    keyword: projectStore.projectHome.contentKeyword,
-                    filter_by_mark_remove: true,
-                    mark_remove: true,
-                    filter_by_entry_type: projectStore.projectHome.contentEntryType != ENTRY_TYPE_NULL,
-                    entry_type_list: projectStore.projectHome.contentEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.projectHome.contentEntryType],
-                };
-            }
+            } 
             if (listParam == null) {
                 return;
             }
@@ -150,7 +136,7 @@ const ProjectHome = () => {
     };
 
     const calcFolderInfoWidth = () => {
-        let subWidth = 300;
+        let subWidth = 200;
         if (appStore.focusMode == false) {
             subWidth += 200;
         }
@@ -275,8 +261,8 @@ const ProjectHome = () => {
                 }>
                 <Tabs activeKey={projectStore.projectHome.contentActiveKey} onChange={value => {
                     entryStore.curFolderId = "";
-                    if (["folder", "list", "close"].includes(value)) {
-                        projectStore.projectHome.contentActiveKey = (value as "list" | "folder" | "close");
+                    if (["folder", "list"].includes(value)) {
+                        projectStore.projectHome.contentActiveKey = (value as "list" | "folder");
                     }
                 }}
                     animated tabBarStyle={{ height: "40px" }}
@@ -296,16 +282,6 @@ const ProjectHome = () => {
                             children: (
                                 <>
                                     {projectStore.projectHome.contentActiveKey == "list" && (<>{entryOrFolderList}</>)}
-                                </>
-                            ),
-                        },
-                        {
-                            key: "close",
-                            label: <span style={{ fontSize: "16px" }}>回收站</span>,
-                            children: (
-                                <>
-                                    {projectStore.projectHome.contentActiveKey == "close" && (<>{entryOrFolderList}</>)}
-
                                 </>
                             ),
                         },

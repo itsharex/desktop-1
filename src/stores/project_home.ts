@@ -32,13 +32,12 @@ export class ProjectHomeStore {
                 this._otherKeyword = "";
                 this._otherTagIdList = [] as string[];
                 this._otherFilterByWatch = false;
-                this._otherMarkRemove = false;
             }
         });
     }
 
     //内容面板相关
-    private _contentActiveKey: "folder" | "list" | "close" = "folder";
+    private _contentActiveKey: "folder" | "list"  = "folder";
     private _contentCurPage = 0;
     private _contentTotalCount = 0;
     private _contentKeyword = "";
@@ -50,7 +49,7 @@ export class ProjectHomeStore {
         return this._contentActiveKey;
     }
 
-    set contentActiveKey(val: "folder" | "list" | "close") {
+    set contentActiveKey(val: "folder" | "list") {
         runInAction(() => {
             this._contentActiveKey = val;
             this._contentCurPage = 0;
@@ -129,7 +128,6 @@ export class ProjectHomeStore {
     private _otherKeyword = "";
     private _otherTagIdList = [] as string[];
     private _otherFilterByWatch = false;
-    private _otherMarkRemove = false;
 
     get otherCurPage() {
         return this._otherCurPage;
@@ -178,16 +176,6 @@ export class ProjectHomeStore {
     set otherFilterByWatch(val: boolean) {
         runInAction(() => {
             this._otherFilterByWatch = val;
-        });
-    }
-
-    get otherMarkRemove() {
-        return this._otherMarkRemove;
-    }
-
-    set otherMarkRemove(val: boolean) {
-        runInAction(() => {
-            this._otherMarkRemove = val;
         });
     }
 }

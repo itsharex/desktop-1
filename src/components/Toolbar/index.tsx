@@ -65,9 +65,11 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
 });
 
 const Toolbar: React.FC = observer(() => {
+  const history = useHistory();
   const location = useLocation();
   const pathname = location.pathname;
   const projectStore = useStores('projectStore');
+  const linkAuxStore = useStores('linkAuxStore');
 
   return (
     <div className={style.toolbar}>
@@ -79,6 +81,9 @@ const Toolbar: React.FC = observer(() => {
         <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
           e.stopPropagation();
           e.preventDefault();
+          if (!projectStore.showChatAndComment) {
+            linkAuxStore.pickupToolbar(history);
+          }
           projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
         }}>
           <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0) + (projectStore.curProject?.project_status.bulletin_count ?? 0)} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
@@ -146,7 +151,10 @@ const Toolbar: React.FC = observer(() => {
           </>
         )}
       <Divider />
+      <Item id="recycle" pathname={pathname} title="回收站" />
+      <Divider />
       <Item id="overview" pathname={pathname} title="项目信息" />
+
     </div>
   );
 });

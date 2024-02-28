@@ -12,18 +12,6 @@ export type OpenApiExtraInfo = {
     net_protocol: string;
 };
 
-export type RemoveRequest = {
-    session_id: string;
-    project_id: string;
-    api_coll_id: string;
-};
-
-export type RemoveResponse = {
-    code: number;
-    err_msg: string;
-};
-
-
 export type CreateRpcRequest = {
     session_id: string;
     project_id: string;
@@ -107,15 +95,6 @@ export type UpdateOpenApiResponse = {
     err_msg: string;
 };
 
-
-//删除api集合
-export async function remove(request: RemoveRequest): Promise<RemoveResponse> {
-    const cmd = 'plugin:api_collection_api|remove';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<RemoveResponse>(cmd, {
-        request,
-    });
-}
 
 //创建grpc类型的api集合
 export async function create_rpc(request: CreateRpcRequest): Promise<CreateRpcResponse> {

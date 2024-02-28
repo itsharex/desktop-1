@@ -143,7 +143,7 @@ function get_remove_simple_content(
 ) {
     const issue_type_str = get_issue_type_str(inner.issue_type);
     return [
-        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 删除${issue_type_str} ${inner.title}`),
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 把 ${issue_type_str} ${inner.title} 移至回收站`),
     ];
 }
 

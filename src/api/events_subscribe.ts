@@ -29,6 +29,8 @@ export type ProjectEvCfg = {
     custom_event: boolean;
     watch: boolean;
     unwatch: boolean;
+    recover_from_recycle: boolean;
+    remove_from_recycle: boolean;
 };
 
 export type ExtEvCfg = {
@@ -129,8 +131,6 @@ export type AtomgitEvCfg = {
 
 export type EntryEvCfg = {
     create: boolean;
-    open: boolean;
-    close: boolean;
     remove: boolean;
 };
 
@@ -266,8 +266,6 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
     if (cfg.entry_ev_cfg == undefined || cfg.entry_ev_cfg == null) {
         cfg.entry_ev_cfg = {
             create: false,
-            open: false,
-            close: false,
             remove: false,
         }
     }

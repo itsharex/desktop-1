@@ -107,6 +107,31 @@ async fn get<R: Runtime>(
 }
 
 #[tauri::command]
+async fn remove<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: RemoveRequest,
+) -> Result<RemoveResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectEntryApiClient::new(chan.unwrap());
+    match client.remove(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == remove_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("remove".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn update_tag<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -187,33 +212,6 @@ async fn update_perm<R: Runtime>(
     }
 }
 
-#[tauri::command]
-async fn update_mark_remove<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: UpdateMarkRemoveRequest,
-) -> Result<UpdateMarkRemoveResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectEntryApiClient::new(chan.unwrap());
-    match client.update_mark_remove(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == update_mark_remove_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("update_mark_remove".into()),
-                ) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
 
 #[tauri::command]
 async fn update_mark_sys<R: Runtime>(
@@ -261,62 +259,6 @@ async fn update_extra_info<R: Runtime>(
                 if let Err(err) = window.emit(
                     "notice",
                     new_wrong_session_notice("update_extra_info".into()),
-                ) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn remove_pages<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: RemovePagesRequest,
-) -> Result<RemovePagesResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectEntryApiClient::new(chan.unwrap());
-    match client.remove_pages(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == remove_pages_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("remove_pages".into()),
-                ) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn remove_file<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: RemoveFileRequest,
-) -> Result<RemoveFileResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectEntryApiClient::new(chan.unwrap());
-    match client.remove_file(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == remove_file_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("remove_file".into()),
                 ) {
                     println!("{:?}", err);
                 }
@@ -563,14 +505,12 @@ impl<R: Runtime> ProjectEntryApiPlugin<R> {
                 list,
                 list_sys,
                 get,
+                remove,
                 update_tag,
                 update_title,
                 update_perm,
-                update_mark_remove,
                 update_extra_info,
                 update_mark_sys,
-                remove_pages,
-                remove_file,
                 create_folder,
                 update_folder_title,
                 set_parent_folder,

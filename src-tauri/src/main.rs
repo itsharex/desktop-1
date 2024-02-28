@@ -465,6 +465,7 @@ fn main() {
         .plugin(project_misc_api::project_idea_api_plugin::ProjectIdeaApiPlugin::new())
         .plugin(project_misc_api::project_tool_api_plugin::ProjectToolApiPlugin::new())
         .plugin(project_misc_api::project_bulletin_api_plugin::ProjectBulletinApiPlugin::new())
+        .plugin(project_misc_api::project_recycle_api_plugin::ProjectRecycleApiPlugin::new())
         .plugin(local_repo_plugin::LocalRepoPlugin::new())
         .plugin(project_content_api::data_anno_project_api_plugin::DataAnnoProjectApiPlugin::new())
         .plugin(project_content_api::data_anno_task_api_plugin::DataAnnoTaskApiPlugin::new())

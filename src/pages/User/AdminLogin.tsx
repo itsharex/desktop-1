@@ -9,9 +9,11 @@ import { ADMIN_PATH } from "@/utils/constant";
 import { useStores } from "@/hooks";
 import { runInAction } from "mobx";
 
+export interface AdminLoginProps {
+    onClose:()=>void;
+}
 
-
-export const AdminLogin = () => {
+export const AdminLogin = (props:AdminLoginProps) => {
     const [form] = Form.useForm();
 
     const history = useHistory();
@@ -73,8 +75,8 @@ export const AdminLogin = () => {
                             <Button onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();
-                                userStore.showUserLogin = null;
-                            }}>取消</Button>
+                                props.onClose();
+                            }}>返回</Button>
                             <Button type="primary" disabled={ userName == "" || privKey == ""} onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();

@@ -86,7 +86,7 @@ function get_remove_idea_simple_content(
   skip_prj_name: boolean,
   inner: RemoveIdeaEvent,
 ): LinkInfo[] {
-  return [new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 删除 知识点 ${inner.title}`)];
+  return [new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 把 知识点 ${inner.title} 移至回收站`)];
 }
 
 export type SetAppraiseEvent = {
