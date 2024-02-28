@@ -302,6 +302,7 @@ const ProjectQuickAccess = () => {
             case MENU_KEY_SHOW_INVITE_MEMBER:
                 projectStore.setShowChatAndComment(true, "member");
                 memberStore.showInviteMember = true;
+                linkAuxStore.pickupToolbar(history);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_IDEA:
                 linkAuxStore.goToLink(new LinkIdeaPageInfo("", projectStore.curProjectId, "", []), history);
@@ -390,6 +391,9 @@ const ProjectQuickAccess = () => {
                 linkAuxStore.gotoOverview(history);
                 break;
             case MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT:
+                if(!projectStore.showChatAndComment){
+                    linkAuxStore.pickupToolbar(history);
+                }
                 projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
                 break;
             case MENU_KEY_SHOW_HELP:
@@ -404,6 +408,7 @@ const ProjectQuickAccess = () => {
             const memberUserId = key.substring(MENU_KEY_MEMBER_PREFIX.length);
             memberStore.showDetailMemberId = memberUserId;
             projectStore.setShowChatAndComment(true, "member");
+            linkAuxStore.pickupToolbar(history);
         }
     }
 
