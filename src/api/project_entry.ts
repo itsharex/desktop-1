@@ -113,6 +113,7 @@ export type EntryInfo = {
     update_logo_uri: string;
     update_time: number;
     can_update: boolean;
+    can_remove: boolean;
     extra_info: ExtraInfo;
 };
 

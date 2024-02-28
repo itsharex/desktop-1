@@ -29,7 +29,7 @@ const EntryOptCol = (props: EntryOptColProps) => {
                     }}>修改</Button>
                 <Popover trigger="click" placement="bottom" content={
                     <div style={{ padding: "10px" }}>
-                        <Button type="link" danger disabled={!(projectStore.isAdmin || userStore.userInfo.userId == props.entryInfo.create_user_id)}
+                        <Button type="link" danger disabled={!props.entryInfo.can_remove}
                             onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();
