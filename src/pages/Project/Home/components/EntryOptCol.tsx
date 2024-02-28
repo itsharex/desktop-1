@@ -11,8 +11,6 @@ export interface EntryOptColProps {
 }
 
 const EntryOptCol = (props: EntryOptColProps) => {
-    const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
     const entryStore = useStores('entryStore');
 
     const [showRemoveModal, setShowRemoveModal] = useState(false);
