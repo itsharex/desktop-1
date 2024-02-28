@@ -43,7 +43,11 @@ const TestcaseDetailModal = () => {
                         children: (
                             <div style={{ height: "calc(100vh - 320px)", overflowY: "scroll" }}>
                                 {projectStore.projectModal.testCaseTab == "detail" && (
-                                    <DetailPanel />
+                                    <DetailPanel onRemove={() => {
+                                        projectStore.projectModal.testCaseId = "";
+                                        projectStore.projectModal.testCaseTab = "detail";
+                                        projectStore.projectModal.testCaseLinkSpritId = "";
+                                    }} />
                                 )}
                             </div>
                         ),

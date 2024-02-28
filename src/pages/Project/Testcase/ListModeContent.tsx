@@ -11,12 +11,13 @@ import moment from "moment";
 import s from "./index.module.less";
 import { EditText } from "@/components/EditCell/EditText";
 import Table from "antd/lib/table";
-import { Button, Modal, Space, Tag } from "antd";
+import { Button, Modal, Popover, Space, Tag } from "antd";
 import { useHistory } from "react-router-dom";
 import { LinkTestCaseInfo } from "@/stores/linkAux";
 import { LocalTestcaseStore } from "@/stores/local";
 import type * as NoticeType from '@/api/notice_type';
 import { listen } from '@tauri-apps/api/event';
+import { MoreOutlined } from "@ant-design/icons";
 
 const PAGE_SIZE = 10;
 
@@ -120,30 +121,44 @@ const ListModeContent = (props: ListModeContentProps) => {
         },
         {
             title: "名称",
-            width: 300,
+            width: 400,
             render: (_, row: FolderOrCaseInfo) => (
-                <EditText editable={row.dataValue.user_perm.can_update} content={row.dataValue.title}
-                    showEditIcon onClick={() => {
-                        linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.id), history);
-                    }}
-                    onChange={async value => {
-                        if (value.trim() == "") {
-                            return false;
-                        }
-                        try {
-                            await request(update_case({
-                                session_id: userStore.sessionId,
-                                project_id: projectStore.curProjectId,
-                                case_id: row.id,
-                                title: value.trim(),
-                                test_method: (row.dataValue as CaseInfo).test_method,
-                            }));
-                            return true;
-                        } catch (e) {
-                            console.log(e);
-                            return false;
-                        }
-                    }} />
+                <Space size="middle">
+                    <EditText editable={row.dataValue.user_perm.can_update} content={row.dataValue.title}
+                        showEditIcon onClick={() => {
+                            linkAuxStore.goToLink(new LinkTestCaseInfo("", projectStore.curProjectId, row.id), history);
+                        }}
+                        onChange={async value => {
+                            if (value.trim() == "") {
+                                return false;
+                            }
+                            try {
+                                await request(update_case({
+                                    session_id: userStore.sessionId,
+                                    project_id: projectStore.curProjectId,
+                                    case_id: row.id,
+                                    title: value.trim(),
+                                    test_method: (row.dataValue as CaseInfo).test_method,
+                                }));
+                                return true;
+                            } catch (e) {
+                                console.log(e);
+                                return false;
+                            }
+                        }} />
+                    <Popover trigger="click" placement="bottom" content={
+                        <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                            <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_remove}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setRemoveCaseInfo(row.dataValue as CaseInfo);
+                                }}>移至回收站</Button>
+                        </Space>
+                    }>
+                        <MoreOutlined />
+                    </Popover>
+                </Space>
             ),
             fixed: true,
         },
@@ -177,18 +192,6 @@ const ListModeContent = (props: ListModeContentProps) => {
                             </Tag>
                         ))}
                 </Space>
-            ),
-        },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: FolderOrCaseInfo) => (
-                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={!row.dataValue.user_perm.can_remove}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveCaseInfo(row.dataValue as CaseInfo);
-                    }}>移至回收站</Button>
             ),
         },
         {
