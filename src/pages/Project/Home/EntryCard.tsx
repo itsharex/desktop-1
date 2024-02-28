@@ -216,7 +216,7 @@ const EntryCard = (props: EntryCardPorps) => {
                                 }}>移动到目录</Button>
                             )}
                             <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                disabled={!(projectStore.isAdmin || (props.entryInfo.create_user_id == userStore.userInfo.userId))}
+                                disabled={!props.entryInfo.can_remove}
                                 onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();

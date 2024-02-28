@@ -182,7 +182,7 @@ const RecycleItemList = () => {
                         </Popover>
                     </List.Item>
                 )}
-                pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1) }} />
+                pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }} />
             {removeInfo != null && (
                 <Modal open title={`删除 ${getTypeName(removeInfo.recycle_item_type)} ${removeInfo.title}`}
                     okText="删除" okButtonProps={{ danger: true }}

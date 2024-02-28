@@ -11,8 +11,6 @@ export interface EntryOptColProps {
 }
 
 const EntryOptCol = (props: EntryOptColProps) => {
-    const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
     const entryStore = useStores('entryStore');
 
     const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -29,7 +27,7 @@ const EntryOptCol = (props: EntryOptColProps) => {
                     }}>修改</Button>
                 <Popover trigger="click" placement="bottom" content={
                     <div style={{ padding: "10px" }}>
-                        <Button type="link" danger disabled={!(projectStore.isAdmin || userStore.userInfo.userId == props.entryInfo.create_user_id)}
+                        <Button type="link" danger disabled={!props.entryInfo.can_remove}
                             onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();
