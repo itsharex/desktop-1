@@ -82,6 +82,7 @@ import ProjectOverview from "@/pages/Project/Overview";
 import IdeaStoreCateList from '@/pages/Admin/IdeaAdmin/IdeaStoreCateList';
 import IdeaStoreList from '@/pages/Admin/IdeaAdmin/IdeaStoreList';
 import IdeaList from '@/pages/Admin/IdeaAdmin/IdeaList';
+import RecycleItemList from '@/pages/Project/Recycle/RecycleItemList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -159,6 +160,12 @@ const getToolbarRoute = (prefix: string): IRouteConfig[] => {
       path: prefix + "/cloud",
       title: "研发环境",
       component: CloudIndex,
+      exact: true,
+    },
+    {
+      path: prefix + "/recycle",
+      title: "回收站",
+      component: RecycleItemList,
       exact: true,
     },
     {

@@ -9,6 +9,11 @@ import {
     LinkBugInfo,
 } from '@/stores/linkAux';
 import { WATCH_TARGET_BUG, WATCH_TARGET_ENTRY, WATCH_TARGET_REQUIRE_MENT, WATCH_TARGET_TASK, WATCH_TARGET_TEST_CASE, type WATCH_TARGET_TYPE } from '../project_watch';
+import type { RECYCLE_ITEM_TYPE } from '../project_recycle';
+import {
+    RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DATA_ANNO, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
+    RECYCLE_ITEM_IDEA, RECYCLE_ITEM_PAGES, RECYCLE_ITEM_REQUIREMENT, RECYCLE_ITEM_SPRIT, RECYCLE_ITEM_TASK, RECYCLE_ITEM_TESTCASE
+} from '../project_recycle';
 
 function get_chat_bot_type_str(chat_bot_type: number): string {
     if (chat_bot_type == es.CHAT_BOT_QYWX) {
@@ -54,6 +59,38 @@ function getTargetLinkInfo(projectId: string, targetType: WATCH_TARGET_TYPE, tar
         return new LinkBugInfo(targetTitle, projectId, targetId);
     }
     return new LinkNoneInfo("");
+}
+
+function getRecycleTypeName(itemType: RECYCLE_ITEM_TYPE): string {
+    if (itemType == RECYCLE_ITEM_IDEA) {
+        return "知识点";
+    } else if (itemType == RECYCLE_ITEM_REQUIREMENT) {
+        return "项目需求";
+    } else if (itemType == RECYCLE_ITEM_TASK) {
+        return "任务";
+    } else if (itemType == RECYCLE_ITEM_BUG) {
+        return "缺陷";
+    } else if (itemType == RECYCLE_ITEM_TESTCASE) {
+        return "测试用例";
+    } else if (itemType == RECYCLE_ITEM_BULLETIN) {
+        return "项目公告";
+    } else if (itemType == RECYCLE_ITEM_SPRIT) {
+        return "工作计划";
+    } else if (itemType == RECYCLE_ITEM_DOC) {
+        return "项目文档";
+    } else if (itemType == RECYCLE_ITEM_PAGES) {
+        return "静态页面";
+    } else if (itemType == RECYCLE_ITEM_BOARD) {
+        return "信息面板";
+    } else if (itemType == RECYCLE_ITEM_FILE) {
+        return "文件";
+    } else if (itemType == RECYCLE_ITEM_API_COLL) {
+        return "接口集合";
+    } else if (itemType == RECYCLE_ITEM_DATA_ANNO) {
+        return "数据标注";
+    } else {
+        return "";
+    }
 }
 
 /*
@@ -395,7 +432,9 @@ function get_recover_from_recycle_simple_content(
     skip_prj_name: boolean,
     inner: RecoverFromRecycleEvent,
 ): LinkInfo[] {
-    return []; //TODO
+    return [
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 恢复 ${getRecycleTypeName(inner.recycle_item_type)} ${inner.title}`),
+    ];
 }
 
 export type RemoveFromRecycleEvent = {
@@ -410,7 +449,9 @@ function get_remove_from_recycle_simple_content(
     skip_prj_name: boolean,
     inner: RemoveFromRecycleEvent,
 ): LinkInfo[] {
-    return []; //TODO
+    return [
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 删除 ${getRecycleTypeName(inner.recycle_item_type)} ${inner.title}`),
+    ];
 }
 
 export type AllProjectEvent = {

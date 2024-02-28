@@ -146,7 +146,10 @@ const Toolbar: React.FC = observer(() => {
           </>
         )}
       <Divider />
+      <Item id="recycle" pathname={pathname} title="回收站" />
+      <Divider />
       <Item id="overview" pathname={pathname} title="项目信息" />
+
     </div>
   );
 });
