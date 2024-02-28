@@ -5,7 +5,7 @@ import style from './index.module.less';
 import { Badge, Button, Layout, Popover, Progress, Segmented, Space, Table, message } from 'antd';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
-import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, PartitionOutlined } from '@ant-design/icons';
+import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
@@ -22,6 +22,7 @@ import { stop_listen } from '@/api/net_proxy';
 import { remove_info_file } from '@/api/local_api';
 import { exit } from '@tauri-apps/api/process';
 import EntryPopover from '@/pages/Project/Home/components/EntryPopover';
+import RemoveEntryModal from '@/pages/Project/Home/components/RemoveEntryModal';
 
 
 const { Header } = Layout;
@@ -43,6 +44,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
 
   const [hasNewVersion, setHasNewVersion] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(0);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
 
   const handleClick = async function handleClick(type: string) {
     switch (type) {
@@ -213,7 +215,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                   <span>我的工作</span>
                 </>
               )}
-              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false 
+              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false
                 && location.pathname.startsWith(APP_PROJECT_HOME_PATH) == false
                 && entryStore.curEntry != null && (
                   <>
@@ -234,7 +236,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                         <span className={(entryStore.curEntry?.my_watch ?? false) ? style.isCollect : style.noCollect} />
                       </a>
                     </span>
-                    <div style={{ maxWidth: "200px", textOverflow: "clip", overflow: "hidden", whiteSpace: "nowrap" }} title={genEntryTitle()}>{genEntryTitle()}</div>
+                    <div style={{ maxWidth: "300px", textOverflow: "clip", overflow: "hidden", whiteSpace: "nowrap" }} title={genEntryTitle()}>{genEntryTitle()}</div>
                     {entryStore.curEntry.can_update && (
                       <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
                         e.stopPropagation();
@@ -242,7 +244,18 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                         entryStore.editEntryId = entryStore.curEntry?.entry_id ?? "";
                       }} />
                     )}
-
+                    <Popover trigger="click" placement="bottom" content={
+                      <div style={{ padding: "10px 10px" }}>
+                        <Button type="link" danger disabled={(!entryStore.curEntry.can_remove) || appStore.inEdit}
+                          onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setShowRemoveModal(true);
+                          }}>移至回收站</Button>
+                      </div>
+                    }>
+                      <MoreOutlined />
+                    </Popover>
                   </>
                 )}
             </Space>
@@ -355,6 +368,14 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
           </Popover>
         </div>
       </Header>
+      {showRemoveModal == true && entryStore.curEntry != null && (
+        <RemoveEntryModal entryInfo={entryStore.curEntry} onCancel={() => setShowRemoveModal(false)}
+          onRemove={() => {
+            entryStore.reset();
+            history.push(APP_PROJECT_HOME_PATH);
+            setShowRemoveModal(false);
+          }} />
+      )}
     </div>
   );
 };

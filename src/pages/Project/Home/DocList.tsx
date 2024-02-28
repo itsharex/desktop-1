@@ -11,7 +11,7 @@ import moment from "moment";
 import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
 import s from "./Card.module.less";
 import { APP_PROJECT_KB_DOC_PATH } from "@/utils/constant";
-import EntryOptCol from "./components/EntryOptCol";
+import EntryEditCol from "./components/EntryEditCol";
 
 
 const DocList = () => {
@@ -46,6 +46,7 @@ const DocList = () => {
                             history.push(APP_PROJECT_KB_DOC_PATH);
                         });
                     }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</span>
+                    <EntryEditCol entryInfo={row.value as EntryInfo} />
                 </Space>
             ),
         },
@@ -58,13 +59,6 @@ const DocList = () => {
                         <Tag key={tag.tag_id} style={{ backgroundColor: tag.bg_color }}>{tag.tag_name}</Tag>
                     ))}
                 </Space>
-            ),
-        },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: EntryOrFolderInfo) => (
-                <EntryOptCol entryInfo={row.value as EntryInfo} />
             ),
         },
         {
@@ -86,8 +80,8 @@ const DocList = () => {
 
     return (
         <EntryListWrap entryType={ENTRY_TYPE_DOC}>
-            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_DOC)} 
-            columns={columns} scroll={{ x: 850 }}
+            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_DOC)}
+                columns={columns} scroll={{ x: 850 }}
                 pagination={{ total: projectStore.projectHome.otherTotalCount, current: projectStore.projectHome.otherCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.otherCurPage = page + 1 }} />
         </EntryListWrap>);
 };

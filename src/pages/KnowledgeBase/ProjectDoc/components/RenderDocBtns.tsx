@@ -25,6 +25,7 @@ const RenderDocBtns = (props: RenderDocBtnsProps) => {
   const linkAuxStore = useStores('linkAuxStore');
   const entryStore = useStores('entryStore');
 
+
   return (
     <Space>
       <CommentEntry projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_ENTRY}
