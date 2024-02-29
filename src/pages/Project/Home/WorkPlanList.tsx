@@ -11,7 +11,7 @@ import { APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
 import s from "./Card.module.less";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
-import EntryOptCol from "./components/EntryOptCol";
+import EntryEditCol from "./components/EntryEditCol";
 
 const WorkPlanList = () => {
     const history = useHistory();
@@ -42,6 +42,7 @@ const WorkPlanList = () => {
                         entryStore.curEntry = (row.value as EntryInfo);
                         history.push(APP_PROJECT_WORK_PLAN_PATH);
                     }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</span>
+                    <EntryEditCol entryInfo={row.value as EntryInfo}/>
                 </Space>
             ),
         },
@@ -76,13 +77,6 @@ const WorkPlanList = () => {
                     ))}
                 </Space>
             )
-        },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: EntryOrFolderInfo) => (
-                <EntryOptCol entryInfo={row.value as EntryInfo} />
-            ),
         },
         {
             title: "创建者",

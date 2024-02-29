@@ -6,7 +6,7 @@ import { get as get_sprit } from "@/api/project_sprit";
 import type { SpritInfo } from "@/api/project_sprit";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
-import { Button, Card, Dropdown, Form, Popover, Select, Space, Tabs } from 'antd';
+import { Button, Card,  Dropdown, Form, Popover, Select, Space, Tabs } from 'antd';
 import IssuePanel from "./components/IssuePanel";
 import StatPanel from "./components/StatPanel";
 import GanttPanel from "./components/GanttPanel";

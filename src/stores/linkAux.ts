@@ -579,6 +579,11 @@ class LinkAuxStore {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/overview"));
   }
 
+  //调整到回收站
+  gotoRecycle(history: History) {
+    history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/recycle"));
+  }
+
   //调整到测试用例列表
   goToTestCaseList(history: History) {
     history.push(this.genUrl(this.rootStore.projectStore.curProjectId, history.location.pathname, "/testcase"));
