@@ -3,8 +3,8 @@ import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_ISSUE } from "@/api/fs";
-import type { IssueInfo, PROCESS_STAGE } from "@/api/project_issue";
-import { ISSUE_STATE_PROCESS, ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO, get as get_issue, remove as remove_issue } from "@/api/project_issue";
+import type { IssueInfo, PROCESS_STAGE, ISSUE_TYPE } from "@/api/project_issue";
+import { ISSUE_STATE_PROCESS, ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, PROCESS_STAGE_TODO, get as get_issue, remove as remove_issue, update_tag_id_list } from "@/api/project_issue";
 import { request } from "@/utils/request";
 import { Button, Card, Descriptions, Popover, Space, Tooltip, message } from "antd";
 import { EditText } from "@/components/EditCell/EditText";
@@ -16,6 +16,7 @@ import { bugLvSelectItems, bugPrioritySelectItems, taskPrioritySelectItems, hour
 import { EditDate } from "@/components/EditCell/EditDate";
 import StageModel from "./StageModel";
 import { updateContent as updateIssueContent } from './utils';
+import { EditTag } from "@/components/EditCell/EditTag";
 
 
 const DetailPanel = () => {
@@ -74,6 +75,19 @@ const DetailPanel = () => {
         } else {
             message.error("更新内容失败");
         }
+    };
+
+    const getTagDefList = (issueType: ISSUE_TYPE) => {
+        if (projectStore.curProject == undefined) {
+            return [];
+        }
+        return projectStore.curProject.tag_list.filter(item => {
+            if (issueType == ISSUE_TYPE_TASK) {
+                return item.use_in_task;
+            } else {
+                return item.use_in_bug;
+            }
+        });
     };
 
     useEffect(() => {
@@ -403,6 +417,20 @@ const DetailPanel = () => {
                                         }
                                         return res;
                                     }} showEditIcon={true} />
+                            </Descriptions.Item>
+                            {issueInfo.issue_type == ISSUE_TYPE_BUG && (
+                                <Descriptions.Item label="">&nbsp;</Descriptions.Item>
+                            )}
+                            <Descriptions.Item label="标签" span={3}>
+                                <EditTag editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update} tagIdList={issueInfo.basic_info.tag_id_list} tagDefList={getTagDefList(issueInfo.issue_type)}
+                                    onChange={(tagIdList: string[]) => {
+                                        request(update_tag_id_list({
+                                            session_id: userStore.sessionId,
+                                            project_id: issueInfo.project_id,
+                                            issue_id: issueInfo.issue_id,
+                                            tag_id_list: tagIdList,
+                                        }));
+                                    }} />
                             </Descriptions.Item>
                         </Descriptions>
 
