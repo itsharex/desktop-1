@@ -247,7 +247,7 @@ const EditSpritRef: React.FC<WidgetProps> = observer((props) => {
     return (
         <ErrorBoundary>
             <EditorWrap onChange={() => props.removeSelf()}>
-                <Card extra={
+                <Card bordered={false} extra={
                     <Select style={{ width: 200 }}
                         placeholder="请选择工作计划" value={curSpritId} onChange={(spritId: string) => {
                             setCurSpritId(spritId);

@@ -22,31 +22,33 @@ const EditorWrap: FC<EditorWrapProps> = (props) => {
         className={classNames(s.editor_wrap, className)}
         style={{ ...props.style }}
       >
-        {onChange && (
-          <div
-            className={s.delete}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onChange(e);
-            }}
-          >
-            <Deletesvg />
-          </div>
-        )}
-        {onEdit && (
-          <div
-            className={s.edit}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onEdit();
-            }}
+        <div className={s.float}>
+          {onEdit && (
+            <div
+              className={s.edit}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onEdit();
+              }}
             >
-            <EditOutlined />
-          </div>
-        )}
-        { }
+              <EditOutlined />
+            </div>
+          )}
+          {onChange && (
+            <div
+              className={s.delete}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onChange(e);
+              }}
+            >
+              <Deletesvg />
+            </div>
+          )}
+
+        </div>
         {children}
       </div>
     </div>
