@@ -49,6 +49,8 @@ class NoticeStore {
         console.log("notice", notice);
         if (notice.ProjectNotice !== undefined) {
           this.processProjectNotice(notice.ProjectNotice);
+        } else if (notice.IssueNotice !== undefined) {
+          this.processIssueNotice(notice.IssueNotice);
         } else if (notice.ClientNotice !== undefined) {
           this.processClientNotice(notice.ClientNotice);
         } else if (notice.IdeaNotice !== undefined) {
@@ -351,6 +353,17 @@ class NoticeStore {
       this.rootStore.projectStore.updateTagList(notice.UpdateTagNotice.project_id);
     } else if (notice.RemoveTagNotice !== undefined) {
       this.rootStore.projectStore.updateTagList(notice.RemoveTagNotice.project_id);
+    }
+  }
+
+  //只处理项目状态计数
+  private async processIssueNotice(notice: NoticeType.issue.AllNotice) {
+    if (notice.NewIssueNotice !== undefined) {
+      await this.rootStore.projectStore.updateProjectIssueCount(notice.NewIssueNotice.project_id);
+    } else if (notice.UpdateIssueNotice !== undefined) {
+      await this.rootStore.projectStore.updateProjectIssueCount(notice.UpdateIssueNotice.project_id);
+    } else if (notice.RemoveIssueNotice !== undefined) {
+      await this.rootStore.projectStore.updateProjectIssueCount(notice.RemoveIssueNotice.project_id);
     }
   }
 
