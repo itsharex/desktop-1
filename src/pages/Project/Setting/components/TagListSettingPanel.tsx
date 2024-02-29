@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { PanelProps } from "./common";
-import { Button, Card, Checkbox, Input, Space, Table, message } from "antd";
+import { Button, Card, Input, Select, Space, Table, message } from "antd";
 import type { TagInfo } from "@/api/project";
 import { TAG_SCOPRE_ALL, add_tag, list_tag, remove_tag, update_tag } from "@/api/project";
 import { request } from "@/utils/request";
@@ -11,6 +11,33 @@ import { uniqId } from "@/utils/utils";
 import moment from "moment";
 import randomColor from 'randomcolor';
 
+
+type TAG_USE_TYPE = string;
+const TAG_USE_IN_ENTRY: TAG_USE_TYPE = "entry";
+const TAG_USE_IN_REQUIREMENT: TAG_USE_TYPE = "requirement";
+const TAG_USE_IN_TASK: TAG_USE_TYPE = "task";
+const TAG_USE_IN_BUG: TAG_USE_TYPE = "bug";
+const TAG_USE_IN_SPRIT_SUMMARY: TAG_USE_TYPE = "spritSummary";
+
+function getTagUseStrList(info: TagInfo): TAG_USE_TYPE[] {
+    const retList = [] as TAG_USE_TYPE[];
+    if (info.use_in_entry) {
+        retList.push(TAG_USE_IN_ENTRY);
+    }
+    if (info.use_in_req) {
+        retList.push(TAG_USE_IN_REQUIREMENT);
+    }
+    if (info.use_in_task) {
+        retList.push(TAG_USE_IN_TASK);
+    }
+    if (info.use_in_bug) {
+        retList.push(TAG_USE_IN_BUG);
+    }
+    if (info.use_in_sprit_summary) {
+        retList.push(TAG_USE_IN_SPRIT_SUMMARY);
+    }
+    return retList;
+}
 
 interface ExTagInfo {
     tag_id: string;
@@ -122,7 +149,7 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
     const colums: ColumnsType<ExTagInfo> = [
         {
             title: "标签",
-            width: 80,
+            width: 100,
             render: (_, row: ExTagInfo) => (
                 <Input value={row.info.tag_name}
                     disabled={projectStore.isClosed || !projectStore.isAdmin}
@@ -142,7 +169,7 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
         },
         {
             title: "背景色",
-            width: 40,
+            width: 60,
             render: (_, row: ExTagInfo) => (
                 <div style={{ width: "20px", backgroundColor: row.info.bg_color, cursor: (projectStore.isClosed || !projectStore.isAdmin) ? "default" : "pointer" }}
                     onClick={e => {
@@ -163,100 +190,34 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
             ),
         },
         {
-            title: "内容",
-            width: 20,
+            title: "场景",
+            width: 240,
             render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_entry}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
+                <Select mode="multiple" value={getTagUseStrList(row.info)} disabled={projectStore.isClosed || !projectStore.isAdmin}
+                    style={{ width: "100%" }}
+                    onChange={value => {
                         const tmpList = tagList.slice();
                         const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
                         if (index != -1) {
-                            tmpList[index].info.use_in_entry = e.target.checked;
+                            tmpList[index].info.use_in_task = value.includes(TAG_USE_IN_TASK);
+                            tmpList[index].info.use_in_bug = value.includes(TAG_USE_IN_BUG);
+                            tmpList[index].info.use_in_req = value.includes(TAG_USE_IN_REQUIREMENT);
+                            tmpList[index].info.use_in_sprit_summary = value.includes(TAG_USE_IN_SPRIT_SUMMARY);
+                            tmpList[index].info.use_in_entry = value.includes(TAG_USE_IN_ENTRY);
                             tmpList[index].hasUpdate = true;
                             setTagList(tmpList);
                             setHasChange(true);
                         }
-                    }} />
+                    }}>
+                    <Select.Option value={TAG_USE_IN_ENTRY}>内容入口</Select.Option>
+                    <Select.Option value={TAG_USE_IN_REQUIREMENT}>项目需求</Select.Option>
+                    <Select.Option value={TAG_USE_IN_TASK}>任务</Select.Option>
+                    <Select.Option value={TAG_USE_IN_BUG}>缺陷</Select.Option>
+                    <Select.Option value={TAG_USE_IN_SPRIT_SUMMARY}>工作总结</Select.Option>
+                </Select>
             ),
         },
-        {
-            title: "需求",
-            width: 20,
-            render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_req}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
-                        const tmpList = tagList.slice();
-                        const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
-                        if (index != -1) {
-                            tmpList[index].info.use_in_req = e.target.checked;
-                            tmpList[index].hasUpdate = true;
-                            setTagList(tmpList);
-                            setHasChange(true);
-                        }
-                    }} />
-            ),
-        },
-        {
-            title: "任务",
-            width: 20,
-            render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_task}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
-                        const tmpList = tagList.slice();
-                        const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
-                        if (index != -1) {
-                            tmpList[index].info.use_in_task = e.target.checked;
-                            tmpList[index].hasUpdate = true;
-                            setTagList(tmpList);
-                            setHasChange(true);
-                        }
-                    }} />
-            ),
-        },
-        {
-            title: "缺陷",
-            width: 20,
-            render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_bug}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
-                        const tmpList = tagList.slice();
-                        const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
-                        if (index != -1) {
-                            tmpList[index].info.use_in_bug = e.target.checked;
-                            tmpList[index].hasUpdate = true;
-                            setTagList(tmpList);
-                            setHasChange(true);
-                        }
-                    }} />
-            ),
-        },
-        {
-            title: "工作总结",
-            width: 20,
-            render: (_, row: ExTagInfo) => (
-                <Checkbox checked={row.info.use_in_sprit_summary}
-                    disabled={projectStore.isClosed || !projectStore.isAdmin}
-                    onChange={e => {
-                        e.stopPropagation();
-                        const tmpList = tagList.slice();
-                        const index = tmpList.findIndex(tag => tag.tag_id == row.tag_id);
-                        if (index != -1) {
-                            tmpList[index].info.use_in_sprit_summary = e.target.checked;
-                            tmpList[index].hasUpdate = true;
-                            setTagList(tmpList);
-                            setHasChange(true);
-                        }
-                    }} />
-            ),
-        },
+
         {
             title: "操作",
             width: 40,
@@ -324,7 +285,7 @@ const TagListSettingPanel: React.FC<PanelProps> = (props) => {
                 }}>保存</Button>
             </Space>
         }>
-            <Table rowKey="tag_id" dataSource={tagList.filter(tag => !tag.hasRemove)} columns={colums} />
+            <Table rowKey="tag_id" dataSource={tagList.filter(tag => !tag.hasRemove)} columns={colums} pagination={false}/>
         </Card>
 
     );
