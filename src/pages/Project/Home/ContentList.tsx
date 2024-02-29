@@ -16,6 +16,8 @@ import { CreditCardFilled, FilterTwoTone, FolderAddOutlined } from "@ant-design/
 import EntryCard from "./EntryCard";
 import CreateFolderModal from "./components/CreateFolderModal";
 import FolderCard from "./FolderCard";
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 const PAGE_SIZE = 24;
 
@@ -103,7 +105,7 @@ const ProjectHome = () => {
                     filter_by_entry_type: projectStore.projectHome.contentEntryType != ENTRY_TYPE_NULL,
                     entry_type_list: projectStore.projectHome.contentEntryType == ENTRY_TYPE_NULL ? [] : [projectStore.projectHome.contentEntryType],
                 };
-            } 
+            }
             if (listParam == null) {
                 return;
             }
@@ -151,7 +153,8 @@ const ProjectHome = () => {
             renderItem={item => (
                 <List.Item key={item.id}>
                     {item.is_folder == false && (
-                        <EntryCard entryInfo={item.value as EntryInfo} onRemove={() => loadEntryList()}
+                        <EntryCard entryInfo={item.value as EntryInfo}
+                            onMove={() => loadEntryList()}
                             onMarkSys={() => {
                                 loadSysEntryList();
                                 loadEntryList();
@@ -165,7 +168,7 @@ const ProjectHome = () => {
             )} pagination={projectStore.projectHome.contentActiveKey == "folder" ? false : { total: projectStore.projectHome.contentTotalCount, current: projectStore.projectHome.contentCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.contentCurPage = page - 1, hideOnSinglePage: true }} />
     );
 
-    useEffect(() => {
+    const resetParamAndIncVersion = () => {
         if (projectStore.projectHome.contentCurPage != 0) {
             projectStore.projectHome.contentCurPage = 0;
         }
@@ -179,7 +182,11 @@ const ProjectHome = () => {
             projectStore.projectHome.contentEntryType = ENTRY_TYPE_NULL;
         }
         setDataVersion(oldValue => oldValue + 1);
-    }, [projectStore.curProjectId, entryStore.dataVersion, entryStore.curFolderId, projectStore.projectHome.contentActiveKey]);
+    };
+
+    useEffect(() => {
+        resetParamAndIncVersion();
+    }, [projectStore.curProjectId, entryStore.curFolderId, projectStore.projectHome.contentActiveKey]);
 
     useEffect(() => {
         loadEntryList();
@@ -188,6 +195,20 @@ const ProjectHome = () => {
     useEffect(() => {
         loadSysEntryList();
     }, [projectStore.curProjectId]);
+
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.EntryNotice?.NewEntryNotice !== undefined && notice.EntryNotice.NewEntryNotice.project_id == projectStore.curProjectId && notice.EntryNotice.NewEntryNotice.create_user_id == userStore.userInfo.userId) {
+                resetParamAndIncVersion();
+            } else if (notice.EntryNotice?.NewFolderNotice !== undefined && notice.EntryNotice.NewFolderNotice.project_id !== projectStore.curProjectId && notice.EntryNotice.NewFolderNotice.create_user_id == userStore.userInfo.userId) {
+                resetParamAndIncVersion();
+            }
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
 
 
     return (
@@ -200,7 +221,7 @@ const ProjectHome = () => {
                         dataSource={entryStore.sysEntryList}
                         renderItem={item => (
                             <List.Item>
-                                <EntryCard entryInfo={item} onRemove={() => loadEntryList()}
+                                <EntryCard entryInfo={item} onMove={() => loadEntryList()}
                                     onMarkSys={() => {
                                         loadSysEntryList();
                                         loadEntryList();

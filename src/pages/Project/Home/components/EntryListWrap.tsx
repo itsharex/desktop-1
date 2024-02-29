@@ -6,6 +6,8 @@ import { useStores } from "@/hooks";
 import type { ENTRY_TYPE } from "@/api/project_entry";
 import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { request } from "@/utils/request";
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 export const PAGE_SIZE = 20;
 
@@ -70,7 +72,7 @@ const EntryListWrap = (props: EntryListWrapProps) => {
         return `calc(100vw - ${subWidth}px)`;
     };
 
-    useEffect(() => {
+    const resetParamAndIncVersion = () => {
         if (projectStore.projectHome.otherCurPage != 0) {
             projectStore.projectHome.otherCurPage = 0;
         }
@@ -84,11 +86,28 @@ const EntryListWrap = (props: EntryListWrapProps) => {
             projectStore.projectHome.otherFilterByWatch = false;
         }
         setDataVersion(oldValue => oldValue + 1);
+    };
+
+    useEffect(() => {
+        resetParamAndIncVersion();
     }, [projectStore.curProjectId]);
 
     useEffect(() => {
         loadEntryList();
-    }, [projectStore.projectHome.otherCurPage, dataVersion, projectStore.projectHome.otherKeyword, projectStore.projectHome.otherTagIdList, projectStore.projectHome.otherFilterByWatch, entryStore.dataVersion]);
+    }, [projectStore.projectHome.otherCurPage, dataVersion, projectStore.projectHome.otherKeyword, projectStore.projectHome.otherTagIdList, projectStore.projectHome.otherFilterByWatch]);
+
+
+    useEffect(() => {
+        const unListenFn = listen<NoticeType.AllNotice>("notice", ev => {
+            const notice = ev.payload;
+            if (notice.EntryNotice?.NewEntryNotice !== undefined && notice.EntryNotice.NewEntryNotice.project_id == projectStore.curProjectId && notice.EntryNotice.NewEntryNotice.create_user_id == userStore.userInfo.userId) {
+                resetParamAndIncVersion();
+            } 
+        });
+        return () => {
+            unListenFn.then((unListen) => unListen());
+        };
+    }, []);
 
     return (
         <Card title={<span style={{ fontSize: "20px", fontWeight: 700 }}>{getEntryTypeName()}</span>}

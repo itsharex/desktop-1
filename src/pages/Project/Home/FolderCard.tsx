@@ -113,7 +113,6 @@ const FolderCard = (props: FolderCardProps) => {
                 <UpdateFolderModal folderInfo={props.folderInfo} onCancel={() => setShowEditModal(false)}
                     onOk={() => {
                         setShowEditModal(false);
-                        entryStore.incDataVersion();
                     }} />
             )}
             {showRemoveModal == true && (

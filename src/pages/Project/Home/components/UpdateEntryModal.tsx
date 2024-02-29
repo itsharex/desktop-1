@@ -262,7 +262,6 @@ const UpdateEntryModal = () => {
             }
         }
         message.info("修改成功");
-        await entryStore.updateEntry(entryInfo.entry_id);
         entryStore.editEntryId = "";
     };
 

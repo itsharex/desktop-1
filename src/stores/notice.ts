@@ -51,6 +51,8 @@ class NoticeStore {
           this.processProjectNotice(notice.ProjectNotice);
         } else if (notice.IssueNotice !== undefined) {
           this.processIssueNotice(notice.IssueNotice);
+        } else if (notice.EntryNotice !== undefined) {
+          this.processEntryNotice(notice.EntryNotice);
         } else if (notice.ClientNotice !== undefined) {
           this.processClientNotice(notice.ClientNotice);
         } else if (notice.IdeaNotice !== undefined) {
@@ -364,6 +366,18 @@ class NoticeStore {
       await this.rootStore.projectStore.updateProjectIssueCount(notice.UpdateIssueNotice.project_id);
     } else if (notice.RemoveIssueNotice !== undefined) {
       await this.rootStore.projectStore.updateProjectIssueCount(notice.RemoveIssueNotice.project_id);
+    }
+  }
+
+  private async processEntryNotice(notice: NoticeType.entry.AllNotice) {
+    if (notice.UpdateEntryNotice !== undefined && notice.UpdateEntryNotice.project_id == this.rootStore.projectStore.curProjectId) {
+      await this.rootStore.entryStore.onUpdateEntry(notice.UpdateEntryNotice.entry_id);
+    } else if (notice.UpdateFolderNotice !== undefined && notice.UpdateFolderNotice.project_id == this.rootStore.projectStore.curProjectId) {
+      await this.rootStore.entryStore.onUpdateFolder(notice.UpdateFolderNotice.folder_id);
+    } else if (notice.RemoveEntryNotice !== undefined && notice.RemoveEntryNotice.project_id == this.rootStore.projectStore.curProjectId) {
+      await this.rootStore.entryStore.onRemoveEntry(notice.RemoveEntryNotice.entry_id);
+    } else if (notice.RemoveFolderNotice !== undefined && notice.RemoveFolderNotice.project_id == this.rootStore.projectStore.curProjectId) {
+      await this.rootStore.entryStore.onRemoveFolder(notice.RemoveFolderNotice.folder_id);
     }
   }
 
