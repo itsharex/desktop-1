@@ -165,6 +165,17 @@ export type RemoveGroupResponse = {
     err_msg: string;
 };
 
+export type ClearGroupRequest = {
+    session_id: string;
+    project_id: string;
+    idea_group_id: string;
+};
+
+export type ClearGroupResponse = {
+    code: number;
+    err_msg: string;
+};
+
 export type CreateIdeaRequest = {
     session_id: string;
     project_id: string;
@@ -384,6 +395,15 @@ export async function remove_group(request: RemoveGroupRequest): Promise<RemoveG
     const cmd = 'plugin:project_idea_api|remove_group';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<RemoveGroupResponse>(cmd, {
+        request,
+    });
+}
+
+//清空点子分组
+export async function clear_group(request: ClearGroupRequest): Promise<ClearGroupResponse> {
+    const cmd = 'plugin:project_idea_api|clear_group';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ClearGroupResponse>(cmd, {
         request,
     });
 }

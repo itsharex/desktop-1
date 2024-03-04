@@ -103,6 +103,10 @@ export const projectEvOptionList: CheckboxOptionType[] = [
         label: "从回收站删除",
         value: "removeFromRecycle",
     },
+    {
+        label: "从回收站清除",
+        value: "clearFromRecycle",
+    }
 ];
 
 export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => {
@@ -131,6 +135,7 @@ export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => 
         unwatch: false,
         recover_from_recycle: false,
         remove_from_recycle: false,
+        clear_from_recycle: false,
     };
     if (values == undefined) {
         return ret;
@@ -184,6 +189,8 @@ export const calcProjectEvCfg = (values: string[] | undefined): ProjectEvCfg => 
             ret.recover_from_recycle = true
         } else if (value == "removeFromRecycle") {
             ret.remove_from_recycle = true
+        } else if (value == "clearFromRecycle") {
+            ret.clear_from_recycle = true;
         }
     });
     return ret;
@@ -262,6 +269,9 @@ export const genProjectEvCfgValues = (cfg: ProjectEvCfg): string[] => {
     }
     if (cfg.remove_from_recycle) {
         retList.push("removeFromRecycle");
+    }
+    if (cfg.clear_from_recycle) {
+        retList.push("clearFromRecycle");
     }
     return retList;
 }
@@ -984,6 +994,10 @@ export const ideaEvOptionList: CheckboxOptionType[] = [
     {
         label: "导入知识点",
         value: "import_idea",
+    },
+    {
+        label: "清空知识点分组",
+        value: "clear_group",
     }
 ]
 
@@ -996,6 +1010,7 @@ export const calcIdeaEvCfg = (values: string[] | undefined): IdeaEvCfg => {
         set_appraise: false,
         cancel_appraise: false,
         import_idea: false,
+        clear_group: false,
     }
     if (values == undefined) {
         return ret;
@@ -1015,6 +1030,8 @@ export const calcIdeaEvCfg = (values: string[] | undefined): IdeaEvCfg => {
             ret.cancel_appraise = true;
         } else if (value == "import_idea") {
             ret.import_idea = true;
+        } else if (value == "clear_group") {
+            ret.clear_group = true;
         }
     });
     return ret;
@@ -1042,6 +1059,9 @@ export const genIdeaEvCfgValues = (cfg: IdeaEvCfg): string[] => {
     }
     if (cfg.import_idea) {
         retList.push("import_idea");
+    }
+    if (cfg.clear_group) {
+        retList.push("clear_group");
     }
     return retList;
 }

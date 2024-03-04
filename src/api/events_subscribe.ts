@@ -31,6 +31,7 @@ export type ProjectEvCfg = {
     unwatch: boolean;
     recover_from_recycle: boolean;
     remove_from_recycle: boolean;
+    clear_from_recycle: boolean;
 };
 
 export type ExtEvCfg = {
@@ -116,6 +117,7 @@ export type IdeaEvCfg = {
     set_appraise: boolean;
     cancel_appraise: boolean;
     import_idea: boolean;
+    clear_group: boolean;
 };
 
 export type AtomgitEvCfg = {
@@ -242,6 +244,7 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
             set_appraise: false,
             cancel_appraise: false,
             import_idea: false,
+            clear_group: false,
         };
     }
     if (cfg.atomgit_ev_cfg == undefined || cfg.atomgit_ev_cfg == null) {
@@ -332,6 +335,7 @@ export async function list(request: ListRequest): Promise<ListResponse> {
                 set_appraise: false,
                 cancel_appraise: false,
                 import_idea: false,
+                clear_group: false,
             };
         }
     }

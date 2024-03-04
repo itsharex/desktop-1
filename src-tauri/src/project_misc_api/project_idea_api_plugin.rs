@@ -142,6 +142,33 @@ async fn remove_group<R: Runtime>(
 }
 
 #[tauri::command]
+async fn clear_group<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ClearGroupRequest,
+) -> Result<ClearGroupResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectIdeaApiClient::new(chan.unwrap());
+    match client.clear_group(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == clear_group_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("clear_group".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn create_idea<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -375,10 +402,9 @@ async fn move_idea<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == move_idea_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("move_idea".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("move_idea".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -547,6 +573,7 @@ impl<R: Runtime> ProjectIdeaApiPlugin<R> {
                 list_group,
                 get_group,
                 remove_group,
+                clear_group,
                 create_idea,
                 update_idea_content,
                 update_idea_keyword,
