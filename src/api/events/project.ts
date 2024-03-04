@@ -466,7 +466,7 @@ function get_clear_from_recycle_simple_content(
         tmpTypeNameList.push(getRecycleTypeName(itemType));
     }
     return [
-        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 清空 类型 ${tmpTypeNameList.join(",")}`),
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 清空 ${tmpTypeNameList.join(",")}`),
     ];
 }
 

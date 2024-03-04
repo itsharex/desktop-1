@@ -14,6 +14,8 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import { useHistory } from "react-router-dom";
 import { LinkBugInfo, LinkEntryInfo, LinkIdeaPageInfo, LinkRequirementInfo, LinkTaskInfo, LinkTestCaseInfo } from "@/stores/linkAux";
+import { MoreOutlined } from "@ant-design/icons";
+import ClearModal from "./components/ClearModal";
 
 const PAGE_SIZE = 20;
 
@@ -30,6 +32,7 @@ const RecycleItemList = () => {
     const [curPage, setCurPage] = useState(0);
 
     const [removeInfo, setRemoveInfo] = useState<RecycleItemInfo | null>(null);
+    const [showClearModal, setShowClearModal] = useState(false);
 
     const loadRecycleItemList = async () => {
         const res = await request(list_recycle_item({
@@ -143,6 +146,20 @@ const RecycleItemList = () => {
                             <Select.Option value={RECYCLE_ITEM_API_COLL}>接口集合</Select.Option>
                         </Select>
                     </Form.Item>
+                    <Form.Item>
+                        <Popover trigger="click" placement="bottom" content={
+                            <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                <Button type="link" danger disabled={!(projectStore.isAdmin && projectStore.isClosed == false)}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowClearModal(true);
+                                    }}>清空回收站</Button>
+                            </Space>
+                        }>
+                            <MoreOutlined />
+                        </Popover>
+                    </Form.Item>
                 </Form>
             </Space>
         }>
@@ -196,6 +213,16 @@ const RecycleItemList = () => {
                     是否删除&nbsp;{getTypeName(removeInfo.recycle_item_type)}&nbsp;{removeInfo.title} &nbsp;?
                     <div style={{ color: "red" }}>删除后，数据将不可恢复！！</div>
                 </Modal>
+            )}
+            {showClearModal == true && (
+                <ClearModal onCancel={() => setShowClearModal(false)} onOk={() => {
+                    if (curPage != 0) {
+                        setCurPage(0);
+                    } else {
+                        loadRecycleItemList();
+                    }
+                    setShowClearModal(false);
+                }} />
             )}
         </CardWrap>
     );

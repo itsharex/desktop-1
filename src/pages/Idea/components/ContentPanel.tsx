@@ -143,6 +143,9 @@ const ContentPanel = (props: ContentPanelProps) => {
                 } else {
                     loadIdeaList();
                 }
+            } else if (notice.IdeaNotice?.ClearGroupNotice != undefined && notice.IdeaNotice.ClearGroupNotice.project_id == projectStore.curProjectId && notice.IdeaNotice.ClearGroupNotice.idea_group_id == ideaStore.curIdeaGroupId) {
+                setTotalCount(0);
+                localStore.setIdeaList([]);
             }
         });
         return () => {
