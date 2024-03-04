@@ -467,8 +467,6 @@ fn main() {
         .plugin(project_misc_api::project_bulletin_api_plugin::ProjectBulletinApiPlugin::new())
         .plugin(project_misc_api::project_recycle_api_plugin::ProjectRecycleApiPlugin::new())
         .plugin(local_repo_plugin::LocalRepoPlugin::new())
-        .plugin(project_content_api::data_anno_project_api_plugin::DataAnnoProjectApiPlugin::new())
-        .plugin(project_content_api::data_anno_task_api_plugin::DataAnnoTaskApiPlugin::new())
         .plugin(pubres_api::docker_template_api_plugin::DockerTemplateApiPlugin::new())
         .plugin(pubres_api::docker_template_admin_api_plugin::DockerTemplateAdminApiPlugin::new())
         .plugin(project_content_api::api_collection_api_plugin::ApiCollectionApiPlugin::new())

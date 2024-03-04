@@ -50,8 +50,6 @@ const ProjectFsList = () => {
             return "知识点存储";
         } else if (projectStore.curProject?.bulletin_fs_id == fsId) {
             return "公告存储";
-        } else if (projectStore.curProject?.data_anno_fs_id == fsId) {
-            return "数据标注存储";
         } else if (projectStore.curProject?.api_coll_fs_id == fsId) {
             return "接口集合存储";
         } else if (projectStore.curProject?.pages_fs_id == fsId) {

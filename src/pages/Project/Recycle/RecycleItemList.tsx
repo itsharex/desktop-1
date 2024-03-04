@@ -4,7 +4,7 @@ import CardWrap from "@/components/CardWrap";
 import { Button, Descriptions, Form, List, Modal, Popover, Select, Space, message } from "antd";
 import type { RECYCLE_ITEM_TYPE, RecycleItemInfo } from "@/api/project_recycle";
 import {
-    RECYCLE_ITEM_ALL, RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DATA_ANNO, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
+    RECYCLE_ITEM_ALL, RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
     RECYCLE_ITEM_IDEA, RECYCLE_ITEM_PAGES, RECYCLE_ITEM_REQUIREMENT, RECYCLE_ITEM_SPRIT, RECYCLE_ITEM_TASK, RECYCLE_ITEM_TESTCASE, list as list_recycle_item,
     recover as recover_recycle_item, remove as remove_recycle_item
 } from "@/api/project_recycle";
@@ -110,8 +110,6 @@ const RecycleItemList = () => {
             return "文件";
         } else if (itemType == RECYCLE_ITEM_API_COLL) {
             return "接口集合";
-        } else if (itemType == RECYCLE_ITEM_DATA_ANNO) {
-            return "数据标注";
         } else {
             return "";
         }
@@ -143,7 +141,6 @@ const RecycleItemList = () => {
                             <Select.Option value={RECYCLE_ITEM_BOARD}>信息面板</Select.Option>
                             <Select.Option value={RECYCLE_ITEM_FILE}>文件</Select.Option>
                             <Select.Option value={RECYCLE_ITEM_API_COLL}>接口集合</Select.Option>
-                            <Select.Option value={RECYCLE_ITEM_DATA_ANNO}>数据标注</Select.Option>
                         </Select>
                     </Form.Item>
                 </Form>

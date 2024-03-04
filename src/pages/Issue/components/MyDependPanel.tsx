@@ -172,7 +172,6 @@ export const MyDependPanel: React.FC<MyDependPanelProps> = observer((props) => {
                     showExterne={false}
                     showApiColl={false}
                     showBoard={false}
-                    showDataAnno={false}
                     showSprit={false}
                     onOk={(link: LinkInfo) => {
                         let dependIssueId = "";

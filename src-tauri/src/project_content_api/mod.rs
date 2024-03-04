@@ -1,6 +1,4 @@
 pub mod api_collection_api_plugin;
-pub mod data_anno_project_api_plugin;
-pub mod data_anno_task_api_plugin;
 pub mod http_custom_api_plugin;
 pub mod pages_plugin;
 pub mod project_board_api_plugin;

@@ -8,8 +8,7 @@ import type { ListParam, EntryInfo, EntryOrFolderInfo, FolderPathItem, FolderInf
 import {
     list as list_entry, list_sys as list_sys_entry, list_sub_entry, list_sub_folder, get_folder_path,
     ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE,
-    ENTRY_TYPE_API_COLL,
-    ENTRY_TYPE_DATA_ANNO
+    ENTRY_TYPE_API_COLL
 } from "@/api/project_entry";
 import { request } from "@/utils/request";
 import { CreditCardFilled, FilterTwoTone, FolderAddOutlined } from "@ant-design/icons";
@@ -339,7 +338,6 @@ const ProjectHome = () => {
                                             <Select.Option value={ENTRY_TYPE_BOARD}>信息面板</Select.Option>
                                             <Select.Option value={ENTRY_TYPE_FILE}>文件</Select.Option>
                                             <Select.Option value={ENTRY_TYPE_API_COLL}>接口集合</Select.Option>
-                                            <Select.Option value={ENTRY_TYPE_DATA_ANNO}>数据标注</Select.Option>
                                         </Select>
                                     </Form.Item>
                                     <Form.Item label="我的关注">

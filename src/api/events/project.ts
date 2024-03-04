@@ -11,7 +11,7 @@ import {
 import { WATCH_TARGET_BUG, WATCH_TARGET_ENTRY, WATCH_TARGET_REQUIRE_MENT, WATCH_TARGET_TASK, WATCH_TARGET_TEST_CASE, type WATCH_TARGET_TYPE } from '../project_watch';
 import type { RECYCLE_ITEM_TYPE } from '../project_recycle';
 import {
-    RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DATA_ANNO, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
+    RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
     RECYCLE_ITEM_IDEA, RECYCLE_ITEM_PAGES, RECYCLE_ITEM_REQUIREMENT, RECYCLE_ITEM_SPRIT, RECYCLE_ITEM_TASK, RECYCLE_ITEM_TESTCASE
 } from '../project_recycle';
 
@@ -86,8 +86,6 @@ function getRecycleTypeName(itemType: RECYCLE_ITEM_TYPE): string {
         return "文件";
     } else if (itemType == RECYCLE_ITEM_API_COLL) {
         return "接口集合";
-    } else if (itemType == RECYCLE_ITEM_DATA_ANNO) {
-        return "数据标注";
     } else {
         return "";
     }

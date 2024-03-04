@@ -8,15 +8,14 @@ import { useStores } from "@/hooks";
 import NodePanel, { DND_ITEM_TYPE, type NewNodeInfo } from "./NodePanel";
 import { type DropTargetMonitor, useDrop } from "react-dnd";
 import RefTaskNode from "./nodes/RefTaskNode";
-import { BOARD_NODE_TYPE_IMAGE, type BOARD_NODE_TYPE, BOARD_NODE_TYPE_TEXT, BOARD_NODE_TYPE_REF_BUG, BOARD_NODE_TYPE_REF_REQUIRE_MENT, BOARD_NODE_TYPE_REF_API_COLL, BOARD_NODE_TYPE_REF_DATA_ANNO, BOARD_NODE_TYPE_REF_TASK, BOARD_NODE_TYPE_MERMAID } from "./nodes/types";
+import { BOARD_NODE_TYPE_IMAGE, type BOARD_NODE_TYPE, BOARD_NODE_TYPE_TEXT, BOARD_NODE_TYPE_REF_BUG, BOARD_NODE_TYPE_REF_REQUIRE_MENT, BOARD_NODE_TYPE_REF_API_COLL, BOARD_NODE_TYPE_REF_TASK, BOARD_NODE_TYPE_MERMAID } from "./nodes/types";
 import { request } from "@/utils/request";
-import { NODE_REF_TYPE_API_COLL, NODE_REF_TYPE_BUG, NODE_REF_TYPE_DATA_ANNO, NODE_REF_TYPE_REQUIRE_MENT, NODE_REF_TYPE_TASK, NODE_TYPE_IMAGE, NODE_TYPE_MERMAID, NODE_TYPE_REF, NODE_TYPE_TEXT } from "@/api/project_board";
+import { NODE_REF_TYPE_API_COLL, NODE_REF_TYPE_BUG, NODE_REF_TYPE_REQUIRE_MENT, NODE_REF_TYPE_TASK, NODE_TYPE_IMAGE, NODE_TYPE_MERMAID, NODE_TYPE_REF, NODE_TYPE_TEXT } from "@/api/project_board";
 import { create_node, remove_node, update_node_position, update_node_size, remove_edge, create_edge } from "@/api/project_board";
 import type { NodeData, EdgeKey } from "@/api/project_board";
 import RefBugNode from "./nodes/RefBugNode";
 import RefRequireMentNode from "./nodes/RefRequireMentNode";
 import RefApiCollNode from "./nodes/RefApiCollNode";
-import RefDataAnnoNode from "./nodes/RefDataAnnoNode";
 import ImageNode from "./nodes/ImageNode";
 import TextNode from "./nodes/TextNode";
 import LabelEdge from "./LabelEdge";
@@ -61,8 +60,6 @@ const BoardEditor = () => {
                 refType = NODE_REF_TYPE_REQUIRE_MENT;
             } else if (boardNodeType == BOARD_NODE_TYPE_REF_API_COLL) {
                 refType = NODE_REF_TYPE_API_COLL;
-            } else if (boardNodeType == BOARD_NODE_TYPE_REF_DATA_ANNO) {
-                refType = NODE_REF_TYPE_DATA_ANNO;
             }
             nodeData.NodeRefData = {
                 ref_type: refType,
@@ -102,7 +99,7 @@ const BoardEditor = () => {
 
     useEffect(() => {
         const canUpdate = entryStore.curEntry?.can_update ?? false;
-        const tmpNodeList: FlowNode[] = boardStore.nodeList.map(item => {
+        const tmpNodeList: (FlowNode | null)[] = boardStore.nodeList.map(item => {
             let boardNodeType = BOARD_NODE_TYPE_TEXT;
             if (item.node_type == NODE_TYPE_IMAGE) {
                 boardNodeType = BOARD_NODE_TYPE_IMAGE;
@@ -117,8 +114,8 @@ const BoardEditor = () => {
                     boardNodeType = BOARD_NODE_TYPE_REF_REQUIRE_MENT;
                 } else if (item.node_data.NodeRefData?.ref_type == NODE_REF_TYPE_API_COLL) {
                     boardNodeType = BOARD_NODE_TYPE_REF_API_COLL;
-                } else if (item.node_data.NodeRefData?.ref_type == NODE_REF_TYPE_DATA_ANNO) {
-                    boardNodeType = BOARD_NODE_TYPE_REF_DATA_ANNO;
+                } else {
+                    return null;
                 }
             }
             return {
@@ -136,7 +133,7 @@ const BoardEditor = () => {
                 type: boardNodeType,
             };
         });
-        setNodes(tmpNodeList);
+        setNodes(tmpNodeList.filter(item => item != null) as FlowNode[]);
     }, [boardStore.nodeList]);
 
     const removeNode = async (nodeId: string) => {
@@ -293,7 +290,6 @@ const BoardEditor = () => {
         RefBugNode: RefBugNode,
         RefRequireMentNode: RefRequireMentNode,
         RefApiCollNode: RefApiCollNode,
-        RefDataAnnoNode: RefDataAnnoNode,
         ImageNode: ImageNode,
         TextNode: TextNode,
         MermaidNode: MermaidNode,

@@ -649,31 +649,6 @@ pub mod idea {
     }
 }
 
-pub mod data_anno {
-    use prost::Message;
-    use proto_gen_rust::events_data_anno;
-    use proto_gen_rust::google::protobuf::Any;
-    use proto_gen_rust::TypeUrl;
-
-    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
-    pub enum Event {
-        AddAnnoMemberEvent(events_data_anno::AddAnnoMemberEvent),
-        RemoveAnnoMemberEvent(events_data_anno::RemoveAnnoMemberEvent),
-    }
-
-    pub fn decode_event(data: &Any) -> Option<Event> {
-        if data.type_url == events_data_anno::AddAnnoMemberEvent::type_url() {
-            if let Ok(ev) = events_data_anno::AddAnnoMemberEvent::decode(data.value.as_slice()) {
-                return Some(Event::AddAnnoMemberEvent(ev));
-            }
-        } else if data.type_url == events_data_anno::RemoveAnnoMemberEvent::type_url() {
-            if let Ok(ev) = events_data_anno::RemoveAnnoMemberEvent::decode(data.value.as_slice()) {
-                return Some(Event::RemoveAnnoMemberEvent(ev));
-            }
-        }
-        None
-    }
-}
 
 pub mod atomgit {
     use prost::Message;
@@ -815,7 +790,6 @@ pub enum EventMessage {
     RequirementEvent(requirement::Event),
     CodeEvent(code::Event),
     IdeaEvent(idea::Event),
-    DataAnnoEvent(data_anno::Event),
     AtomgitEvent(atomgit::Event),
     EntryEvent(entry::Event),
     HarborEvent(harbor::Event),
@@ -852,9 +826,6 @@ pub fn decode_event(data: &Any) -> Option<EventMessage> {
     }
     if let Some(ret) = idea::decode_event(data) {
         return Some(EventMessage::IdeaEvent(ret));
-    }
-    if let Some(ret) = data_anno::decode_event(data) {
-        return Some(EventMessage::DataAnnoEvent(ret));
     }
     if let Some(ret) = atomgit::decode_event(data) {
         return Some(EventMessage::AtomgitEvent(ret));

@@ -54,7 +54,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       project_desc: JSON.stringify(content),
     };
     try {
-      const res = await request(create(userStore.sessionId, data, mainContent)); 
+      const res = await request(create(userStore.sessionId, data, mainContent));
       message.success('创建项目成功');
       //设置经验集锦
       const tipList = unixTipList.split("\n").map(tip => tip.trim()).filter(tip => tip != "");
@@ -80,7 +80,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
       }
 
       //创建默认目录
-      for (const folderTitle of ["工作计划", "文档", "静态网页", "信息面板", "文件", "接口集合", "数据标注"]) {
+      for (const folderTitle of ["工作计划", "文档", "静态网页", "信息面板", "文件", "接口集合"]) {
         await request(create_folder({
           session_id: userStore.sessionId,
           project_id: res.project_id,

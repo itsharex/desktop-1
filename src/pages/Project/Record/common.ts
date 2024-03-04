@@ -10,7 +10,6 @@ import docIcon from '@/assets/channel/doc@2x.png';
 import reqIcon from '@/assets/allIcon/icon-req.png';
 import ideaIcon from '@/assets/allIcon/icon-idea.png';
 import apiCollIcon from '@/assets/allIcon/icon-apicoll.png';
-import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
 import testCaseIcon from '@/assets/allIcon/icon-testcase.png';
 
 import * as API from '@/api/events';
@@ -71,10 +70,6 @@ export const EVENT_ICON_LIST = {
   [API.EVENT_TYPE_GITEE]: {
     title: 'Gitee',
     icon: iconGitee,
-  },
-  [API.EVENT_TYPE_DATA_ANNO]: {
-    title: 'DataAnno',
-    icon: dataAnnoIcon,
   },
   [API.EVENT_TYPE_API_COLLECTION]: {
     title: 'ApiCollection',

@@ -337,53 +337,6 @@ const ideaEventList: EventDesc[] = [
     },
 ];
 
-const dataAnnoEventList: EventDesc[] = [
-    {
-        id: "AddAnnoMemberEvent",
-        name: "新增标注成员",
-        attrList: [
-            {
-                key: "anno_project_id",
-                desc: "标注项目ID",
-            },
-            {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-            {
-                key: "member_user_id",
-                desc: "成员ID",
-            },
-            {
-                key: "member_display_name",
-                desc: "成员名称",
-            },
-        ],
-    },
-    {
-        id: "RemoveAnnoMemberEvent",
-        name: "移除标注成员",
-        attrList: [
-            {
-                key: "anno_project_id",
-                desc: "标注项目ID",
-            },
-            {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-            {
-                key: "member_user_id",
-                desc: "成员ID",
-            },
-            {
-                key: "member_display_name",
-                desc: "成员名称",
-            },
-        ],
-    },
-];
-
 const spritEventList: EventDesc[] = [
     {
         id: "CreateEvent",
@@ -2837,10 +2790,5 @@ export const eventGroupList: EventGroup[] = [
         id: "IdeaEvent",
         name: "知识点",
         eventDescList: ideaEventList,
-    },
-    {
-        id: "DataAnnoEvent",
-        name: "数据标注",
-        eventDescList: dataAnnoEventList,
     },
 ];

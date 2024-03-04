@@ -1,7 +1,7 @@
 import type { PluginEvent } from '../events';
 import type { LinkInfo } from '@/stores/linkAux';
 import { LinkNoneInfo, LinkSpritInfo, LinkDocInfo, LinkBoardInfo } from '@/stores/linkAux';
-import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from '../project_entry';
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from '../project_entry';
 
 
 function gen_simple_content(
@@ -25,9 +25,7 @@ function gen_simple_content(
         typeName = "文件";
     } else if (entry_type == ENTRY_TYPE_API_COLL){
         typeName = "接口集合";
-    } else if (entry_type == ENTRY_TYPE_DATA_ANNO) {
-        typeName = "数据标注";
-    }
+    } 
     const retList = [
         new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} ${action_name} ${typeName}`),
     ];

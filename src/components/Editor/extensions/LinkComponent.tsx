@@ -11,7 +11,6 @@ import type {
   LinkSpritInfo,
   LinkBoardInfo,
   LinkApiCollInfo,
-  LinkDataAnnoInfo,
   LinkTestCaseInfo,
 } from '@/stores/linkAux';
 import { LINK_TARGET_TYPE } from '@/stores/linkAux';
@@ -132,18 +131,6 @@ const Link: React.FC<{
         }));
       if (res) {
         setTitle('接口集合:' + res.entry.entry_title);
-      }
-    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DATA_ANNO) {
-      setTitle('数据标注:' + link.linkContent);
-      const dataAnnoLink = link as unknown as LinkDataAnnoInfo;
-      const res = await request(
-        get_entry({
-          session_id: sessionId,
-          project_id: dataAnnoLink.projectId,
-          entry_id: dataAnnoLink.annoProjectId,
-        }));
-      if (res) {
-        setTitle('数据标注:' + res.entry.entry_title);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as unknown as LinkExterneInfo;
