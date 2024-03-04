@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NodeViewComponentProps } from '@remirror/react';
 import { useCommands } from '@remirror/react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
@@ -314,15 +314,21 @@ export const EditCode: React.FC<EditCodeProps> = (props) => {
     deleteCode((props.getPosition as () => number)());
   };
 
+  useEffect(() => {
+    props.updateAttributes({
+      lang: lang,
+      code: code,
+    });
+  }, [lang, code]);
+
   return (
     <ErrorBoundary>
       <EditorWrap onChange={() => removeNode()}>
         <div className={style.selectHd}>
           <Select
-            defaultValue={lang}
+            value={lang}
             showSearch
             onChange={(value) => {
-              console.log(value);
               setLang(value);
             }}
           >
@@ -342,10 +348,6 @@ export const EditCode: React.FC<EditCodeProps> = (props) => {
           onChange={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            props.updateAttributes({
-              lang: lang,
-              code: e.target.value,
-            });
             setCode(e.target.value);
           }}
           style={{
