@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import type { PanelProps } from "./common";
 import { Button, Card, Form, Select, Space, message } from "antd";
 import { useStores } from "@/hooks";
-import { MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_setting } from "@/api/project";
+import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_setting } from "@/api/project";
 import { request } from "@/utils/request";
 
 const LayoutSettingPanel = (props: PanelProps) => {
@@ -65,6 +65,8 @@ const LayoutSettingPanel = (props: PanelProps) => {
                         <Select.Option value={MAIN_CONTENT_DOC_LIST}>项目文档</Select.Option>
                         <Select.Option value={MAIN_CONTENT_BOARD_LIST}>信息面板</Select.Option>
                         <Select.Option value={MAIN_CONTENT_PAGES_LIST}>静态网页</Select.Option>
+                        <Select.Option value={MAIN_CONTENT_FILE_LIST}>项目文件</Select.Option>
+                        <Select.Option value={MAIN_CONTENT_API_COLL_LIST}>接口集合</Select.Option>
                         <Select.Option value={MAIN_CONTENT_MY_WORK}>我的工作</Select.Option>
                     </Select>
                 </Form.Item>

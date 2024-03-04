@@ -1,25 +1,20 @@
 import React from "react";
 import { observer } from 'mobx-react';
 import type { EntryOrFolderInfo, EntryInfo } from "@/api/project_entry";
-import { ENTRY_TYPE_DOC } from "@/api/project_entry";
-import { useHistory } from "react-router-dom";
+import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL } from "@/api/project_entry";
+import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
 import { useStores } from "@/hooks";
 import Table, { ColumnsType } from "antd/lib/table";
 import { Button, Space, Tag } from "antd";
+import s from "./Card.module.less";
+import EntryEditCol from "./components/EntryEditCol";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
-import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
-import s from "./Card.module.less";
-import { APP_PROJECT_KB_DOC_PATH } from "@/utils/constant";
-import EntryEditCol from "./components/EntryEditCol";
 
-
-const DocList = () => {
-    const history = useHistory();
-
+const ApiCollList = () => {
     const projectStore = useStores('projectStore');
     const entryStore = useStores('entryStore');
-    const docStore = useStores('docStore');
+    const linkAuxStore = useStores('linkAuxStore');
 
     const columns: ColumnsType<EntryOrFolderInfo> = [
         {
@@ -41,10 +36,8 @@ const DocList = () => {
                     <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontWeight: 600 }} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        entryStore.curEntry = (row.value as EntryInfo);
-                        docStore.loadDoc().then(() => {
-                            history.push(APP_PROJECT_KB_DOC_PATH);
-                        });
+                        linkAuxStore.openApiCollPage((row.value as EntryInfo).entry_id, (row.value as EntryInfo).entry_title, (row.value as EntryInfo).extra_info.ExtraApiCollInfo?.api_coll_type ?? 0,
+                            (row.value as EntryInfo).extra_info.ExtraApiCollInfo?.default_addr ?? "", (row.value as EntryInfo).can_update, projectStore.isAdmin, false);
                     }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</Button>
                     <EntryEditCol entryInfo={row.value as EntryInfo} />
                 </Space>
@@ -62,6 +55,23 @@ const DocList = () => {
             ),
         },
         {
+            title: "接口类型",
+            width: 100,
+            render: (_, row: EntryOrFolderInfo) => (
+                <>
+                    {(row.value as EntryInfo).extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
+                    {(row.value as EntryInfo).extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "SWAGGER/OPENAPI"}
+                    {(row.value as EntryInfo).extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义"}
+                </>
+            ),
+        },
+        {
+            title: "服务地址",
+            width: 120,
+            render: (_, row: EntryOrFolderInfo) => (row.value as EntryInfo).extra_info.ExtraApiCollInfo?.default_addr ?? "",
+        },
+
+        {
             title: "创建者",
             width: 100,
             render: (_, row: EntryOrFolderInfo) => (
@@ -77,13 +87,15 @@ const DocList = () => {
             render: (_, row: EntryOrFolderInfo) => moment(row.value.create_time).format("YYYY-MM-DD HH:mm:ss"),
         }
     ];
-
     return (
-        <EntryListWrap entryType={ENTRY_TYPE_DOC}>
-            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_DOC)}
-                columns={columns} scroll={{ x: 850 }}
+
+        <EntryListWrap entryType={ENTRY_TYPE_API_COLL}>
+            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_API_COLL)}
+                columns={columns} scroll={{ x: 950 }}
                 pagination={{ total: projectStore.projectHome.otherTotalCount, current: projectStore.projectHome.otherCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.otherCurPage = page + 1 }} />
-        </EntryListWrap>);
+        </EntryListWrap>
+
+    );
 };
 
-export default observer(DocList);
+export default observer(ApiCollList);

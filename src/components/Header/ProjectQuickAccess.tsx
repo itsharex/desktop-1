@@ -12,7 +12,7 @@ import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constan
 import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 import { useHotkeys } from 'react-hotkeys-hook';
 import HotkeyHelpInfo from "@/pages/Project/Overview/components/HotkeyHelpInfo";
-import { MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
+import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
 
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
@@ -56,6 +56,9 @@ const MENU_KEY_HOME_WORK_PLAN = MENU_KEY_HOME_PREFIX + "workplan";
 const MENU_KEY_HOME_DOC = MENU_KEY_HOME_PREFIX + "doc";
 const MENU_KEY_HOME_BOARD = MENU_KEY_HOME_PREFIX + "board";
 const MENU_KEY_HOME_PAGES = MENU_KEY_HOME_PREFIX + "pages";
+const MENU_KEY_HOME_FILE = MENU_KEY_HOME_PREFIX + "file";
+const MENU_KEY_HOME_APICOLL = MENU_KEY_HOME_PREFIX + "apicoll";
+
 const MENU_KEY_HOME_MYWORK = MENU_KEY_HOME_PREFIX + "mywork";
 
 const MENU_KEY_SHOW_HELP = "help.show"
@@ -98,6 +101,14 @@ const ProjectQuickAccess = () => {
                     {
                         key: MENU_KEY_HOME_PAGES,
                         label: "静态网页(alt+4)",
+                    },
+                    {
+                        key: MENU_KEY_HOME_FILE,
+                        label: "项目文件(alt+5)",
+                    },
+                    {
+                        key: MENU_KEY_HOME_APICOLL,
+                        label: "接口集合(alt+6)",
                     },
                     {
                         key: MENU_KEY_HOME_MYWORK,
@@ -276,6 +287,10 @@ const ProjectQuickAccess = () => {
             homeType = MAIN_CONTENT_BOARD_LIST;
         } else if (key == MENU_KEY_HOME_PAGES) {
             homeType = MAIN_CONTENT_PAGES_LIST;
+        } else if (key == MENU_KEY_HOME_FILE){
+            homeType = MAIN_CONTENT_FILE_LIST;
+        }else if(key == MENU_KEY_HOME_APICOLL){
+            homeType = MAIN_CONTENT_API_COLL_LIST;
         }
         if (appStore.inEdit) {
             appStore.showCheckLeave(() => {
@@ -422,6 +437,8 @@ const ProjectQuickAccess = () => {
     useHotkeys("alt+2", () => processMenuKey(MENU_KEY_HOME_DOC));
     useHotkeys("alt+3", () => processMenuKey(MENU_KEY_HOME_BOARD));
     useHotkeys("alt+4", () => processMenuKey(MENU_KEY_HOME_PAGES));
+    useHotkeys("alt+5", () => processMenuKey(MENU_KEY_HOME_FILE));
+    useHotkeys("alt+6", () => processMenuKey(MENU_KEY_HOME_APICOLL));
     useHotkeys("alt+9", () => processMenuKey(MENU_KEY_HOME_MYWORK));
     useHotkeys("alt+c", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT));
     useHotkeys("alt+f", () => appStore.focusMode = !appStore.focusMode);

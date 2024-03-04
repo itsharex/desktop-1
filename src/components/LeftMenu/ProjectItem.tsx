@@ -7,7 +7,7 @@ import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constan
 import { CaretRightFilled, FolderFilled } from "@ant-design/icons";
 import { useHistory, useLocation } from "react-router-dom";
 import type { WebProjectInfo } from "@/stores/project";
-import { MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
+import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
 
 const HotkeyWrap = (props: { title: string, hotkey: string }) => {
     const [hover, setHover] = useState(false);
@@ -42,6 +42,10 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
             return "alt+3";
         } else if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_PAGES_LIST) {
             return "alt+4";
+        } else if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_FILE_LIST) {
+            return "alt+5";
+        } else if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_API_COLL_LIST) {
+            return "alt+6";
         } else if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_MY_WORK) {
             return "alt+9";
         }
@@ -204,6 +208,54 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 });
                             }}><CaretRightFilled /><HotkeyWrap title="静态网页" hotkey="alt+4" /></div>
                     )}
+
+                    {projectStore.curProject?.setting.main_content != MAIN_CONTENT_FILE_LIST && (
+                        <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == MAIN_CONTENT_FILE_LIST ? cls.active_sub_menu : ""}`}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                if (appStore.inEdit) {
+                                    appStore.showCheckLeave(() => {
+                                        projectStore.setCurProjectId(item.project_id).then(() => {
+                                            entryStore.reset();
+                                            projectStore.projectHome.homeType = MAIN_CONTENT_FILE_LIST;
+                                            history.push(APP_PROJECT_HOME_PATH);
+                                        });
+                                    });
+                                    return;
+                                }
+                                projectStore.setCurProjectId(item.project_id).then(() => {
+                                    entryStore.reset();
+                                    projectStore.projectHome.homeType = MAIN_CONTENT_FILE_LIST;
+                                    history.push(APP_PROJECT_HOME_PATH);
+                                });
+                            }}><CaretRightFilled /><HotkeyWrap title="项目文件" hotkey="alt+5" /></div>
+                    )}
+
+
+                    {projectStore.curProject?.setting.main_content != MAIN_CONTENT_API_COLL_LIST && (
+                        <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == MAIN_CONTENT_API_COLL_LIST ? cls.active_sub_menu : ""}`}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                if (appStore.inEdit) {
+                                    appStore.showCheckLeave(() => {
+                                        projectStore.setCurProjectId(item.project_id).then(() => {
+                                            entryStore.reset();
+                                            projectStore.projectHome.homeType = MAIN_CONTENT_API_COLL_LIST;
+                                            history.push(APP_PROJECT_HOME_PATH);
+                                        });
+                                    });
+                                    return;
+                                }
+                                projectStore.setCurProjectId(item.project_id).then(() => {
+                                    entryStore.reset();
+                                    projectStore.projectHome.homeType = MAIN_CONTENT_API_COLL_LIST;
+                                    history.push(APP_PROJECT_HOME_PATH);
+                                });
+                            }}><CaretRightFilled /><HotkeyWrap title="接口集合" hotkey="alt+6" /></div>
+                    )}
+
                     {projectStore.curProject?.setting.main_content != MAIN_CONTENT_MY_WORK && (
                         <div className={`${cls.project_sub_menu} ${location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) ? cls.active_sub_menu : ""}`}
                             onClick={e => {

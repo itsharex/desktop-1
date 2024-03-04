@@ -1,25 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { observer } from 'mobx-react';
 import type { EntryOrFolderInfo, EntryInfo } from "@/api/project_entry";
-import { ENTRY_TYPE_DOC } from "@/api/project_entry";
-import { useHistory } from "react-router-dom";
+import { ENTRY_TYPE_FILE } from "@/api/project_entry";
+import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
 import { useStores } from "@/hooks";
 import Table, { ColumnsType } from "antd/lib/table";
 import { Button, Space, Tag } from "antd";
+import s from "./Card.module.less";
+import EntryEditCol from "./components/EntryEditCol";
+import FileModal from "./components/FileModal";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
-import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
-import s from "./Card.module.less";
-import { APP_PROJECT_KB_DOC_PATH } from "@/utils/constant";
-import EntryEditCol from "./components/EntryEditCol";
 
-
-const DocList = () => {
-    const history = useHistory();
-
+const FileList = () => {
     const projectStore = useStores('projectStore');
     const entryStore = useStores('entryStore');
-    const docStore = useStores('docStore');
+
+    const [showFileInfo, setShowFileInfo] = useState<EntryInfo | null>(null);
 
     const columns: ColumnsType<EntryOrFolderInfo> = [
         {
@@ -41,10 +38,7 @@ const DocList = () => {
                     <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontWeight: 600 }} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        entryStore.curEntry = (row.value as EntryInfo);
-                        docStore.loadDoc().then(() => {
-                            history.push(APP_PROJECT_KB_DOC_PATH);
-                        });
+                        setShowFileInfo(row.value as EntryInfo);
                     }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</Button>
                     <EntryEditCol entryInfo={row.value as EntryInfo} />
                 </Space>
@@ -62,6 +56,11 @@ const DocList = () => {
             ),
         },
         {
+            title: "文件名",
+            width: 200,
+            render: (_, row: EntryOrFolderInfo) => (row.value as EntryInfo).extra_info.ExtraFileInfo?.file_name ?? "",
+        },
+        {
             title: "创建者",
             width: 100,
             render: (_, row: EntryOrFolderInfo) => (
@@ -77,13 +76,19 @@ const DocList = () => {
             render: (_, row: EntryOrFolderInfo) => moment(row.value.create_time).format("YYYY-MM-DD HH:mm:ss"),
         }
     ];
-
     return (
-        <EntryListWrap entryType={ENTRY_TYPE_DOC}>
-            <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_DOC)}
-                columns={columns} scroll={{ x: 850 }}
-                pagination={{ total: projectStore.projectHome.otherTotalCount, current: projectStore.projectHome.otherCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.otherCurPage = page + 1 }} />
-        </EntryListWrap>);
+        <>
+            <EntryListWrap entryType={ENTRY_TYPE_FILE}>
+                <Table rowKey="id" dataSource={entryStore.entryOrFolderList.filter(item => item.is_folder == false).filter(item => (item.value as EntryInfo).entry_type == ENTRY_TYPE_FILE)}
+                    columns={columns} scroll={{ x: 950 }}
+                    pagination={{ total: projectStore.projectHome.otherTotalCount, current: projectStore.projectHome.otherCurPage + 1, pageSize: PAGE_SIZE, onChange: page => projectStore.projectHome.otherCurPage = page + 1 }} />
+            </EntryListWrap>
+            {showFileInfo != null && (
+                <FileModal fileId={showFileInfo.extra_info.ExtraFileInfo?.file_id ?? "'"} fileName={showFileInfo.extra_info.ExtraFileInfo?.file_name ?? ""}
+                    onClose={() => setShowFileInfo(null)} />
+            )}
+        </>
+    );
 };
 
-export default observer(DocList);
+export default observer(FileList);
