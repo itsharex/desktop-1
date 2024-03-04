@@ -423,7 +423,6 @@ const CreateEntryModal = () => {
         }
         message.info("创建成功");
         entryStore.createEntryType = null;
-        entryStore.incDataVersion();
     };
 
     useEffect(() => {

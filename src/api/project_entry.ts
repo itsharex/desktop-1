@@ -297,6 +297,17 @@ export type CreateFolderResponse = {
     folder_id: string;
 };
 
+export type GetFolderRequest = {
+    session_id: string;
+    project_id: string;
+    folder_id: string;
+};
+
+export type GetFolderResponse = {
+    code: number;
+    err_msg: string;
+    folder: FolderInfo;
+};
 
 export type UpdateFolderTitleRequest = {
     session_id: string;
@@ -482,6 +493,15 @@ export async function create_folder(request: CreateFolderRequest): Promise<Creat
     const cmd = 'plugin:project_entry_api|create_folder';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<CreateFolderResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个目录信息
+export async function get_folder(request: GetFolderRequest): Promise<GetFolderResponse> {
+    const cmd = 'plugin:project_entry_api|get_folder';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetFolderResponse>(cmd, {
         request,
     });
 }

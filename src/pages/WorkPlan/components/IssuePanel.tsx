@@ -4,7 +4,7 @@ import { Card, Popover, Space, Table, Tooltip, List } from "antd";
 import { useStores } from "@/hooks";
 import { EditOutlined, ExclamationCircleOutlined, CheckOutlined } from "@ant-design/icons";
 import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE, SubIssueInfo } from "@/api/project_issue";
-import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE } from "@/api/project_issue";
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, update_tag_id_list } from "@/api/project_issue";
 import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
 import { cancel_link_sprit, list_sub_issue } from '@/api/project_issue';
 import { request } from "@/utils/request";
@@ -24,6 +24,7 @@ import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";
 import type { LocalIssueStore } from "@/stores/local";
+import { EditTag } from "@/components/EditCell/EditTag";
 
 interface SubIssuePopoverProps {
     issueId: string;
@@ -119,6 +120,19 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             setStageIssue(task);
             return;
         }
+    };
+
+    const getTagDefList = (issueType: ISSUE_TYPE) => {
+        if (projectStore.curProject == undefined) {
+            return [];
+        }
+        return projectStore.curProject.tag_list.filter(item => {
+            if (issueType == ISSUE_TYPE_TASK) {
+                return item.use_in_task;
+            } else {
+                return item.use_in_bug;
+            }
+        });
     };
 
     const memberSelectItems = getMemberSelectItems(memberStore.memberList.map(item => item.member));
@@ -458,6 +472,22 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                     const ret = await updateRemainMinutes(userStore.sessionId, record.project_id, record.issue_id, value as number);
                     return ret;
                 }} showEditIcon={true} />
+        },
+        {
+            title: "标签",
+            dataIndex: ["basic_info", "tag_id_list"],
+            width: 200,
+            render: (_, row: IssueInfo) => (
+                <EditTag editable={(!projectStore.isClosed) && row.user_issue_perm.can_update} tagIdList={row.basic_info.tag_id_list} tagDefList={getTagDefList(row.issue_type)}
+                    onChange={(tagIdList: string[]) => {
+                        request(update_tag_id_list({
+                            session_id: userStore.sessionId,
+                            project_id: row.project_id,
+                            issue_id: row.issue_id,
+                            tag_id_list: tagIdList,
+                        }));
+                    }} />
+            ),
         },
     ];
 

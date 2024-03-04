@@ -1,7 +1,7 @@
 import type { RootStore } from './index';
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { EntryInfo, ENTRY_TYPE, EntryOrFolderInfo } from "@/api/project_entry";
-import { get as get_entry } from "@/api/project_entry";
+import { get as get_entry, get_folder } from "@/api/project_entry";
 import { request } from '@/utils/request';
 import { WATCH_TARGET_ENTRY, unwatch, watch } from '@/api/project_watch';
 
@@ -18,7 +18,6 @@ export default class EntryStore {
     private _sysEntryList: EntryInfo[] = [];
     private _createEntryType: ENTRY_TYPE | null = null;
     private _curFolderId = "";
-    private _dataVersion = 0;
 
     reset() {
         runInAction(() => {
@@ -88,15 +87,6 @@ export default class EntryStore {
         });
     }
 
-    get dataVersion(): number {
-        return this._dataVersion;
-    }
-    incDataVersion() {
-        runInAction(() => {
-            this._dataVersion += 1;
-        });
-    }
-
     async loadEntry(entryId: string) {
         const res = await request(get_entry({
             session_id: this.rootStore.userStore.sessionId,
@@ -109,7 +99,7 @@ export default class EntryStore {
         });
     }
 
-    async updateEntry(entryId: string) {
+    async onUpdateEntry(entryId: string) {
         const res = await request(get_entry({
             session_id: this.rootStore.userStore.sessionId,
             project_id: this.rootStore.projectStore.curProjectId,
@@ -120,7 +110,7 @@ export default class EntryStore {
                 this._curEntry = res.entry;
             }
             const tmpList = this._entryOrFolderList.slice();
-            const index = tmpList.findIndex(item => item.is_folder == false && (item.value as EntryInfo).entry_id == entryId);
+            const index = tmpList.findIndex(item => item.id == entryId);
             if (index != -1) {
                 tmpList[index] = {
                     id: res.entry.entry_id,
@@ -139,6 +129,43 @@ export default class EntryStore {
         });
     }
 
+    async onRemoveEntry(entryId: string) {
+        runInAction(() => {
+            if (entryId == (this._curEntry?.entry_id ?? "")) {
+                this._curEntry = null;
+            }
+            const tmpList = this._entryOrFolderList.filter(item => item.id != entryId);
+            this._entryOrFolderList = tmpList;
+        });
+    }
+
+    async onUpdateFolder(folderId: string) {
+        const res = await request(get_folder({
+            session_id: this.rootStore.userStore.sessionId,
+            project_id: this.rootStore.projectStore.curProjectId,
+            folder_id: folderId,
+        }));
+        runInAction(() => {
+            const tmpList = this._entryOrFolderList.slice();
+            const index = tmpList.findIndex(item => item.id == folderId);
+            if (index != -1) {
+                tmpList[index] = {
+                    id: res.folder.folder_id,
+                    is_folder: true,
+                    value: res.folder,
+                };
+                this._entryOrFolderList = tmpList;
+            }
+        });
+    }
+
+    async onRemoveFolder(folderId: string) {
+        runInAction(() => {
+            const tmpList = this._entryOrFolderList.filter(item => item.id != folderId);
+            this._entryOrFolderList = tmpList;
+        });
+    }
+
     async unwatchEntry(entryId: string) {
         await request(unwatch({
             session_id: this.rootStore.userStore.sessionId,
@@ -146,7 +173,7 @@ export default class EntryStore {
             target_type: WATCH_TARGET_ENTRY,
             target_id: entryId,
         }));
-        await this.updateEntry(entryId);
+        await this.onUpdateEntry(entryId);
     }
 
     async watchEntry(entryId: string) {
@@ -156,6 +183,6 @@ export default class EntryStore {
             target_type: WATCH_TARGET_ENTRY,
             target_id: entryId,
         }));
-        await this.updateEntry(entryId);
+        await this.onUpdateEntry(entryId);
     }
 }

@@ -93,7 +93,6 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
       target_type: WATCH_TARGET_ENTRY,
       target_id: entryStore.curEntry?.entry_id ?? "",
     }));
-    entryStore.updateEntry(entryStore.curEntry?.entry_id ?? "");
   };
 
   const unwatchEntry = async () => {
@@ -103,7 +102,6 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
       target_type: WATCH_TARGET_ENTRY,
       target_id: entryStore.curEntry?.entry_id ?? "",
     }));
-    entryStore.updateEntry(entryStore.curEntry?.entry_id ?? "");
   }
 
   const proxyColumns: ColumnsType<ProxyInfo> = [

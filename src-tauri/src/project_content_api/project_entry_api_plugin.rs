@@ -71,7 +71,8 @@ async fn list_sys<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == list_sys_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_sys".into())) {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_sys".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -212,7 +213,6 @@ async fn update_perm<R: Runtime>(
     }
 }
 
-
 #[tauri::command]
 async fn update_mark_sys<R: Runtime>(
     app_handle: AppHandle<R>,
@@ -228,10 +228,9 @@ async fn update_mark_sys<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == update_mark_sys_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("update_mark_sys".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("update_mark_sys".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -284,10 +283,36 @@ async fn create_folder<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == create_folder_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("create_folder".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("create_folder".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn get_folder<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: GetFolderRequest,
+) -> Result<GetFolderResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectEntryApiClient::new(chan.unwrap());
+    match client.get_folder(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == get_folder_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("get_folder".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -368,10 +393,9 @@ async fn remove_folder<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == remove_folder_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("remove_folder".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("remove_folder".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -396,10 +420,9 @@ async fn list_sub_folder<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == list_sub_folder_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("list_sub_folder".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("list_sub_folder".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -424,10 +447,9 @@ async fn list_sub_entry<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == list_sub_entry_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("list_sub_entry".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("list_sub_entry".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -452,10 +474,9 @@ async fn list_all_folder<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == list_all_folder_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("list_all_folder".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("list_all_folder".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -480,10 +501,9 @@ async fn get_folder_path<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == get_folder_path_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit(
-                    "notice",
-                    new_wrong_session_notice("get_folder_path".into()),
-                ) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("get_folder_path".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -512,6 +532,7 @@ impl<R: Runtime> ProjectEntryApiPlugin<R> {
                 update_extra_info,
                 update_mark_sys,
                 create_folder,
+                get_folder,
                 update_folder_title,
                 set_parent_folder,
                 remove_folder,

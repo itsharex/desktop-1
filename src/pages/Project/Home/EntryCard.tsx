@@ -25,7 +25,7 @@ import MoveToFolderModal from "./components/MoveToFolderModal";
 export interface EntryCardPorps {
     entryInfo: EntryInfo;
     canMove: boolean;
-    onRemove: () => void;
+    onMove: () => void;
     onMarkSys: () => void;
 }
 
@@ -125,7 +125,7 @@ const EntryCard = (props: EntryCardPorps) => {
             parent_folder_id: parentFolderId,
         }));
         setShowMoveModal(false);
-        entryStore.incDataVersion();
+        props.onMove();
         message.info("移动成功");
     };
 
@@ -265,7 +265,6 @@ const EntryCard = (props: EntryCardPorps) => {
             </a>
             {showRemoveModal == true && (
                 <RemoveEntryModal entryInfo={props.entryInfo} onRemove={() => {
-                    props.onRemove();
                     setShowRemoveModal(false);
                 }} onCancel={() => setShowRemoveModal(false)} />
             )}

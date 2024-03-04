@@ -1,63 +1,57 @@
 .editor_wrap {
   position: relative;
-  margin: 20px 0;
-  padding: 20px;
   overflow: hidden;
   background: #fff;
   border: 1px solid #eeeef2;
+  margin-right: 60px;
+  padding-left: 10px;
 
-  .delete {
+  .float {
     position: absolute;
     top: 4px;
     left: 4px;
     z-index: 111;
-    padding: 4px 4px 0;
-    color: red;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    cursor: pointer;
-    opacity: 0;
+    display: flex;
+    height: 70px;
+    justify-content: space-between;
     transition: all 0.5s;
+    flex-direction: column;
+    opacity: 0;
 
-    svg {
-      width: 30px;
-      height: 30px;
+    .delete {
+      padding: 4px 4px 0;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      color: red;
+      cursor: pointer;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
     }
-  }
 
-  .edit {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    z-index: 111;
-    padding: 4px 4px 0;
-    color: blue;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.5s;
+    .edit {
+      padding: 4px 4px 0;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      cursor: pointer;
 
-    svg {
-      width: 30px;
-      height: 30px;
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 
   &:hover {
-    .delete {
-      opacity: 1;
-    }
-
-    .edit {
+    .float {
       opacity: 1;
     }
   }
-
-  // input {
-  //   width: 280px;
-  // }
 }
+
+
 
 .fold {
   margin-top: -10px;

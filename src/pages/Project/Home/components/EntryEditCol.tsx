@@ -39,7 +39,6 @@ const EntryEditCol = (props: EntryOptColProps) => {
             {showRemoveModal == true && (
                 <RemoveEntryModal entryInfo={props.entryInfo} onCancel={() => setShowRemoveModal(false)}
                     onRemove={() => {
-                        entryStore.incDataVersion();
                         setShowRemoveModal(false);
                     }} />
             )}
