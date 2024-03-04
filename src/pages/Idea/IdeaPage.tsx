@@ -3,16 +3,16 @@ import { observer } from 'mobx-react';
 import CardWrap from "@/components/CardWrap";
 import Button from "@/components/Button";
 import { useStores } from "@/hooks";
-import { Space, Tabs, message } from "antd";
+import { Modal, Popover, Space, Tabs, message } from "antd";
 import type { Tab } from "rc-tabs/lib/interface";
 import type { IdeaGroup } from "@/api/project_idea";
-import { list_group, remove_group } from "@/api/project_idea";
+import { clear_group, list_group, remove_group } from "@/api/project_idea";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import CreateOrImportGroupModal from "./components/CreateOrImportGroupModal";
 import { request } from "@/utils/request";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
 import UpdateGroupModal from "./components/UpdateGroupModal";
 import ContentPanel from "./components/ContentPanel";
 
@@ -24,6 +24,7 @@ const IdeaPage = () => {
     const [groupList, setGroupList] = useState([] as IdeaGroup[]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [editGroupId, setEditGroupId] = useState("");
+    const [showClearModal, setShowClearModal] = useState(false);
 
     const loadGroupList = async () => {
         const res = await request(list_group({
@@ -47,6 +48,18 @@ const IdeaPage = () => {
         message.info("删除知识点分组成功");
     };
 
+    const clearGroup = async () => {
+        if (ideaStore.curIdeaGroupId == "") {
+            return;
+        }
+        await request(clear_group({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            idea_group_id: ideaStore.curIdeaGroupId,
+        }));
+        setShowClearModal(false);
+    };
+
     const onEdit = (targetKey: React.MouseEvent | React.KeyboardEvent | string, action: 'add' | 'remove') => {
         if (action == "add") {
             setShowAddModal(true);
@@ -61,7 +74,7 @@ const IdeaPage = () => {
                 key: "",
                 label: <span style={{ fontSize: "16px", fontWeight: 600 }}>全部知识点</span>,
                 closable: false,
-                children: <ContentPanel groupList={groupList}/>,
+                children: <ContentPanel groupList={groupList} />,
             }
         ];
         for (const group of groupList) {
@@ -81,7 +94,7 @@ const IdeaPage = () => {
                     </Space>
                 ),
                 closable: (group.idea_group_id != (projectStore.curProject?.default_idea_group_id ?? "") && group.idea_count == 0 && projectStore.isAdmin),
-                children: <ContentPanel groupList={groupList}/>,
+                children: <ContentPanel groupList={groupList} />,
             });
         }
         return items;
@@ -118,6 +131,21 @@ const IdeaPage = () => {
                             e.preventDefault();
                             ideaStore.setShowCreateIdea("", "");
                         }}>创建知识点</Button>
+                    {ideaStore.curIdeaGroupId != "" && (
+                        <Popover trigger="click" placement="bottom" content={
+                            <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                <Button type="link" danger disabled={!(projectStore.isAdmin && projectStore.isClosed == false)}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowClearModal(true);
+                                    }}>清空分组</Button>
+                            </Space>
+                        }>
+                            <MoreOutlined />
+                        </Popover>
+                    )}
+
                 </Space>}>
                 <Tabs type="editable-card" activeKey={ideaStore.curIdeaGroupId} onChange={key => {
                     ideaStore.curIdeaGroupId = key;
@@ -125,7 +153,7 @@ const IdeaPage = () => {
                     ideaStore.curIdeaId = "";
                 }} onEdit={onEdit}
                     tabBarStyle={{ width: "160px" }}
-                    style={{ height: "calc(100vh - 170px)", overflowY: "scroll"}}
+                    style={{ height: "calc(100vh - 170px)", overflowY: "scroll" }}
                     items={calcTabItems()} tabPosition="left" addIcon={
                         <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} icon={<PlusOutlined />}>创建分组</Button>
                     } />
@@ -134,6 +162,23 @@ const IdeaPage = () => {
                 )}
                 {editGroupId != "" && (
                     <UpdateGroupModal ideaGroupId={editGroupId} onClose={() => setEditGroupId("")} />
+                )}
+                {showClearModal == true && (
+                    <Modal open title="清空分组"
+                        okText="清空" okButtonProps={{ danger: true }}
+                        onCancel={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setShowClearModal(false);
+                        }}
+                        onOk={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            clearGroup();
+                        }}>
+                        <p>是否清除当前分组内所有知识点？</p>
+                        <p>被清空的知识点会进入回收站。</p>
+                    </Modal>
                 )}
             </CardWrap>
         </ErrorBoundary>

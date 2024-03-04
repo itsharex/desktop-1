@@ -66,6 +66,17 @@ export type RemoveResponse = {
     err_msg: string;
 };
 
+export type ClearRequest = {
+    session_id: string;
+    project_id: string;
+    recycle_item_type_list: RECYCLE_ITEM_TYPE[],
+}
+
+export type ClearResponse = {
+    code: number;
+    err_msg: string;
+}
+
 //列出删除项
 export async function list(request: ListRequest): Promise<ListResponse> {
     const cmd = 'plugin:project_recycle_api|list';
@@ -92,3 +103,13 @@ export async function remove(request: RemoveRequest): Promise<RemoveResponse> {
         request,
     });
 }
+
+//清空回收站
+export async function clear(request: ClearRequest): Promise<ClearResponse> {
+    const cmd = 'plugin:project_recycle_api|clear';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ClearResponse>(cmd, {
+        request,
+    });
+}
+

@@ -383,6 +383,11 @@ export namespace idea {
     to_idea_group_id: string;
   };
 
+  export type ClearGroupNotice = {
+    project_id: string;
+    idea_group_id: string;
+  }
+
   export type AllNotice = {
     KeywordChangeNotice?: KeywordChangeNotice;
     CreateGroupNotice?: CreateGroupNotice;
@@ -392,6 +397,7 @@ export namespace idea {
     UpdateIdeaNotice?: UpdateIdeaNotice;
     RemoveIdeaNotice?: RemoveIdeaNotice;
     MoveIdeaNotice?: MoveIdeaNotice;
+    ClearGroupNotice?: ClearGroupNotice;
   };
 }
 

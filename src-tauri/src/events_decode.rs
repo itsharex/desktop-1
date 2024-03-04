@@ -30,6 +30,7 @@ pub mod project {
         UnwatchEvent(events_project::UnwatchEvent),
         RecoverFromRecycleEvent(events_project::RecoverFromRecycleEvent),
         RemoveFromRecycleEvent(events_project::RemoveFromRecycleEvent),
+        ClearFromRecycleEvent(events_project::ClearFromRecycleEvent),
     }
 
     pub fn decode_event(data: &Any) -> Option<Event> {
@@ -134,6 +135,10 @@ pub mod project {
         } else if data.type_url == events_project::RemoveFromRecycleEvent::type_url() {
             if let Ok(ev) = events_project::RemoveFromRecycleEvent::decode(data.value.as_slice()) {
                 return Some(Event::RemoveFromRecycleEvent(ev));
+            }
+        } else if data.type_url == events_project::ClearFromRecycleEvent::type_url() {
+            if let Ok(ev) = events_project::ClearFromRecycleEvent::decode(data.value.as_slice()) {
+                return Some(Event::ClearFromRecycleEvent(ev));
             }
         }
         None
@@ -606,6 +611,7 @@ pub mod idea {
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
     pub enum Event {
+        ClearGroupEvent(events_idea::ClearGroupEvent),
         CreateIdeaEvent(events_idea::CreateIdeaEvent),
         UpdateIdeaContentEvent(events_idea::UpdateIdeaContentEvent),
         UpdateIdeaKeywordEvent(events_idea::UpdateIdeaKeywordEvent),
@@ -644,11 +650,14 @@ pub mod idea {
             if let Ok(ev) = events_idea::ImportIdeaEvent::decode(data.value.as_slice()) {
                 return Some(Event::ImportIdeaEvent(ev));
             }
+        } else if data.type_url == events_idea::ClearGroupEvent::type_url() {
+            if let Ok(ev) = events_idea::ClearGroupEvent::decode(data.value.as_slice()) {
+                return Some(Event::ClearGroupEvent(ev));
+            }
         }
         None
     }
 }
-
 
 pub mod atomgit {
     use prost::Message;

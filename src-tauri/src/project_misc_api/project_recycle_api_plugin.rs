@@ -81,6 +81,31 @@ async fn remove<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn clear<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ClearRequest,
+) -> Result<ClearResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectRecycleApiClient::new(chan.unwrap());
+    match client.clear(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == clear_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("clear".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 pub struct ProjectRecycleApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -92,6 +117,7 @@ impl<R: Runtime> ProjectRecycleApiPlugin<R> {
                 list,
                 recover,
                 remove,
+                clear,
             ]),
         }
     }

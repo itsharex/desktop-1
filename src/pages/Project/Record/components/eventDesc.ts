@@ -335,6 +335,20 @@ const ideaEventList: EventDesc[] = [
             }
         ],
     },
+    {
+        id: "ClearGroupEvent",
+        name: "清空知识点分组",
+        attrList: [
+            {
+                key: "idea_group_id",
+                desc: "知识点分组ID",
+            },
+            {
+                key: "title",
+                desc: "知识点分组名称",
+            },
+        ],
+    }
 ];
 
 const spritEventList: EventDesc[] = [
@@ -977,6 +991,16 @@ const projectEventList: EventDesc[] = [
                 desc: "删除对象标题"
             }
         ],
+    },
+    {
+        id: "ClearFromRecycleEvent",
+        name: "从回收站清除",
+        attrList: [
+            {
+                key: "recycle_item_type_list",
+                desc: "清除对象类型列表"
+            }
+        ]
     },
 ];
 

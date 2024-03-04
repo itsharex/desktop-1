@@ -452,6 +452,24 @@ function get_remove_from_recycle_simple_content(
     ];
 }
 
+export type ClearFromRecycleEvent = {
+    recycle_item_type_list: number[];
+};
+
+function get_clear_from_recycle_simple_content(
+    ev: PluginEvent,
+    skip_prj_name: boolean,
+    inner: ClearFromRecycleEvent,
+): LinkInfo[] {
+    const tmpTypeNameList: string[] = [];
+    for (const itemType of inner.recycle_item_type_list) {
+        tmpTypeNameList.push(getRecycleTypeName(itemType));
+    }
+    return [
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 清空 ${tmpTypeNameList.join(",")}`),
+    ];
+}
+
 export type AllProjectEvent = {
     CreateProjectEvent?: CreateProjectEvent;
     UpdateProjectEvent?: UpdateProjectEvent;
@@ -478,6 +496,7 @@ export type AllProjectEvent = {
     UnwatchEvent?: UnwatchEvent;
     RecoverFromRecycleEvent?: RecoverFromRecycleEvent;
     RemoveFromRecycleEvent?: RemoveFromRecycleEvent;
+    ClearFromRecycleEvent?: ClearFromRecycleEvent;
 };
 
 export function get_project_simple_content(
@@ -541,6 +560,8 @@ export function get_project_simple_content(
         return get_recover_from_recycle_simple_content(ev, skip_prj_name, inner.RecoverFromRecycleEvent);
     } else if (inner.RemoveFromRecycleEvent !== undefined) {
         return get_remove_from_recycle_simple_content(ev, skip_prj_name, inner.RemoveFromRecycleEvent);
+    } else if (inner.ClearFromRecycleEvent !== undefined) {
+        return get_clear_from_recycle_simple_content(ev, skip_prj_name, inner.ClearFromRecycleEvent);
     } else {
         return [new LinkNoneInfo('未知事件')];
     }
