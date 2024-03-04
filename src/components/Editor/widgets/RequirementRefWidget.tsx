@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type WidgetProps } from './common';
 import EditorWrap from '../components/EditorWrap';
 import s from './RequirementRefWidget.module.less';
@@ -147,6 +147,19 @@ const EditRequirementRef: React.FC<WidgetProps> = observer((props) => {
 
     const [showAddReq, setShowAddReq] = useState(false);
 
+    const loadDataSource = async () => {
+        const widgetData = props.initData as WidgetData;
+        if (widgetData.requirementIdList.length == 0) {
+            return;
+        }
+        const res = await request(list_requirement_by_id({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            requirement_id_list: widgetData.requirementIdList,
+        }));
+        setDataSource(res.requirement_list);
+    };
+
     const addRequirement = async (requirementIdList: string[]) => {
         const requirementList = dataSource.slice();
         for (const requirementId of requirementIdList) {
@@ -212,6 +225,10 @@ const EditRequirementRef: React.FC<WidgetProps> = observer((props) => {
             render: (_, row: RequirementInfo) => (moment(row.create_time).format("YYYY-MM-DD HH:mm::ss")),
         }
     ];
+
+    useEffect(() => {
+        loadDataSource();
+    }, []);
 
     return (
         <EditorWrap onChange={() => props.removeSelf()}>
@@ -305,7 +322,7 @@ const ViewRequirementRef: React.FC<WidgetProps> = observer((props) => {
         }
     ];
 
-    useMemo(() => {
+    useEffect(() => {
         loadData();
     }, []);
 

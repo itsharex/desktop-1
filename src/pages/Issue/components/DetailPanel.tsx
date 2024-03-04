@@ -169,7 +169,7 @@ const DetailPanel = () => {
                     </Card>
                     <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>其他配置</span>} headStyle={{ padding: "0px 10px" }} bordered={false}
                         bodyStyle={{ padding: "0px 0px" }}>
-                        <Descriptions bordered>
+                        <Descriptions bordered labelStyle={{ width: "120px" }}>
                             <Descriptions.Item label="当前状态">
                                 <div
                                     tabIndex={0}
@@ -418,9 +418,8 @@ const DetailPanel = () => {
                                         return res;
                                     }} showEditIcon={true} />
                             </Descriptions.Item>
-                            {issueInfo.issue_type == ISSUE_TYPE_BUG && (
-                                <Descriptions.Item label="">&nbsp;</Descriptions.Item>
-                            )}
+                        </Descriptions>
+                        <Descriptions bordered labelStyle={{ width: "120px" }}>
                             <Descriptions.Item label="标签" span={3}>
                                 <EditTag editable={(!projectStore.isClosed) && issueInfo.user_issue_perm.can_update} tagIdList={issueInfo.basic_info.tag_id_list} tagDefList={getTagDefList(issueInfo.issue_type)}
                                     onChange={(tagIdList: string[]) => {
