@@ -2,11 +2,8 @@ import { invoke } from '@tauri-apps/api/tauri';
 import type { AppPerm } from '@/api/appstore';
 
 export type StartRequest = {
-    project_id: string;
-    project_name: string;
-    member_user_id: string;
-    member_display_name: string;
-    token_url: string;
+    user_id: string;
+    user_display_name: string;
     label: string;
     title: string;
     path: string;

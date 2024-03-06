@@ -15,7 +15,6 @@ interface DebugMinAppModalProps {
 
 const DebugMinAppModal: React.FC<DebugMinAppModalProps> = (props) => {
     const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
 
     const [useUrl, setUseUrl] = useState(true);
     const [remoteUrl, setRemoteUrl] = useState("");
@@ -73,11 +72,8 @@ const DebugMinAppModal: React.FC<DebugMinAppModalProps> = (props) => {
         }
 
         await start({
-            project_id: projectStore.curProjectId,
-            project_name: projectStore.curProject?.basic_info.project_name ?? "",
-            member_user_id: userStore.userInfo.userId,
-            member_display_name: userStore.userInfo.displayName,
-            token_url: "",
+            user_id: userStore.userInfo.userId,
+            user_display_name: userStore.userInfo.displayName,
             label: "minApp:debug",
             title: `调试微应用(${path})`,
             path: path,

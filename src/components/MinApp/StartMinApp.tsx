@@ -27,11 +27,8 @@ const StartMinApp = () => {
 
         const path = await get_min_app_path(fsId, fileId);
         await start_app({
-            project_id: "",
-            project_name: "",
-            member_user_id: userStore.userInfo.userId,
-            member_display_name: userStore.userInfo.displayName,
-            token_url: "",
+            user_id: userStore.userInfo.userId,
+            user_display_name: userStore.userInfo.displayName,
             label: "minApp:" + appInfo.app_id,
             title: `${appInfo.base_info.app_name}(微应用)`,
             path: path,
