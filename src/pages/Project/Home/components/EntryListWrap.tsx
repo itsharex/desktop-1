@@ -4,7 +4,7 @@ import { Button, Card, Form, Input, Select, Switch } from "antd";
 import { FilterTwoTone, PlusOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
 import type { ENTRY_TYPE } from "@/api/project_entry";
-import { ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { request } from "@/utils/request";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
@@ -57,6 +57,10 @@ const EntryListWrap = (props: EntryListWrapProps) => {
             return "静态网页";
         } else if (props.entryType == ENTRY_TYPE_BOARD) {
             return "信息面板";
+        } else if(props.entryType == ENTRY_TYPE_FILE){
+            return "项目文件";
+        }else if(props.entryType == ENTRY_TYPE_API_COLL){
+            return "接口集合";
         }
         return "";
     };

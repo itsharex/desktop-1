@@ -21,10 +21,8 @@ use tokio::time::sleep;
 const INIT_SCRIPT: &str = r#"
 Object.defineProperty(window, "minApp", {
     value: {
-        projectId: "__PROJECT_ID__",
-        projectName: "__PROJECT_NAME__",
-        memberUserId: "__MEMBER_USER_ID__",
-        memberDisplayName: "__MEMBER_DISPLAY_NAME__",
+        userId: "__USER_ID__",
+        userDisplayName: "__USER_DISPLAY_NAME__",
         tokenUrl: "__TOKEN_URL__",
         crossHttp: __CROSS_HTTP__,
         redisProxyToken: "__REDIS_PROXY_TOKEN__",
@@ -66,11 +64,8 @@ pub struct AppPermMap(pub Mutex<HashMap<String, AppPerm>>);
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
 pub struct StartRequest {
-    pub project_id: String,
-    pub project_name: String,
-    pub member_user_id: String,
-    pub member_display_name: String,
-    pub token_url: String,
+    pub user_id: String,
+    pub user_display_name: String,
     pub label: String,
     pub title: String,
     pub path: String,
@@ -207,19 +202,10 @@ async fn start<R: Runtime>(
     }
 
     let mut script = INIT_SCRIPT
-        .replace("__PROJECT_ID__", &request.project_id)
+        .replace("__USER_ID__", &request.user_id)
         .replace(
-            "__PROJECT_NAME__",
-            &html_escape::encode_script_quoted_text(&request.project_name),
-        )
-        .replace("__MEMBER_USER_ID__", &request.member_user_id)
-        .replace(
-            "__MEMBER_DISPLAY_NAME__",
-            &html_escape::encode_script_quoted_text(&request.member_display_name),
-        )
-        .replace(
-            "__TOKEN_URL__",
-            &html_escape::encode_script_quoted_text(&request.token_url),
+            "__USER_DISPLAY_NAME__",
+            &html_escape::encode_script_quoted_text(&request.user_display_name),
         );
     if let Some(net_perm) = perm.net_perm {
         if net_perm.cross_domain_http {
