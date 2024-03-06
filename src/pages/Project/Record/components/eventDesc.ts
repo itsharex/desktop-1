@@ -335,53 +335,20 @@ const ideaEventList: EventDesc[] = [
             }
         ],
     },
-];
-
-const dataAnnoEventList: EventDesc[] = [
     {
-        id: "AddAnnoMemberEvent",
-        name: "新增标注成员",
+        id: "ClearGroupEvent",
+        name: "清空知识点分组",
         attrList: [
             {
-                key: "anno_project_id",
-                desc: "标注项目ID",
+                key: "idea_group_id",
+                desc: "知识点分组ID",
             },
             {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-            {
-                key: "member_user_id",
-                desc: "成员ID",
-            },
-            {
-                key: "member_display_name",
-                desc: "成员名称",
+                key: "title",
+                desc: "知识点分组名称",
             },
         ],
-    },
-    {
-        id: "RemoveAnnoMemberEvent",
-        name: "移除标注成员",
-        attrList: [
-            {
-                key: "anno_project_id",
-                desc: "标注项目ID",
-            },
-            {
-                key: "anno_project_name",
-                desc: "标注项目名称",
-            },
-            {
-                key: "member_user_id",
-                desc: "成员ID",
-            },
-            {
-                key: "member_display_name",
-                desc: "成员名称",
-            },
-        ],
-    },
+    }
 ];
 
 const spritEventList: EventDesc[] = [
@@ -1024,6 +991,16 @@ const projectEventList: EventDesc[] = [
                 desc: "删除对象标题"
             }
         ],
+    },
+    {
+        id: "ClearFromRecycleEvent",
+        name: "从回收站清除",
+        attrList: [
+            {
+                key: "recycle_item_type_list",
+                desc: "清除对象类型列表"
+            }
+        ]
     },
 ];
 
@@ -2837,10 +2814,5 @@ export const eventGroupList: EventGroup[] = [
         id: "IdeaEvent",
         name: "知识点",
         eventDescList: ideaEventList,
-    },
-    {
-        id: "DataAnnoEvent",
-        name: "数据标注",
-        eventDescList: dataAnnoEventList,
     },
 ];

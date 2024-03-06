@@ -11,7 +11,6 @@ import { type AllGogsEvent, get_gogs_simple_content } from './events/gogs';
 import { type AllGiteeEvent, get_gitee_simple_content } from './events/gitee';
 import { type AllCodeEvent, get_code_simple_content } from './events/code';
 import { type AllRequirementEvent, get_requirement_simple_content } from './events/requirement';
-import { type AllDataAnnoEvent, get_data_anno_simple_content } from './events/data_anno';
 import { type AllIdeaEvent, get_idea_simple_content } from './events/idea';
 import { type AllAtomgitEvent, get_atomgit_simple_content } from './events/atomgit';
 import { type AllEntryEvent, get_entry_simple_content } from './events/entry';
@@ -38,7 +37,6 @@ export class AllEvent {
   RequirementEvent?: AllRequirementEvent;
   CodeEvent?: AllCodeEvent;
   IdeaEvent?: AllIdeaEvent;
-  DataAnnoEvent?: AllDataAnnoEvent;
   AtomgitEvent?: AllAtomgitEvent;
   EntryEvent?: AllEntryEvent;
   HarborEvent?: AllHarborEvent;
@@ -64,8 +62,6 @@ export function get_simple_content(ev: PluginEvent, skip_prj_name: boolean): Lin
     return get_code_simple_content(ev, skip_prj_name, ev.event_data.CodeEvent);
   } else if (ev.event_data.IdeaEvent !== undefined) {
     return get_idea_simple_content(ev, skip_prj_name, ev.event_data.IdeaEvent);
-  } else if (ev.event_data.DataAnnoEvent !== undefined) {
-    return get_data_anno_simple_content(ev, skip_prj_name, ev.event_data.DataAnnoEvent);
   } else if (ev.event_data.AtomgitEvent !== undefined) {
     return get_atomgit_simple_content(ev, skip_prj_name, ev.event_data.AtomgitEvent);
   } else if (ev.event_data.EntryEvent !== undefined) {

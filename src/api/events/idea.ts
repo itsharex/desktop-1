@@ -140,6 +140,21 @@ function get_import_idea_simple_content(ev: PluginEvent,
   ];
 }
 
+export type ClearGroupEvent = {
+  idea_group_id: string;
+  title: string;
+};
+
+function get_clear_group_simple_content(ev: PluginEvent,
+  skip_prj_name: boolean,
+  inner: ClearGroupEvent,
+): LinkInfo[] {
+  return [
+    new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 清空知识点分组 `),
+    new LinkIdeaPageInfo(inner.title, ev.project_id, inner.idea_group_id, []),
+  ];
+}
+
 export class AllIdeaEvent {
   CreateIdeaEvent?: CreateIdeaEvent;
   UpdateIdeaContentEvent?: UpdateIdeaContentEvent;
@@ -148,6 +163,7 @@ export class AllIdeaEvent {
   SetAppraiseEvent?: SetAppraiseEvent;
   CancelAppraiseEvent?: CancelAppraiseEvent;
   ImportIdeaEvent?: ImportIdeaEvent;
+  ClearGroupEvent?: ClearGroupEvent;
 };
 export function get_idea_simple_content(
   ev: PluginEvent,
@@ -168,6 +184,8 @@ export function get_idea_simple_content(
     return get_cancel_appraise_simple_content(ev, skip_prj_name, inner.CancelAppraiseEvent);
   } else if (inner.ImportIdeaEvent !== undefined) {
     return get_import_idea_simple_content(ev, skip_prj_name, inner.ImportIdeaEvent);
+  } else if (inner.ClearGroupEvent !== undefined) {
+    return get_clear_group_simple_content(ev, skip_prj_name, inner.ClearGroupEvent);
   } else {
     return [new LinkNoneInfo('未知事件')];
   }

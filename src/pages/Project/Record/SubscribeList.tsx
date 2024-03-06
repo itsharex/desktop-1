@@ -16,7 +16,7 @@ import {
     genCodeEvCfgValues, genExtEvCfgValues, genGiteeEvCfgValues, genGitlabEvCfgValues,
     genIssueEvCfgValues, genProjectEvCfgValues, genRequirementEvCfgValues,
     giteeEvOptionList, gitlabEvOptionList, issueEvOptionList, projectEvOptionList,
-    requirementEvOptionList, ideaEvOptionList, genIdeaEvCfgValues, dataAnnoEvOptionList, genDataAnnoEvCfgValues,
+    requirementEvOptionList, ideaEvOptionList, genIdeaEvCfgValues,
     atomgitEvOptionList, genAtomgitEvCfgValues, genEntryEvCfgValues, entryEvOptionList, genHarborEvCfgValues, harborEvOptionList,
     testcaseEvOptionList,
     genTestcaseEvCfgValues
@@ -171,9 +171,6 @@ const SubscribeList = () => {
                                         </Form.Item>
                                         <Form.Item label="知识点事件">
                                             <Checkbox.Group options={ideaEvOptionList} value={genIdeaEvCfgValues(item.event_cfg.idea_ev_cfg)} disabled={true} />
-                                        </Form.Item>
-                                        <Form.Item label="数据标注事件">
-                                            <Checkbox.Group options={dataAnnoEvOptionList} value={genDataAnnoEvCfgValues(item.event_cfg.data_anno_ev_cfg)} disabled={true} />
                                         </Form.Item>
                                     </Form>
                                 </Card>

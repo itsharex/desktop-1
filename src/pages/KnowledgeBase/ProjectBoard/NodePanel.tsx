@@ -8,9 +8,8 @@ import taskIcon from '@/assets/allIcon/icon-task.png';
 import bugIcon from '@/assets/allIcon/icon-bug.png';
 import reqIcon from '@/assets/allIcon/icon-req.png';
 import apiCollIcon from '@/assets/allIcon/icon-apicoll.png';
-import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
 import { useDrag } from 'react-dnd';
-import { BOARD_NODE_TYPE_IMAGE, type BOARD_NODE_TYPE, BOARD_NODE_TYPE_TEXT, BOARD_NODE_TYPE_REF_TASK, BOARD_NODE_TYPE_REF_BUG, BOARD_NODE_TYPE_REF_REQUIRE_MENT, BOARD_NODE_TYPE_REF_API_COLL, BOARD_NODE_TYPE_REF_DATA_ANNO, BOARD_NODE_TYPE_MERMAID } from "./nodes/types";
+import { BOARD_NODE_TYPE_IMAGE, type BOARD_NODE_TYPE, BOARD_NODE_TYPE_TEXT, BOARD_NODE_TYPE_REF_TASK, BOARD_NODE_TYPE_REF_BUG, BOARD_NODE_TYPE_REF_REQUIRE_MENT, BOARD_NODE_TYPE_REF_API_COLL, BOARD_NODE_TYPE_MERMAID } from "./nodes/types";
 
 export const DND_ITEM_TYPE = "node";
 
@@ -48,7 +47,6 @@ const NodePanel = () => {
                         <NodeIcon nodeType={BOARD_NODE_TYPE_REF_BUG} imgSrc={bugIcon} title="引用缺陷(拖动到画板)" />
                         <NodeIcon nodeType={BOARD_NODE_TYPE_REF_REQUIRE_MENT} imgSrc={reqIcon} title="引用需求(拖动到画板)" />
                         <NodeIcon nodeType={BOARD_NODE_TYPE_REF_API_COLL} imgSrc={apiCollIcon} title="引用接口(拖动到画板)" />
-                        <NodeIcon nodeType={BOARD_NODE_TYPE_REF_DATA_ANNO} imgSrc={dataAnnoIcon} title="引用数据标注(拖动到画板)" />
                     </Space>
                 }>
                     <img src={refIcon} title="引用(拖动到画板)" />

@@ -176,6 +176,7 @@ pub mod idea {
         UpdateIdeaNotice(notices_idea::UpdateIdeaNotice),
         RemoveIdeaNotice(notices_idea::RemoveIdeaNotice),
         MoveIdeaNotice(notices_idea::MoveIdeaNotice),
+        ClearGroupNotice(notices_idea::ClearGroupNotice),
     }
 
     pub fn decode_notice(data: &Any) -> Option<Notice> {
@@ -210,6 +211,10 @@ pub mod idea {
         } else if data.type_url == notices_idea::MoveIdeaNotice::type_url() {
             if let Ok(notice) = notices_idea::MoveIdeaNotice::decode(data.value.as_slice()) {
                 return Some(Notice::MoveIdeaNotice(notice));
+            }
+        } else if data.type_url == notices_idea::ClearGroupNotice::type_url() {
+            if let Ok(notice) = notices_idea::ClearGroupNotice::decode(data.value.as_slice()) {
+                return Some(Notice::ClearGroupNotice(notice));
             }
         }
         None

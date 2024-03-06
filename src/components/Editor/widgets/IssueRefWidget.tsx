@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type WidgetProps } from './common';
 import type { ExtraBugInfo, ExtraTaskInfo, IssueInfo, ISSUE_TYPE } from '@/api/project_issue';
 import {
@@ -132,6 +132,18 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
   const [dataSource, setDataSource] = useState<IssueInfo[]>([]);
   const [showAddIssue, setShowAddIssue] = useState(false);
 
+  const loadDataSource = async () => {
+    if(data.issueIdList.length == 0){
+      return;
+    }
+    const res = await request(list_by_id({
+      session_id: userStore.sessionId,
+      project_id: projectStore.curProjectId,
+      issue_id_list: data.issueIdList,
+    }));
+    setDataSource(res.info_list);
+  };
+
   const addIssue = async (link: LinkInfo | LinkInfo[]) => {
     const linkList = link as LinkInfo[];
     const issueIdList = [] as string[];
@@ -163,8 +175,8 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
     }
   };
 
-  const removeIssue = (issueIndex: number) => {
-    const tmpList = dataSource.filter(item => item.issue_index != issueIndex);
+  const removeIssue = (issueId: string) => {
+    const tmpList = dataSource.filter(item => item.issue_id != issueId);
     setDataSource(tmpList);
     const saveData: WidgetData = {
       issueType: data.issueType,
@@ -178,7 +190,7 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
       title: `ID`,
       dataIndex: 'issue_index',
       width: 70,
-      render: (v: number) => {
+      render: (v: number,row:IssueInfo) => {
         return (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Deliconsvg
@@ -186,7 +198,7 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                removeIssue(v);
+                removeIssue(row.issue_id);
               }}
             />
             {v}
@@ -274,16 +286,9 @@ const EditIssueRef: React.FC<WidgetProps> = observer((props) => {
     },
   ];
 
-  useMemo(() => {
-    const linkList = data.issueIdList.map((issueId) => {
-      if (data.issueType == ISSUE_TYPE_TASK) {
-        return new LinkTaskInfo('', projectStore.curProjectId, issueId);
-      } else {
-        return new LinkBugInfo('', projectStore.curProjectId, issueId);
-      }
-    });
-    addIssue(linkList);
-  }, []);
+  useEffect(()=>{
+    loadDataSource();
+  },[]);
 
   return (
     <ErrorBoundary>

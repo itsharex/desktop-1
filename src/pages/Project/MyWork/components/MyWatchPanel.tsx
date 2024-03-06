@@ -7,7 +7,7 @@ import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import IssueList from "./IssueList";
 import type { ENTRY_TYPE, EntryInfo } from "@/api/project_entry";
-import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import type { ColumnsType, ColumnType } from 'antd/lib/table';
 import { EditTag } from "@/components/EditCell/EditTag";
 import moment from 'moment';
@@ -456,17 +456,6 @@ const MyWatchPanel = () => {
                     <>
                         {activeKey == "watchApiColl" && (
                             <WatchEntryList entryType={ENTRY_TYPE_API_COLL} />
-                        )}
-                    </>
-                ),
-            },
-            {
-                key: "watchDataAnno",
-                label: "数据标注",
-                children: (
-                    <>
-                        {activeKey == "watchDataAnno" && (
-                            <WatchEntryList entryType={ENTRY_TYPE_DATA_ANNO} />
                         )}
                     </>
                 ),

@@ -4,7 +4,7 @@ import CardWrap from "@/components/CardWrap";
 import { Button, Descriptions, Form, List, Modal, Popover, Select, Space, message } from "antd";
 import type { RECYCLE_ITEM_TYPE, RecycleItemInfo } from "@/api/project_recycle";
 import {
-    RECYCLE_ITEM_ALL, RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DATA_ANNO, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
+    RECYCLE_ITEM_ALL, RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
     RECYCLE_ITEM_IDEA, RECYCLE_ITEM_PAGES, RECYCLE_ITEM_REQUIREMENT, RECYCLE_ITEM_SPRIT, RECYCLE_ITEM_TASK, RECYCLE_ITEM_TESTCASE, list as list_recycle_item,
     recover as recover_recycle_item, remove as remove_recycle_item
 } from "@/api/project_recycle";
@@ -14,6 +14,8 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import { useHistory } from "react-router-dom";
 import { LinkBugInfo, LinkEntryInfo, LinkIdeaPageInfo, LinkRequirementInfo, LinkTaskInfo, LinkTestCaseInfo } from "@/stores/linkAux";
+import { MoreOutlined } from "@ant-design/icons";
+import ClearModal from "./components/ClearModal";
 
 const PAGE_SIZE = 20;
 
@@ -30,6 +32,7 @@ const RecycleItemList = () => {
     const [curPage, setCurPage] = useState(0);
 
     const [removeInfo, setRemoveInfo] = useState<RecycleItemInfo | null>(null);
+    const [showClearModal, setShowClearModal] = useState(false);
 
     const loadRecycleItemList = async () => {
         const res = await request(list_recycle_item({
@@ -110,8 +113,6 @@ const RecycleItemList = () => {
             return "文件";
         } else if (itemType == RECYCLE_ITEM_API_COLL) {
             return "接口集合";
-        } else if (itemType == RECYCLE_ITEM_DATA_ANNO) {
-            return "数据标注";
         } else {
             return "";
         }
@@ -143,8 +144,21 @@ const RecycleItemList = () => {
                             <Select.Option value={RECYCLE_ITEM_BOARD}>信息面板</Select.Option>
                             <Select.Option value={RECYCLE_ITEM_FILE}>文件</Select.Option>
                             <Select.Option value={RECYCLE_ITEM_API_COLL}>接口集合</Select.Option>
-                            <Select.Option value={RECYCLE_ITEM_DATA_ANNO}>数据标注</Select.Option>
                         </Select>
+                    </Form.Item>
+                    <Form.Item>
+                        <Popover trigger="click" placement="bottom" content={
+                            <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                <Button type="link" danger disabled={!(projectStore.isAdmin && projectStore.isClosed == false)}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowClearModal(true);
+                                    }}>清空回收站</Button>
+                            </Space>
+                        }>
+                            <MoreOutlined />
+                        </Popover>
                     </Form.Item>
                 </Form>
             </Space>
@@ -199,6 +213,16 @@ const RecycleItemList = () => {
                     是否删除&nbsp;{getTypeName(removeInfo.recycle_item_type)}&nbsp;{removeInfo.title} &nbsp;?
                     <div style={{ color: "red" }}>删除后，数据将不可恢复！！</div>
                 </Modal>
+            )}
+            {showClearModal == true && (
+                <ClearModal onCancel={() => setShowClearModal(false)} onOk={() => {
+                    if (curPage != 0) {
+                        setCurPage(0);
+                    } else {
+                        loadRecycleItemList();
+                    }
+                    setShowClearModal(false);
+                }} />
             )}
         </CardWrap>
     );

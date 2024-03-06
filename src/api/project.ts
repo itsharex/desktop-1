@@ -16,6 +16,9 @@ export const MAIN_CONTENT_SPRIT_LIST: MAIN_CONTENT_TYPE = 1;    //工作计划
 export const MAIN_CONTENT_DOC_LIST: MAIN_CONTENT_TYPE = 2;      //项目文档
 export const MAIN_CONTENT_BOARD_LIST: MAIN_CONTENT_TYPE = 3;    //信息面板
 export const MAIN_CONTENT_PAGES_LIST: MAIN_CONTENT_TYPE = 4;    //静态网页
+export const MAIN_CONTENT_FILE_LIST: MAIN_CONTENT_TYPE = 5;          //项目文件
+export const MAIN_CONTENT_API_COLL_LIST: MAIN_CONTENT_TYPE = 6;      //接口集合
+
 export const MAIN_CONTENT_MY_WORK: MAIN_CONTENT_TYPE = 99;  //我的工作
 
 export type BasicProjectInfo = {
@@ -120,7 +123,7 @@ export type ProjectInfo = {
   require_ment_fs_id: string;
   idea_fs_id: string;
   bulletin_fs_id: string;
-  data_anno_fs_id: string;
+  // data_anno_fs_id: string;
   api_coll_fs_id: string;
   // ci_cd_fs_id: string;
   pages_fs_id: string;

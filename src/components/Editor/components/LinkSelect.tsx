@@ -4,7 +4,7 @@ import type { ModalProps } from 'antd';
 import { Button } from 'antd';
 import { Modal, Input } from 'antd';
 import type { LinkInfo } from '@/stores/linkAux';
-import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkDataAnnoInfo, LinkTestCaseInfo } from '@/stores/linkAux';
+import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkTestCaseInfo } from '@/stores/linkAux';
 import { useStores } from '@/hooks';
 import {
   list as list_issue,
@@ -21,14 +21,14 @@ import s from './LinkSelect.module.less';
 import classNames from 'classnames';
 import { list_requirement, REQ_SORT_UPDATE_TIME } from '@/api/project_requirement';
 import type { EntryInfo } from "@/api/project_entry";
-import { ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
+import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_SPRIT, list as list_entry } from "@/api/project_entry";
 import { CheckOutlined } from '@ant-design/icons';
 import { LocalIssueStore, LocalRequirementStore, LocalTestcaseStore } from '@/stores/local';
 import { list_case_flat } from '@/api/project_testcase';
 
 const PAGE_SIZE = 6;
 
-type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "testcase" | "sprit" | "board" | "apicoll" | "dataanno" | "externe";
+type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "testcase" | "sprit" | "board" | "apicoll" | "externe";
 
 export interface LinkSelectProps {
   title: string;
@@ -40,7 +40,6 @@ export interface LinkSelectProps {
   showSprit: boolean;
   showBoard: boolean;
   showApiColl: boolean;
-  showDataAnno: boolean;
   showExterne: boolean;
   onOk: (link: LinkInfo) => void;
   onCancel: () => void;
@@ -69,8 +68,6 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     defaultTab = "board";
   } else if (props.showApiColl) {
     defaultTab = "apicoll";
-  } else if (props.showDataAnno) {
-    defaultTab = "dataanno"
   } else if (props.showExterne) {
     defaultTab = 'externe';
   }
@@ -84,7 +81,6 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   const [spritList, setSpritList] = useState([] as EntryInfo[]);
   const [boardList, setBoardList] = useState([] as EntryInfo[]);
   const [apiCollList, setApiCollList] = useState([] as EntryInfo[]);
-  const [dataAnnoList, setDataAnnoList] = useState([] as EntryInfo[]);
   const [externeUrl, setExterneUrl] = useState('');
 
   const [tab, setTab] = useState(defaultTab);
@@ -138,12 +134,6 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     tabList.push({
       label: '接口集合',
       value: 'apicoll',
-    });
-  }
-  if (props.showDataAnno) {
-    tabList.push({
-      label: '数据标注',
-      value: 'dataanno',
     });
   }
   if (props.showExterne) {
@@ -252,7 +242,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   }, [tab, keyword, myWatch, curPage]);
 
   useEffect(() => {
-    if (["doc", "board", "sprit", "apicoll", "dataanno"].includes(tab) == false) {
+    if (["doc", "board", "sprit", "apicoll"].includes(tab) == false) {
       return;
     }
     let entryType = ENTRY_TYPE_DOC;
@@ -262,9 +252,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       entryType = ENTRY_TYPE_SPRIT;
     } else if (tab == "apicoll") {
       entryType = ENTRY_TYPE_API_COLL;
-    } else if (tab == "dataanno") {
-      entryType = ENTRY_TYPE_DATA_ANNO;
-    }
+    } 
     request(list_entry({
       session_id: userStore.sessionId,
       project_id: projectStore.curProjectId,
@@ -289,9 +277,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
         setSpritList(res.entry_list);
       } else if (tab == "apicoll") {
         setApiCollList(res.entry_list);
-      } else if (tab == "dataanno") {
-        setDataAnnoList(res.entry_list);
-      }
+      } 
       setTotalCount(res.total_count);
     });
   }, [tab, keyword, myWatch, curPage]);
@@ -580,45 +566,6 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                 {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_GRPC && "GRPC"}
                 {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_OPENAPI && "OPENAPI/SWAGGER"}
                 {item.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM && "自定义接口"}
-                :&nbsp;&nbsp;
-                {item.entry_title}
-              </List.Item>
-            )} />
-        </Card>
-      );
-    } else if (props.showDataAnno && tab == "dataanno") {
-      return (
-        <Card bordered={false} title="数据标注"
-          extra={
-            <Form layout='inline'>
-              <Form.Item label="我的关注">
-                <Checkbox checked={myWatch} onChange={e => {
-                  e.stopPropagation();
-                  setMyWatch(e.target.checked);
-                }} />
-              </Form.Item>
-            </Form>
-          }>
-          <List rowKey="entry_id" dataSource={dataAnnoList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
-            renderItem={item => (
-              <List.Item style={{ cursor: "pointer" }} onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                props.onOk(new LinkDataAnnoInfo(item.entry_title, projectStore.curProjectId, item.entry_id));
-              }}>
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_CLASSIFI && "音频分类"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG && "音频分割"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_TRANS && "音频翻译"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG_TRANS && "音频分段翻译"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CLASSIFI && "图像分类"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT && "矩形对象检测"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BRUSH_SEG && "画笔分割"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT && "圆形对象检测"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_KEYPOINT && "图像关键点"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_POLYGON_SEG && "多边形分割"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_CLASSIFI && "文本分类"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER && "文本命名实体识别"}
-                {item.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY && "文本摘要"}
                 :&nbsp;&nbsp;
                 {item.entry_title}
               </List.Item>

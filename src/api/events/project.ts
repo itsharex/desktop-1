@@ -11,7 +11,7 @@ import {
 import { WATCH_TARGET_BUG, WATCH_TARGET_ENTRY, WATCH_TARGET_REQUIRE_MENT, WATCH_TARGET_TASK, WATCH_TARGET_TEST_CASE, type WATCH_TARGET_TYPE } from '../project_watch';
 import type { RECYCLE_ITEM_TYPE } from '../project_recycle';
 import {
-    RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DATA_ANNO, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
+    RECYCLE_ITEM_API_COLL, RECYCLE_ITEM_BOARD, RECYCLE_ITEM_BUG, RECYCLE_ITEM_BULLETIN, RECYCLE_ITEM_DOC, RECYCLE_ITEM_FILE,
     RECYCLE_ITEM_IDEA, RECYCLE_ITEM_PAGES, RECYCLE_ITEM_REQUIREMENT, RECYCLE_ITEM_SPRIT, RECYCLE_ITEM_TASK, RECYCLE_ITEM_TESTCASE
 } from '../project_recycle';
 
@@ -86,8 +86,6 @@ function getRecycleTypeName(itemType: RECYCLE_ITEM_TYPE): string {
         return "文件";
     } else if (itemType == RECYCLE_ITEM_API_COLL) {
         return "接口集合";
-    } else if (itemType == RECYCLE_ITEM_DATA_ANNO) {
-        return "数据标注";
     } else {
         return "";
     }
@@ -454,6 +452,24 @@ function get_remove_from_recycle_simple_content(
     ];
 }
 
+export type ClearFromRecycleEvent = {
+    recycle_item_type_list: number[];
+};
+
+function get_clear_from_recycle_simple_content(
+    ev: PluginEvent,
+    skip_prj_name: boolean,
+    inner: ClearFromRecycleEvent,
+): LinkInfo[] {
+    const tmpTypeNameList: string[] = [];
+    for (const itemType of inner.recycle_item_type_list) {
+        tmpTypeNameList.push(getRecycleTypeName(itemType));
+    }
+    return [
+        new LinkNoneInfo(`${skip_prj_name ? '' : ev.project_name} 从回收站 清空 ${tmpTypeNameList.join(",")}`),
+    ];
+}
+
 export type AllProjectEvent = {
     CreateProjectEvent?: CreateProjectEvent;
     UpdateProjectEvent?: UpdateProjectEvent;
@@ -480,6 +496,7 @@ export type AllProjectEvent = {
     UnwatchEvent?: UnwatchEvent;
     RecoverFromRecycleEvent?: RecoverFromRecycleEvent;
     RemoveFromRecycleEvent?: RemoveFromRecycleEvent;
+    ClearFromRecycleEvent?: ClearFromRecycleEvent;
 };
 
 export function get_project_simple_content(
@@ -543,6 +560,8 @@ export function get_project_simple_content(
         return get_recover_from_recycle_simple_content(ev, skip_prj_name, inner.RecoverFromRecycleEvent);
     } else if (inner.RemoveFromRecycleEvent !== undefined) {
         return get_remove_from_recycle_simple_content(ev, skip_prj_name, inner.RemoveFromRecycleEvent);
+    } else if (inner.ClearFromRecycleEvent !== undefined) {
+        return get_clear_from_recycle_simple_content(ev, skip_prj_name, inner.ClearFromRecycleEvent);
     } else {
         return [new LinkNoneInfo('未知事件')];
     }

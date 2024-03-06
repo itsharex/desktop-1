@@ -9,6 +9,8 @@ const HotkeyHelpInfo = () => {
             <Descriptions.Item label="alt+2">跳转到 项目文档</Descriptions.Item>
             <Descriptions.Item label="alt+3">跳转到 信息面板</Descriptions.Item>
             <Descriptions.Item label="alt+4">跳转到 静态网页</Descriptions.Item>
+            <Descriptions.Item label="alt+5">跳转到 项目文件</Descriptions.Item>
+            <Descriptions.Item label="alt+6">跳转到 接口集合</Descriptions.Item>
             <Descriptions.Item label="alt+9">跳转到 我的工作</Descriptions.Item>
             <Descriptions.Item label="alt+c">打开/关闭 项目沟通</Descriptions.Item>
             <Descriptions.Item label="alt+f">进入/退出 专注模式</Descriptions.Item>

@@ -146,6 +146,18 @@ const EditTestcaseRef = observer((props: WidgetProps) => {
 
     const [showAddModal, setShowAddModal] = useState(false);
 
+    const loadDataSource = async () => {
+        const widgetData = props.initData as WidgetData;
+        if (widgetData.caseIdList.length == 0) {
+            return;
+        }
+        const res = await request(list_case_by_id({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            case_id_list: widgetData.caseIdList,
+        }));
+        setDataSource(res.case_list);
+    };
     const addTestcase = async (caseIdList: string[]) => {
         const testcaseList = dataSource.slice();
         for (const caseId of caseIdList) {
@@ -207,6 +219,10 @@ const EditTestcaseRef = observer((props: WidgetProps) => {
             dataIndex: "create_display_name",
         }
     ];
+
+    useEffect(() => {
+        loadDataSource();
+    }, []);
 
     return (
         <EditorWrap onChange={() => props.removeSelf()}>

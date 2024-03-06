@@ -31,6 +31,7 @@ export type ProjectEvCfg = {
     unwatch: boolean;
     recover_from_recycle: boolean;
     remove_from_recycle: boolean;
+    clear_from_recycle: boolean;
 };
 
 export type ExtEvCfg = {
@@ -116,13 +117,8 @@ export type IdeaEvCfg = {
     set_appraise: boolean;
     cancel_appraise: boolean;
     import_idea: boolean;
+    clear_group: boolean;
 };
-
-export type DataAnnoEvCfg = {
-    add_anno_member: boolean;
-    remove_anno_member: boolean;
-};
-
 
 export type AtomgitEvCfg = {
     push: boolean;
@@ -158,7 +154,6 @@ export type EventCfg = {
     requirement_ev_cfg: RequirementEvCfg;
     code_ev_cfg: CodeEvCfg;
     idea_ev_cfg: IdeaEvCfg;
-    data_anno_ev_cfg: DataAnnoEvCfg;
     atomgit_ev_cfg: AtomgitEvCfg;
     entry_ev_cfg: EntryEvCfg;
     harbor_ev_cfg: HarborEvCfg;
@@ -249,12 +244,7 @@ export function adjust_event_cfg(cfg: EventCfg): EventCfg {
             set_appraise: false,
             cancel_appraise: false,
             import_idea: false,
-        };
-    }
-    if (cfg.data_anno_ev_cfg == undefined || cfg.data_anno_ev_cfg == null) {
-        cfg.data_anno_ev_cfg = {
-            add_anno_member: false,
-            remove_anno_member: false,
+            clear_group: false,
         };
     }
     if (cfg.atomgit_ev_cfg == undefined || cfg.atomgit_ev_cfg == null) {
@@ -345,12 +335,7 @@ export async function list(request: ListRequest): Promise<ListResponse> {
                 set_appraise: false,
                 cancel_appraise: false,
                 import_idea: false,
-            };
-        }
-        if (info.event_cfg.data_anno_ev_cfg == undefined || info.event_cfg.data_anno_ev_cfg == null) {
-            info.event_cfg.data_anno_ev_cfg = {
-                add_anno_member: false,
-                remove_anno_member: false,
+                clear_group: false,
             };
         }
     }

@@ -2,7 +2,7 @@ import React from "react";
 import { observer } from 'mobx-react';
 import { ENTRY_TYPE_BOARD, type EntryOrFolderInfo, type EntryInfo } from "@/api/project_entry";
 import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
-import { Space, Table, Tag } from "antd";
+import { Button, Space, Table, Tag } from "antd";
 import { useHistory } from "react-router-dom";
 import { useStores } from "@/hooks";
 import { ColumnsType } from "antd/lib/table";
@@ -11,7 +11,6 @@ import s from "./Card.module.less";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 import EntryEditCol from "./components/EntryEditCol";
-
 
 const BoardList = () => {
     const history = useHistory();
@@ -37,13 +36,13 @@ const BoardList = () => {
                     }}>
                         <span className={(row.value as EntryInfo).my_watch ? s.isCollect : s.noCollect} />
                     </a>
-                    <span style={{ cursor: "pointer", fontWeight: 600 }} onClick={e => {
+                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontWeight: 600 }} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         entryStore.curEntry = (row.value as EntryInfo);
                         boardStore.reset();
                         history.push(APP_PROJECT_KB_BOARD_PATH);
-                    }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</span>
+                    }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</Button>
                     <EntryEditCol entryInfo={row.value as EntryInfo}/>
                 </Space>
             ),

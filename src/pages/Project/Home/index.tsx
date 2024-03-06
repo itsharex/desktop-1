@@ -6,7 +6,10 @@ import WorkPlanList from "./WorkPlanList";
 import DocList from "./DocList";
 import BoardList from "./BoardList";
 import PagesList from "./PagesList";
-import { MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
+import FileList from "./FileList";
+import ApiCollList from "./ApiCollList";
+import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
+
 
 const HomeIndex = () => {
     const projectStore = useStores('projectStore');
@@ -27,6 +30,12 @@ const HomeIndex = () => {
             )}
             {projectStore.projectHome.homeType == MAIN_CONTENT_PAGES_LIST && (
                 <PagesList />
+            )}
+            {projectStore.projectHome.homeType == MAIN_CONTENT_FILE_LIST && (
+                <FileList />
+            )}
+            {projectStore.projectHome.homeType == MAIN_CONTENT_API_COLL_LIST && (
+                <ApiCollList />
             )}
         </>
     );

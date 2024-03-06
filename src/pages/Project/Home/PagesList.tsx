@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { observer } from 'mobx-react';
 import { ENTRY_TYPE_PAGES, type EntryOrFolderInfo, type EntryInfo } from "@/api/project_entry";
 import EntryListWrap, { PAGE_SIZE } from "./components/EntryListWrap";
-import { Space, Table, Tag } from "antd";
+import { Button, Space, Table, Tag } from "antd";
 import { useStores } from "@/hooks";
 import type { ColumnsType } from "antd/lib/table";
 import UserPhoto from "@/components/Portrait/UserPhoto";
@@ -34,11 +34,11 @@ const PagesList = () => {
                     }}>
                         <span className={(row.value as EntryInfo).my_watch ? s.isCollect : s.noCollect} />
                     </a>
-                    <span style={{ cursor: "pointer", fontWeight: 600 }} onClick={e => {
+                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontWeight: 600 }} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         setEntryInfo(row.value as EntryInfo);
-                    }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</span>
+                    }} title={(row.value as EntryInfo).entry_title}>{(row.value as EntryInfo).entry_title}</Button>
                     <EntryEditCol entryInfo={row.value as EntryInfo}/>
                 </Space>
             ),
