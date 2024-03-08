@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { Button, Form, Input, List, Modal, Select, Table, Tabs, message } from "antd";
-import type { SimpleDevInfo, DevPkgVersion, DevForwardPort, DevEnv, DevExtension } from "@/api/dev_container";
+import type { SimpleDevInfo, DevPkgVersion, DevForwardPort, DevEnv, DevExtension, PackageInfo } from "@/api/dev_container";
 import { list_package, load_simple_dev_info, save_simple_dev_info, list_package_version } from "@/api/dev_container";
 import type { ColumnsType } from 'antd/lib/table';
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
@@ -220,15 +220,15 @@ export interface LaunchRepoModalProps {
 }
 
 const LaunchRepoModal = (props: LaunchRepoModalProps) => {
-    const [pkgNameList, setPkgNameList] = useState<string[]>([]);
+    const [pkgInfoList, setPkgInfoList] = useState<PackageInfo[]>([]);
     const [hasChange, setHasChange] = useState(false);
     const [simpleDevInfo, setSimpleDevInfo] = useState<SimpleDevInfo | null>(null);
 
     const [activeKey, setActiveKey] = useState("pkg");
 
-    const loadPkgNameList = async () => {
+    const loadPkgInfoList = async () => {
         const res = await list_package({});
-        setPkgNameList(res.package_name_list);
+        setPkgInfoList(res.package_list);
     };
 
     const loadSimpleDevInfo = async () => {
@@ -236,6 +236,9 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
         setSimpleDevInfo(res);
     };
 
+    const getPluginUrl = (pkgName: string): string => {
+        return pkgInfoList.find(item => item.name == pkgName)?.name ?? ""
+    }
     const saveAndLaunch = async () => {
         if (simpleDevInfo == null) {
             return;
@@ -276,11 +279,11 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             width: 190,
             render: (_, row: DevPkgVersion) => (
                 <EditSelect editable={true} curValue={row.package}
-                    itemList={pkgNameList.map(item => ({
-                        value: item,
-                        label: item,
+                    itemList={pkgInfoList.map(item => ({
+                        value: item.name,
+                        label: item.name,
                         color: "",
-                    }))} showEditIcon={true}
+                    }))} showEditIcon={true} showSearch={true}
                     onChange={async (value) => {
                         if (simpleDevInfo == null) {
                             return false;
@@ -290,6 +293,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                         console.log(tmpList, index);
                         if (index != -1) {
                             tmpList[index].package = value as string;
+                            tmpList[index].pluginUrl = getPluginUrl(value as string);
                             tmpList[index].version = "";
                             setSimpleDevInfo({ ...simpleDevInfo, pkg_version_list: tmpList });
                             setHasChange(true);
@@ -472,7 +476,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     ];
 
     useEffect(() => {
-        loadPkgNameList();
+        loadPkgInfoList();
         loadSimpleDevInfo();
     }, []);
 
@@ -503,6 +507,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                                             id: uniqId(),
                                             package: "",
                                             version: "",
+                                            pluginUrl: "",
                                         }]
                                     });
                                     setHasChange(true);

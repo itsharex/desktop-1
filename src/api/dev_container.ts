@@ -5,9 +5,15 @@ import { uniqId } from '@/utils/utils';
 
 export const DEV_FILE = ".simple_dev.json";
 
+export type PackageInfo = {
+    name: string;
+    plugin_url: string;
+};
+
 export type DevPkgVersion = {
     id?: string;
     package: string;
+    pluginUrl: string;
     version: string;
 };
 
@@ -43,7 +49,7 @@ export type ListPackageRequest = {};
 export type ListPackageResponse = {
     code: number;
     err_msg: string;
-    package_name_list: string[];
+    package_list: PackageInfo[];
 };
 
 
@@ -132,12 +138,13 @@ export async function save_simple_dev_info(repoPath: string, simpleDevInfo: Simp
         extension_list: [],
     };
     for (const srcInfo of simpleDevInfo.pkg_version_list) {
-        if (srcInfo.package == "" || srcInfo.version == "") {
+        if (srcInfo.package == "" || srcInfo.version == "" || srcInfo.pluginUrl == "") {
             continue;
         }
         const destInfo: DevPkgVersion = {
             package: srcInfo.package,
             version: srcInfo.version,
+            pluginUrl: srcInfo.pluginUrl,
         };
         tmpInfo.pkg_version_list.push(destInfo);
     }

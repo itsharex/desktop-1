@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 export type AdminAddPackageRequest = {
     admin_session_id: string;
     package_name: string;
+    plugin_url: string;
 };
 
 export type AdminAddPackageResponse = {
