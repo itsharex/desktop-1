@@ -8,26 +8,28 @@ import { add_package } from "@/api/dev_container_admin";
 
 export interface AddPkgModalProps {
     onCancel: () => void;
-    onOk: () => void;
+    onOk: (pkgName: string) => void;
 }
 
 
 const AddPkgModal = (props: AddPkgModalProps) => {
     const [pkgName, setPkgName] = useState("");
+    const [pluginUrl, setPluginUrl] = useState("");
 
     const addPkg = async () => {
         const sessionId = await get_admin_session();
         await request(add_package({
             admin_session_id: sessionId,
             package_name: pkgName,
+            plugin_url: pluginUrl,
         }));
         message.info(`增加软件包${pkgName}成功`);
-        props.onOk();
+        props.onOk(pkgName);
     };
 
     return (
         <Modal open title="增加软件包"
-            okText="增加" okButtonProps={{ disabled: pkgName == "" }}
+            okText="增加" okButtonProps={{ disabled: pkgName == "" || pluginUrl == "" }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -38,12 +40,19 @@ const AddPkgModal = (props: AddPkgModalProps) => {
                 e.preventDefault();
                 addPkg();
             }}>
-            <Form>
+            <Form labelCol={{ span: 4 }}>
                 <Form.Item label="软件包名称">
                     <Input value={pkgName} onChange={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         setPkgName(e.target.value.trim());
+                    }} />
+                </Form.Item>
+                <Form.Item label="插件地址">
+                    <Input value={pluginUrl} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setPluginUrl(e.target.value.trim());
                     }} />
                 </Form.Item>
             </Form>
