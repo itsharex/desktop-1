@@ -12,7 +12,6 @@ import { MessageTwoTone } from '@ant-design/icons';
 const Item: React.FC<{ id: string; pathname: string; title: string; badge?: number }> = observer((props) => {
   const history = useHistory();
 
-  const appStore = useStores('appStore');
   const projectStore = useStores('projectStore');
 
   const [showTip, setShowTip] = useState<boolean | undefined>(undefined);
@@ -55,9 +54,8 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
       >
         <Badge
           count={props.badge ?? 0}
-          offset={appStore.focusMode ? [18, -12] : [15, -18]}
-          style={appStore.focusMode ? undefined : { padding: ' 0   3px', height: '16px', lineHeight: '16px' }}
-          dot={appStore.focusMode}
+          offset={ [15, -18]}
+          style={{ padding: ' 0   3px', height: '16px', lineHeight: '16px' }}
         />
       </div>
     </Tooltip>

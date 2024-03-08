@@ -23,7 +23,6 @@ const PAGE_SIZE = 24;
 const ProjectHome = () => {
     const history = useHistory();
 
-    const appStore = useStores("appStore");
     const userStore = useStores("userStore");
     const projectStore = useStores("projectStore");
     const entryStore = useStores("entryStore");
@@ -137,10 +136,7 @@ const ProjectHome = () => {
     };
 
     const calcFolderInfoWidth = () => {
-        let subWidth = 200;
-        if (appStore.focusMode == false) {
-            subWidth += 200;
-        }
+        let subWidth = 400;
         if (projectStore.showChatAndComment) {
             subWidth += 400;
         }

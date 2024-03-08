@@ -43,12 +43,11 @@ const RightFloat = observer(() => {
 });
 
 const BottomNav = () => {
-  const appStore = useStores('appStore');
 
   return (
     <div className={s.topnav}>
       <div className={s.left}>
-        {appStore.focusMode == false && <ProjectTipList />}
+         <ProjectTipList />
       </div>
       <div className={s.right}>
         <RightFloat />

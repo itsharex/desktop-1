@@ -27,7 +27,6 @@ const ContentPanel = (props: ContentPanelProps) => {
     const projectStore = useStores('projectStore');
     const ideaStore = useStores('ideaStore');
     const linkAuxStore = useStores('linkAuxStore');
-    const appStore = useStores('appStore');
 
     const [keywordSearchType, setKeywordSearchType] = useState<KEYWORD_SEARCH_TYPE>(KEYWORD_SEARCH_AND);
     const [titleKeyword, setTitleKeyword] = useState("");
@@ -189,7 +188,7 @@ const ContentPanel = (props: ContentPanelProps) => {
                     }}>正在查看单个知识点，查看全部知识点</Button>
                 )}
             </>
-        } style={{ width: appStore.focusMode == true ? "calc(100vw - 300px)" : "calc(100vw - 500px)" }}>
+        } style={{ width: "calc(100vw - 500px)" }}>
             <div className={s.content_list}>
                 <List dataSource={localStore.ideaList} split={false} renderItem={item => (
                     <List.Item key={item.idea_id}>
