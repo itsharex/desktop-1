@@ -237,7 +237,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     };
 
     const getPluginUrl = (pkgName: string): string => {
-        return pkgInfoList.find(item => item.name == pkgName)?.name ?? ""
+        return pkgInfoList.find(item => item.name == pkgName)?.plugin_url ?? ""
     }
     const saveAndLaunch = async () => {
         if (simpleDevInfo == null) {
