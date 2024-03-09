@@ -23,7 +23,6 @@ pub struct Filter {
 async fn read_file<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    _project_id: String,
     multi: bool,
     filter_name: String,
     extensions: Vec<String>,
@@ -106,7 +105,6 @@ async fn read_file<R: Runtime>(
 async fn write_file<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    project_id: String,
     file_name: String,
     file_data: Vec<u8>,
 ) -> Result<(), String> {

@@ -91,7 +91,6 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
             </div>
             {item.project_id == projectStore.curProjectId && (
                 <div>
-
                     {projectStore.curProject?.setting.main_content != MAIN_CONTENT_CONTENT_LIST && (
                         <div className={`${cls.project_sub_menu} ${projectStore.projectHome.homeType == MAIN_CONTENT_CONTENT_LIST ? cls.active_sub_menu : ""}`}
                             onClick={e => {

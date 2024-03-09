@@ -150,7 +150,6 @@ const AlarmList: React.FC<AlarmListProps> = (props) => {
 }
 
 const AlarmHeader = () => {
-    const appStore = useStores("appStore");
     const projectStore = useStores("projectStore");
 
     return (
@@ -159,7 +158,7 @@ const AlarmHeader = () => {
                 <Popover open={projectStore.curProject?.project_status.alarm_hit_count == 0 ? false : undefined} trigger="hover"
                     mouseLeaveDelay={1}
                     content={<AlarmList includeHit={true} includeAlert={false} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
-                    <Badge count={projectStore.curProject?.project_status.alarm_hit_count} size="small" dot={appStore.focusMode}>
+                    <Badge count={projectStore.curProject?.project_status.alarm_hit_count} size="small">
                         <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_hit_count == 0 ? "#ccc" : ["#aaa", "yellow"]} title="风险提示" />
                     </Badge>
                 </Popover>
@@ -168,7 +167,7 @@ const AlarmHeader = () => {
                 <Popover open={projectStore.curProject?.project_status.alarm_alert_count == 0 ? false : undefined} trigger="hover"
                     mouseLeaveDelay={1}
                     content={<AlarmList includeHit={false} includeAlert={true} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
-                    <Badge count={projectStore.curProject?.project_status.alarm_alert_count} size="small" dot={appStore.focusMode}>
+                    <Badge count={projectStore.curProject?.project_status.alarm_alert_count} size="small">
                         <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_alert_count == 0 ? "#ccc" : ["#aaa", "red"]} title="风险警告" />
                     </Badge>
                 </Popover>

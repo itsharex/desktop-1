@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Badge, Divider, Switch, Tooltip } from 'antd';
+import { Badge, Divider, Tooltip } from 'antd';
 
 import style from './index.module.less';
 import { useStores } from '@/hooks';
 import { observer } from 'mobx-react';
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_WORK_PLAN_PATH } from '@/utils/constant';
-import { MessageTwoTone } from '@ant-design/icons';
 
 
 const Item: React.FC<{ id: string; pathname: string; title: string; badge?: number }> = observer((props) => {
   const history = useHistory();
 
-  const appStore = useStores('appStore');
   const projectStore = useStores('projectStore');
 
   const [showTip, setShowTip] = useState<boolean | undefined>(undefined);
@@ -55,9 +53,8 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
       >
         <Badge
           count={props.badge ?? 0}
-          offset={appStore.focusMode ? [18, -12] : [15, -18]}
-          style={appStore.focusMode ? undefined : { padding: ' 0   3px', height: '16px', lineHeight: '16px' }}
-          dot={appStore.focusMode}
+          offset={ [15, -18]}
+          style={{ padding: ' 0   3px', height: '16px', lineHeight: '16px' }}
         />
       </div>
     </Tooltip>
@@ -65,37 +62,12 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
 });
 
 const Toolbar: React.FC = observer(() => {
-  const history = useHistory();
   const location = useLocation();
   const pathname = location.pathname;
   const projectStore = useStores('projectStore');
-  const linkAuxStore = useStores('linkAuxStore');
 
   return (
     <div className={style.toolbar}>
-      <Tooltip title={<span>项目沟通</span>}
-        placement="left"
-        color="orange"
-        overlayInnerStyle={{ color: 'black' }}
-      >
-        <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (!projectStore.showChatAndComment) {
-            linkAuxStore.pickupToolbar(history);
-          }
-          projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
-        }}>
-          <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0) + (projectStore.curProject?.project_status.bulletin_count ?? 0)} style={{ padding: '0 3px', height: '16px', lineHeight: '16px' }}>
-            <MessageTwoTone style={{ fontSize: "24px" }} twoToneColor={projectStore.showChatAndComment ? ["white", "orange"] : ["white", "#929CB0"]} />
-          </Badge>
-          <br />
-          <Switch size='small' checked={projectStore.showChatAndComment} />
-        </div>
-      </Tooltip>
-
-      <Divider />
-
       <Item
         id="idea"
         pathname={pathname}

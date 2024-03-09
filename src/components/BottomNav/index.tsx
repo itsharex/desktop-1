@@ -1,14 +1,15 @@
-import { Button, Tooltip } from 'antd';
+import { Badge, Button, Space, Switch, Tooltip } from 'antd';
 import React from 'react';
 import s from './index.module.less';
 import {
   PROJECT_SETTING_TAB
 } from '@/utils/constant';
 import { useStores } from '@/hooks';
-import { SettingOutlined, UserAddOutlined } from '@ant-design/icons';
+import { MessageTwoTone, SettingOutlined, UserAddOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react';
 import AlarmHeader from './AlarmHeader';
 import ProjectTipList from '../Header/ProjectTipList';
+import { useHistory } from 'react-router-dom';
 
 const RightFloat = observer(() => {
   const projectStore = useStores('projectStore');
@@ -43,12 +44,40 @@ const RightFloat = observer(() => {
 });
 
 const BottomNav = () => {
-  const appStore = useStores('appStore');
+  const history = useHistory();
+
+  const projectStore = useStores('projectStore');
+  const linkAuxStore = useStores('linkAuxStore');
 
   return (
     <div className={s.topnav}>
+      <div style={{ marginRight: "20px" }}>
+        <Tooltip title={<span>项目沟通</span>}
+          placement="top"
+          color="orange"
+          overlayInnerStyle={{ color: 'black' }}
+        >
+          <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!projectStore.showChatAndComment) {
+              linkAuxStore.pickupToolbar(history);
+            }
+            projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
+          }}>
+            <Space>
+              <Switch size='small' checked={projectStore.showChatAndComment} />
+              <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0) + (projectStore.curProject?.project_status.bulletin_count ?? 0)}
+                style={{ padding: '0 0px', height: '16px', lineHeight: '16px' }} offset={[8,28]}>
+                <MessageTwoTone style={{ fontSize: "24px", marginTop: "16px" }} twoToneColor={projectStore.showChatAndComment ? ["white", "orange"] : ["white", "#929CB0"]} />
+              </Badge>
+
+            </Space>
+          </div>
+        </Tooltip>
+      </div>
       <div className={s.left}>
-        {appStore.focusMode == false && <ProjectTipList />}
+        <ProjectTipList />
       </div>
       <div className={s.right}>
         <RightFloat />

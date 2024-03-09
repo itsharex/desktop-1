@@ -16,6 +16,7 @@ export interface EditSelectProps {
     showEditIcon: boolean;
     allowClear: boolean;
     width?: string;
+    showSearch?: boolean;
 }
 
 export const EditSelect: React.FC<EditSelectProps> = (props) => {
@@ -55,6 +56,7 @@ export const EditSelect: React.FC<EditSelectProps> = (props) => {
                 allowClear={props.allowClear}
                 open={true}
                 showArrow={false}
+                showSearch={props.showSearch ?? false}
                 style={{ width: props.width ?? "80px" }}
                 autoFocus
                 defaultValue={curValue}

@@ -44,7 +44,7 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   return (
     <HotkeysProvider>
       <Layout className={style.basicLayout}>
-        {appStore.focusMode == false && <LeftMenu />}
+        <LeftMenu />
         <Layout>
           <Header />
           <ErrorBoundary>
