@@ -5,9 +5,9 @@ import UnreadCommentList from "./UnreadCommentList";
 import { useStores } from "@/hooks";
 import ChatGroupList from "./ChatGroupList";
 import Button from "@/components/Button";
-import { DeleteOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, UserAddOutlined, UserSwitchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, LogoutOutlined, MoreOutlined, PlusOutlined, UserAddOutlined } from "@ant-design/icons";
 import SelectGroupMemberModal from "./components/SelectGroupMemberModal";
-import { create_group, update_group, update_group_member, leave_group, remove_group } from "@/api/project_chat";
+import { create_group, leave_group, remove_group } from "@/api/project_chat";
 import { request } from "@/utils/request";
 import ChatMsgList from "./ChatMsgList";
 import InviteListModal from "./components/InviteListModal";
@@ -22,7 +22,6 @@ const ChatAndCommentPanel = () => {
     const appStore = useStores('appStore');
 
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
-    const [showUpdateGroupModal, setShowUpdateGroupModal] = useState(false);
     const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
     const [showRemoveGroupModal, setShowRemoveGroupModal] = useState(false);
     const [showInviteListModal, setShowInviteListModal] = useState(false);
@@ -40,26 +39,6 @@ const ChatAndCommentPanel = () => {
         projectStore.curProject?.chat_store.onUpdateMember(res.chat_group_id);
         message.info("创建成果");
     };
-
-    const updateChatGroup = async (newTitle: string, newUserIdList: string[]) => {
-        if (newTitle != projectStore.curProject?.chat_store.curGroup?.groupInfo.title) {
-            await request(update_group({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                chat_group_id: projectStore.curProject?.chat_store.curGroupId ?? "",
-                title: newTitle,
-            }));
-            projectStore.curProject?.chat_store.onUpdateGroup(projectStore.curProject?.chat_store.curGroupId ?? "");
-        }
-        await request(update_group_member({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            chat_group_id: projectStore.curProject?.chat_store.curGroupId ?? "",
-            member_user_id_list: newUserIdList,
-        }));
-        projectStore.curProject?.chat_store.onUpdateMember(projectStore.curProject?.chat_store.curGroupId ?? "");
-        message.info("更新成功");
-    }
 
     const leaveGroup = async () => {
         const groupId = projectStore.curProject?.chat_store.curGroupId ?? "";
@@ -168,14 +147,6 @@ const ChatAndCommentPanel = () => {
                                 )}
                                 {projectStore.curProjectId != "" && projectStore.curProject?.chat_store.curGroupId != "" && (
                                     <Space>
-                                        {(projectStore.curProject?.chat_store.curGroup?.groupInfo.user_perm.can_update ?? false) == true && (
-                                            <Button type="link" icon={<UserSwitchOutlined />} style={{ minWidth: 0, padding: "0px 0px" }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    setShowUpdateGroupModal(true);
-                                                }} />
-                                        )}
                                         {projectStore.curProject?.chat_store.curGroupId != projectStore.curProject?.default_chat_group_id && (
                                             <Popover trigger="click" placement="left" content={
                                                 <Space direction="vertical">
@@ -244,11 +215,6 @@ const ChatAndCommentPanel = () => {
             {showCreateGroupModal == true && (
                 <SelectGroupMemberModal onCancel={() => setShowCreateGroupModal(false)} onOk={(newTitle, newUserIdList) => {
                     createChatGroup(newTitle, newUserIdList).then(() => setShowCreateGroupModal(false));
-                }} />
-            )}
-            {showUpdateGroupModal == true && (
-                <SelectGroupMemberModal onCancel={() => setShowUpdateGroupModal(false)} onOk={(newTitle, newUserIdList) => {
-                    updateChatGroup(newTitle, newUserIdList).then(() => setShowUpdateGroupModal(false));
                 }} />
             )}
             {showLeaveGroupModal == true && projectStore.curProject != undefined && projectStore.curProject.chat_store.curGroup != undefined && (

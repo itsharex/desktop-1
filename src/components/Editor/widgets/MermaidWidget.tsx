@@ -8,7 +8,7 @@ import EditorWrap from '../components/EditorWrap';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import style from './MermaidWidget.module.less';
 import { QuestionCircleOutlined } from '@ant-design/icons/lib/icons';
-import { classDemo, erDemo, flowDemo, ganttDemo, gitDemo, journeyDemo, pieDemo, seqDemo, stateDemo } from '@/utils/mermaid';
+import { blockDemo, c4Demo, classDemo, erDemo, flowDemo, ganttDemo, gitDemo, journeyDemo, mindMapDemo, pieDemo, quadrantDemo, requirementDemo, seqDemo, stateDemo, timelineDemo, xychartDemo, zenumlDemo } from '@/utils/mermaid';
 import { observer } from 'mobx-react';
 
 //为了防止编辑器出错，WidgetData结构必须保存稳定
@@ -66,6 +66,38 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
         value = gitDemo;
         break;
       }
+      case 'quadrant': {
+        value = quadrantDemo;
+        break;
+      }
+      case 'requirement': {
+        value = requirementDemo;
+        break;
+      }
+      case 'c4': {
+        value = c4Demo;
+        break;
+      }
+      case 'mindMap': {
+        value = mindMapDemo;
+        break;
+      }
+      case 'timeline': {
+        value = timelineDemo;
+        break;
+      }
+      case 'zenuml': {
+        value = zenumlDemo;
+        break;
+      }
+      case 'xychart': {
+        value = xychartDemo;
+        break;
+      }
+      case 'block': {
+        value = blockDemo;
+        break;
+      }
       default:
         value = '';
     }
@@ -73,22 +105,29 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
     props.writeData({ spec: value });
   };
 
+  const preview = async () => {
+    if (graphRef.current == null) {
+      return;
+    }
+    try {
+      const ok = await mermaid.parse(spec);
+      if (!ok) {
+        graphRef.current.innerHTML = '格式错误';
+        return;
+      }
+      const { svg, bindFunctions } = await mermaid.render('__inEditor', spec);
+      graphRef.current.innerHTML = svg;
+      bindFunctions?.(graphRef.current);
+    } catch (e) {
+      if (graphRef.current != null) {
+        graphRef.current.innerHTML = '格式错误';
+      }
+    }
+  };
+
   useEffect(() => {
     if (activateKey == '2') {
-      try {
-        mermaid.parse(spec);
-        mermaid.render('__inEditor', spec, (svgCode) => {
-          setTimeout(() => {
-            if (graphRef.current != null) {
-              graphRef.current.innerHTML = svgCode;
-            }
-          }, 200);
-        });
-      } catch (e) {
-        if (graphRef.current != null) {
-          graphRef.current.innerHTML = '格式错误';
-        }
-      }
+      setTimeout(() => preview(), 300);
     }
   }, [spec, activateKey]);
 
@@ -139,6 +178,30 @@ const EditMermaid: React.FC<WidgetProps> = observer((props) => {
                   <Select.Option key="git" value="git">
                     GIT历史
                   </Select.Option>
+                  <Select.Option key="quadrant" value="quadrant">
+                    象限图
+                  </Select.Option>
+                  <Select.Option key="requirement" value="requirement">
+                    需求图
+                  </Select.Option>
+                  <Select.Option key="c4" value="c4">
+                    C4图
+                  </Select.Option>
+                  <Select.Option key="mindMap" value="mindMap">
+                    思维导图
+                  </Select.Option>
+                  <Select.Option key="timeline" value="timeline">
+                    时间轴
+                  </Select.Option>
+                  <Select.Option key="zenuml" value="zenuml">
+                    ZenUML
+                  </Select.Option>
+                  <Select.Option key="xychart" value="xychart">
+                    柱状图
+                  </Select.Option>
+                  <Select.Option key="block" value="block">
+                    框图
+                  </Select.Option>
                 </Select>
                 <a href="https://mermaid-js.github.io/mermaid/#/" target="_blank" rel="noreferrer"><QuestionCircleOutlined style={{ marginLeft: "10px" }} /></a>
               </>
@@ -174,19 +237,28 @@ const ViewMermaid: React.FC<WidgetProps> = (props) => {
   const graphRef: React.MutableRefObject<HTMLDivElement | null> = useRef(null);
   const [renderId] = useState('mermaid' + uniqId());
 
-  useEffect(() => {
+  const showView = async () => {
+    if (graphRef.current == null) {
+      return;
+    }
     try {
-      mermaid.parse(data.spec);
-      mermaid.render(renderId, data.spec, (svgCode) => {
-        if (graphRef.current != null) {
-          graphRef.current.innerHTML = svgCode;
-        }
-      });
+      const ok = await mermaid.parse(data.spec);
+      if (!ok) {
+        graphRef.current.innerHTML = '格式错误';
+        return;
+      }
+      const { svg, bindFunctions } = await mermaid.render(renderId, data.spec);
+      graphRef.current.innerHTML = svg;
+      bindFunctions?.(graphRef.current);
     } catch (e) {
       if (graphRef.current != null) {
         graphRef.current.innerHTML = '格式错误';
       }
     }
+  };
+
+  useEffect(() => {
+    setTimeout(() => showView(), 300);
   });
 
   return (

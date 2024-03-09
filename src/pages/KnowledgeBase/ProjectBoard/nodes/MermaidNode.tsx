@@ -7,7 +7,7 @@ import { useStores } from "@/hooks";
 import { Empty, Modal, Select, Tabs } from "antd";
 import mermaid from 'mermaid';
 import { uniqId } from "@/utils/utils";
-import { classDemo, erDemo, flowDemo, ganttDemo, gitDemo, journeyDemo, pieDemo, seqDemo, stateDemo } from '@/utils/mermaid';
+import { blockDemo, c4Demo, classDemo, erDemo, flowDemo, ganttDemo, gitDemo, journeyDemo, mindMapDemo, pieDemo, quadrantDemo, requirementDemo, seqDemo, stateDemo, timelineDemo, xychartDemo, zenumlDemo } from '@/utils/mermaid';
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { request } from "@/utils/request";
@@ -69,6 +69,38 @@ const EditMermaidModal = (props: EditMermaidModalProps) => {
                 value = gitDemo;
                 break;
             }
+            case 'quadrant': {
+                value = quadrantDemo;
+                break;
+            }
+            case 'requirement': {
+                value = requirementDemo;
+                break;
+            }
+            case 'c4': {
+                value = c4Demo;
+                break;
+            }
+            case 'mindMap': {
+                value = mindMapDemo;
+                break;
+            }
+            case 'timeline': {
+                value = timelineDemo;
+                break;
+            }
+            case 'zenuml': {
+                value = zenumlDemo;
+                break;
+            }
+            case 'xychart': {
+                value = xychartDemo;
+                break;
+            }
+            case 'block': {
+                value = blockDemo;
+                break;
+            }
             default:
                 value = '';
         }
@@ -92,22 +124,29 @@ const EditMermaidModal = (props: EditMermaidModalProps) => {
         props.onClose();
     };
 
+    const showView = async () => {
+        if (graphRef.current == null) {
+            return;
+        }
+        try {
+            const ok = await mermaid.parse(data);
+            if (!ok) {
+                graphRef.current.innerHTML = '格式错误';
+                return;
+            }
+            const { svg, bindFunctions } = await mermaid.render("__inEditor", data);
+            graphRef.current.innerHTML = svg;
+            bindFunctions?.(graphRef.current);
+        } catch (e) {
+            if (graphRef.current != null) {
+                graphRef.current.innerHTML = '格式错误';
+            }
+        }
+    };
+
     useEffect(() => {
         if (activeKey == 'preview') {
-            try {
-                mermaid.parse(data);
-                mermaid.render('__inEditor', data, (svgCode) => {
-                    setTimeout(() => {
-                        if (graphRef.current != null) {
-                            graphRef.current.innerHTML = svgCode;
-                        }
-                    }, 200);
-                });
-            } catch (e) {
-                if (graphRef.current != null) {
-                    graphRef.current.innerHTML = '格式错误';
-                }
-            }
+            setTimeout(() => showView(), 300);
         }
     }, [data, activeKey]);
 
@@ -187,6 +226,30 @@ const EditMermaidModal = (props: EditMermaidModalProps) => {
                             <Select.Option key="git" value="git">
                                 GIT历史
                             </Select.Option>
+                            <Select.Option key="quadrant" value="quadrant">
+                                象限图
+                            </Select.Option>
+                            <Select.Option key="requirement" value="requirement">
+                                需求图
+                            </Select.Option>
+                            <Select.Option key="c4" value="c4">
+                                C4图
+                            </Select.Option>
+                            <Select.Option key="mindMap" value="mindMap">
+                                思维导图
+                            </Select.Option>
+                            <Select.Option key="timeline" value="timeline">
+                                时间轴
+                            </Select.Option>
+                            <Select.Option key="zenuml" value="zenuml">
+                                ZenUML
+                            </Select.Option>
+                            <Select.Option key="xychart" value="xychart">
+                                柱状图
+                            </Select.Option>
+                            <Select.Option key="block" value="block">
+                                框图
+                            </Select.Option>
                         </Select>
                         <a href="https://mermaid-js.github.io/mermaid/#/" target="_blank" rel="noreferrer"><QuestionCircleOutlined style={{ marginLeft: "10px" }} /></a>
                     </>
@@ -233,23 +296,31 @@ const MermaidNode = (props: NodeProps<BoardNode>) => {
     const [showModal, setShowModal] = useState(false);
     const [renderId] = useState('mermaid' + uniqId());
 
+    const showView = async () => {
+        if (graphRef.current == null) {
+          return;
+        }
+        try {
+          const ok = await mermaid.parse(props.data.node_data.NodeMermaidData?.data ?? "");
+          if (!ok) {
+            graphRef.current.innerHTML = '格式错误';
+            return;
+          }
+          const { svg, bindFunctions } = await mermaid.render(renderId, props.data.node_data.NodeMermaidData?.data ?? "");
+          graphRef.current.innerHTML = svg;
+          bindFunctions?.(graphRef.current);
+        } catch (e) {
+          if (graphRef.current != null) {
+            graphRef.current.innerHTML = '格式错误';
+          }
+        }
+      };
 
     useEffect(() => {
         if (graphRef.current == null || props.data.node_data.NodeMermaidData?.data == "") {
             return;
         }
-        try {
-            mermaid.parse(props.data.node_data.NodeMermaidData?.data ?? "");
-            mermaid.render(renderId, props.data.node_data.NodeMermaidData?.data ?? "", (svgCode) => {
-                if (graphRef.current != null) {
-                    graphRef.current.innerHTML = svgCode;
-                }
-            });
-        } catch (e) {
-            if (graphRef.current != null) {
-                graphRef.current.innerHTML = '格式错误';
-            }
-        }
+        showView();
     }, [props.data.node_data.NodeMermaidData?.data, graphRef.current]);
 
     return (

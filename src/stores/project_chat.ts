@@ -197,6 +197,7 @@ export default class ProjectChatStore {
             }
             tmpList.push(newGroup);
         } else {
+            newGroup.lastMsg = tmpList[index].lastMsg;
             tmpList[index] = newGroup;
         }
         tmpList = tmpList.sort((a, b) => b.sortValue - a.sortValue);

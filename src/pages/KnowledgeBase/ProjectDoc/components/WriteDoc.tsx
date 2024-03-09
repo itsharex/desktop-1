@@ -45,12 +45,9 @@ const WriteDocInner = observer((props: WriteDocInnerProps) => {
   };
 
   const calcWidth = () => {
-    let subWidth = 60;
+    let subWidth = 260;
     if (projectStore.showChatAndComment) {
       subWidth += 400;
-    }
-    if (appStore.focusMode == false) {
-      subWidth += 200;
     }
     return `calc(100vw - ${subWidth}px)`;
   };

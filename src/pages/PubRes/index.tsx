@@ -32,7 +32,6 @@ const PubRes = () => {
 
     useMemo(() => {
         projectStore.setCurProjectId('');
-        appStore.focusMode = false;
     }, []);
 
     return (

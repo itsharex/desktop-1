@@ -15,7 +15,6 @@ import ListModeContent from "./ListModeContent";
 const TestcaseList = () => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
-    const appStore = useStores('appStore');
 
     const [activeKey, setActiveKey] = useState<"folder" | "list">("folder");
     const [curFolderId, setCurFolderId] = useState(""); //只对目录模式有效
@@ -26,10 +25,7 @@ const TestcaseList = () => {
     const [filterMyWatch, setFilterMyWatch] = useState(false);
 
     const calcFolderInfoWidth = () => {
-        let subWidth = 260;
-        if (appStore.focusMode == false) {
-            subWidth += 200;
-        }
+        let subWidth = 460;
         if (projectStore.showChatAndComment) {
             subWidth += 400;
         }

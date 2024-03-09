@@ -384,9 +384,6 @@ class NoticeStore {
   private async processShortNoteEvent(ev: ShortNoteEvent) {
     if (ev.shortNoteType == SHORT_NOTE_TASK) {
       if (ev.shortNoteModeType == SHORT_NOTE_MODE_DETAIL) {
-        if (this.rootStore.appStore.focusMode && ev.projectId != this.rootStore.projectStore.curProjectId) {
-          return;
-        }
         this.rootStore.linkAuxStore.goToLink(new LinkTaskInfo("", ev.projectId, ev.targetId), this.history);
       } else if (ev.shortNoteModeType == SHORT_NOTE_MODE_SHOW) {
         const res = await request(get_issue(this.rootStore.userStore.sessionId, ev.projectId, ev.targetId));
@@ -399,9 +396,6 @@ class NoticeStore {
       }
     } else if (ev.shortNoteType == SHORT_NOTE_BUG) {
       if (ev.shortNoteModeType == SHORT_NOTE_MODE_DETAIL) {
-        if (this.rootStore.appStore.focusMode && ev.projectId != this.rootStore.projectStore.curProjectId) {
-          return;
-        }
         this.rootStore.linkAuxStore.goToLink(new LinkBugInfo("", ev.projectId, ev.targetId), this.history);
       } else if (ev.shortNoteModeType == SHORT_NOTE_MODE_SHOW) {
         const res = await request(get_issue(this.rootStore.userStore.sessionId, ev.projectId, ev.targetId));

@@ -79,19 +79,6 @@ class AppStore {
     });
   }
 
-  //专注模式
-  private _focusMode = false;
-
-  get focusMode(): boolean {
-    return this._focusMode;
-  }
-
-  set focusMode(val: boolean) {
-    runInAction(() => {
-      this._focusMode = val;
-    });
-  }
-
   //离开编辑状态提示
   private _inEdit = false;
   private _checkLeave = false;
