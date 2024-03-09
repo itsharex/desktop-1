@@ -42,7 +42,6 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
                 <div style={{ flex: 1, marginRight: "60px" }}>
                     {renderRoutes(route.routes)}
                 </div>
-                {projectStore.showChatAndComment == false && <div style={{ width: "60px" }} />}
 
                 {projectStore.codeCommentThreadId != "" && (
                     <CodeCommentThreadModal threadId={projectStore.codeCommentThreadId} commentId={projectStore.codeCommentId} />

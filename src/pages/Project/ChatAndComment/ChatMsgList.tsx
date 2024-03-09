@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { observer } from 'mobx-react';
-import { Button, Card, Popover, Space } from "antd";
+import { Button, Card, Popover, Space, message } from "antd";
 import { useStores } from "@/hooks";
-import { DoubleLeftOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { DoubleLeftOutlined, InfoCircleOutlined, UserSwitchOutlined } from "@ant-design/icons";
 import { get_content_text, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
-import { LIST_MSG_AFTER, LIST_MSG_BEFORE, send_msg, clear_unread } from "@/api/project_chat";
+import { LIST_MSG_AFTER, LIST_MSG_BEFORE, send_msg, clear_unread, update_group, update_group_member } from "@/api/project_chat";
 import { request } from "@/utils/request";
 import ChatMsgItem from "./components/ChatMsgItem";
 import GroupMemberList from "./components/GroupMemberList";
+import SelectGroupMemberModal from "./components/SelectGroupMemberModal";
 
 const ChatMsgList = () => {
     const userStore = useStores("userStore");
@@ -17,6 +18,7 @@ const ChatMsgList = () => {
     const msgListDiv = useRef<HTMLDivElement>(null);
     const [hasContent, setHasContent] = useState(false);
     const [hover, setHover] = useState(false);
+    const [showUpdateGroupModal, setShowUpdateGroupModal] = useState(false);
 
     const { editor, editorRef } = useCommonEditor({
         content: "",
@@ -76,6 +78,26 @@ const ChatMsgList = () => {
         }));
         await projectStore.curProject?.chat_store.onUpdateGroup(projectStore.curProject?.chat_store.curGroupId ?? "");
     };
+
+    const updateChatGroup = async (newTitle: string, newUserIdList: string[]) => {
+        if (newTitle != projectStore.curProject?.chat_store.curGroup?.groupInfo.title) {
+            await request(update_group({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                chat_group_id: projectStore.curProject?.chat_store.curGroupId ?? "",
+                title: newTitle,
+            }));
+            projectStore.curProject?.chat_store.onUpdateGroup(projectStore.curProject?.chat_store.curGroupId ?? "");
+        }
+        await request(update_group_member({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            chat_group_id: projectStore.curProject?.chat_store.curGroupId ?? "",
+            member_user_id_list: newUserIdList,
+        }));
+        projectStore.curProject?.chat_store.onUpdateMember(projectStore.curProject?.chat_store.curGroupId ?? "");
+        message.info("更新成功");
+    }
 
     useEffect(() => {
         if (msgListDiv.current == null) {
@@ -145,16 +167,26 @@ const ChatMsgList = () => {
                     if (projectStore.curProject !== undefined) {
                         projectStore.curProject.chat_store.curGroupId = "";
                     }
-                }} style={{ minWidth: 0, padding: "0px 0px" }} title="返回"/>
+                }} style={{ minWidth: 0, padding: "0px 0px" }} title="返回" />
                 <span style={{ fontSize: "16px", fontWeight: 600 }}>{projectStore.curProject?.chat_store.curGroup?.groupInfo.title ?? ""}</span>
             </Space>
         }
             headStyle={{ padding: "0px 0px" }} bordered={false}
             bodyStyle={{ height: "calc(100vh - 185px)", padding: "0px 0px", display: "flex", flexDirection: "column" }}
             extra={
-                <Popover trigger="hover" placement="bottomLeft" content={<GroupMemberList chatGroupId={projectStore.curProject?.chat_store.curGroupId ?? ""} />}>
-                    <span style={{ cursor: "default" }}><InfoCircleOutlined />&nbsp;{projectStore.curProject?.chat_store.curGroup?.memberList.length ?? 0}人&nbsp;&nbsp;</span>
-                </Popover>
+                <Space>
+                    {(projectStore.curProject?.chat_store.curGroup?.groupInfo.user_perm.can_update ?? false) == true && (
+                        <Button type="link" icon={<UserSwitchOutlined style={{fontSize:"20px"}}/>} style={{ minWidth: 0, padding: "0px 0px" }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowUpdateGroupModal(true);
+                            }} />
+                    )}
+                    <Popover trigger="hover" placement="bottomLeft" content={<GroupMemberList chatGroupId={projectStore.curProject?.chat_store.curGroupId ?? ""} />}>
+                        <span style={{ cursor: "default" }}><InfoCircleOutlined />&nbsp;{projectStore.curProject?.chat_store.curGroup?.memberList.length ?? 0}人&nbsp;&nbsp;</span>
+                    </Popover>
+                </Space>
             }>
             <div style={{ flex: 1, overflowY: "auto" }} ref={msgListDiv} onScroll={() => processScroll()}
                 onMouseEnter={e => {
@@ -183,6 +215,11 @@ const ChatMsgList = () => {
                         sendMsg();
                     }}>发送</Button>
             </div>
+            {showUpdateGroupModal == true && (
+                <SelectGroupMemberModal onCancel={() => setShowUpdateGroupModal(false)} onOk={(newTitle, newUserIdList) => {
+                    updateChatGroup(newTitle, newUserIdList).then(() => setShowUpdateGroupModal(false));
+                }} />
+            )}
         </Card>
     );
 };
