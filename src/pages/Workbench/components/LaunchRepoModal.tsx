@@ -206,7 +206,7 @@ const PkgVersionItem = (props: PkgVersionItemProps) => {
             value: item,
             label: item,
             color: "black",
-        }))} showEditIcon={true}
+        }))} showEditIcon={true} showSearch={true}
             allowClear={false} onChange={async value => {
                 props.onChange(value as string);
                 return true;

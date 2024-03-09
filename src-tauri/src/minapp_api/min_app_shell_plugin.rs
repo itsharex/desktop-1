@@ -12,7 +12,6 @@ use tauri::{
 async fn open_browser<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    project_id: String,
     url: String,
 ) -> Result<(), String> {
     //检查权限
