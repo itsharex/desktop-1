@@ -31,16 +31,17 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
     return (
         <ErrorBoundary>
             <div className={style.projectLayout}>
-                <div style={{ flex: 1 }}>
-                    {renderRoutes(route.routes)}
-                </div>
                 {projectStore.showChatAndComment && (
-                    <div style={{ width: "400px", marginRight: "60px", borderLeft: "1px solid #e4e4e8" }}>
+                    <div style={{ width: "400px", borderLeft: "1px solid #e4e4e8" }}>
                         <div style={{ width: "390px", backgroundColor: "white", margin: "5px 5px", height: "calc(100vh - 96px)", borderRadius: "10px" }}>
                             <ChatAndCommentPanel />
                         </div>
                     </div>
                 )}
+
+                <div style={{ flex: 1, marginRight: "60px" }}>
+                    {renderRoutes(route.routes)}
+                </div>
                 {projectStore.showChatAndComment == false && <div style={{ width: "60px" }} />}
 
                 {projectStore.codeCommentThreadId != "" && (
