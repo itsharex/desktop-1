@@ -25,7 +25,7 @@ const TestcaseList = () => {
     const [filterMyWatch, setFilterMyWatch] = useState(false);
 
     const calcFolderInfoWidth = () => {
-        let subWidth = 460;
+        let subWidth = 660;
         if (projectStore.showChatAndComment) {
             subWidth += 400;
         }

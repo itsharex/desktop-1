@@ -153,7 +153,7 @@ const IdeaPage = () => {
                     ideaStore.curIdeaId = "";
                 }} onEdit={onEdit}
                     tabBarStyle={{ width: "160px" }}
-                    style={{ height: "calc(100vh - 170px)", overflowY: "scroll" }}
+                    style={{ height: "calc(100vh - 150px)", overflowY: "scroll" }}
                     items={calcTabItems()} tabPosition="left" addIcon={
                         <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} icon={<PlusOutlined />}>创建分组</Button>
                     } />
