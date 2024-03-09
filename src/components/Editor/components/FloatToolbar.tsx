@@ -46,6 +46,7 @@ const LinkBtn = observer(() => {
           showBoard={projectStore.curProjectId != ""}
           showSprit={projectStore.curProjectId != ""}
           showApiColl={projectStore.curProjectId != ""}
+          showIdea={projectStore.curProjectId != ""}
           showExterne={true}
           onOk={(link) => {
             setShowModal(false);

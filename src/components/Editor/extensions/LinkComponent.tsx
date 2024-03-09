@@ -12,6 +12,7 @@ import type {
   LinkBoardInfo,
   LinkApiCollInfo,
   LinkTestCaseInfo,
+  LinkIdeaPageInfo,
 } from '@/stores/linkAux';
 import { LINK_TARGET_TYPE } from '@/stores/linkAux';
 import { useStores } from '@/hooks';
@@ -24,6 +25,7 @@ import { get_requirement } from '@/api/project_requirement';
 import { get_session } from '@/api/user';
 import { get as get_entry } from "@/api/project_entry";
 import { get_case } from "@/api/project_testcase";
+import { get_idea } from "@/api/project_idea";
 
 const Link: React.FC<{
   link: LinkInfo;
@@ -132,6 +134,20 @@ const Link: React.FC<{
       if (res) {
         setTitle('接口集合:' + res.entry.entry_title);
       }
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_IDEA_PAGE) {
+      setTitle('知识点:' + link.linkContent);
+      const ideaLink = link as unknown as LinkIdeaPageInfo;
+      const res = await request(
+        get_idea({
+          session_id: sessionId,
+          project_id: ideaLink.projectId,
+          idea_id: ideaLink.ideaId,
+        })
+      );
+      if (res) {
+        setTitle('知识点:' + res.idea.basic_info.title);
+      }
+
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_EXTERNE) {
       const externLink = link as unknown as LinkExterneInfo;
       setTitle('外部链接:' + externLink.destUrl);

@@ -6,7 +6,7 @@ import { get as get_sprit } from "@/api/project_sprit";
 import type { SpritInfo } from "@/api/project_sprit";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
-import { Button, Card,  Dropdown, Form, Popover, Select, Space, Tabs } from 'antd';
+import { Button, Card, Dropdown, Form, Popover, Select, Space, Tabs } from 'antd';
 import IssuePanel from "./components/IssuePanel";
 import StatPanel from "./components/StatPanel";
 import GanttPanel from "./components/GanttPanel";
@@ -295,6 +295,8 @@ const SpritDetail = () => {
                             setSpritTab(value);
                         }} tabBarExtraContent={
                             <Space style={{ marginRight: "10px" }}>
+                                {["gantt", "burnDown", "statistics", "summary"].includes(spritTab) && <div style={{ width: "320px" }} />}
+                                {"testplan" == spritTab && <div style={{ width: "200px" }} />}
                                 <CommentEntry projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_ENTRY}
                                     targetId={entryStore.curEntry?.entry_id ?? ""} myUserId={userStore.userInfo.userId} myAdmin={projectStore.isAdmin} />
                                 {(spritTab == "issue" || spritTab == "kanban") && (

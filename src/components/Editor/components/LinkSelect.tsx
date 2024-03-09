@@ -4,7 +4,7 @@ import type { ModalProps } from 'antd';
 import { Button } from 'antd';
 import { Modal, Input } from 'antd';
 import type { LinkInfo } from '@/stores/linkAux';
-import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkTestCaseInfo } from '@/stores/linkAux';
+import { LinkTaskInfo, LinkBugInfo, LinkDocInfo, LinkExterneInfo, LinkRequirementInfo, LinkSpritInfo, LinkBoardInfo, LinkApiCollInfo, LinkTestCaseInfo, LinkIdeaPageInfo } from '@/stores/linkAux';
 import { useStores } from '@/hooks';
 import {
   list as list_issue,
@@ -25,10 +25,12 @@ import { API_COLL_CUSTOM, API_COLL_GRPC, API_COLL_OPENAPI, ENTRY_TYPE_API_COLL, 
 import { CheckOutlined } from '@ant-design/icons';
 import { LocalIssueStore, LocalRequirementStore, LocalTestcaseStore } from '@/stores/local';
 import { list_case_flat } from '@/api/project_testcase';
+import type { Idea } from "@/api/project_idea";
+import { IDEA_SORT_APPRAISE, KEYWORD_SEARCH_AND, list_idea } from "@/api/project_idea";
 
 const PAGE_SIZE = 6;
 
-type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "testcase" | "sprit" | "board" | "apicoll" | "externe";
+type TAB_TYPE = "" | "doc" | "requirement" | "task" | "bug" | "testcase" | "sprit" | "board" | "apicoll" | "idea" | "externe";
 
 export interface LinkSelectProps {
   title: string;
@@ -40,6 +42,7 @@ export interface LinkSelectProps {
   showSprit: boolean;
   showBoard: boolean;
   showApiColl: boolean;
+  showIdea: boolean;
   showExterne: boolean;
   onOk: (link: LinkInfo) => void;
   onCancel: () => void;
@@ -68,6 +71,8 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     defaultTab = "board";
   } else if (props.showApiColl) {
     defaultTab = "apicoll";
+  } else if (props.showIdea) {
+    defaultTab = "idea";
   } else if (props.showExterne) {
     defaultTab = 'externe';
   }
@@ -81,6 +86,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
   const [spritList, setSpritList] = useState([] as EntryInfo[]);
   const [boardList, setBoardList] = useState([] as EntryInfo[]);
   const [apiCollList, setApiCollList] = useState([] as EntryInfo[]);
+  const [ideaList, setIdeaList] = useState([] as Idea[]);
   const [externeUrl, setExterneUrl] = useState('');
 
   const [tab, setTab] = useState(defaultTab);
@@ -134,6 +140,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     tabList.push({
       label: '接口集合',
       value: 'apicoll',
+    });
+  }
+  if (props.showIdea) {
+    tabList.push({
+      label: '知识点',
+      value: 'idea',
     });
   }
   if (props.showExterne) {
@@ -252,7 +264,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
       entryType = ENTRY_TYPE_SPRIT;
     } else if (tab == "apicoll") {
       entryType = ENTRY_TYPE_API_COLL;
-    } 
+    }
     request(list_entry({
       session_id: userStore.sessionId,
       project_id: projectStore.curProjectId,
@@ -277,7 +289,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
         setSpritList(res.entry_list);
       } else if (tab == "apicoll") {
         setApiCollList(res.entry_list);
-      } 
+      }
       setTotalCount(res.total_count);
     });
   }, [tab, keyword, myWatch, curPage]);
@@ -307,6 +319,30 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     })
   }, [tab, curPage, myWatch, keyword]);
 
+  useEffect(() => {
+    if (tab != "idea") {
+      return;
+    }
+    request(list_idea({
+      session_id: userStore.sessionId,
+      project_id: projectStore.curProjectId,
+      list_param: {
+        filter_by_keyword: false,
+        keyword_list: [],
+        keyword_search_type: KEYWORD_SEARCH_AND,
+        filter_by_group_or_store_id: false,
+        group_or_store_id: "",
+        filter_by_title_keyword: keyword.trim() != "",
+        title_keyword: keyword.trim(),
+      },
+      sort_type: IDEA_SORT_APPRAISE,
+      offset: curPage * PAGE_SIZE,
+      limit: PAGE_SIZE,
+    })).then(res => {
+      setTotalCount(res.total_count);
+      setIdeaList(res.idea_list);
+    });
+  }, [tab, curPage, keyword]);
 
   useEffect(() => {
     return () => {
@@ -349,11 +385,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="entry_id" dataSource={docList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={docList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -379,11 +416,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="entry_id" dataSource={spritList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={spritList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -409,11 +447,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="entry_id" dataSource={boardList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={boardList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -439,17 +478,43 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="requirement_id" dataSource={requirementStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="requirement_id" dataSource={requirementStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
                 props.onOk(new LinkRequirementInfo(item.base_info.title, projectStore.curProjectId, item.requirement_id));
               }}>{item.base_info.title}</List.Item>
+            )} />
+        </Card>
+      );
+    } else if (props.showIdea && tab === "idea") {
+      return (
+        <Card bordered={false} title="知识点"
+          extra={
+            <Form layout='inline'>
+              <Form.Item label="标题">
+                <Input value={keyword} onChange={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setKeyword(e.target.value.trim());
+                  setCurPage(0);
+                }} />
+              </Form.Item>
+            </Form>
+          }>
+          <List rowKey="idea_id" dataSource={ideaList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
+            renderItem={item => (
+              <List.Item style={{ cursor: "pointer" }} onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.onOk(new LinkIdeaPageInfo(item.basic_info.title, projectStore.curProjectId, "", [], item.idea_id, false));
+              }}>{item.basic_info.title}</List.Item>
             )} />
         </Card>
       );
@@ -469,11 +534,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="issue_id" dataSource={taskStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="issue_id" dataSource={taskStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -499,11 +565,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="issue_id" dataSource={bugStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="issue_id" dataSource={bugStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -529,11 +596,12 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
                   e.stopPropagation();
                   e.preventDefault();
                   setKeyword(e.target.value.trim());
+                  setCurPage(0);
                 }} />
               </Form.Item>
             </Form>
           }>
-          <List rowKey="id" dataSource={testcaseStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="id" dataSource={testcaseStore.itemList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
@@ -556,7 +624,7 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
               </Form.Item>
             </Form>
           }>
-          <List rowKey="entry_id" dataSource={apiCollList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true }}
+          <List rowKey="entry_id" dataSource={apiCollList} pagination={{ total: totalCount, pageSize: PAGE_SIZE, current: curPage + 1, onChange: page => setCurPage(page - 1), hideOnSinglePage: true,showSizeChanger:false }}
             renderItem={item => (
               <List.Item style={{ cursor: "pointer" }} onClick={e => {
                 e.stopPropagation();
