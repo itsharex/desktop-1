@@ -1,4 +1,4 @@
-import { Badge, Button, Space, Switch, Tooltip } from 'antd';
+import { Badge, Button, Space, Tooltip } from 'antd';
 import React from 'react';
 import s from './index.module.less';
 import {
@@ -9,7 +9,8 @@ import { MessageTwoTone, SettingOutlined, UserAddOutlined } from '@ant-design/ic
 import { observer } from 'mobx-react';
 import AlarmHeader from './AlarmHeader';
 import ProjectTipList from '../Header/ProjectTipList';
-import { useHistory } from 'react-router-dom';
+import Membersvg from '@/assets/svg/member.svg?react';
+
 
 const RightFloat = observer(() => {
   const projectStore = useStores('projectStore');
@@ -44,37 +45,42 @@ const RightFloat = observer(() => {
 });
 
 const BottomNav = () => {
-  const history = useHistory();
-
   const projectStore = useStores('projectStore');
-  const linkAuxStore = useStores('linkAuxStore');
 
   return (
     <div className={s.topnav}>
       <div style={{ marginRight: "20px" }}>
-        <Tooltip title={<span>项目沟通</span>}
-          placement="top"
-          color="orange"
-          overlayInnerStyle={{ color: 'black' }}
-        >
-          <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (!projectStore.showChatAndComment) {
-              linkAuxStore.pickupToolbar(history);
-            }
-            projectStore.setShowChatAndComment(!projectStore.showChatAndComment, "chat");
-          }}>
-            <Space>
-              <Switch size='small' checked={projectStore.showChatAndComment} />
+        <Space size="middle">
+          <Tooltip title={<span>项目成员</span>} placement="top"
+            color="orange"
+            overlayInnerStyle={{ color: 'black' }}>
+            <div style={{ cursor: "pointer" }} onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              const curShow = projectStore.showChatAndComment && projectStore.showChatAndCommentTab == "member";
+              projectStore.setShowChatAndComment(!curShow, "member");
+            }}>
+              <Membersvg style={{ width: "26px", height: "26px", marginTop: "16px", color: (projectStore.showChatAndComment && projectStore.showChatAndCommentTab == "member") ? "orange" : "#929CB0" }} />
+            </div>
+          </Tooltip>
+          <Tooltip title={<span>项目沟通</span>}
+            placement="top"
+            color="orange"
+            overlayInnerStyle={{ color: 'black' }}
+          >
+            <div style={{ textAlign: "center", padding: "10px 0px", cursor: "pointer" }} onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              const curShow = projectStore.showChatAndComment && projectStore.showChatAndCommentTab != "member";
+              projectStore.setShowChatAndComment(!curShow, "chat");
+            }}>
               <Badge count={(projectStore.curProject?.project_status.unread_comment_count ?? 0) + (projectStore.curProject?.chat_store.totalUnread ?? 0) + (projectStore.curProject?.project_status.bulletin_count ?? 0)}
-                style={{ padding: '0 0px', height: '16px', lineHeight: '16px' }} offset={[8,28]}>
-                <MessageTwoTone style={{ fontSize: "24px", marginTop: "16px" }} twoToneColor={projectStore.showChatAndComment ? ["white", "orange"] : ["white", "#929CB0"]} />
+                style={{ padding: '0 0px', height: '16px', lineHeight: '16px' }} offset={[8, 28]}>
+                <MessageTwoTone style={{ fontSize: "28px", marginTop: "16px" }} twoToneColor={(projectStore.showChatAndComment && projectStore.showChatAndCommentTab != "member") ? ["white", "orange"] : ["white", "#929CB0"]} />
               </Badge>
-
-            </Space>
-          </div>
-        </Tooltip>
+            </div>
+          </Tooltip>
+        </Space>
       </div>
       <div className={s.left}>
         <ProjectTipList />

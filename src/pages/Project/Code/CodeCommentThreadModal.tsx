@@ -7,7 +7,7 @@ import { request } from "@/utils/request";
 import { observer } from 'mobx-react';
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from 'moment';
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown from 'react-markdown';
 
 
 interface CodeCommentThreadModalProps {

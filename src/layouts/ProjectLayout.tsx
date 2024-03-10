@@ -21,12 +21,15 @@ import IdeaTipModal from '@/pages/Idea/IdeaTipModal';
 import CreateBulletinModal from '@/pages/Project/ChatAndComment/components/CreateBulletinModal';
 import ViewBulletinModal from '@/pages/Project/ChatAndComment/components/ViewBulletinModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import MemberList from '@/pages/Project/ChatAndComment/MemberList';
+import MemberDetail from '@/pages/Project/ChatAndComment/MemberDetail';
 
 
 const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
     const projectStore = useStores("projectStore");
     const ideaStore = useStores("ideaStore");
     const entryStore = useStores("entryStore");
+    const memberStore = useStores('memberStore');
 
     return (
         <ErrorBoundary>
@@ -34,7 +37,9 @@ const ProjectLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
                 {projectStore.showChatAndComment && (
                     <div style={{ width: "400px", borderLeft: "1px solid #e4e4e8" }}>
                         <div style={{ width: "390px", backgroundColor: "white", margin: "5px 5px", height: "calc(100vh - 96px)", borderRadius: "10px" }}>
-                            <ChatAndCommentPanel />
+                            {projectStore.showChatAndCommentTab != "member" && <ChatAndCommentPanel />}
+                            {projectStore.showChatAndCommentTab == "member" && memberStore.showDetailMemberId == "" && <MemberList />}
+                            {projectStore.showChatAndCommentTab == "member" && memberStore.showDetailMemberId != "" && <MemberDetail />}
                         </div>
                     </div>
                 )}
