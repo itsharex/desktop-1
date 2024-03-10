@@ -172,7 +172,7 @@ const ContentPanel = (props: ContentPanelProps) => {
                         </Form.Item>
                         <Form.Item label="关键词">
                             <Select value={ideaStore.searchKeywords} onChange={value => ideaStore.searchKeywords = (value as string[])} mode="multiple"
-                                style={{ minWidth: "300px" }}>
+                                style={{ minWidth: "200px" }}>
                                 {ideaStore.keywordList.map(item => (
                                     <Select.Option key={item} value={item}>{item}</Select.Option>
                                 ))}
@@ -188,7 +188,7 @@ const ContentPanel = (props: ContentPanelProps) => {
                     }}>正在查看单个知识点，查看全部知识点</Button>
                 )}
             </>
-        } style={{ width: "calc(100vw - 500px)" }}>
+        } style={{ width: "calc(100vw - 700px)" }}>
             <div className={s.content_list}>
                 <List dataSource={localStore.ideaList} split={false} renderItem={item => (
                     <List.Item key={item.idea_id}>
@@ -199,6 +199,7 @@ const ContentPanel = (props: ContentPanelProps) => {
                     pageSize: PAGE_SIZE,
                     current: curPage + 1,
                     onChange: page => setCurPage(page - 1),
+                    showSizeChanger: false,
                 }} />
             </div>
         </Card>
