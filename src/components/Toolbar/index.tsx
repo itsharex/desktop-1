@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Badge, Divider, Tooltip } from 'antd';
 
@@ -10,10 +10,6 @@ import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PA
 
 const Item: React.FC<{ id: string; pathname: string; title: string; badge?: number }> = observer((props) => {
   const history = useHistory();
-
-  const projectStore = useStores('projectStore');
-
-  const [showTip, setShowTip] = useState<boolean | undefined>(undefined);
 
   const current = props.pathname.includes(props.id);
   const gotoPage = (id: string) => {
@@ -30,21 +26,12 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
     }
   };
 
-  useEffect(() => {
-    if (projectStore.showProjectSetting == null) {
-      setShowTip(false);
-    } else {
-      setShowTip(true);
-    }
-  }, [projectStore.showProjectSetting]);
-
   return (
     <Tooltip
       title={<span>{props.title}</span>}
       placement="left"
       color="orange"
       overlayInnerStyle={{ color: 'black' }}
-      open={showTip}
     >
       <div
         data-menu-id={props.id}

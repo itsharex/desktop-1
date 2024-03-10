@@ -194,7 +194,7 @@ const MemberEventList = (props: MemberEventListProps) => {
                         item={item}
                         skipProjectName={true}
                         skipLink={false}
-                        showMoreLink={false}
+                        showMoreLink={true}
                         showSource={true}
                     >
                         <img

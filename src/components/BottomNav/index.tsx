@@ -52,7 +52,8 @@ const BottomNav = () => {
       <div style={{ marginRight: "20px" }}>
         <Space size="middle">
           <Tooltip title={<span>项目成员</span>} placement="top"
-            color="orange">
+            color="orange"
+            overlayInnerStyle={{ color: 'black' }}>
             <div style={{ cursor: "pointer" }} onClick={e => {
               e.stopPropagation();
               e.preventDefault();
