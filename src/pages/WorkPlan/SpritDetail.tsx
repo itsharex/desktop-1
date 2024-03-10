@@ -294,15 +294,13 @@ const SpritDetail = () => {
                         onChange={value => {
                             setSpritTab(value);
                         }} tabBarExtraContent={
-                            <Space style={{ marginRight: "10px" }}>
-                                {["gantt", "burnDown", "statistics", "summary"].includes(spritTab) && <div style={{ width: "320px" }} />}
-                                {"testplan" == spritTab && <div style={{ width: "200px" }} />}
+                            <Space style={{ marginRight: "10px" }} size="small">
                                 <CommentEntry projectId={projectStore.curProjectId} targetType={COMMENT_TARGET_ENTRY}
                                     targetId={entryStore.curEntry?.entry_id ?? ""} myUserId={userStore.userInfo.userId} myAdmin={projectStore.isAdmin} />
                                 {(spritTab == "issue" || spritTab == "kanban") && (
                                     <Form layout="inline">
-                                        <Form.Item label="过滤成员">
-                                            <Select value={selMemberUserId} style={{ width: "120px", marginRight: "20px" }}
+                                        <Form.Item>
+                                            <Select value={selMemberUserId} style={{ width: "120px" }}
                                                 onChange={value => setSelMemberUserId(value)}>
                                                 <Select.Option value="">
                                                     <Space>

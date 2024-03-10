@@ -194,7 +194,7 @@ const MemberEventList = (props: MemberEventListProps) => {
                         item={item}
                         skipProjectName={true}
                         skipLink={false}
-                        showMoreLink={false}
+                        showMoreLink={true}
                         showSource={true}
                     >
                         <img
@@ -245,7 +245,7 @@ const MemberDetail = () => {
                     </Select.Option>
                 ))}
             </Select>
-        } headStyle={{ paddingLeft: 0 }} bodyStyle={{ height: "calc(100vh - 190px)", overflowY: "scroll" }} style={{ width: "100%" }} bordered={false}>
+        } headStyle={{ paddingLeft: 0 }} bodyStyle={{ height: "calc(100vh - 150px)", overflowY: "scroll"}} style={{ width: "100%" }} bordered={false}>
             {memberInfo != undefined && (
                 <>
                     <Card title="成员状态" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }} bodyStyle={{ padding: "0px 0px" }}>

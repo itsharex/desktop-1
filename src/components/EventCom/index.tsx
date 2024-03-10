@@ -110,7 +110,7 @@ const EventCom: React.FC<EventComProps> = ({
             onLinkClick?.();
           }}
         >
-          查看更多
+          查看更多&nbsp;
         </a>
       )}
       {showSource == true && (
@@ -118,7 +118,7 @@ const EventCom: React.FC<EventComProps> = ({
           e.preventDefault();
           e.stopPropagation();
           setShowSourceModal(true);
-        }}>查看源信息</a>
+        }}>查看源信息&nbsp;</a>
       )}
       {showSourceModal == true && (
         <Modal title="事件源信息"
