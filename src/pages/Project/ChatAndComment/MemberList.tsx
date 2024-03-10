@@ -144,7 +144,7 @@ const MemberList = () => {
     return (
         <>
             <Table rowKey="member_user_id" dataSource={memberStore.memberList} pagination={false} columns={columns}
-                scroll={{ y: "calc(100vh - 200px)" }} />
+                scroll={{ y: "calc(100vh - 160px)" }}/>
             {ownerMemberUserId != "" && (
                 <Modal
                     title="转移超级管理员"
