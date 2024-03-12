@@ -54,6 +54,30 @@ export type ListStoreResponse = {
     store_list: IdeaStore[];
 }
 
+export type ListIdeaRequest = {
+    list_param: ListIdeaParam;
+    offset: number;
+    limit: number;
+};
+
+export type ListIdeaResponse = {
+    code: number;
+    err_msg: string;
+    total_count: number;
+    idea_list: IdeaInStore[];
+};
+
+export type ListIdeaByIdRequest = {
+    idea_id_list: string[];
+};
+
+export type ListIdeaByIdResponse = {
+    code: number;
+    err_msg: string;
+    idea_list: IdeaInStore[];
+};
+
+
 //列出点子库类别
 export async function list_store_cate(request: ListStoreCateRequest): Promise<ListStoreCateResponse> {
     const cmd = 'plugin:idea_store_api|list_store_cate';
@@ -68,6 +92,24 @@ export async function list_store(request: ListStoreRequest): Promise<ListStoreRe
     const cmd = 'plugin:idea_store_api|list_store';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListStoreResponse>(cmd, {
+        request,
+    });
+}
+
+//列出点子
+export async function list_idea(request: ListIdeaRequest): Promise<ListIdeaResponse> {
+    const cmd = 'plugin:idea_store_api|list_idea';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListIdeaResponse>(cmd, {
+        request,
+    });
+}
+
+//按ID列出点子
+export async function list_idea_by_id(request: ListIdeaByIdRequest): Promise<ListIdeaByIdResponse> {
+    const cmd = 'plugin:idea_store_api|list_idea_by_id';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListIdeaByIdResponse>(cmd, {
         request,
     });
 }

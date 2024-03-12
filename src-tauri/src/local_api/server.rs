@@ -142,7 +142,7 @@ where
 
     /// 列出微应用
     async fn minapp_get(&self, _context: &C) -> Result<MinappGetResponse, ApiError> {
-        let app_id_list = crate::user_app_api_plugin::list().await;
+        let app_id_list = crate::user_app_api_plugin::list_app().await;
         if app_id_list.is_err() {
             return Ok(MinappGetResponse::Status500 {
                 body: ErrInfo {

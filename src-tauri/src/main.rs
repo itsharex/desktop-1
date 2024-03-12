@@ -21,14 +21,13 @@ mod client_cfg_api_plugin;
 mod events_decode;
 mod fs_api_plugin;
 mod helper;
-mod idea_store_admin_api_plugin;
-mod idea_store_api_plugin;
 mod image_utils;
 mod local_api;
 mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
+mod user_idea_api_plugin;
 
 #[cfg(not(feature = "skip-updater"))]
 mod my_updater;
@@ -461,6 +460,7 @@ fn main() {
         .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
         .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
         .plugin(user_app_api_plugin::UserAppApiPlugin::new())
+        .plugin(user_idea_api_plugin::UserIdeaApiPlugin::new())
         .plugin(project_misc_api::project_chat_api_plugin::ProjectChatApiPlugin::new())
         .plugin(project_misc_api::project_code_api_plugin::ProjectCodeApiPlugin::new())
         .plugin(project_misc_api::project_idea_api_plugin::ProjectIdeaApiPlugin::new())
@@ -476,8 +476,8 @@ fn main() {
         .plugin(project_content_api::project_entry_api_plugin::ProjectEntryApiPlugin::new())
         .plugin(project_misc_api::project_watch_api_plugin::ProjectWatchApiPlugin::new())
         .plugin(project_misc_api::project_comment_api_plugin::ProjectCommentApiPlugin::new())
-        .plugin(idea_store_admin_api_plugin::IdeaStoreAdminApiPlugin::new())
-        .plugin(idea_store_api_plugin::IdeaStoreApiPlugin::new())
+        .plugin(pubres_api::idea_store_admin_api_plugin::IdeaStoreAdminApiPlugin::new())
+        .plugin(pubres_api::idea_store_api_plugin::IdeaStoreApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())

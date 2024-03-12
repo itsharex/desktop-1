@@ -5,7 +5,7 @@ import { List } from "antd";
 import { request } from "@/utils/request";
 import type { AppInfo } from "@/api/appstore";
 import { list_app_by_id } from "@/api/appstore";
-import { list as list_user_app } from "@/api/user_app";
+import { list_app as list_user_app } from "@/api/user_app";
 import { useStores } from "@/hooks";
 import UserAppItem from "./UserAppItem";
 

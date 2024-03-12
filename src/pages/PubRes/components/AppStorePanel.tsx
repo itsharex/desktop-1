@@ -17,7 +17,7 @@ import { observer } from 'mobx-react';
 import StoreStatusModal from "@/components/MinApp/StoreStatusModal";
 import DebugMinAppModal from "@/components/MinApp/DebugMinAppModal";
 import { GLOBAL_APPSTORE_FS_ID } from "@/api/fs";
-import { list as list_user_app } from "@/api/user_app";
+import { list_app as list_user_app } from "@/api/user_app";
 
 const PAGE_SIZE = 12;
 
