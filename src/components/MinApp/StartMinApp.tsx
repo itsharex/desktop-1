@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
-import { list as list_user_app, add as add_user_app } from "@/api/user_app";
+import { list_app as list_user_app, save_app_list } from "@/api/user_app";
 import DownloadProgressModal from "@/components/MinApp/DownloadProgressModal";
 import { get_app, type AppInfo } from "@/api/appstore";
 import { check_unpark, get_min_app_path, start as start_app } from '@/api/min_app';
@@ -72,7 +72,8 @@ const StartMinApp = () => {
             return;
         }
         if (!appList.includes(appStore.openMinAppId)) {
-            await add_user_app(appStore.openMinAppId);
+            appList.push(appStore.openMinAppId);
+            await save_app_list(appList);
         }
         //打开应用
         await preOpenUserApp();

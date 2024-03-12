@@ -29,6 +29,7 @@ mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
+mod user_idea_api_plugin;
 
 #[cfg(not(feature = "skip-updater"))]
 mod my_updater;
@@ -461,6 +462,7 @@ fn main() {
         .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
         .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
         .plugin(user_app_api_plugin::UserAppApiPlugin::new())
+        .plugin(user_idea_api_plugin::UserIdeaApiPlugin::new())
         .plugin(project_misc_api::project_chat_api_plugin::ProjectChatApiPlugin::new())
         .plugin(project_misc_api::project_code_api_plugin::ProjectCodeApiPlugin::new())
         .plugin(project_misc_api::project_idea_api_plugin::ProjectIdeaApiPlugin::new())

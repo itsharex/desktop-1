@@ -41,6 +41,42 @@ async fn list_store<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn list_idea<R: Runtime>(
+    app_handle: AppHandle<R>,
+    request: ListIdeaRequest,
+) -> Result<ListIdeaResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = IdeaStoreApiClient::new(chan.unwrap());
+    match client.list_idea(request).await {
+        Ok(response) => {
+            return Ok(response.into_inner());
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn list_idea_by_id<R: Runtime>(
+    app_handle: AppHandle<R>,
+    request: ListIdeaByIdRequest,
+) -> Result<ListIdeaByIdResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = IdeaStoreApiClient::new(chan.unwrap());
+    match client.list_idea_by_id(request).await {
+        Ok(response) => {
+            return Ok(response.into_inner());
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 pub struct IdeaStoreApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -48,7 +84,12 @@ pub struct IdeaStoreApiPlugin<R: Runtime> {
 impl<R: Runtime> IdeaStoreApiPlugin<R> {
     pub fn new() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![list_store_cate, list_store,]),
+            invoke_handler: Box::new(tauri::generate_handler![
+                list_store_cate, 
+                list_store,
+                list_idea,
+                list_idea_by_id,
+                ]),
         }
     }
 }

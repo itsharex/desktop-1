@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { observer } from 'mobx-react';
-import { remove as remove_app } from "@/api/user_app";
+import { list_app, save_app_list } from "@/api/user_app";
 import { Button, Card, Popover, Modal, message, Space } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import defaultIcon from '@/assets/allIcon/app-default-icon.png';
@@ -34,7 +34,8 @@ const UserAppItem: React.FC<UserAppItemProps> = (props) => {
     };
 
     const removeApp = async () => {
-        await remove_app(props.appInfo.app_id);
+        const appIdList = await list_app();
+        await save_app_list(appIdList.filter(item=>item != props.appInfo.app_id));
         setShowRemoveModal(false);
         message.info("卸载应用成功");
         props.onRemove();
