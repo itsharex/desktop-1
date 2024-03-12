@@ -14,13 +14,6 @@ export const APP_PROJECT_KB_DOC_PATH = '/app/project/kb/doc';
 export const APP_PROJECT_KB_BOARD_PATH = '/app/project/kb/board';
 export const APP_PROJECT_MY_WORK_PATH = '/app/project/my_work';
 
-export const APP_GROUP_PATH = '/app/group';
-export const APP_GROUP_HOME_PATH = '/app/group/home';
-export const APP_GROUP_POST_DETAIL_PATH = '/app/group/post_detail';
-export const APP_GROUP_POST_LIST_PATH = '/app/group/post_list';
-export const APP_GROUP_POST_EDIT_PATH = '/app/group/post_edit';
-export const APP_GROUP_MEMBER_LIST_PATH = '/app/group/member_list';
-
 
 export const ADMIN_PATH = "/admin";
 
@@ -38,9 +31,6 @@ export const ADMIN_PATH_APPSTORE_APP_SUFFIX = '/admin/appstore/app';
 export const ADMIN_PATH_IDEA_STORE_CATE_SUFFIX = "/admin/ideastore/cate";
 export const ADMIN_PATH_IDEA_STORE_SUFFIX = "/admin/ideastore/store";
 export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
-
-export const ADMIN_PATH_GROUP_LIST_SUFFIX = '/admin/group/list';
-export const ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX = '/admin/group/audit_recommend';
 
 
 export const ADMIN_PATH_CLIENT_MENU_SUFFIX = '/admin/client/menu';

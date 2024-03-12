@@ -4,7 +4,7 @@ import { get_admin_session } from '@/api/admin_auth';
 import { useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
 import { request } from "@/utils/request";
-import { create_idea } from "@/api/project_idea_admin";
+import { create_idea } from "@/api/idea_store_admin";
 
 export interface CreateIdeaModalProps {
     ideaStoreId: string;

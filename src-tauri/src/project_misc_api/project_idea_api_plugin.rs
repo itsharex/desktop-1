@@ -496,44 +496,6 @@ async fn list_appraise<R: Runtime>(
 }
 
 #[tauri::command]
-async fn list_store<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: ListStoreRequest,
-) -> Result<ListStoreResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectIdeaApiClient::new(chan.unwrap());
-    match client.list_store(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn list_store_cate<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: ListStoreCateRequest,
-) -> Result<ListStoreCateResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ProjectIdeaApiClient::new(chan.unwrap());
-    match client.list_store_cate(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn import_store<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -586,8 +548,6 @@ impl<R: Runtime> ProjectIdeaApiPlugin<R> {
                 set_appraise,
                 cancel_appraise,
                 list_appraise,
-                list_store_cate,
-                list_store,
                 import_store,
             ]),
         }

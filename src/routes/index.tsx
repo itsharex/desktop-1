@@ -31,14 +31,6 @@ import {
   APP_PROJECT_MANAGER_PATH,
   APP_PROJECT_KB_BOARD_PATH,
   APP_PROJECT_PATH,
-  APP_GROUP_PATH,
-  APP_GROUP_HOME_PATH,
-  APP_GROUP_POST_DETAIL_PATH,
-  APP_GROUP_POST_LIST_PATH,
-  APP_GROUP_POST_EDIT_PATH,
-  APP_GROUP_MEMBER_LIST_PATH,
-  ADMIN_PATH_GROUP_LIST_SUFFIX,
-  ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX,
   ADMIN_PATH_DEV_CONTAINER_PKG_SUFFIX,
   ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
   ADMIN_PATH_IDEA_STORE_SUFFIX,
@@ -67,14 +59,6 @@ import MyWorkLayout from '@/layouts/MyWorkLayout';
 import HomeLayout from '@/layouts/HomeLayout';
 import ProjectManager from '@/pages/ProjectManger';
 import ProjectBoard from '@/pages/KnowledgeBase/ProjectBoard';
-import GroupLayout from '@/layouts/GroupLayout';
-import GroupHome from '@/pages/Group/GroupHome';
-import PostDetail from '@/pages/Group/PostDetail';
-import PostList from '@/pages/Group/PostList';
-import PostEdit from '@/pages/Group/PostEdit';
-import GroupMemberList from '@/pages/Group/MemberList';
-import GroupList from '@/pages/Admin/GroupAdmin/GroupList';
-import RecommendAuditList from '@/pages/Admin/GroupAdmin/RecommendAuditList';
 import CloudIndex from '@/pages/Project/Cloud/index';
 import DevPkgList from '@/pages/Admin/DevContainerAdmin/DevPkgList';
 import TestcaseList from '@/pages/Project/Testcase/TestcaseList';
@@ -255,43 +239,6 @@ const routesConfig: IRouteConfig[] = [
           }
         ],
       },
-      {
-        path: APP_GROUP_PATH,
-        title: "兴趣组",
-        component: GroupLayout,
-        routes: [
-          {
-            path: APP_GROUP_HOME_PATH,
-            title: "兴趣组主界面",
-            component: GroupHome,
-            exact: true,
-          },
-          {
-            path: APP_GROUP_POST_LIST_PATH,
-            title: "帖子列表页",
-            component: PostList,
-            exact: true,
-          },
-          {
-            path: APP_GROUP_POST_DETAIL_PATH,
-            title: "帖子详情页",
-            component: PostDetail,
-            exact: true,
-          },
-          {
-            path: APP_GROUP_POST_EDIT_PATH,
-            title: "帖子编辑页",
-            component: PostEdit,
-            exact: true,
-          },
-          {
-            path: APP_GROUP_MEMBER_LIST_PATH,
-            title: "兴趣组成员列表",
-            component: GroupMemberList,
-            exact: true,
-          }
-        ],
-      },
     ],
   },
   {
@@ -333,18 +280,6 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_PROJECT_CREATE_SUFFIX,
         title: "创建项目",
         component: CreateProject,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_GROUP_LIST_SUFFIX,
-        title: "兴趣组列表",
-        component: GroupList,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX,
-        title: "推荐列表审核",
-        component: RecommendAuditList,
         exact: true,
       },
       {

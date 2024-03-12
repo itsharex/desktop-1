@@ -12,8 +12,6 @@ import {
     ADMIN_PATH_DEV_CONTAINER_PKG_SUFFIX,
     ADMIN_PATH_DOCKER_TEMPLATE_APP_SUFFIX,
     ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX,
-    ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX,
-    ADMIN_PATH_GROUP_LIST_SUFFIX,
     ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
@@ -33,7 +31,6 @@ const AdminNav = () => {
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
     const [userSelectedKeys, setUserSelectedKeys] = useState<string[]>([]);
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
-    const [groupSelectedKeys, setGroupSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
     const [ideastoreSelectedKeys, setIdeastoreSelectedKeys] = useState<string[]>([]);
@@ -58,15 +55,6 @@ const AdminNav = () => {
         }
     }, [location.pathname]);
 
-
-    useEffect(() => {
-        setGroupSelectedKeys([]);
-        if (location.pathname == ADMIN_PATH_GROUP_LIST_SUFFIX) {
-            setGroupSelectedKeys(["group_list"]);
-        } else if (location.pathname == ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX) {
-            setGroupSelectedKeys(["group_audit_list"]);
-        }
-    }, [location.pathname]);
 
     useEffect(() => {
         setClientCfgSelectedKeys([]);
@@ -133,7 +121,7 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "group", "project", "clientCfg", "appstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -158,31 +146,6 @@ const AdminNav = () => {
                                 }
                             }
                         }} />
-                </Collapse.Panel>
-                <Collapse.Panel header="兴趣组管理" key="group">
-                    <Menu selectedKeys={groupSelectedKeys} items={[
-                        {
-                            label: "查看兴趣组",
-                            key: "group_list",
-                            disabled: !(permInfo?.group_perm.read),
-                        },
-                        {
-                            label: "推荐帖子审核",
-                            key: "group_audit_list",
-                            disabled: !(permInfo?.group_perm.read),
-                        }
-                    ]}
-                        style={{ borderRightWidth: "0px" }}
-                        onSelect={e => {
-                            if (e.selectedKeys.length == 1) {
-                                if (e.selectedKeys[0] == "group_list") {
-                                    history.push(ADMIN_PATH_GROUP_LIST_SUFFIX);
-                                } else if (e.selectedKeys[0] == "group_audit_list") {
-                                    history.push(ADMIN_PATH_GROUP_AUDIT_RECOMMEND_SUFFIX);
-                                }
-                            }
-                        }}
-                    />
                 </Collapse.Panel>
                 <Collapse.Panel header="项目管理" key="project">
                     <Menu selectedKeys={projectSelectedKeys} items={[
@@ -236,38 +199,40 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                <Collapse.Panel header="知识点管理" key="ideastore">
-                    <Menu selectedKeys={ideastoreSelectedKeys} items={[
-                        {
-                            label: "管理知识库类别",
-                            key: "ideastore_cate",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                        {
-                            label: "管理知识库",
-                            key: "ideastore_store",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                        {
-                            label: "管理知识点",
-                            key: "ideastore_idea",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                    ]}
-                        style={{ borderRightWidth: "0px" }}
-                        onSelect={e => {
-                            if (e.selectedKeys.length == 1) {
-                                if (e.selectedKeys[0] == "ideastore_cate") {
-                                    history.push(ADMIN_PATH_IDEA_STORE_CATE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "ideastore_store") {
-                                    history.push(ADMIN_PATH_IDEA_STORE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "ideastore_idea") {
-                                    history.push(ADMIN_PATH_IDEA_SUFFIX);
+                {permInfo?.global_server == true && (
+                    <Collapse.Panel header="知识点管理" key="ideastore">
+                        <Menu selectedKeys={ideastoreSelectedKeys} items={[
+                            {
+                                label: "管理知识库类别",
+                                key: "ideastore_cate",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                            {
+                                label: "管理知识库",
+                                key: "ideastore_store",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                            {
+                                label: "管理知识点",
+                                key: "ideastore_idea",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                        ]}
+                            style={{ borderRightWidth: "0px" }}
+                            onSelect={e => {
+                                if (e.selectedKeys.length == 1) {
+                                    if (e.selectedKeys[0] == "ideastore_cate") {
+                                        history.push(ADMIN_PATH_IDEA_STORE_CATE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "ideastore_store") {
+                                        history.push(ADMIN_PATH_IDEA_STORE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "ideastore_idea") {
+                                        history.push(ADMIN_PATH_IDEA_SUFFIX);
+                                    }
                                 }
-                            }
-                        }}
-                    />
-                </Collapse.Panel>
+                            }}
+                        />
+                    </Collapse.Panel>
+                )}
                 {permInfo?.global_server == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
                         <Menu selectedKeys={dockerTemplateSelectedKeys} items={[

@@ -8,14 +8,14 @@ use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 
 #[tauri::command]
-pub async fn list_app() -> Result<Vec<String>, String> {
+pub async fn list_idea(user_id: &str) -> Result<Vec<String>, String> {
     let user_dir = crate::get_user_dir();
     if user_dir.is_none() {
         return Err("miss user dir".into());
     }
     let mut file_path = std::path::PathBuf::from(user_dir.unwrap());
-    file_path.push("all");
-    file_path.push("user_app.json");
+    file_path.push(user_id);
+    file_path.push("user_idea.json");
     if !file_path.exists() {
         return Ok(Vec::new());
     }
@@ -42,26 +42,26 @@ pub async fn list_app() -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-async fn save_app_list(app_id_list: Vec<String>) -> Result<(), String> {
+async fn save_idea_list(user_id: &str, idea_id_list: Vec<String>) -> Result<(), String> {
     let user_dir = crate::get_user_dir();
     if user_dir.is_none() {
         return Err("miss user dir".into());
     }
     let mut file_path = std::path::PathBuf::from(user_dir.unwrap());
-    file_path.push("all");
+    file_path.push(user_id);
     if !file_path.exists() {
         let result = fs::create_dir_all(&file_path).await;
         if result.is_err() {
             return Err(result.err().unwrap().to_string());
         }
     }
-    file_path.push("user_app.json");
+    file_path.push("user_idea.json");
     let f = fs::File::create(file_path).await;
     if f.is_err() {
         return Err(f.err().unwrap().to_string());
     }
     let mut f = f.unwrap();
-    let json_str = serde_json::to_string(&app_id_list);
+    let json_str = serde_json::to_string(&idea_id_list);
     if json_str.is_err() {
         return Err(json_str.err().unwrap().to_string());
     }
@@ -73,26 +73,24 @@ async fn save_app_list(app_id_list: Vec<String>) -> Result<(), String> {
     return Ok(());
 }
 
-
-
-pub struct UserAppApiPlugin<R: Runtime> {
+pub struct UserIdeaApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> UserAppApiPlugin<R> {
+impl<R: Runtime> UserIdeaApiPlugin<R> {
     pub fn new() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
-                list_app,
-                save_app_list,
+                list_idea,
+                save_idea_list,
             ]),
         }
     }
 }
 
-impl<R: Runtime> Plugin<R> for UserAppApiPlugin<R> {
+impl<R: Runtime> Plugin<R> for UserIdeaApiPlugin<R> {
     fn name(&self) -> &'static str {
-        "user_app_api"
+        "user_idea_api"
     }
     fn initialization_script(&self) -> Option<String> {
         None

@@ -66,18 +66,13 @@ export type Idea = {
     idea_perm: IdeaPerm;
 };
 
-export type IdeaInStore = {
-    idea_id: string;
-    basic_info: BasicIdea;
-    idea_store_id: string;
-}
 
 export type ListIdeaParam = {
     filter_by_keyword: boolean;
     keyword_list: string[];
     keyword_search_type: KEYWORD_SEARCH_TYPE;
-    filter_by_group_or_store_id: boolean;
-    group_or_store_id: string;
+    filter_by_group_id: boolean;
+    group_id: string;
     filter_by_title_keyword: boolean;
     title_keyword: string;
 };
@@ -90,20 +85,6 @@ export type Appraise = {
     time_stamp: number;
 };
 
-export type IdeaStoreCate = {
-    store_cate_id: string;
-    name: string;
-    weight: number;
-    store_count: number;
-};
-
-export type IdeaStore = {
-    idea_store_id: string;
-    name: string;
-    weight: number;
-    idea_count: number;
-    store_cate_id: string;
-};
 
 export type CreateGroupRequest = {
     session_id: string;
@@ -324,25 +305,6 @@ export type ListAppraiseResponse = {
     appraise_list: Appraise[];
 }
 
-export type ListStoreCateRequest = {};
-
-export type ListStoreCateResponse = {
-    code: number;
-    err_msg: string;
-    cate_list: IdeaStoreCate[];
-};
-
-export type ListStoreRequest = {
-    filter_by_store_cate_id: boolean;
-    store_cate_id: string;
-};
-
-export type ListStoreResponse = {
-    code: number;
-    err_msg: string;
-    store_list: IdeaStore[];
-};
-
 export type ImportStoreRequest = {
     session_id: string;
     project_id: string;
@@ -512,24 +474,6 @@ export async function list_appraise(request: ListAppraiseRequest): Promise<ListA
     const cmd = 'plugin:project_idea_api|list_appraise';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListAppraiseResponse>(cmd, {
-        request,
-    });
-}
-
-//列出点子库类别
-export async function list_store_cate(request: ListStoreCateRequest): Promise<ListStoreCateResponse> {
-    const cmd = 'plugin:project_idea_api|list_store_cate';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<ListStoreCateResponse>(cmd, {
-        request,
-    });
-}
-
-//列出点子库
-export async function list_store(request: ListStoreRequest): Promise<ListStoreResponse> {
-    const cmd = 'plugin:project_idea_api|list_store';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<ListStoreResponse>(cmd, {
         request,
     });
 }

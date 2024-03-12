@@ -9,7 +9,7 @@ import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, MoreO
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
-import { APP_GROUP_HOME_PATH, APP_GROUP_PATH, APP_GROUP_POST_LIST_PATH, APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from '@/utils/constant';
+import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from '@/utils/constant';
 import { useHistory, useLocation } from 'react-router-dom';
 import ProjectQuickAccess from './ProjectQuickAccess';
 import { ENTRY_TYPE_SPRIT } from '@/api/project_entry';
@@ -40,7 +40,6 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
   const projectStore = useStores('projectStore');
   const entryStore = useStores('entryStore');
   const appStore = useStores('appStore');
-  const groupStore = useStores('groupStore');
 
   const [hasNewVersion, setHasNewVersion] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(0);
@@ -258,43 +257,6 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                 )}
             </Space>
           </div>
-        )}
-        {location.pathname.startsWith(APP_GROUP_PATH) && (
-          <Space style={{ paddingLeft: "10px", fontSize: "16px", fontWeight: 600 }}>
-            {groupStore.curGroup !== null && (
-              <>
-                <a onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (appStore.inEdit) {
-                    appStore.showCheckLeave(() => {
-                      groupStore.curGroup = null;
-                      groupStore.curPostKey = null;
-                      history.push(APP_GROUP_HOME_PATH);
-                    });
-                  } else {
-                    groupStore.curGroup = null;
-                    groupStore.curPostKey = null;
-                    history.push(APP_GROUP_HOME_PATH);
-                  }
-                }}>兴趣小组</a>
-                /
-                <a onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (appStore.inEdit) {
-                    appStore.showCheckLeave(() => {
-                      groupStore.curPostKey = null;
-                      history.push(APP_GROUP_POST_LIST_PATH);
-                    });
-                  } else {
-                    groupStore.curPostKey = null;
-                    history.push(APP_GROUP_POST_LIST_PATH);
-                  }
-                }}>{groupStore.curGroup.group_name}</a>
-              </>
-            )}
-          </Space>
         )}
 
         <div className={style.l} />

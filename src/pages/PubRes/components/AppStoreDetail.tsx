@@ -8,7 +8,7 @@ import { request } from "@/utils/request";
 import { CommentOutlined, DownloadOutlined, HeartTwoTone, LeftOutlined } from "@ant-design/icons";
 import AppPermPanel from "@/pages/Admin/AppAdmin/components/AppPermPanel";
 import { ReadOnlyEditor } from "@/components/Editor";
-import { list as list_user_app, add as add_user_app, remove as remove_user_app } from "@/api/user_app";
+import { list_app as list_user_app, save_app_list } from "@/api/user_app";
 import { open as open_shell } from '@tauri-apps/api/shell';
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
@@ -100,19 +100,25 @@ const AppStoreDetail = () => {
         if (appInfo == null) {
             return;
         }
-        await add_user_app(appInfo.app_id);
-        await install_app({ app_id: appInfo.app_id });
-        await loadMyAppIdList();
-        setAppInfo({ ...appInfo, install_count: appInfo.install_count + 1 });
-        pubResStore.incAppDataVersion();
+        const tmpList = myAppIdList.slice();
+        if(tmpList.includes(appInfo.app_id) == false){
+            tmpList.push(appInfo.app_id);
+            setMyAppIdList(tmpList);
+            await save_app_list(tmpList);
+            await install_app({ app_id: appInfo.app_id });
+            setAppInfo({ ...appInfo, install_count: appInfo.install_count + 1 });
+            pubResStore.incAppDataVersion();
+        }
+        
     };
 
     const removeUserApp = async () => {
         if (appInfo == null) {
             return;
         }
-        await remove_user_app(appInfo.app_id);
-        await loadMyAppIdList();
+        const tmpList = myAppIdList.filter(item=>item != appInfo.app_id);
+        await save_app_list(tmpList);
+        setMyAppIdList(tmpList);
     };
 
     const agreeApp = async (appId: string, newAgree: boolean) => {

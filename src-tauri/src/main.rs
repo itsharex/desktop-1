@@ -8,7 +8,6 @@ use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
 mod admin_auth_api_plugin;
-mod group_api;
 mod minapp_api;
 mod project_cloud_api;
 mod project_comm_api;
@@ -28,6 +27,7 @@ mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
+mod user_idea_api_plugin;
 
 #[cfg(not(feature = "skip-updater"))]
 mod my_updater;
@@ -460,6 +460,7 @@ fn main() {
         .plugin(pubres_api::appstore_api_plugin::AppstoreApiPlugin::new())
         .plugin(pubres_api::appstore_admin_api_plugin::AppstoreAdminApiPlugin::new())
         .plugin(user_app_api_plugin::UserAppApiPlugin::new())
+        .plugin(user_idea_api_plugin::UserIdeaApiPlugin::new())
         .plugin(project_misc_api::project_chat_api_plugin::ProjectChatApiPlugin::new())
         .plugin(project_misc_api::project_code_api_plugin::ProjectCodeApiPlugin::new())
         .plugin(project_misc_api::project_idea_api_plugin::ProjectIdeaApiPlugin::new())
@@ -475,14 +476,10 @@ fn main() {
         .plugin(project_content_api::project_entry_api_plugin::ProjectEntryApiPlugin::new())
         .plugin(project_misc_api::project_watch_api_plugin::ProjectWatchApiPlugin::new())
         .plugin(project_misc_api::project_comment_api_plugin::ProjectCommentApiPlugin::new())
-        .plugin(project_misc_api::project_idea_admin_api_plugin::ProjectIdeaAdminApiPlugin::new())
+        .plugin(pubres_api::idea_store_admin_api_plugin::IdeaStoreAdminApiPlugin::new())
+        .plugin(pubres_api::idea_store_api_plugin::IdeaStoreApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
-        .plugin(group_api::group_api_plugin::GroupApiPlugin::new())
-        .plugin(group_api::group_member_api_plugin::GroupMemberApiPlugin::new())
-        .plugin(group_api::group_post_api_plugin::GroupPostApiPlugin::new())
-        .plugin(group_api::group_admin_api_plugin::GroupAdminApiPlugin::new())
-        .plugin(group_api::group_post_admin_api_plugin::GroupPostAdminApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())
         .plugin(project_cloud_api::swarm_proxy_api_plugin::SwarmProxyApiPlugin::new())
         .plugin(project_cloud_api::trace_proxy_api_plugin::TraceProxyApiPlugin::new())

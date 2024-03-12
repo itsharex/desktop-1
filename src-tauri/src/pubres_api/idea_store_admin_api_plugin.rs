@@ -1,6 +1,6 @@
 use crate::notice_decode::new_wrong_session_notice;
-use proto_gen_rust::project_idea_api::project_idea_admin_api_client::ProjectIdeaAdminApiClient;
-use proto_gen_rust::project_idea_api::*;
+use proto_gen_rust::idea_store_api::idea_store_admin_api_client::IdeaStoreAdminApiClient;
+use proto_gen_rust::idea_store_api::*;
 use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
@@ -16,7 +16,7 @@ async fn create_store_cate<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.create_store_cate(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -46,7 +46,7 @@ async fn update_store_cate<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.update_store_cate(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -76,7 +76,7 @@ async fn remove_store_cate<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.remove_store_cate(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -106,7 +106,7 @@ async fn create_store<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.create_store(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -136,7 +136,7 @@ async fn update_store<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.update_store(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -166,7 +166,7 @@ async fn move_store<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.move_store(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -196,7 +196,7 @@ async fn remove_store<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.remove_store(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -226,7 +226,7 @@ async fn create_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.create_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -256,7 +256,7 @@ async fn update_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.update_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -286,7 +286,7 @@ async fn move_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.move_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -316,7 +316,7 @@ async fn remove_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.remove_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -346,7 +346,7 @@ async fn list_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.list_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -376,7 +376,7 @@ async fn get_idea<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectIdeaAdminApiClient::new(chan.unwrap());
+    let mut client = IdeaStoreAdminApiClient::new(chan.unwrap());
     match client.get_idea(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -396,11 +396,11 @@ async fn get_idea<R: Runtime>(
     }
 }
 
-pub struct ProjectIdeaAdminApiPlugin<R: Runtime> {
+pub struct IdeaStoreAdminApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> ProjectIdeaAdminApiPlugin<R> {
+impl<R: Runtime> IdeaStoreAdminApiPlugin<R> {
     pub fn new() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
@@ -422,9 +422,9 @@ impl<R: Runtime> ProjectIdeaAdminApiPlugin<R> {
     }
 }
 
-impl<R: Runtime> Plugin<R> for ProjectIdeaAdminApiPlugin<R> {
+impl<R: Runtime> Plugin<R> for IdeaStoreAdminApiPlugin<R> {
     fn name(&self) -> &'static str {
-        "project_idea_admin_api"
+        "idea_store_admin_api"
     }
     fn initialization_script(&self) -> Option<String> {
         None

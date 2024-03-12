@@ -9,7 +9,6 @@ import IdeaStore from './idea';
 import PubResStore from './pubRes';
 import EntryStore from './entry';
 import BoardStore from './board';
-import GroupStore from './group';
 import EditorStore from './editor';
 import CloudStore from './cloud';
 
@@ -25,7 +24,6 @@ export class RootStore {
   pubResStore: PubResStore;
   entryStore: EntryStore;
   boardStore: BoardStore;
-  groupStore: GroupStore;
   editorStore: EditorStore;
   cloudStore: CloudStore;
 
@@ -41,7 +39,6 @@ export class RootStore {
     this.pubResStore = new PubResStore();
     this.entryStore = new EntryStore(this);
     this.boardStore = new BoardStore(this);
-    this.groupStore = new GroupStore();
     this.editorStore = new EditorStore();
     this.cloudStore = new CloudStore(this);
   }
@@ -60,7 +57,6 @@ const _store = {
   pubResStore: rootStore.pubResStore,
   entryStore: rootStore.entryStore,
   boardStore: rootStore.boardStore,
-  groupStore: rootStore.groupStore,
   editorStore: rootStore.editorStore,
   cloudStore: rootStore.cloudStore,
 };
