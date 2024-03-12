@@ -55,7 +55,7 @@ export type ListStoreResponse = {
 }
 
 export type ListIdeaRequest = {
-    idea_store_id: string;
+    list_param: ListIdeaParam;
     offset: number;
     limit: number;
 };

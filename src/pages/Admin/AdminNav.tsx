@@ -199,38 +199,40 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                <Collapse.Panel header="知识点管理" key="ideastore">
-                    <Menu selectedKeys={ideastoreSelectedKeys} items={[
-                        {
-                            label: "管理知识库类别",
-                            key: "ideastore_cate",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                        {
-                            label: "管理知识库",
-                            key: "ideastore_store",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                        {
-                            label: "管理知识点",
-                            key: "ideastore_idea",
-                            disabled: !(permInfo?.idea_store_perm.read ?? false),
-                        },
-                    ]}
-                        style={{ borderRightWidth: "0px" }}
-                        onSelect={e => {
-                            if (e.selectedKeys.length == 1) {
-                                if (e.selectedKeys[0] == "ideastore_cate") {
-                                    history.push(ADMIN_PATH_IDEA_STORE_CATE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "ideastore_store") {
-                                    history.push(ADMIN_PATH_IDEA_STORE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "ideastore_idea") {
-                                    history.push(ADMIN_PATH_IDEA_SUFFIX);
+                {permInfo?.global_server == true && (
+                    <Collapse.Panel header="知识点管理" key="ideastore">
+                        <Menu selectedKeys={ideastoreSelectedKeys} items={[
+                            {
+                                label: "管理知识库类别",
+                                key: "ideastore_cate",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                            {
+                                label: "管理知识库",
+                                key: "ideastore_store",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                            {
+                                label: "管理知识点",
+                                key: "ideastore_idea",
+                                disabled: !(permInfo?.idea_store_perm.read ?? false),
+                            },
+                        ]}
+                            style={{ borderRightWidth: "0px" }}
+                            onSelect={e => {
+                                if (e.selectedKeys.length == 1) {
+                                    if (e.selectedKeys[0] == "ideastore_cate") {
+                                        history.push(ADMIN_PATH_IDEA_STORE_CATE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "ideastore_store") {
+                                        history.push(ADMIN_PATH_IDEA_STORE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "ideastore_idea") {
+                                        history.push(ADMIN_PATH_IDEA_SUFFIX);
+                                    }
                                 }
-                            }
-                        }}
-                    />
-                </Collapse.Panel>
+                            }}
+                        />
+                    </Collapse.Panel>
+                )}
                 {permInfo?.global_server == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
                         <Menu selectedKeys={dockerTemplateSelectedKeys} items={[
