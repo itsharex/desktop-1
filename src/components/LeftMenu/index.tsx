@@ -8,9 +8,9 @@ import cls from './index.module.less';
 const { Sider } = Layout;
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import ProjectList from './ProjectList';
-import { GlobalOutlined, TeamOutlined } from '@ant-design/icons';
+import { GlobalOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
-import { APP_GROUP_HOME_PATH, APP_GROUP_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 
 const LeftMenu: React.FC = () => {
   const location = useLocation();
@@ -54,29 +54,6 @@ const LeftMenu: React.FC = () => {
         <ProjectList />
         <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
 
-        <div className={`${cls.workbench_menu} ${location.pathname.startsWith(APP_GROUP_PATH) ? cls.active_menu : ""}`}
-          onClick={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (userStore.sessionId == "") {
-              userStore.showUserLogin = () => {
-                history.push(APP_GROUP_HOME_PATH);
-                projectStore.setCurProjectId("");
-              };
-              return;
-            }
-            if (appStore.inEdit) {
-              appStore.showCheckLeave(() => {
-                history.push(APP_GROUP_HOME_PATH);
-                projectStore.setCurProjectId("");
-              });
-              return;
-            }
-            history.push(APP_GROUP_HOME_PATH);
-            projectStore.setCurProjectId("");
-          }}>
-          <TeamOutlined />&nbsp;兴趣小组
-        </div>
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(PUB_RES_PATH) ? cls.active_menu : ""}`}
           onClick={e => {
             e.stopPropagation();

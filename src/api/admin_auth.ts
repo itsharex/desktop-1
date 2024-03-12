@@ -61,12 +61,6 @@ export type DockerTemplatePerm = {
     remove_comment: boolean;
 };
 
-export type GroupPerm = {
-    read: boolean;
-    update_group: boolean;
-    audit_recommend: boolean;
-};
-
 export type DevContainerPerm = {
     read: boolean;
     add_package: boolean;
@@ -97,7 +91,6 @@ export type AdminPermInfo = {
     menu_perm: MenuPerm;
     app_store_perm: AppStorePerm;
     docker_template_perm: DockerTemplatePerm;
-    group_perm: GroupPerm;
     dev_container_perm: DevContainerPerm;
     idea_store_perm: IdeaStorePerm;
     global_server: boolean;

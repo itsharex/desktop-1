@@ -8,7 +8,7 @@ export type FS_OWNER_TYPE = number;
 export const FS_OWNER_TYPE_USER: FS_OWNER_TYPE = 0; //用户文件存储
 export const FS_OWNER_TYPE_PROJECT: FS_OWNER_TYPE = 1; //项目文件存储
 export const FS_OWNER_TYPE_GLOBAL: FS_OWNER_TYPE = 2; //全局文件系统
-export const FS_OWNER_TYPE_GROUP: FS_OWNER_TYPE = 3; //兴趣小组文件系统
+// export const FS_OWNER_TYPE_GROUP: FS_OWNER_TYPE = 3; //兴趣小组文件系统
 
 export type FILE_OWNER_TYPE = number;
 
@@ -44,8 +44,8 @@ export const FILE_OWNER_TYPE_TEST_RESULT: FILE_OWNER_TYPE = 27;
 
 export const FILE_OWNER_TYPE_PROJECT: FILE_OWNER_TYPE = 99; //项目范围 
 
-export const FILE_OWNER_TYPE_GROUP: FILE_OWNER_TYPE = 200; //兴趣组
-export const FILE_OWNER_TYPE_GROUP_POST: FILE_OWNER_TYPE = 201; //兴趣组帖子 
+// export const FILE_OWNER_TYPE_GROUP: FILE_OWNER_TYPE = 200; //兴趣组
+// export const FILE_OWNER_TYPE_GROUP_POST: FILE_OWNER_TYPE = 201; //兴趣组帖子 
 
 export type DownloadResult = {
     exist_in_local: boolean;

@@ -8,7 +8,6 @@ use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
 mod admin_auth_api_plugin;
-mod group_api;
 mod minapp_api;
 mod project_cloud_api;
 mod project_comm_api;
@@ -481,11 +480,6 @@ fn main() {
         .plugin(idea_store_api_plugin::IdeaStoreApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
-        .plugin(group_api::group_api_plugin::GroupApiPlugin::new())
-        .plugin(group_api::group_member_api_plugin::GroupMemberApiPlugin::new())
-        .plugin(group_api::group_post_api_plugin::GroupPostApiPlugin::new())
-        .plugin(group_api::group_admin_api_plugin::GroupAdminApiPlugin::new())
-        .plugin(group_api::group_post_admin_api_plugin::GroupPostAdminApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())
         .plugin(project_cloud_api::swarm_proxy_api_plugin::SwarmProxyApiPlugin::new())
         .plugin(project_cloud_api::trace_proxy_api_plugin::TraceProxyApiPlugin::new())
