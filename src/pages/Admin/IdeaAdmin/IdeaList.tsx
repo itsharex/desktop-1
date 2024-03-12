@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Card, Form, Input, List, Select } from "antd";
 import type { AdminPermInfo } from "@/api/admin_auth";
-import type { IdeaStore, IdeaInStore } from "@/api/project_idea";
+import type { IdeaStore, IdeaInStore } from "@/api/idea_store";
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
-import { KEYWORD_SEARCH_AND, list_store } from "@/api/project_idea";
-import { list_idea } from "@/api/project_idea_admin";
+import { list_store } from "@/api/idea_store";
+import { list_idea } from "@/api/idea_store_admin";
 import { request } from "@/utils/request";
 import Button from "@/components/Button";
 import { PlusOutlined } from "@ant-design/icons";
 import CreateIdeaModal from "./components/CreateIdeaModal";
 import IdeaCard from "./components/IdeaCard";
-import { get_idea } from "@/api/project_idea_admin";
+import { get_idea } from "@/api/idea_store_admin";
 
 
 const PAGE_SIZE = 10;
@@ -52,11 +52,8 @@ const IdeaList = () => {
         const res = await request(list_idea({
             admin_session_id: sessionId,
             list_param: {
-                filter_by_keyword: false,
-                keyword_list: [],
-                keyword_search_type: KEYWORD_SEARCH_AND,
-                filter_by_group_or_store_id: true,
-                group_or_store_id: curStoreId,
+                filter_by_store_id: true,
+                store_id: curStoreId,
                 filter_by_title_keyword: titleKeyword != "", 
                 title_keyword: titleKeyword, 
             },

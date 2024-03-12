@@ -1,8 +1,9 @@
 import { Button, Card, Form, Input, InputNumber, List, Modal, Tabs, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import type { IdeaStoreCate, IdeaStore } from "@/api/project_idea";
-import { create_group, list_store_cate, list_store, import_store } from "@/api/project_idea";
+import type { IdeaStoreCate, IdeaStore } from "@/api/idea_store";
+import { create_group, import_store } from "@/api/project_idea";
+import {  list_store_cate, list_store } from "@/api/idea_store";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 

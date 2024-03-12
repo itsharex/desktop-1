@@ -1,9 +1,9 @@
 import { Card, Form, Modal, Select, Space, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
-import type { IdeaStoreCate, IdeaStore } from "@/api/project_idea";
+import type { IdeaStoreCate, IdeaStore } from "@/api/idea_store";
 import type { AdminPermInfo } from '@/api/admin_auth';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
-import { list_store_cate, list_store } from "@/api/project_idea";
+import { list_store_cate, list_store } from "@/api/idea_store";
 import type { ColumnsType } from 'antd/es/table';
 import { EditText } from "@/components/EditCell/EditText";
 import Button from "@/components/Button";
@@ -11,7 +11,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import CreateStoreModal from "./components/CreateStoreModal";
 import { EditNumber } from "@/components/EditCell/EditNumber";
 import { request } from "@/utils/request";
-import { update_store, remove_store, move_store } from "@/api/project_idea_admin";
+import { update_store, remove_store, move_store } from "@/api/idea_store_admin";
 import StoreCateListModal from "./components/StoreCateListModal";
 
 const IdeaStoreList = () => {

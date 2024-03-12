@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import type { IdeaInStore } from "@/api/project_idea";
+import type { IdeaInStore } from "@/api/idea_store";
 import { useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
 import { Form, Input, Modal, Select } from "antd";
-import { update_idea } from "@/api/project_idea_admin";
+import { update_idea } from "@/api/idea_store_admin";
 import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
 

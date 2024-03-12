@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, List, Modal } from "antd";
-import type { IdeaStoreCate, IdeaStore } from "@/api/project_idea";
-import { list_store_cate, list_store } from "@/api/project_idea";
+import type { IdeaStoreCate, IdeaStore } from "@/api/idea_store";
+import { list_store_cate, list_store } from "@/api/idea_store";
 import { request } from "@/utils/request";
 
 

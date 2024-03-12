@@ -22,6 +22,8 @@ mod client_cfg_api_plugin;
 mod events_decode;
 mod fs_api_plugin;
 mod helper;
+mod idea_store_admin_api_plugin;
+mod idea_store_api_plugin;
 mod image_utils;
 mod local_api;
 mod notice_decode;
@@ -475,7 +477,8 @@ fn main() {
         .plugin(project_content_api::project_entry_api_plugin::ProjectEntryApiPlugin::new())
         .plugin(project_misc_api::project_watch_api_plugin::ProjectWatchApiPlugin::new())
         .plugin(project_misc_api::project_comment_api_plugin::ProjectCommentApiPlugin::new())
-        .plugin(project_misc_api::project_idea_admin_api_plugin::ProjectIdeaAdminApiPlugin::new())
+        .plugin(idea_store_admin_api_plugin::IdeaStoreAdminApiPlugin::new())
+        .plugin(idea_store_api_plugin::IdeaStoreApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
         .plugin(group_api::group_api_plugin::GroupApiPlugin::new())

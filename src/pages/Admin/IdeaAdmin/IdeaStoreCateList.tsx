@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import type { AdminPermInfo } from '@/api/admin_auth';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import { PlusOutlined } from "@ant-design/icons";
-import type { IdeaStoreCate } from "@/api/project_idea";
-import { list_store_cate } from "@/api/project_idea";
+import type { IdeaStoreCate } from "@/api/idea_store";
+import { list_store_cate } from "@/api/idea_store";
 import type { ColumnsType } from 'antd/es/table';
 import { EditText } from "@/components/EditCell/EditText";
 import { Card, Modal, Table, message } from "antd";
 import Button from "@/components/Button";
 import CreateCateModal from "./components/CreateCateModal";
-import { update_store_cate, remove_store_cate } from "@/api/project_idea_admin";
+import { update_store_cate, remove_store_cate } from "@/api/idea_store_admin";
 import { request } from "@/utils/request";
 import { EditNumber } from "@/components/EditCell/EditNumber";
 

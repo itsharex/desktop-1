@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import type { IdeaInStore } from "@/api/project_idea";
+import type { IdeaInStore } from "@/api/idea_store";
 import { Card, Form, Modal, Popover, Select, Space, message } from "antd";
 import { AdminPermInfo, get_admin_session } from "@/api/admin_auth";
 import Button from "@/components/Button";
 import { ReadOnlyEditor } from "@/components/Editor";
 import { MoreOutlined } from "@ant-design/icons";
-import { remove_idea, move_idea } from "@/api/project_idea_admin";
+import { remove_idea, move_idea } from "@/api/idea_store_admin";
 import { request } from "@/utils/request";
 import StoreListModal from "./StoreListModal";
 import UpdateIdeaModal from "./UpdateIdeaModal";

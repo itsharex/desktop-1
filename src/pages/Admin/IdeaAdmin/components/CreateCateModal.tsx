@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { get_admin_session } from '@/api/admin_auth';
 import { Form, Input, InputNumber, Modal, message } from "antd";
 import { request } from "@/utils/request";
-import { create_store_cate } from "@/api/project_idea_admin";
+import { create_store_cate } from "@/api/idea_store_admin";
 
 export interface CreateCateModalProps {
     onCancel: () => void;
