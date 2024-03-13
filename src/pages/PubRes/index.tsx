@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import s from "./index.module.less";
 import { Tabs } from 'antd';
-import { AppstoreOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, BulbOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH } from '@/utils/constant';
 import AppStorePanel from './components/AppStorePanel';
@@ -12,6 +12,7 @@ import PubSearchPanel from './components/PubSearchPanel';
 import { observer } from 'mobx-react';
 import AppStoreDetail from './components/AppStoreDetail';
 import DockerTemplateDetail from './components/DockerTemplateDetail';
+import IdeaListPanel from './components/IdeaListPanel';
 
 
 const PubRes = () => {
@@ -65,6 +66,14 @@ const PubRes = () => {
                         <div className={s.content_wrap}>
                             {pubResStore.dockerAppId == "" && <DockerTemplatePanel />}
                             {pubResStore.dockerAppId != "" && <DockerTemplateDetail />}
+                        </div>
+                    )}
+                </Tabs.TabPane>
+
+                <Tabs.TabPane tab={<h2><BulbOutlined />&nbsp;知识点仓库</h2>} key="ideaStore">
+                    {activeKey == "ideaStore" && (
+                        <div className={s.content_wrap}>
+                            <IdeaListPanel />
                         </div>
                     )}
                 </Tabs.TabPane>

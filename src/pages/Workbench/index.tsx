@@ -9,14 +9,12 @@ import Card from './components/Card';
 import InfoCount from './components/InfoCount';
 import { Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
-import { AppstoreOutlined, BulbOutlined, DoubleRightOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DoubleRightOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import UserAppList from './components/UserAppList';
 import LocalRepoList from './components/LocalRepoList';
 import AddRepoModal from './components/AddRepoModal';
 import ResetDevModal from './components/ResetDevModal';
-import AddIdeaModal from './components/AddIdeaModal';
-import IdeaList from './IdeaList';
 
 
 const Workbench: React.FC = () => {
@@ -33,8 +31,7 @@ const Workbench: React.FC = () => {
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
   const [repoDataVersion, setRepoDataVersion] = useState(0);
   const [showResetDevModal, setShowResetDevModal] = useState(false);
-  const [showAddIdeaModal, setShowAddIdeaModal] = useState(false);
-  const [ideaDataVersion, setIdeaDataVersion] = useState(0);
+
 
   useMemo(() => {
     projectStore.setCurProjectId('');
@@ -82,14 +79,6 @@ const Workbench: React.FC = () => {
                 </Popover>
               </Space>
             )}
-            {tab == "userIdea" && (
-              <Button type="primary" style={{ marginRight: "20px" }}
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setShowAddIdeaModal(true);
-                }}>新增知识点</Button>
-            )}
           </div>
         }>
         <Tabs.TabPane tab={<h2><FolderOutlined />本地仓库</h2>} key="localRepo">
@@ -104,14 +93,6 @@ const Workbench: React.FC = () => {
           {tab == "userApp" && (
             <div className={s.content_wrap}>
               <UserAppList />
-            </div>
-          )}
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<h2><BulbOutlined />我的知识点</h2>} key="userIdea">
-          {tab == "userIdea" && (
-            <div className={s.content_wrap}>
-              <IdeaList ideaVersion={ideaDataVersion}/>
             </div>
           )}
         </Tabs.TabPane>
@@ -143,13 +124,7 @@ const Workbench: React.FC = () => {
       {showResetDevModal == true && (
         <ResetDevModal onClose={() => setShowResetDevModal(false)} />
       )}
-      {showAddIdeaModal == true && (
-        <AddIdeaModal onCancel={() => setShowAddIdeaModal(false)}
-          onOk={() => {
-            setIdeaDataVersion(oldValue => oldValue + 1);
-            setShowAddIdeaModal(false)
-          }} />
-      )}
+
     </div>
   );
 };
