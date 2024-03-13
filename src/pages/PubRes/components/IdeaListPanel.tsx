@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
-import { Card, Checkbox, Form, Input, Layout, List, Menu, Modal, Space } from "antd";
 import type { ItemType, MenuItemGroupType } from "antd/lib/menu/hooks/useItems";
 import type { IdeaInStore } from "@/api/idea_store";
 import { list_store_cate, list_store, list_idea } from "@/api/idea_store";
 import { request } from "@/utils/request";
+import { Button, Card, Form, Input, Layout, List, Menu, Modal, message } from "antd";
 import { ReadOnlyEditor } from "@/components/Editor";
-import { list_idea as list_user_idea, save_idea_list } from "@/api/user_idea";
 import { useStores } from "@/hooks";
+import { observer } from 'mobx-react';
+import { get_global_server_addr } from "@/api/client_cfg";
+import { import_store } from "@/api/project_idea";
 
 const PAGE_SIZE = 10;
 
-export interface AddIdeaModalProps {
-    onCancel: () => void;
-    onOk: () => void;
-}
-
-const AddIdeaModal = (props: AddIdeaModalProps) => {
+const IdeaListPanel = () => {
     const userStore = useStores('userStore');
+    const projectStore = useStores('projectStore');
 
     const [menuList, setMenuList] = useState([] as ItemType[]);
     const [curCatId, setCurCateId] = useState("");
@@ -28,8 +25,7 @@ const AddIdeaModal = (props: AddIdeaModalProps) => {
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
-    const [oldIdeaIdList, setOldIdeaIdList] = useState([] as string[]);
-    const [newIdeaIdList, setNewIdeaIdList] = useState([] as string[]);
+    const [showImportModal, setShowImportModal] = useState(false);
 
     const loadMenuList = async () => {
         const cateRes = await request(list_store_cate({}));
@@ -85,23 +81,19 @@ const AddIdeaModal = (props: AddIdeaModalProps) => {
         setIdeaList(res.idea_list);
     };
 
-    const loadOldIdeaIdList = async () => {
-        const userId = userStore.userInfo.userId == "" ? "all" : userStore.userInfo.userId;
-        const res = await list_user_idea(userId);
-        setOldIdeaIdList(res);
-    };
-
-    const importIdeaList = async () => {
-        const userId = userStore.userInfo.userId == "" ? "all" : userStore.userInfo.userId;
-        const tmpList = await list_user_idea(userId);
-        for (const newIdeaId of newIdeaIdList) {
-            if (tmpList.includes(newIdeaId)) {
-                continue;
-            }
-            tmpList.unshift(newIdeaId);
+    const importToProject = async (projectId: string) => {
+        if (curStoreId == "") {
+            return;
         }
-        await save_idea_list(userId, tmpList);
-        props.onOk();
+        const servAddr = await get_global_server_addr();
+        await request(import_store({
+            session_id: userStore.sessionId,
+            project_id: projectId,
+            idea_store_id: curStoreId,
+            global_server_addr: servAddr,
+        }));
+        message.info("导入成功");
+        setShowImportModal(false);
     };
 
     useEffect(() => {
@@ -112,27 +104,11 @@ const AddIdeaModal = (props: AddIdeaModalProps) => {
         loadIdeaList();
     }, [curPage, curStoreId, titleKeyword]);
 
-    useEffect(() => {
-        loadOldIdeaIdList();
-    }, []);
-
     return (
-        <Modal open title="知识点仓库"
-            width={800}
-            okText="导入" okButtonProps={{ disabled: newIdeaIdList.length == 0 }}
-            onCancel={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                props.onCancel();
-            }}
-            onOk={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                importIdeaList();
-            }}>
+        <>
             <Layout>
                 <Layout.Sider theme="light" width="200px">
-                    <Menu items={menuList} mode="inline" style={{ height: "calc(100vh - 300px)", overflowY: "scroll", overflowX: "hidden" }}
+                    <Menu items={menuList} mode="inline" style={{ height: "calc(100vh - 140px)", overflowY: "scroll", overflowX: "hidden" }}
                         openKeys={[curCatId]} selectedKeys={[curStoreId]}
                         onOpenChange={keys => {
                             setTitleKeyword("");
@@ -160,7 +136,7 @@ const AddIdeaModal = (props: AddIdeaModalProps) => {
                         }} />
                 </Layout.Sider>
                 <Layout.Content>
-                    <Card bordered={false} bodyStyle={{ height: "calc(100vh - 340px)", overflowY: "scroll" }} extra={
+                    <Card bordered={false} bodyStyle={{ height: "calc(100vh - 180px)", overflowY: "scroll" }} extra={
                         <Form layout="inline">
                             <Form.Item label="过滤标题">
                                 <Input value={titleKeyword} onChange={e => {
@@ -169,38 +145,50 @@ const AddIdeaModal = (props: AddIdeaModalProps) => {
                                     setTitleKeyword(e.target.value.trim());
                                 }} allowClear />
                             </Form.Item>
+                            <Form.Item>
+                                <Button type="primary" disabled={projectStore.projectList.filter(prj => prj.user_project_perm.can_admin).length == 0}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowImportModal(true);
+                                    }}>导入到项目</Button>
+                            </Form.Item>
                         </Form>
                     }>
                         <List rowKey="idea_id" dataSource={ideaList}
                             pagination={{ current: curPage + 1, pageSize: PAGE_SIZE, total: totalCount, onChange: page => setCurPage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}
                             renderItem={idea => (
-                                <Card title={
-                                    <Space>
-                                        <Checkbox checked={oldIdeaIdList.includes(idea.idea_id) || newIdeaIdList.includes(idea.idea_id)}
-                                            disabled={oldIdeaIdList.includes(idea.idea_id)} onChange={e => {
-                                                e.stopPropagation();
-                                                if (e.target.checked) {
-                                                    if (newIdeaIdList.includes(idea.idea_id) == false) {
-                                                        const tmpList = newIdeaIdList.slice();
-                                                        tmpList.push(idea.idea_id);
-                                                        setNewIdeaIdList(tmpList);
-                                                    }
-                                                } else {
-                                                    const tmpList = newIdeaIdList.filter(item => item != idea.idea_id);
-                                                    setNewIdeaIdList(tmpList);
-                                                }
-                                            }} />
-                                        {idea.basic_info.title}
-                                    </Space>
-                                } style={{ width: "100%", marginBottom: "10px" }}>
+                                <Card title={idea.basic_info.title} style={{ width: "100%", marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
                                     <ReadOnlyEditor content={idea.basic_info.content} />
                                 </Card>
                             )} />
                     </Card>
                 </Layout.Content>
             </Layout>
-        </Modal>
+            {showImportModal == true && (
+                <Modal open title="导入到项目" style={{ maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}
+                    footer={null}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowImportModal(false);
+                    }}>
+                    <List rowKey="project_id" dataSource={projectStore.projectList.filter(prj => prj.user_project_perm.can_admin)}
+                        renderItem={prj => (
+                            <List.Item extra={
+                                <Button type="primary" onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    importToProject(prj.project_id);
+                                }}>导入到项目</Button>
+                            }>
+                                {prj.basic_info.project_name}
+                            </List.Item>
+                        )} />
+                </Modal>
+            )}
+        </>
     );
 };
 
-export default observer(AddIdeaModal);
+export default observer(IdeaListPanel);
