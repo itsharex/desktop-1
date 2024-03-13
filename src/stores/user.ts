@@ -48,7 +48,6 @@ class UserStore {
 
   async logout() {
     this.rootStore.projectStore.reset();
-    this.rootStore.appStore.reset();
     const tmpSessionId = this.sessionId;
     runInAction(() => {
       this.sessionId = '';
@@ -69,6 +68,7 @@ class UserStore {
   async callLogin(username: string, password: string) {
     const res = await request(login(username, password));
 
+    
     if (res) {
       runInAction(() => {
         this.sessionId = res.session_id;

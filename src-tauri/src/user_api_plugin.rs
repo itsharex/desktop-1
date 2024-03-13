@@ -136,7 +136,6 @@ async fn login<R: Runtime>(
         return Err("no grpc conn".into());
     }
     let mut client = UserApiClient::new(chan.unwrap());
-    let app_for_float = app_handle.clone();
     match client.login(request).await {
         Ok(response) => {
             let ret = response.into_inner();
@@ -198,11 +197,6 @@ async fn login<R: Runtime>(
                 });
             } else {
                 println!("xxxxxxxxx");
-            }
-            //设置切换用户菜单
-            let munu_item = app_for_float.tray_handle().get_item("switch_user");
-            if let Err(err) = munu_item.set_enabled(true) {
-                println!("{:?}", err);
             }
             Ok(ret)
         }

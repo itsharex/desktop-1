@@ -1,5 +1,5 @@
 import { FolderOpenOutlined } from "@ant-design/icons";
-import { Form, Input, Button, Space } from "antd";
+import { Form, Input, Button, Modal } from "antd";
 import React, { useState } from "react";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
 import { pre_auth, auth, sign } from '@/api/admin_auth';
@@ -9,11 +9,11 @@ import { ADMIN_PATH } from "@/utils/constant";
 import { useStores } from "@/hooks";
 import { runInAction } from "mobx";
 
-export interface AdminLoginProps {
-    onClose:()=>void;
+export interface AdminLoginModalProps {
+    onClose: () => void;
 }
 
-export const AdminLogin = (props:AdminLoginProps) => {
+export const AdminLoginModal = (props: AdminLoginModalProps) => {
     const [form] = Form.useForm();
 
     const history = useHistory();
@@ -49,6 +49,18 @@ export const AdminLogin = (props:AdminLoginProps) => {
     };
 
     return (
+        <Modal open title="登录管理后台"
+            okText="登录" okButtonProps={{ disabled: userName == "" || privKey == "" }}
+            onCancel={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.onClose();
+            }}
+            onOk={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                loginAdmin();
+            }}>
             <Form form={form} labelCol={{ span: 5 }} >
                 <Form.Item label="管理员账号" name="userName" rules={[{ required: true }]}>
                     <Input value={userName} onChange={e => {
@@ -70,20 +82,7 @@ export const AdminLogin = (props:AdminLoginProps) => {
                         setPrivKey(e.target.value);
                     }} />
                 </Form.Item>
-                <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid #e4e4e8", paddingTop: "10px", marginTop: "10px" }}>
-                        <Space size="large">
-                            <Button onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                props.onClose();
-                            }}>返回</Button>
-                            <Button type="primary" disabled={ userName == "" || privKey == ""} onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                loginAdmin();
-                            }}>登录</Button>
-                        </Space>
-                    </div>
             </Form>
+        </Modal>
     );
 }; 

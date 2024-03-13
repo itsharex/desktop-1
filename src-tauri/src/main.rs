@@ -304,15 +304,10 @@ fn main() {
     }
 
     let tray_menu = SystemTrayMenu::new()
-        .add_item(CustomMenuItem::new("switch_user", "切换用户").disabled())
-        .add_item(CustomMenuItem::new("set_global_server", "设置全局服务器"))
-        .add_native_item(SystemTrayMenuItem::Separator)
-        .add_item(CustomMenuItem::new("local_api", "本地接口"))
-        .add_item(CustomMenuItem::new("devtools", "调试工具"))
         .add_item(CustomMenuItem::new("show_app", "显示界面"))
-        .add_item(CustomMenuItem::new("about", "关于"))
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(CustomMenuItem::new("check_update", "检查更新"))
+        .add_item(CustomMenuItem::new("about", "关于"))
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(CustomMenuItem::new("exit_app", "退出"));
     let app = tauri::Builder::default()
@@ -360,32 +355,6 @@ fn main() {
                 }
             }
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "switch_user" => {
-                    let win = app.get_window("main").unwrap();
-                    if let Err(err) = win.emit("notice", notice_decode::new_switch_user_notice()) {
-                        println!("{:?}", err);
-                    }
-                }
-                "set_global_server" => {
-                    let win = app.get_window("main").unwrap();
-                    if let Err(err) = win.emit(
-                        "notice",
-                        notice_decode::new_show_global_server_setting_notice(),
-                    ) {
-                        println!("{:?}", err);
-                    }
-                }
-                "devtools" => {
-                    let win = app.get_window("main").unwrap();
-                    win.open_devtools();
-                }
-                "local_api" => {
-                    let win = app.get_window("main").unwrap();
-                    if let Err(err) = win.emit("notice", notice_decode::new_open_local_api_notice())
-                    {
-                        println!("{:?}", err);
-                    }
-                }
                 "show_app" => {
                     let all_windows = app.windows();
                     for (_, win) in &all_windows {

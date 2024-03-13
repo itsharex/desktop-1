@@ -23,6 +23,7 @@ import { remove_info_file } from '@/api/local_api';
 import { exit } from '@tauri-apps/api/process';
 import EntryPopover from '@/pages/Project/Home/components/EntryPopover';
 import RemoveEntryModal from '@/pages/Project/Home/components/RemoveEntryModal';
+import ServerConnInfo from './ServerConnInfo';
 
 
 const { Header } = Layout;
@@ -286,6 +287,8 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Badge>
             </Popover>
           )}
+          {location.pathname.startsWith("/app/") && <ServerConnInfo />}
+          
           <a href="https://atomgit.com/openlinksaas/desktop/issues" target="_blank" rel="noreferrer" style={{ marginRight: "20px" }} title="报告缺陷"><BugOutlined /></a>
           <div className={style.btnMinimize} onClick={() => handleClick('minimize')} title="最小化" />
           <div className={style.btnMaximize} onClick={() => handleClick('maximize')} title="最大化/恢复" />
