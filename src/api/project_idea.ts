@@ -309,6 +309,7 @@ export type ImportStoreRequest = {
     session_id: string;
     project_id: string;
     idea_store_id: string;
+    global_server_addr: string;
 };
 
 export type ImportStoreResponse = {
