@@ -417,14 +417,9 @@ export default class ProjectStore {
   get isAdmin(): boolean {
     const curProject = this.curProject;
     if (curProject !== undefined) {
-      if (curProject.owner_user_id == this.rootStore.userStore.userInfo.userId) {
-        return true;
-      }
+      return curProject.user_project_perm.can_admin;
     }
-    const member = this.rootStore.memberStore.getMember(this.rootStore.userStore.userInfo.userId);
-    if (member !== undefined) {
-      return member.member.can_admin;
-    }
+
     return false;
   }
 

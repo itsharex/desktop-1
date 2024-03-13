@@ -105,9 +105,6 @@ type SetMemberRoleResponse = {
   err_msg: string;
 };
 
-
-
-
 export type MemberInfo = {
   project_id: string;
   member_user_id: string;
@@ -124,7 +121,6 @@ export type MemberInfo = {
   can_admin: boolean;
   // reminder_channel_id: string;
 };
-
 
 export type ListMemberResponse = {
   code: number;
