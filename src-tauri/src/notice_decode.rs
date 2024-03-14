@@ -510,10 +510,6 @@ pub mod client {
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
-    pub struct SwitchUserNotice {}
-
-    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(rename_all = "snake_case")]
     pub struct GitPostHookNotice {
         pub project_id: String,
     }
@@ -524,17 +520,9 @@ pub mod client {
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
-    pub struct ShowGlobalServerSettingNotice {}
-
-    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(rename_all = "snake_case")]
     pub struct StartMinAppNotice {
         pub min_app_id: String,
     }
-
-    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
-    #[serde(rename_all = "snake_case")]
-    pub struct OpenLocalApiNotice {}
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
@@ -544,15 +532,19 @@ pub mod client {
     }
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(rename_all = "snake_case")]
+    pub struct NewExtraTokenNotice {
+        pub extra_token: String,
+    }
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     pub enum Notice {
         WrongSessionNotice(WrongSessionNotice),
-        SwitchUserNotice(SwitchUserNotice),
         GitPostHookNotice(GitPostHookNotice),
         LocalProxyStopNotice(LocalProxyStopNotice),
-        ShowGlobalServerSettingNotice(ShowGlobalServerSettingNotice),
         StartMinAppNotice(StartMinAppNotice),
-        OpenLocalApiNotice(OpenLocalApiNotice),
         OpenEntryNotice(OpenEntryNotice),
+        NewExtraTokenNotice(NewExtraTokenNotice),
     }
 }
 
@@ -609,12 +601,6 @@ pub fn new_wrong_session_notice(name: String) -> NoticeMessage {
     ));
 }
 
-pub fn new_switch_user_notice() -> NoticeMessage {
-    return NoticeMessage::ClientNotice(client::Notice::SwitchUserNotice(
-        client::SwitchUserNotice {},
-    ));
-}
-
 pub fn new_git_post_hook_notice(project_id: String) -> NoticeMessage {
     return NoticeMessage::ClientNotice(client::Notice::GitPostHookNotice(
         client::GitPostHookNotice {
@@ -629,12 +615,6 @@ pub fn new_local_proxy_stop_notice() -> NoticeMessage {
     ));
 }
 
-pub fn new_show_global_server_setting_notice() -> NoticeMessage {
-    return NoticeMessage::ClientNotice(client::Notice::ShowGlobalServerSettingNotice(
-        client::ShowGlobalServerSettingNotice {},
-    ));
-}
-
 pub fn new_start_min_app_notice(min_app_id: String) -> NoticeMessage {
     return NoticeMessage::ClientNotice(client::Notice::StartMinAppNotice(
         client::StartMinAppNotice {
@@ -643,15 +623,17 @@ pub fn new_start_min_app_notice(min_app_id: String) -> NoticeMessage {
     ));
 }
 
-pub fn new_open_local_api_notice() -> NoticeMessage {
-    return NoticeMessage::ClientNotice(client::Notice::OpenLocalApiNotice(
-        client::OpenLocalApiNotice {},
-    ));
-}
-
 pub fn new_open_entry_notice(project_id: String, entry_id: String) -> NoticeMessage {
     return NoticeMessage::ClientNotice(client::Notice::OpenEntryNotice(client::OpenEntryNotice {
         project_id: project_id,
         entry_id: entry_id,
     }));
+}
+
+pub fn new_extra_token_notice(extra_token: String) -> NoticeMessage {
+    return NoticeMessage::ClientNotice(client::Notice::NewExtraTokenNotice(
+        client::NewExtraTokenNotice {
+            extra_token: extra_token,
+        },
+    ));
 }

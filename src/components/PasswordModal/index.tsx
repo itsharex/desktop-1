@@ -1,4 +1,4 @@
-import { change_passwd, reset_password } from '@/api/user';
+import { USER_TYPE_INTERNAL, change_passwd, reset_password } from '@/api/user';
 import { useStores } from '@/hooks';
 import type { ResetPasswordType } from '@/pages/User/Reset';
 import { request } from '@/utils/request';
@@ -37,14 +37,14 @@ const PasswordModal: FC<PasswordModalProps> = ({
     if (type === 'resetPassword') {
       try {
         await request(reset_password(state.user_name, state.auth_code, values.repetition));
-        await userStore.callLogin(state.user_name, values.repetition);
+        await userStore.callLogin(state.user_name, values.repetition, USER_TYPE_INTERNAL);
         userStore.isResetPassword = false;
         message.success('密码重置成功');
         if (onSuccess) {
           onSuccess();
           onCancel(false);
         }
-      } catch (error) {}
+      } catch (error) { }
       return;
     } else {
       try {
@@ -54,7 +54,7 @@ const PasswordModal: FC<PasswordModalProps> = ({
         if (onSuccess) {
           onSuccess();
         }
-      } catch (error) {}
+      } catch (error) { }
       return;
     }
   };

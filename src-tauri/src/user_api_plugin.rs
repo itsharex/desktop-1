@@ -1,5 +1,5 @@
 use crate::project_cloud_api::net_proxy_api_plugin::stop_all_listen;
-use crate::notice_decode::{decode_notice, new_wrong_session_notice};
+use crate::notice_decode::{decode_notice, new_extra_token_notice, new_wrong_session_notice};
 use image::EncodableLayout;
 use libaes::Cipher;
 use prost::Message;
@@ -110,12 +110,21 @@ async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
                     if let Err(err) = resp {
                         println!("err {}", err);
                     } else {
-                        if resp.unwrap().into_inner().code != keep_alive_response::Code::Ok as i32 {
-                            let window = (&handle).get_window("main").unwrap();
+                        let window = (&handle).get_window("main").unwrap();
+                        let resp = resp.unwrap().into_inner();
+                        if resp.code != keep_alive_response::Code::Ok as i32 {
                             let res = window
                                 .emit("notice", new_wrong_session_notice("keep_alive".into()));
                             if res.is_err() {
                                 println!("{:?}", res);
+                            }
+                        }else{
+                            if &resp.new_extra_token != "" {
+                                let res = window
+                                .emit("notice", new_extra_token_notice(resp.new_extra_token));
+                            if res.is_err() {
+                                println!("{:?}", res);
+                            }
                             }
                         }
                     }
@@ -136,7 +145,6 @@ async fn login<R: Runtime>(
         return Err("no grpc conn".into());
     }
     let mut client = UserApiClient::new(chan.unwrap());
-    let app_for_float = app_handle.clone();
     match client.login(request).await {
         Ok(response) => {
             let ret = response.into_inner();
@@ -198,11 +206,6 @@ async fn login<R: Runtime>(
                 });
             } else {
                 println!("xxxxxxxxx");
-            }
-            //设置切换用户菜单
-            let munu_item = app_for_float.tray_handle().get_item("switch_user");
-            if let Err(err) = munu_item.set_enabled(true) {
-                println!("{:?}", err);
             }
             Ok(ret)
         }
