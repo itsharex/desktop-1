@@ -508,7 +508,6 @@ pub mod client {
         pub name: String, //用于区分发生错误的地方
     }
 
-
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
     pub struct GitPostHookNotice {
@@ -533,12 +532,19 @@ pub mod client {
     }
 
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    #[serde(rename_all = "snake_case")]
+    pub struct NewExtraTokenNotice {
+        pub extra_token: String,
+    }
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     pub enum Notice {
         WrongSessionNotice(WrongSessionNotice),
         GitPostHookNotice(GitPostHookNotice),
         LocalProxyStopNotice(LocalProxyStopNotice),
         StartMinAppNotice(StartMinAppNotice),
         OpenEntryNotice(OpenEntryNotice),
+        NewExtraTokenNotice(NewExtraTokenNotice),
     }
 }
 
@@ -622,4 +628,12 @@ pub fn new_open_entry_notice(project_id: String, entry_id: String) -> NoticeMess
         project_id: project_id,
         entry_id: entry_id,
     }));
+}
+
+pub fn new_extra_token_notice(extra_token: String) -> NoticeMessage {
+    return NoticeMessage::ClientNotice(client::Notice::NewExtraTokenNotice(
+        client::NewExtraTokenNotice {
+            extra_token: extra_token,
+        },
+    ));
 }

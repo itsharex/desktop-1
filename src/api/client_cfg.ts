@@ -23,7 +23,7 @@ export type GetCfgResponse = {
   can_invite: boolean;
   can_register: boolean;
   enable_admin: boolean;
-  login_prompt: string;
+  atom_git_client_id: string;
   server_time: number;
   client_time: number; //本地属性，非服务端返回
 };

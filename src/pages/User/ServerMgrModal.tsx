@@ -91,7 +91,7 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
                         <div>{serverInfo.name}{serverInfo.default_server ? "(默认服务器)" : ""}</div>
                     </List.Item>
                 )} />
-            <Divider orientation="left">新增服务器</Divider>
+            <Divider orientation="left">新增私有部署服务器</Divider>
             <Space size="large">
                 <Input style={{ width: "280px" }} value={newServAddr} onChange={e => {
                     e.stopPropagation();

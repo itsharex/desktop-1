@@ -5,6 +5,11 @@ export type USER_STATE = number;
 export const USER_STATE_NORMAL: USER_STATE = 0;     //正常状态
 export const USER_STATE_FORBIDDEN: USER_STATE = 1;  //冻结账户
 
+export type USER_TYPE = number;
+export const USER_TYPE_INTERNAL: USER_TYPE = 0;  //内部用户
+export const USER_TYPE_ATOM_GIT: USER_TYPE = 1;  // atomgit用户
+
+
 export type GenCaptchaResponse = {
   code: number;
   err_msg: string;
@@ -43,6 +48,7 @@ export type UserInfo = {
   update_time: number;
   user_fs_id: string;
   user_state: USER_STATE;
+  user_type: USER_TYPE;
   test_account: boolean;
 };
 
@@ -53,6 +59,7 @@ export type LoginResponse = {
   user_info: UserInfo;
   notice_url: string;
   notice_key: string;
+  extra_token: string;
 };
 
 export type LogoutResponse = {
@@ -123,11 +130,12 @@ export async function register(request: RegisterRequest): Promise<RegisterRespon
  * 1. 自动进行会话保活
  * 2. 启动对应用户的通知推送功能
  */
-export async function login(user_name: string, passwd: string): Promise<LoginResponse> {
+export async function login(user_name: string, passwd: string, user_type: USER_TYPE): Promise<LoginResponse> {
   const cmd = 'plugin:user_api|login';
   const request = {
     user_name,
     passwd,
+    user_type,
   };
   console.log(`%c${cmd}`, 'color:#0f0;', request);
   return invoke<LoginResponse>(cmd, {

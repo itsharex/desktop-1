@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { login, logout as user_logout } from '@/api/user';
+import { USER_TYPE, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
 
 import type { RootStore } from './index';
@@ -12,6 +12,7 @@ type UserInfo = {
   displayName: string;
   logoUri: string;
   userFsId: string;
+  extraToken: string;
   testAccount: boolean;
 };
 
@@ -34,6 +35,7 @@ class UserStore {
     displayName: '',
     logoUri: '',
     userFsId: '',
+    extraToken: '',
     testAccount: false,
   };
 
@@ -57,6 +59,7 @@ class UserStore {
         displayName: '',
         logoUri: '',
         userFsId: '',
+        extraToken: '',
         testAccount: false,
       };
     });
@@ -65,10 +68,9 @@ class UserStore {
     await request(user_logout(tmpSessionId));
   }
 
-  async callLogin(username: string, password: string) {
-    const res = await request(login(username, password));
+  async callLogin(username: string, password: string, userType: USER_TYPE) {
+    const res = await request(login(username, password, userType));
 
-    
     if (res) {
       runInAction(() => {
         this.sessionId = res.session_id;
@@ -79,6 +81,7 @@ class UserStore {
           displayName: res.user_info.basic_info.display_name,
           logoUri: res.user_info.basic_info.logo_uri,
           userFsId: res.user_info.user_fs_id,
+          extraToken: res.extra_token,
           testAccount: res.user_info.test_account,
         };
         sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
@@ -136,6 +139,14 @@ class UserStore {
     if (this.sessionId && this.userInfo) {
       runInAction(() => {
         this.userInfo.logoUri = val;
+      });
+    }
+  }
+
+  updateExtraToken(val: string){
+    if (this.sessionId && this.userInfo) {
+      runInAction(() => {
+        this.userInfo.extraToken = val;
       });
     }
   }

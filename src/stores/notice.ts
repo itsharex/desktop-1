@@ -16,6 +16,7 @@ import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
+import { USER_TYPE_ATOM_GIT } from '@/api/user';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -260,6 +261,10 @@ class NoticeStore {
         appWindow.setAlwaysOnTop(false);
       }, 200);
       this.rootStore.linkAuxStore.goToLink(new LinkEntryInfo("", notice.OpenEntryNotice.project_id, notice.OpenEntryNotice.entry_id), this.history);
+    } else if (notice.NewExtraTokenNotice !== undefined) {
+      this.rootStore.userStore.updateExtraToken(notice.NewExtraTokenNotice.extra_token);
+    } else if (notice.AtomGitLoginNotice !== undefined) {
+      this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
     }
   }
 

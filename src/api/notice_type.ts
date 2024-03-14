@@ -323,12 +323,22 @@ export namespace client {
     entry_id: string;
   };
 
+  export type NewExtraTokenNotice = {
+    extra_token: string;
+  };
+
+  export type AtomGitLoginNotice = {
+    code: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     GitPostHookNotice?: GitPostHookNotice;
     LocalProxyStopNotice?: LocalProxyStopNotice;
     StartMinAppNotice?: StartMinAppNotice;
     OpenEntryNotice?: OpenEntryNotice;
+    NewExtraTokenNotice?: NewExtraTokenNotice;
+    AtomGitLoginNotice?: AtomGitLoginNotice;
   };
 }
 
