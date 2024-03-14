@@ -307,36 +307,38 @@ export namespace client {
     name: string;
   };
 
-  export type SwitchUserNotice = {};
-
   export type GitPostHookNotice = {
     project_id: string;
   };
 
   export type LocalProxyStopNotice = {};
 
-  export type ShowGlobalServerSettingNotice = {};
 
   export type StartMinAppNotice = {
     min_app_id: string;
   };
-
-  export type OpenLocalApiNotice = {};
 
   export type OpenEntryNotice = {
     project_id: string;
     entry_id: string;
   };
 
+  export type NewExtraTokenNotice = {
+    extra_token: string;
+  };
+
+  export type AtomGitLoginNotice = {
+    code: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
-    SwitchUserNotice?: SwitchUserNotice;
     GitPostHookNotice?: GitPostHookNotice;
     LocalProxyStopNotice?: LocalProxyStopNotice;
-    ShowGlobalServerSettingNotice?: ShowGlobalServerSettingNotice;
     StartMinAppNotice?: StartMinAppNotice;
-    OpenLocalApiNotice?: OpenLocalApiNotice;
     OpenEntryNotice?: OpenEntryNotice;
+    NewExtraTokenNotice?: NewExtraTokenNotice;
+    AtomGitLoginNotice?: AtomGitLoginNotice;
   };
 }
 

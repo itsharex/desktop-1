@@ -49,81 +49,13 @@ async fn get_cfg<R: Runtime>(
 }
 
 #[tauri::command]
-async fn add_server(addr: String) {
-    let mut result = list_server(true).await;
-    result.server_list.push(ServerInfo {
-        name: addr.clone(),
-        system: false,
-        addr: addr,
-        default_server: false,
-    });
-
-    if let Ok(json_str) = serde_json::to_string(&(result.server_list)) {
-        if let Some(cfg_path) = get_server_cfg().await {
-            if let Ok(mut f) = fs::File::create(cfg_path).await {
-                if let Err(err) = f.write_all(json_str.as_bytes()).await {
-                    println!("{}", err);
-                }
-            }
-        }
-    }
-}
-
-#[tauri::command]
-async fn remove_server(addr: String) {
-    let result = list_server(true).await;
-    let mut server_list: Vec<ServerInfo> = Vec::new();
-
-    for info in &(result.server_list) {
-        if info.addr != addr {
-            server_list.push(info.clone());
-        }
-    }
-
-    if let Ok(json_str) = serde_json::to_string(&server_list) {
-        if let Some(cfg_path) = get_server_cfg().await {
-            if let Ok(mut f) = fs::File::create(cfg_path).await {
-                if let Err(err) = f.write_all(json_str.as_bytes()).await {
-                    println!("{}", err);
-                }
-            }
-        }
-    }
-}
-
-#[tauri::command]
-async fn set_default_server(addr: String) {
-    let result = list_server(true).await;
-    let mut server_list: Vec<ServerInfo> = Vec::new();
-
-    for info in &(result.server_list) {
-        server_list.push(ServerInfo {
-            name: info.name.clone(),
-            system: false,
-            addr: info.addr.clone(),
-            default_server: info.addr == addr,
-        });
-    }
-
-    if let Ok(json_str) = serde_json::to_string(&(server_list)) {
-        if let Some(cfg_path) = get_server_cfg().await {
-            if let Ok(mut f) = fs::File::create(cfg_path).await {
-                if let Err(err) = f.write_all(json_str.as_bytes()).await {
-                    println!("{}", err);
-                }
-            }
-        }
-    }
-}
-
-#[tauri::command]
 async fn list_server(skip_system: bool) -> ListServerResult {
     let mut result = ListServerResult {
         server_list: Vec::new(),
     };
     if !skip_system {
         result.server_list.push(ServerInfo {
-            name: "默认".into(),
+            name: "官方".into(),
             system: true,
             addr: "serv.linksaas.pro".into(),
             default_server: false,
@@ -158,6 +90,33 @@ async fn list_server(skip_system: bool) -> ListServerResult {
         }
     }
     return result;
+}
+
+#[tauri::command]
+async fn save_server_list(server_list: Vec<ServerInfo>) {
+    let mut new_server_list: Vec<ServerInfo> = Vec::new();
+
+    for info in &server_list {
+        if info.system {
+            continue;
+        }
+        new_server_list.push(ServerInfo {
+            name: info.name.clone(),
+            system: false,
+            addr: info.addr.clone(),
+            default_server: info.default_server,
+        });
+    }
+
+    if let Ok(json_str) = serde_json::to_string(&new_server_list) {
+        if let Some(cfg_path) = get_server_cfg().await {
+            if let Ok(mut f) = fs::File::create(cfg_path).await {
+                if let Err(err) = f.write_all(json_str.as_bytes()).await {
+                    println!("{}", err);
+                }
+            }
+        }
+    }
 }
 
 async fn get_server_cfg() -> Option<String> {
@@ -245,10 +204,8 @@ impl<R: Runtime> ClientCfgApiPlugin<R> {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
                 get_cfg,
-                add_server,
-                remove_server,
-                set_default_server,
                 list_server,
+                save_server_list,
                 get_global_server_addr,
                 set_global_server_addr,
             ]),

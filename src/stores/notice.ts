@@ -10,13 +10,13 @@ import { LinkBugInfo, LinkEntryInfo, LinkTaskInfo } from './linkAux';
 import { isString } from 'lodash';
 import type { History } from 'history';
 import { createBrowserHistory } from 'history';
-import { WebviewWindow, appWindow, getAll as getAllWindow } from '@tauri-apps/api/window';
+import { appWindow, getAll as getAllWindow } from '@tauri-apps/api/window';
 import { request } from '@/utils/request';
 import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
-import { get_port } from '@/api/local_api';
+import { USER_TYPE_ATOM_GIT } from '@/api/user';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -219,8 +219,6 @@ class NoticeStore {
         // this.rootStore.userStore.logout();
         message.warn("会话失效");
       }
-    } else if (notice.SwitchUserNotice !== undefined) {
-      this.rootStore.userStore.logout();
     } else if (notice.GitPostHookNotice !== undefined) {
       await appWindow.show();
       await appWindow.unminimize();
@@ -247,8 +245,6 @@ class NoticeStore {
       }
     } else if (notice.LocalProxyStopNotice !== undefined) {
       await this.rootStore.appStore.loadLocalProxy();
-    } else if (notice.ShowGlobalServerSettingNotice !== undefined) {
-      this.rootStore.appStore.showGlobalServerModal = true;
     } else if (notice.StartMinAppNotice !== undefined) {
       await appWindow.show();
       await appWindow.unminimize();
@@ -257,28 +253,6 @@ class NoticeStore {
         appWindow.setAlwaysOnTop(false);
       }, 200);
       this.rootStore.appStore.openMinAppId = notice.StartMinAppNotice.min_app_id;
-    } else if (notice.OpenLocalApiNotice !== undefined) {
-      const port = await get_port();
-
-      const label = "localapi"
-      const view = WebviewWindow.getByLabel(label);
-      if (view != null) {
-        await view.close();
-      }
-      const pos = await appWindow.innerPosition();
-
-      new WebviewWindow(label, {
-        url: `local_api.html?port=${port}`,
-        width: 800,
-        minWidth: 800,
-        height: 600,
-        minHeight: 600,
-        center: true,
-        title: "本地接口调试",
-        resizable: true,
-        x: pos.x + Math.floor(Math.random() * 200),
-        y: pos.y + Math.floor(Math.random() * 200),
-      });
     } else if (notice.OpenEntryNotice !== undefined) {
       await appWindow.show();
       await appWindow.unminimize();
@@ -287,6 +261,10 @@ class NoticeStore {
         appWindow.setAlwaysOnTop(false);
       }, 200);
       this.rootStore.linkAuxStore.goToLink(new LinkEntryInfo("", notice.OpenEntryNotice.project_id, notice.OpenEntryNotice.entry_id), this.history);
+    } else if (notice.NewExtraTokenNotice !== undefined) {
+      this.rootStore.userStore.updateExtraToken(notice.NewExtraTokenNotice.extra_token);
+    } else if (notice.AtomGitLoginNotice !== undefined) {
+      this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
     }
   }
 

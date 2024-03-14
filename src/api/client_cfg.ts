@@ -23,7 +23,7 @@ export type GetCfgResponse = {
   can_invite: boolean;
   can_register: boolean;
   enable_admin: boolean;
-  login_prompt: string;
+  atom_git_client_id: string;
   server_time: number;
   client_time: number; //本地属性，非服务端返回
 };
@@ -51,17 +51,6 @@ export async function get_cfg(): Promise<GetCfgResponse> {
   return res;
 }
 
-export async function add_server(addr: string): Promise<void> {
-  return invoke<void>('plugin:client_cfg_api|add_server', {
-    addr,
-  });
-}
-
-export async function remove_server(addr: string): Promise<void> {
-  return invoke<void>('plugin:client_cfg_api|remove_server', {
-    addr,
-  });
-}
 export async function set_default_server(addr: string): Promise<void> {
   return invoke<void>('plugin:client_cfg_api|set_default_server', {
     addr,
@@ -71,6 +60,12 @@ export async function set_default_server(addr: string): Promise<void> {
 export async function list_server(skip_system: boolean): Promise<ListServerResult> {
   return invoke<ListServerResult>('plugin:client_cfg_api|list_server', {
     skipSystem: skip_system,
+  });
+}
+
+export async function save_server_list(serverList: ServerInfo[]): Promise<void> {
+  return invoke<void>('plugin:client_cfg_api|save_server_list', {
+    serverList: serverList,
   });
 }
 

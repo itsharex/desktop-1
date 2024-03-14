@@ -89,12 +89,12 @@ const Portrait = ({ ...props }) => {
             userStore.accountsModal = false;
           }}>
           <UserPhoto logoUri={userStore.userInfo.logoUri ?? ""} />
-          {userStore.userInfo.testAccount == false && <div>更换</div>}
+          {userStore.userInfo.testAccount == false && userStore.userInfo.extraToken == "" && <div>更换</div>}
         </div>
         <div className={s.content_wrap}>
           <div className={s.content_itme}>
             <span>昵 &nbsp;&nbsp; 称</span>
-            <EditText editable={!userStore.userInfo.testAccount} content={userStore.userInfo.displayName} showEditIcon onChange={async value => {
+            <EditText editable={!(userStore.userInfo.testAccount || userStore.userInfo.extraToken != "")} content={userStore.userInfo.displayName} showEditIcon onChange={async value => {
               return changeName(value);
             }} width='120px' />
           </div>
@@ -105,7 +105,7 @@ const Portrait = ({ ...props }) => {
         </div>
         <div
           className={s.changePassword}
-          style={{ cursor: userStore.userInfo.testAccount ? "default" : "pointer", color: userStore.userInfo.testAccount ? "gray" : "black" }}
+          style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.extraToken != "") ? "default" : "pointer", color: (userStore.userInfo.testAccount || userStore.userInfo.extraToken != "") ? "gray" : "black" }}
           onClick={() => {
             if (userStore.userInfo.testAccount) {
               return;
