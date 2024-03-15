@@ -2,21 +2,10 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { Command } from '@tauri-apps/api/shell';
 import { message } from 'antd';
 
-export type LocalRepoSettingInfo = {
-    gitlab_protocol: string;
-    gitlab_token: string;
-    github_token: string;
-    gitee_token: string;
-    atomgit_token: string;
-    gitcode_token: string;
-};
-
 export type LocalRepoInfo = {
     id: string;
     name: string;
     path: string;
-    //本地仓库相关设置
-    setting: LocalRepoSettingInfo | null;
 };
 
 export type LocalRepoPathStatusInfo = {
@@ -172,12 +161,11 @@ export async function add_repo(id: string, name: string, path: string): Promise<
     });
 }
 
-export async function update_repo(id: string, name: string, path: string, setting: LocalRepoSettingInfo): Promise<void> {
+export async function update_repo(id: string, name: string, path: string): Promise<void> {
     return invoke<void>("plugin:local_repo|update_repo", {
         id,
         name,
         path,
-        setting,
     });
 }
 
