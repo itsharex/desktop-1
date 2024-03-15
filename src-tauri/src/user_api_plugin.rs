@@ -262,11 +262,6 @@ async fn logout<R: Runtime>(
                     }
                 }
             }
-            //设置切换用户菜单
-            let switch_munu_item = &app_handle.tray_handle().get_item("switch_user");
-            if let Err(err) = switch_munu_item.set_enabled(false) {
-                println!("{:?}", err);
-            }
             //移除本地监听
             stop_all_listen(app_handle).await;
             Ok(response.into_inner())

@@ -6,7 +6,7 @@ import PasswordModal from '../PasswordModal';
 import { useStores } from '@/hooks';
 import { observer } from 'mobx-react';
 import { request } from '@/utils/request';
-import { update } from '@/api/user';
+import { USER_TYPE_INTERNAL, update } from '@/api/user';
 import Quitsvg from '@/assets/svg/quit.svg?react';
 import Profile from '../Profile';
 import * as fsApi from '@/api/fs';
@@ -89,12 +89,12 @@ const Portrait = ({ ...props }) => {
             userStore.accountsModal = false;
           }}>
           <UserPhoto logoUri={userStore.userInfo.logoUri ?? ""} />
-          {userStore.userInfo.testAccount == false && userStore.userInfo.extraToken == "" && <div>更换</div>}
+          {userStore.userInfo.testAccount == false && userStore.userInfo.userType == USER_TYPE_INTERNAL && <div>更换</div>}
         </div>
         <div className={s.content_wrap}>
           <div className={s.content_itme}>
             <span>昵 &nbsp;&nbsp; 称</span>
-            <EditText editable={!(userStore.userInfo.testAccount || userStore.userInfo.extraToken != "")} content={userStore.userInfo.displayName} showEditIcon onChange={async value => {
+            <EditText editable={!(userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL)} content={userStore.userInfo.displayName} showEditIcon onChange={async value => {
               return changeName(value);
             }} width='120px' />
           </div>
@@ -105,7 +105,7 @@ const Portrait = ({ ...props }) => {
         </div>
         <div
           className={s.changePassword}
-          style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.extraToken != "") ? "default" : "pointer", color: (userStore.userInfo.testAccount || userStore.userInfo.extraToken != "") ? "gray" : "black" }}
+          style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "default" : "pointer", color: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "gray" : "black" }}
           onClick={() => {
             if (userStore.userInfo.testAccount) {
               return;

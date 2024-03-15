@@ -1,5 +1,5 @@
 import PasswordModal from '@/components/PasswordModal';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import React from 'react';
 import s from './index.module.less';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -11,10 +11,13 @@ import { Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
 import { AppstoreOutlined, DoubleRightOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
-import UserAppList from './components/UserAppList';
-import LocalRepoList from './components/LocalRepoList';
+import UserAppList from './UserAppList';
+import LocalRepoList from './LocalRepoList';
 import AddRepoModal from './components/AddRepoModal';
 import ResetDevModal from './components/ResetDevModal';
+import { USER_TYPE_ATOM_GIT } from '@/api/user';
+import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
+import AtomGitPanel from './AtomGitPanel';
 
 
 const Workbench: React.FC = () => {
@@ -36,6 +39,12 @@ const Workbench: React.FC = () => {
   useMemo(() => {
     projectStore.setCurProjectId('');
   }, []);
+
+  useEffect(() => {
+    if (userStore.sessionId == "" && tab == "atomGit") {
+      history.push(`${WORKBENCH_PATH}?tab=localRepo`);
+    }
+  }, [userStore.sessionId]);
 
   return (
     <div className={s.workbench_wrap}>
@@ -81,6 +90,15 @@ const Workbench: React.FC = () => {
             )}
           </div>
         }>
+        {userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_ATOM_GIT && (
+          <Tabs.TabPane tab={<h2><img src={iconAtomgit} style={{ width: "14px", marginRight: "10px", marginTop: "-4px" }} />AtomGit</h2>} key="atomGit">
+            {tab == "atomGit" && (
+              <div className={s.content_wrap}>
+                <AtomGitPanel />
+              </div>
+            )}
+          </Tabs.TabPane>
+        )}
         <Tabs.TabPane tab={<h2><FolderOutlined />本地仓库</h2>} key="localRepo">
           {tab == "localRepo" && (
             <div className={s.content_wrap}>

@@ -1,10 +1,10 @@
 import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Table, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo, LocalRepoStatusInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoCommitInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
-import { list_repo, remove_repo, get_repo_status, list_repo_branch, list_repo_tag, list_repo_commit, analyse, list_remote, get_http_url, get_host } from "@/api/local_repo";
+import { list_repo, remove_repo, get_repo_status, list_repo_branch, list_repo_tag, list_repo_commit, analyse, list_remote, get_http_url } from "@/api/local_repo";
 import { open as open_dir } from '@tauri-apps/api/shell';
-import { BranchesOutlined, EditOutlined, ExportOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
-import SetLocalRepoModal from "./SetLocalRepoModal";
+import { BranchesOutlined, ExportOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
+import SetLocalRepoModal from "./components/SetLocalRepoModal";
 import type { ColumnsType } from 'antd/lib/table';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import moment, { type Moment } from "moment";
@@ -13,12 +13,7 @@ import { useStores } from "@/hooks";
 import { observer } from "mobx-react";
 import { get_git_hook, set_git_hook } from "@/api/project_tool";
 import { open as shell_open } from '@tauri-apps/api/shell';
-import AtomGitRepo from "./remote_repo/AtomGitRepo";
-import GiteeRepo from "./remote_repo/GiteeRepo";
-import GitlabRepo from "./remote_repo/GitLabRepo";
-import GithubRepo from "./remote_repo/GithubRepo";
-import GitcodeRepo from "./remote_repo/GitcodeRepo";
-import LaunchRepoModal from "./LaunchRepoModal";
+import LaunchRepoModal from "./components/LaunchRepoModal";
 
 
 interface LinkProjectModalProps {
@@ -454,39 +449,6 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
                     </List.Item>
                 )} />
             </Tabs.TabPane>
-            {remoteList.map(remoteItem => {
-                const host = get_host(remoteItem.url);
-                return (
-                    <>
-                        {host.includes("atomgit.com") && (props.repo.setting?.atomgit_token ?? "") != "" && (
-                            <Tabs.TabPane tab="工单(atomgit)" key={host} style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                                <AtomGitRepo url={remoteItem.url} token={props.repo.setting?.atomgit_token ?? ""} />
-                            </Tabs.TabPane>
-                        )}
-                        {host.includes("gitee.com") && (props.repo.setting?.gitee_token ?? "") != "" && (
-                            <Tabs.TabPane tab="工单(gitee)" key={host} style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                                <GiteeRepo url={remoteItem.url} token={props.repo.setting?.gitee_token ?? ""} />
-                            </Tabs.TabPane>
-                        )}
-                        {host.includes("github.com") && (props.repo.setting?.github_token ?? "") != "" && (
-                            <Tabs.TabPane tab="工单(github)" key={host} style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                                <GithubRepo url={remoteItem.url} token={props.repo.setting?.github_token ?? ""} />
-                            </Tabs.TabPane>
-                        )}
-                        {host.includes("gitcode.net") && (props.repo.setting?.gitcode_token ?? "") != "" && (
-                            <Tabs.TabPane tab="工单(gitcode)" key={host} style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                                <GitcodeRepo url={remoteItem.url} token={props.repo.setting?.gitcode_token ?? ""} />
-                            </Tabs.TabPane>
-                        )}
-                        {!(host.includes("atomgit.com") || host.includes("github.com") || host.includes("gitcode.net") || host.includes("gitee.com"))
-                            && (props.repo.setting?.gitlab_token ?? "") != "" && (
-                                <Tabs.TabPane tab="工单(gitlab)" key={host} style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                                    <GitlabRepo protocol={props.repo.setting?.gitlab_protocol ?? "https"} url={remoteItem.url} token={props.repo.setting?.gitlab_token ?? ""} />
-                                </Tabs.TabPane>
-                            )}
-                    </>
-                );
-            })}
         </Tabs>
     );
 };
@@ -562,22 +524,14 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                     }
                 }}>
                     {repoList.map(repo => (
-                        <Collapse.Panel key={repo.id} header={
-                            <span>
-                                <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    openGitPro(repo);
-                                }}>{repo.name}({repo.path})&nbsp;<ExportOutlined /></a>
-                                <a style={{ padding: "10px 20px" }} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setEditRepo(repo);
-                                }}><EditOutlined /></a>
-
-                            </span>}
+                        <Collapse.Panel key={repo.id} header={<span>{repo.name}({repo.path})</span>}
                             extra={
                                 <Space size="middle">
+                                    <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        openGitPro(repo);
+                                    }}>专家模式<ExportOutlined /></Button>
                                     <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();

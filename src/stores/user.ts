@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { USER_TYPE, login, logout as user_logout } from '@/api/user';
+import { USER_TYPE, USER_TYPE_INTERNAL, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
 
 import type { RootStore } from './index';
@@ -8,6 +8,7 @@ import { showMyShortNote } from '@/utils/short_note';
 
 type UserInfo = {
   userId: string;
+  userType: USER_TYPE;
   userName: string;
   displayName: string;
   logoUri: string;
@@ -31,6 +32,7 @@ class UserStore {
   adminSessionId = "";
   userInfo: UserInfo = {
     userId: '',
+    userType: USER_TYPE_INTERNAL,
     userName: '',
     displayName: '',
     logoUri: '',
@@ -55,6 +57,7 @@ class UserStore {
       this.sessionId = '';
       this.userInfo = {
         userId: '',
+        userType: USER_TYPE_INTERNAL,
         userName: '',
         displayName: '',
         logoUri: '',
@@ -77,6 +80,7 @@ class UserStore {
         sessionStorage.setItem('sessionId', res.session_id);
         this.userInfo = {
           userId: res.user_info.user_id,
+          userType: userType,
           userName: res.user_info.user_name,
           displayName: res.user_info.basic_info.display_name,
           logoUri: res.user_info.basic_info.logo_uri,
