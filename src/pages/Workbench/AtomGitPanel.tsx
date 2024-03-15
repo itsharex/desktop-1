@@ -76,8 +76,8 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
             {props.repoInfo != undefined && (
                 <>
                     <Card
-                        title={<a href={props.repoInfo.html_url} target="_blank" rel="noreferrer">{props.repoInfo.name}&nbsp;<ExportOutlined /></a>}
-                        bordered={false} bodyStyle={{ minHeight: "50px" }} headStyle={{ backgroundColor: "#eee",height:"46px" }}
+                        title={<a href={props.repoInfo.html_url} target="_blank" rel="noreferrer" style={{ fontSize: "16px", fontWeight: 600 }}>{props.repoInfo.name}&nbsp;<ExportOutlined /></a>}
+                        bordered={false} bodyStyle={{ minHeight: "50px" }} headStyle={{ backgroundColor: "#eee", height: "46px" }}
                         extra={
                             <Space>
                                 {localRepo != null && (
@@ -195,7 +195,7 @@ const AtomGitPanel = () => {
                 <Menu items={repoList.map(repo => ({
                     key: repo.id.toFixed(0),
                     label: (
-                        <Space style={{fontSize:"14px"}}>
+                        <Space style={{ fontSize: "14px" }}>
                             {repo.private && <ProjectOutlined />}
                             {repo.private == false && <GlobalOutlined />}
                             <div>{repo.name}</div>
