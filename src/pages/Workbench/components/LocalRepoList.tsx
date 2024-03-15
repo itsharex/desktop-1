@@ -524,22 +524,14 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                     }
                 }}>
                     {repoList.map(repo => (
-                        <Collapse.Panel key={repo.id} header={
-                            <span>
-                                <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    openGitPro(repo);
-                                }}>{repo.name}({repo.path})&nbsp;<ExportOutlined /></a>
-                                <a style={{ padding: "10px 20px" }} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setEditRepo(repo);
-                                }}><EditOutlined /></a>
-
-                            </span>}
+                        <Collapse.Panel key={repo.id} header={<span>{repo.name}({repo.path})</span>}
                             extra={
                                 <Space size="middle">
+                                    <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        openGitPro(repo);
+                                    }}>专家模式<ExportOutlined /></Button>
                                     <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
