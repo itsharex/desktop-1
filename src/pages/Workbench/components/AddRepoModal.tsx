@@ -7,14 +7,15 @@ import { get_repo_status, add_repo, clone as clone_repo } from "@/api/local_repo
 import { uniqId } from "@/utils/utils";
 
 interface AddRepoModalProps {
+    remoteUrl?: string;
     onCancel: () => void;
     onOk: () => void;
 }
 
 const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const [name, setName] = useState("");
-    const [repoType, setRepoType] = useState<"local" | "remote">("local");
-    const [remoteUrl, setRemoteUrl] = useState("");
+    const [repoType, setRepoType] = useState<"local" | "remote">(props.remoteUrl == undefined ? "local" : "remote");
+    const [remoteUrl, setRemoteUrl] = useState(props.remoteUrl ?? "");
     const [localPath, setLocalPath] = useState("");
     const [authType, setAuthType] = useState<"none" | "privkey" | "password">("none");
     const [username, setUsername] = useState("");
@@ -109,8 +110,8 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     };
 
     return (
-        <Modal open title="添加代码仓库"
-            okText="添加" okButtonProps={{ disabled: !checkValid() || cloneProgress != null }}
+        <Modal open title={repoType == "local" ? "添加本地仓库" : "克隆远程仓库"}
+            okText={repoType == "local" ? "添加" : "克隆"} okButtonProps={{ disabled: !checkValid() || cloneProgress != null }}
             cancelButtonProps={{ disabled: cloneProgress != null }}
             onCancel={e => {
                 e.stopPropagation();

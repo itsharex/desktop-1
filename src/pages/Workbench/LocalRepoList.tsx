@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo, LocalRepoStatusInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoCommitInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
 import { list_repo, remove_repo, get_repo_status, list_repo_branch, list_repo_tag, list_repo_commit, analyse, list_remote, get_http_url } from "@/api/local_repo";
 import { open as open_dir } from '@tauri-apps/api/shell';
-import { BranchesOutlined, EditOutlined, ExportOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
-import SetLocalRepoModal from "./SetLocalRepoModal";
+import { BranchesOutlined, ExportOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
+import SetLocalRepoModal from "./components/SetLocalRepoModal";
 import type { ColumnsType } from 'antd/lib/table';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import moment, { type Moment } from "moment";
@@ -13,7 +13,7 @@ import { useStores } from "@/hooks";
 import { observer } from "mobx-react";
 import { get_git_hook, set_git_hook } from "@/api/project_tool";
 import { open as shell_open } from '@tauri-apps/api/shell';
-import LaunchRepoModal from "./LaunchRepoModal";
+import LaunchRepoModal from "./components/LaunchRepoModal";
 
 
 interface LinkProjectModalProps {

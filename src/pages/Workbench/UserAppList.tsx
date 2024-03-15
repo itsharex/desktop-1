@@ -7,7 +7,7 @@ import type { AppInfo } from "@/api/appstore";
 import { list_app_by_id } from "@/api/appstore";
 import { list_app as list_user_app } from "@/api/user_app";
 import { useStores } from "@/hooks";
-import UserAppItem from "./UserAppItem";
+import UserAppItem from "./components/UserAppItem";
 
 const UserAppList = () => {
     const userStore = useStores('userStore');
