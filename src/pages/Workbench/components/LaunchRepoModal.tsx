@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { Button, Form, Input, List, Modal, Popover, Select, Table, Tabs, message } from "antd";
+import { Button, Form, Input, List, Modal, Select, Space, Table, Tabs, message } from "antd";
 import type { SimpleDevInfo, DevPkgVersion, DevForwardPort, DevEnv, DevExtension, PackageInfo } from "@/api/dev_container";
 import { list_package, load_simple_dev_info, save_simple_dev_info, list_package_version } from "@/api/dev_container";
 import type { ColumnsType } from 'antd/lib/table';
-import { DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, ExportOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { uniqId } from "@/utils/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { request } from "@/utils/request";
@@ -12,6 +12,8 @@ import { EditNumber } from "@/components/EditCell/EditNumber";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { fetch, Body } from '@tauri-apps/api/http';
 import { platform as get_platform } from '@tauri-apps/api/os';
+import type { CommandResult } from "@/pages/Devc/components/types";
+import { Command } from "@tauri-apps/api/shell";
 
 
 const InstallDockerHelp = () => {
@@ -31,9 +33,9 @@ const InstallDockerHelp = () => {
 
     return (
         <div style={{ padding: "10px 10px" }}>
-            {platform == "windows" && (<a href="https://docs.docker.com/desktop/install/windows-install/" target="_blank" rel="noreferrer">安装Docker Desktop</a>)}
-            {platform == "linux" && (<a href="https://docs.docker.com/engine/security/rootless/" target="_blank" rel="noreferrer">安装rootless docker</a>)}
-            {platform == "darwin" && (<a href="https://docs.docker.com/desktop/install/mac-install/" target="_blank" rel="noreferrer">安装Docker Desktop</a>)}
+            {platform == "windows" && (<a href="https://docs.docker.com/desktop/install/windows-install/" target="_blank" rel="noreferrer">安装Docker Desktop&nbsp;<ExportOutlined /></a>)}
+            {platform == "linux" && (<a href="https://docs.docker.com/engine/security/rootless/" target="_blank" rel="noreferrer">安装rootless docker&nbsp;<ExportOutlined /></a>)}
+            {platform == "darwin" && (<a href="https://docs.docker.com/desktop/install/mac-install/" target="_blank" rel="noreferrer">安装Docker Desktop&nbsp;<ExportOutlined /></a>)}
         </div>
     );
 };
@@ -249,6 +251,8 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     const [pkgInfoList, setPkgInfoList] = useState<PackageInfo[]>([]);
     const [hasChange, setHasChange] = useState(false);
     const [simpleDevInfo, setSimpleDevInfo] = useState<SimpleDevInfo | null>(null);
+    const [hasDocker, setHasDocker] = useState<boolean | null>(null);
+
 
     const [activeKey, setActiveKey] = useState("pkg");
 
@@ -265,6 +269,18 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     const getPluginUrl = (pkgName: string): string => {
         return pkgInfoList.find(item => item.name == pkgName)?.plugin_url ?? ""
     }
+
+    const checkDocker = async () =>{
+        const cmd = Command.sidecar("bin/devc", ["image", "exist"]);
+        const output = await cmd.execute();
+        const result = JSON.parse(output.stdout) as CommandResult;
+        if (result.success) {
+            setHasDocker(true);
+        } else {
+            setHasDocker(false);
+        }
+    };
+
     const saveAndLaunch = async () => {
         if (simpleDevInfo == null) {
             return;
@@ -504,16 +520,11 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     useEffect(() => {
         loadPkgInfoList();
         loadSimpleDevInfo();
+        checkDocker();
     }, []);
 
     return (
-        <Modal open title={<span>启动开发环境(
-            <Popover trigger="hover" placement="bottom" content={
-                <InstallDockerHelp />
-            }>
-                <a>需安装Docker</a>
-            </Popover>
-            )</span>} bodyStyle={{ padding: "4px 4px" }}
+        <Modal open title="启动开发环境" bodyStyle={{ padding: "4px 4px" }}
             okText={hasChange ? "保存并启动" : "启动"} okButtonProps={{ disabled: simpleDevInfo == null }}
             onCancel={e => {
                 e.stopPropagation();
@@ -526,6 +537,12 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                 saveAndLaunch();
             }}
         >
+            {hasDocker === false && (
+                <Space style={{ padding: "10px 10px", fontSize: "14px" }}>
+                    <span style={{ color: "red" }}>未安装/启动Docker引擎!&nbsp;&nbsp;</span>
+                    <InstallDockerHelp />
+                </Space>
+            )}
             {simpleDevInfo != null && (
                 <Tabs type="card" activeKey={activeKey} onChange={key => setActiveKey(key)}
                     tabBarExtraContent={

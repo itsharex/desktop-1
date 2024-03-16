@@ -277,6 +277,9 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Space>
             </a>
           )}
+          
+          {location.pathname.startsWith("/app/") && <ServerConnInfo />}
+
           {(userStore.sessionId != "" || userStore.adminSessionId != "") && (
             <Popover trigger="click" placement='bottom' content={
               <Table rowKey="port" dataSource={appStore.localProxyList} columns={proxyColumns} pagination={false}
@@ -287,8 +290,8 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Badge>
             </Popover>
           )}
-          {location.pathname.startsWith("/app/") && <ServerConnInfo />}
-          
+
+
           <a href="https://atomgit.com/openlinksaas/desktop/issues" target="_blank" rel="noreferrer" style={{ marginRight: "20px" }} title="报告缺陷"><BugOutlined /></a>
           <div className={style.btnMinimize} onClick={() => handleClick('minimize')} title="最小化" />
           <div className={style.btnMaximize} onClick={() => handleClick('maximize')} title="最大化/恢复" />

@@ -9,7 +9,7 @@ import Card from './components/Card';
 import InfoCount from './components/InfoCount';
 import { Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
-import { AppstoreOutlined, DoubleRightOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
@@ -18,6 +18,7 @@ import ResetDevModal from './components/ResetDevModal';
 import { USER_TYPE_ATOM_GIT } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import AtomGitPanel from './AtomGitPanel';
+import { open as shell_open } from '@tauri-apps/api/shell';
 
 
 const Workbench: React.FC = () => {
@@ -82,6 +83,30 @@ const Workbench: React.FC = () => {
                       e.preventDefault();
                       setShowResetDevModal(true);
                     }}>重置研发环境</Button>
+                  </div>
+                }>
+                  <MoreOutlined style={{ marginRight: "32px" }} />
+                </Popover>
+              </Space>
+            )}
+            {tab == "atomGit" && (
+              <Space>
+                <Button type="link" onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  shell_open("https://atomgit.com/project/new");
+                }}>
+                  <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                    创建项目&nbsp;<ExportOutlined />
+                  </span>
+                </Button>
+                <Popover trigger="click" placement="bottom" content={
+                  <div style={{ padding: "10px 10px" }}>
+                    <Button type="link" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      shell_open("https://docs.atomgit.com");
+                    }}>查看帮助&nbsp;<ExportOutlined /></Button>
                   </div>
                 }>
                   <MoreOutlined style={{ marginRight: "32px" }} />

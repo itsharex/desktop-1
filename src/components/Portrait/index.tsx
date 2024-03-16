@@ -98,10 +98,12 @@ const Portrait = ({ ...props }) => {
               return changeName(value);
             }} width='120px' />
           </div>
-          <div className={s.content_itme}>
-            <span>用户名</span>
-            <div>{userStore.userInfo.userName}</div>
-          </div>
+          {userStore.userInfo.userType == USER_TYPE_INTERNAL && (
+            <div className={s.content_itme}>
+              <span>用户名</span>
+              <div>{userStore.userInfo.userName}</div>
+            </div>
+          )}
         </div>
         <div
           className={s.changePassword}
