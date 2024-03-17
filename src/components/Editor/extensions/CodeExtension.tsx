@@ -9,11 +9,11 @@ import type {
 import type { ComponentType } from 'react';
 import type { NodeViewComponentProps } from '@remirror/react';
 import React from 'react';
-import { EditCode, ViewCode } from './CodeComponent';
+import { EditCode, ViewCode, getLastLang } from './CodeComponent';
 
-export interface CodeOptions {}
+export interface CodeOptions { }
 
-@extension<CodeOptions>({ defaultOptions: { } })
+@extension<CodeOptions>({ defaultOptions: {} })
 export class CodeExtension extends NodeExtension<CodeOptions> {
   get name() {
     return 'code' as const;
@@ -43,7 +43,7 @@ export class CodeExtension extends NodeExtension<CodeOptions> {
   insertCode(selection?: PrimitiveSelection): CommandFunction {
     return ({ tr, dispatch }) => {
       const { from, to } = getTextSelection(selection ?? tr.selection, tr.doc);
-      const node = this.type.create({});
+      const node = this.type.create({ lang: getLastLang() });
       tr.insertText("\n", from, to);
       tr.replaceRangeWith(from, from, node);
       dispatch?.(tr);
