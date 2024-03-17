@@ -8,7 +8,7 @@ import {
 } from '@remirror/react';
 
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Select, Menu, Tooltip, Button } from 'antd';
+import { Dropdown, Select, Menu, Tooltip, Button, Modal, Form, InputNumber, Checkbox } from 'antd';
 import { DownOutlined, ExclamationOutlined } from '@ant-design/icons';
 import { open as open_dialog } from '@tauri-apps/api/dialog';
 import { uniqId } from '@/utils/utils';
@@ -574,13 +574,61 @@ const AddCode = () => {
   );
 };
 
-const AddTable = () => {
+interface AddTableModalProps {
+  onClose: () => void;
+}
+
+const AddTableModal = (props: AddTableModalProps) => {
   const commands = useCommands();
+  const [rowCount, setRowCount] = useState(3);
+  const [colCount, setColCount] = useState(3);
+  const [withHeader, setWithHeader] = useState(false);
 
   return (
-    <Tooltip title="表格">
-      <div className="table-btn" onClick={() => commands.createTable({ withHeaderRow: false })} />
-    </Tooltip>
+    <Modal open title="插入表格"
+      width={200}
+      okText="插入"
+      onCancel={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        props.onClose();
+      }}
+      onOk={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        commands.createTable({ withHeaderRow: withHeader, rowsCount: rowCount, columnsCount: colCount })
+        props.onClose();
+      }}>
+      <Form>
+        <Form.Item label="行数">
+          <InputNumber value={rowCount} min={1} max={99} controls={false} precision={0} onChange={value => setRowCount(value ?? 3)} />
+        </Form.Item>
+        <Form.Item label="列数">
+          <InputNumber value={colCount} min={1} max={99} controls={false} precision={0} onChange={value => setColCount(value ?? 3)} />
+        </Form.Item>
+        <Form.Item label="表头">
+          <Checkbox checked={withHeader} onChange={e => {
+            e.stopPropagation();
+            setWithHeader(e.target.checked);
+          }} />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+const AddTable = () => {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <>
+      <Tooltip title="表格">
+        <div className="table-btn" onClick={() => setShowModal(true)} />
+      </Tooltip>
+      {showModal == true && (
+        <AddTableModal onClose={() => setShowModal(false)} />
+      )}
+    </>
   );
 };
 
