@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
 import type { UserInfo } from '@/api/user';
-import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN } from '@/api/user';
+import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN, USER_TYPE_INTERNAL } from '@/api/user';
 import s from './UserDetail.module.less';
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { useHistory, useLocation } from 'react-router-dom';
@@ -188,7 +188,7 @@ const UserDetail = () => {
                 } bordered>
                     <Descriptions.Item label="昵称">{userInfo.basic_info.display_name}</Descriptions.Item>
                     <Descriptions.Item label="体验账号">
-                        <EditSelect editable={permInfo.user_perm.set_test_account} curValue={userInfo.test_account ? 1 : 0} itemList={[
+                        <EditSelect editable={permInfo.user_perm.set_test_account && userInfo.user_type == USER_TYPE_INTERNAL} curValue={userInfo.test_account ? 1 : 0} itemList={[
                             {
                                 label: "是",
                                 value: 1,
@@ -215,7 +215,7 @@ const UserDetail = () => {
                         }} showEditIcon={true} allowClear={false} />
                     </Descriptions.Item>
                     <Descriptions.Item label="状态">
-                        <EditSelect editable={permInfo.user_perm.set_state} curValue={userInfo.user_state} itemList={[
+                        <EditSelect editable={permInfo.user_perm.set_state && userInfo.user_type == USER_TYPE_INTERNAL} curValue={userInfo.user_state} itemList={[
                             {
                                 label: "正常",
                                 value: USER_STATE_NORMAL,
@@ -243,7 +243,7 @@ const UserDetail = () => {
                     </Descriptions.Item>
                     <Descriptions.Item label="密码">
                         ******
-                        {permInfo?.user_perm.reset_password == true && (
+                        {permInfo?.user_perm.reset_password == true && userInfo.user_type == USER_TYPE_INTERNAL && (
                             <Button type="link" onClick={e => {
                                 e.stopPropagation();
                                 e.preventDefault();

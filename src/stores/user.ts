@@ -1,10 +1,9 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-
-import { USER_TYPE, USER_TYPE_INTERNAL, login, logout as user_logout } from '@/api/user';
+import { USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
-
 import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
+import { WebviewWindow } from '@tauri-apps/api/window';
 
 type UserInfo = {
   userId: string;
@@ -53,6 +52,7 @@ class UserStore {
   async logout() {
     this.rootStore.projectStore.reset();
     const tmpSessionId = this.sessionId;
+    const tmpUserType = this.userInfo.userType;
     runInAction(() => {
       this.sessionId = '';
       this.userInfo = {
@@ -68,6 +68,22 @@ class UserStore {
     });
     sessionStorage.removeItem('sessionId');
     sessionStorage.removeItem('userInfo');
+    if (tmpUserType == USER_TYPE_ATOM_GIT) {
+      const label = "atomGitLogout";
+      new WebviewWindow(label, {
+        url: 'https://passport.atomgit.com/login/profile/logout',
+        title: "退出AtomGit登录",
+        width: 200,
+        height: 100,
+      });
+
+      setTimeout(() => {
+        const win = WebviewWindow.getByLabel(label);
+        if (win != null) {
+          win.close();
+        }
+      }, 3000);
+    }
     await request(user_logout(tmpSessionId));
   }
 
@@ -147,7 +163,7 @@ class UserStore {
     }
   }
 
-  updateExtraToken(val: string){
+  updateExtraToken(val: string) {
     if (this.sessionId && this.userInfo) {
       runInAction(() => {
         this.userInfo.extraToken = val;

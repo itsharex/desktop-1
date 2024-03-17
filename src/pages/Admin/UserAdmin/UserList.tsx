@@ -1,7 +1,7 @@
 import { Card, Form, Input, Select, Space, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import type { USER_STATE, UserInfo } from '@/api/user';
-import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN } from '@/api/user';
+import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN, USER_TYPE_INTERNAL, USER_TYPE_ATOM_GIT } from '@/api/user';
 import { list as list_user } from '@/api/user_admin';
 import type { ColumnsType } from 'antd/es/table';
 import { request } from "@/utils/request";
@@ -60,6 +60,16 @@ const UserList = () => {
             title: "昵称",
             dataIndex: ["basic_info", "display_name"],
             width: 150,
+        },
+        {
+            title: "账号类型",
+            width: 100,
+            render: (_, row: UserInfo) => (
+                <>
+                    {row.user_type == USER_TYPE_INTERNAL && "内部账号"}
+                    {row.user_type == USER_TYPE_ATOM_GIT && "atomGit"}
+                </>
+            ),
         },
         {
             title: "体验账号",
