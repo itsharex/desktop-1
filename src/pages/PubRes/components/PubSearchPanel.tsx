@@ -221,47 +221,50 @@ const PubSearchPanel = () => {
                     }}><SearchOutlined />&nbsp;搜索</Button>
                 </Space>
             </div>
-            <Tabs type="editable-card" onChange={key => {
-                setActiveKey(key);
-            }}
-                activeKey={activeKey}
-                onEdit={onEdit} items={siteList.map(item => (
-                    {
-                        key: item.siteId,
-                        closeIcon: siteList.length > 1 ? undefined : <span />,
-                        disabled: keyword == "",
-                        label: (
-                            <Space>
-                                <AsyncImage useRawImg={true} width="16px" src={`/static/images/pubsearch/${item.siteId}.png`} />
-                                {item.siteName}
-                            </Space>
-                        ),
-                        children: (
-                            <>
-                                {keyword == "" && (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                )}
-                                {item.siteId == activeKey && keyword != "" && (
-                                    <Card bordered={false} extra={
-                                        <Button type="link" onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            shell_open(item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword)));
-                                        }}>使用浏览器打开</Button>}>
-                                        {item.useProxy == true && (
-                                            <SearchProxy src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
-                                        )}
-                                        {item.useProxy == false && (
-                                            <iframe style={{ width: "calc(100vw - 250px)", height: "calc(100vh - 300px)", overflow: "scroll" }}
-                                                referrerPolicy="no-referrer"
-                                                src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
-                                        )}
-                                    </Card>
-                                )}
-                            </>
-                        ),
-                    }
-                ))} />
+            {keyword != "" && (
+                <Tabs type="editable-card" onChange={key => {
+                    setActiveKey(key);
+                }}
+                    activeKey={activeKey}
+                    onEdit={onEdit} items={siteList.map(item => (
+                        {
+                            key: item.siteId,
+                            closeIcon: siteList.length > 1 ? undefined : <span />,
+                            disabled: keyword == "",
+                            label: (
+                                <Space>
+                                    <AsyncImage useRawImg={true} width="16px" src={`/static/images/pubsearch/${item.siteId}.png`} />
+                                    {item.siteName}
+                                </Space>
+                            ),
+                            children: (
+                                <>
+                                    {keyword == "" && (
+                                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                    )}
+                                    {item.siteId == activeKey && keyword != "" && (
+                                        <Card bordered={false} extra={
+                                            <Button type="link" onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                shell_open(item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword)));
+                                            }}>使用浏览器打开</Button>}>
+                                            {item.useProxy == true && (
+                                                <SearchProxy src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
+                                            )}
+                                            {item.useProxy == false && (
+                                                <iframe style={{ width: "calc(100vw - 250px)", height: "calc(100vh - 300px)", overflow: "scroll" }}
+                                                    referrerPolicy="no-referrer"
+                                                    src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
+                                            )}
+                                        </Card>
+                                    )}
+                                </>
+                            ),
+                        }
+                    ))} />
+            )}
+
             {showAddModal == true && (
                 <AddModal siteIdList={siteList.map(item => item.siteId)} onCancel={() => setShowAddModal(false)}
                     onOk={() => {
