@@ -70,12 +70,13 @@ class UserStore {
     sessionStorage.removeItem('userInfo');
     if (tmpUserType == USER_TYPE_ATOM_GIT) {
       const label = "atomGitLogout";
-      new WebviewWindow(label, {
+      const win = new WebviewWindow(label, {
         url: 'https://passport.atomgit.com/login/profile/logout',
         title: "退出AtomGit登录",
         width: 200,
         height: 100,
       });
+      win.minimize();
 
       setTimeout(() => {
         const win = WebviewWindow.getByLabel(label);
