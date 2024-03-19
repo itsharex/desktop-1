@@ -4,6 +4,7 @@ import { request } from '@/utils/request';
 import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
 import { WebviewWindow } from '@tauri-apps/api/window';
+import { sleep } from '@/utils/time';
 
 type UserInfo = {
   userId: string;
@@ -49,6 +50,17 @@ class UserStore {
   // 重置密码
   private _isResetPassword = false;
 
+  private async closeAtomLogoutWindow(label: string) {
+    const win = WebviewWindow.getByLabel(label);
+    if (win == null) {
+      return;
+    }
+    await win.minimize();
+    setTimeout(() => {
+      win.close();
+    }, 3000);
+  }
+
   async logout() {
     this.rootStore.projectStore.reset();
     const tmpSessionId = this.sessionId;
@@ -70,20 +82,25 @@ class UserStore {
     sessionStorage.removeItem('userInfo');
     if (tmpUserType == USER_TYPE_ATOM_GIT) {
       const label = "atomGitLogout";
+      try {
+        const oldWin = WebviewWindow.getByLabel(label);
+        if (oldWin != null) {
+          await oldWin.close();
+          await sleep(1000);
+        }
+      } catch (e) {
+        console.log(e);
+      }
       const win = new WebviewWindow(label, {
         url: 'https://passport.atomgit.com/login/profile/logout',
         title: "退出AtomGit登录",
         width: 200,
         height: 100,
       });
-      win.minimize();
+      win.once('tauri://created', () => {
+        this.closeAtomLogoutWindow(label);
+      });
 
-      setTimeout(() => {
-        const win = WebviewWindow.getByLabel(label);
-        if (win != null) {
-          win.close();
-        }
-      }, 3000);
     }
     await request(user_logout(tmpSessionId));
   }
@@ -174,3 +191,4 @@ class UserStore {
 }
 
 export default UserStore;
+
