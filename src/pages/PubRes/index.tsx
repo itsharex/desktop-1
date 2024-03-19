@@ -26,7 +26,7 @@ const PubRes = () => {
     const urlParams = new URLSearchParams(location.search);
     let tab = urlParams.get('tab') ?? "";
     if (tab == "") {
-        tab = "pubSearch";
+        tab = "appStore";
     }
 
     const [activeKey, setActiveKey] = useState(tab);
@@ -43,13 +43,6 @@ const PubRes = () => {
                     setActiveKey(key);
                     history.push(`${PUB_RES_PATH}?tab=${key}`);
                 }}>
-                <Tabs.TabPane tab={<h2><SearchOutlined />&nbsp;聚合搜索</h2>} key="pubSearch">
-                    {activeKey == "pubSearch" && (
-                        <div className={s.content_wrap}>
-                            <PubSearchPanel />
-                        </div>
-                    )}
-                </Tabs.TabPane>
 
                 <Tabs.TabPane tab={<h2><AppstoreOutlined />&nbsp;应用市场</h2>} key="appStore">
                     {activeKey == "appStore" && (
@@ -60,6 +53,13 @@ const PubRes = () => {
                     )}
                 </Tabs.TabPane>
 
+                <Tabs.TabPane tab={<h2><BulbOutlined />&nbsp;知识点仓库</h2>} key="ideaStore">
+                    {activeKey == "ideaStore" && (
+                        <div className={s.content_wrap}>
+                            <IdeaListPanel />
+                        </div>
+                    )}
+                </Tabs.TabPane>
 
                 <Tabs.TabPane tab={<h2><span style={{ display: "inline-block", verticalAlign: "-3px" }}><DockerSvg style={{ width: "16px", height: "16px" }} /></span>&nbsp;Docker模板</h2>} key="dockerTemplate">
                     {activeKey == "dockerTemplate" && (
@@ -70,10 +70,10 @@ const PubRes = () => {
                     )}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab={<h2><BulbOutlined />&nbsp;知识点仓库</h2>} key="ideaStore">
-                    {activeKey == "ideaStore" && (
+                <Tabs.TabPane tab={<h2><SearchOutlined />&nbsp;聚合搜索</h2>} key="pubSearch">
+                    {activeKey == "pubSearch" && (
                         <div className={s.content_wrap}>
-                            <IdeaListPanel />
+                            <PubSearchPanel />
                         </div>
                     )}
                 </Tabs.TabPane>
