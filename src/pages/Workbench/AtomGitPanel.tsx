@@ -1,9 +1,9 @@
 import { useStores } from "@/hooks";
-import { Button, Card, Dropdown, Empty, Layout, Menu, Space, Tabs, message } from "antd";
+import { Button, Card, Dropdown, Empty, Input, Layout, Menu, Space, Tabs, message } from "antd";
 import React, { useEffect, useState } from "react";
 import type { AtomGitRepo } from "@/api/atomgit/repo";
 import { list_repo } from "@/api/atomgit/repo";
-import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined } from "@ant-design/icons";
+import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { list_repo as list_local_repo, list_remote as list_local_remote } from "@/api/local_repo";
 import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
@@ -178,21 +178,38 @@ const AtomGitPanel = () => {
 
     const [repoList, setRepoList] = useState([] as AtomGitRepo[]);
     const [curRepoId, setCurRepoId] = useState("");
+    const [keyword, setKeyword] = useState("");
+
+    const loadRepoList = async () => {
+        const res = await list_repo(userStore.userInfo.extraToken, userStore.userInfo.userName, 99, 1);
+        setRepoList(res);
+        if (res.length > 0 && res.map(item => item.id.toFixed(0)).includes(curRepoId) == false) {
+            setCurRepoId(res[0].id.toFixed(0));
+        }
+    };
 
     useEffect(() => {
-        list_repo(userStore.userInfo.extraToken, userStore.userInfo.userName, 99, 1).then(res => {
-            setRepoList(res);
-            if (res.length > 0 && res.map(item => item.id.toFixed(0)).includes(curRepoId) == false) {
-                setCurRepoId(res[0].id.toFixed(0));
-            }
-        });
+        loadRepoList();
     }, []);
 
     return (
         <Layout>
             <Layout.Sider style={{ borderRight: "1px solid #e4e4e8" }} theme="light">
-                <h1 style={{ fontSize: "16px", fontWeight: 600, padding: "10px 10px", backgroundColor: "#eee" }}>项目列表</h1>
-                <Menu items={repoList.map(repo => ({
+                <Space style={{ fontSize: "16px", fontWeight: 600, padding: "10px 10px", backgroundColor: "#eee" }}>
+                    <Input value={keyword} allowClear onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setKeyword(e.target.value.trim());
+                    }} />
+                    <Button title="刷新" type="text" icon={<ReloadOutlined />} onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        loadRepoList().then(() => {
+                            message.info("刷新成功");
+                        });
+                    }} />
+                </Space>
+                <Menu items={repoList.filter(repo => repo.name.includes(keyword)).map(repo => ({
                     key: repo.id.toFixed(0),
                     label: (
                         <Space style={{ fontSize: "14px" }}>
