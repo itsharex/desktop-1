@@ -133,45 +133,6 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
       },
     },
     {
-      title: "相关需求",
-      dataIndex: "requirement_id",
-      width: 150,
-      ellipsis: true,
-      hideInTable: getIsTask(pathname) == false,
-      render: (_, record: IssueInfo) => (
-        <>
-          {record.requirement_id == "" && "-"}
-          {record.requirement_id != "" && (
-            <a onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              linkAuxStore.goToLink(new LinkRequirementInfo("", record.project_id, record.requirement_id), history);
-            }}><LinkOutlined />&nbsp;{record.requirement_title}</a>
-          )}
-        </>
-      ),
-    },
-    {
-      title: "工作计划",
-      dataIndex: "sprit_name",
-      width: 150,
-      ellipsis: true,
-      render: (_, record: IssueInfo) => (
-        <>
-          {record.sprit_id == "" && "-"}
-          {record.sprit_id != "" && (
-            <a onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              linkAuxStore.goToLink(new LinkSpritInfo("", record.project_id, record.sprit_id), history);
-            }}>
-              <LinkOutlined />&nbsp;{record.sprit_name}
-            </a>
-          )}
-        </>
-      ),
-    },
-    {
       title: "便签",
       dataIndex: "issue_index",
       width: 40,
@@ -286,6 +247,45 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
               onChange={async value => {
                 return await updateProcessStage(userStore.sessionId, record.project_id, record.issue_id, value as PROCESS_STAGE);
               }} />
+          )}
+        </>
+      ),
+    },
+    {
+      title: "工作计划",
+      dataIndex: "sprit_name",
+      width: 150,
+      ellipsis: true,
+      render: (_, record: IssueInfo) => (
+        <>
+          {record.sprit_id == "" && "-"}
+          {record.sprit_id != "" && (
+            <a onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              linkAuxStore.goToLink(new LinkSpritInfo("", record.project_id, record.sprit_id), history);
+            }}>
+              <LinkOutlined />&nbsp;{record.sprit_name}
+            </a>
+          )}
+        </>
+      ),
+    },
+    {
+      title: "相关需求",
+      dataIndex: "requirement_id",
+      width: 150,
+      ellipsis: true,
+      hideInTable: getIsTask(pathname) == false,
+      render: (_, record: IssueInfo) => (
+        <>
+          {record.requirement_id == "" && "-"}
+          {record.requirement_id != "" && (
+            <a onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              linkAuxStore.goToLink(new LinkRequirementInfo("", record.project_id, record.requirement_id), history);
+            }}><LinkOutlined />&nbsp;{record.requirement_title}</a>
           )}
         </>
       ),
