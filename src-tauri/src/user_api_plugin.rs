@@ -256,7 +256,7 @@ async fn logout<R: Runtime>(
             //关闭main以外的所有窗口
             let win_map = app_handle.windows();
             for win in win_map.values() {
-                if win.label() != "main" {
+                if win.label() != "main" && win.label() != "atomGitLogout" {
                     if let Err(err) = win.close() {
                         println!("{:?}", err);
                     }
