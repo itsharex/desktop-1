@@ -305,11 +305,22 @@ export type EditCodeProps = NodeViewComponentProps & {
   code: string;
 };
 
+let _lastLang = "json";
+
+export function getLastLang(): string {
+  return _lastLang;
+}
+
+export function setLastLang(val: string) {
+  _lastLang = val;
+}
+
 export const EditCode: React.FC<EditCodeProps> = (props) => {
   const [lang, setLang] = useState(props.lang);
   const [code, setCode] = useState(props.code);
 
   const { deleteCode } = useCommands();
+
   const removeNode = () => {
     deleteCode((props.getPosition as () => number)());
   };
@@ -330,6 +341,7 @@ export const EditCode: React.FC<EditCodeProps> = (props) => {
             showSearch
             onChange={(value) => {
               setLang(value);
+              setLastLang(value);
             }}
           >
             {LANG_LIST.map((item) => (
