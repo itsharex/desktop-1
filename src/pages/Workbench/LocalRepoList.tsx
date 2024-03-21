@@ -1,9 +1,9 @@
-import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Table, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider } from "antd";
+import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Table, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider, Breadcrumb } from "antd";
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo, LocalRepoStatusInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoCommitInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
 import { list_repo, remove_repo, get_repo_status, list_repo_branch, list_repo_tag, list_repo_commit, analyse, list_remote, get_http_url } from "@/api/local_repo";
 import { open as open_dir } from '@tauri-apps/api/shell';
-import { BranchesOutlined, ExportOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
+import { BranchesOutlined, ExportOutlined, FileOutlined, FolderOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
 import SetLocalRepoModal from "./components/SetLocalRepoModal";
 import type { ColumnsType } from 'antd/lib/table';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
@@ -14,7 +14,8 @@ import { observer } from "mobx-react";
 import { get_git_hook, set_git_hook } from "@/api/project_tool";
 import { open as shell_open } from '@tauri-apps/api/shell';
 import LaunchRepoModal from "./components/LaunchRepoModal";
-
+import { readDir, type FileEntry } from '@tauri-apps/api/fs';
+import { resolve } from '@tauri-apps/api/path';
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -226,6 +227,82 @@ const AnalyseRepoModal: React.FC<AnalyseRepoModalProps> = (props) => {
     );
 };
 
+interface WorkDirProps {
+    basePath: string;
+}
+
+const WorkDir = (props: WorkDirProps) => {
+    const [curDirList, setCurDirList] = useState([] as string[]);
+    const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
+
+    const loadFileEntryList = async () => {
+        console.log(curDirList);
+        const path = await resolve(props.basePath, ...curDirList);
+        const tmpList = await readDir(path);
+        setFileEntryList(tmpList.filter(item => item.name != null && item.name != ".git"));
+    };
+
+    useEffect(() => {
+        loadFileEntryList();
+    }, [curDirList]);
+
+    return (
+        <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
+            headStyle={{ backgroundColor: "#eee" }}
+            title={
+                <Breadcrumb>
+                    <Breadcrumb.Item>
+                        <Button type="link" disabled={curDirList.length == 0} onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setCurDirList([]);
+                        }}>
+                            根目录
+                        </Button>
+                    </Breadcrumb.Item>
+                    {curDirList.map((name, index) => (
+                        <Breadcrumb.Item key={index}>
+                            <Button type="link" disabled={(index + 1) == curDirList.length}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setCurDirList(curDirList.slice(0, index + 1));
+                                }}>
+                                {name}
+                            </Button>
+                        </Breadcrumb.Item>
+                    ))}
+                </Breadcrumb>
+            } extra={
+                <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        resolve(props.basePath, ...curDirList).then(path => open_dir(path));
+                    }}>在文件管理器中打开</Button>
+            }>
+            <List rowKey="name" dataSource={fileEntryList} pagination={false}
+                grid={{ gutter: 16, column: 4 }}
+                renderItem={entry => (
+                    <List.Item>
+                        <Space style={{ fontSize: "16px" }}>
+                            {entry.children != null && <FolderOutlined />}
+                            {entry.children == null && <FileOutlined />}
+                            {entry.children != null && (
+                                <a onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setCurDirList([...curDirList, entry.name ?? ""]);
+                                }}>{entry.name}</a>
+                            )}
+                            {entry.children == null && entry.name}
+                        </Space>
+                    </List.Item>
+                )} />
+        </Card>
+    );
+};
+
 interface LocalRepoPanelProps {
     repoVersion: number;
     repo: LocalRepoInfo;
@@ -240,6 +317,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const [filterCommiter, setFilterCommiter] = useState("");
     const [filterBranch, setFilterBranch] = useState("");
     const [commiterList, setCommiterList] = useState<string[]>([]);
+    const [activeKey, setActiveKey] = useState("workDir");
 
     const loadCommitList = async (branch: string) => {
         const commitRes = await list_repo_commit(props.repo.path, `refs/heads/${branch}`);
@@ -346,108 +424,123 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     }, [props.repo.path, props.repoVersion]);
 
     return (
-        <Tabs type="card" tabPosition="left" key={props.repo.id} onChange={key => {
+        <Tabs type="card" tabPosition="left" key={props.repo.id} activeKey={activeKey} onChange={key => {
             if (key == "status") {
                 reloadStatus();
             }
+            setActiveKey(key);
         }}>
+            <Tabs.TabPane tab="工作目录" key="workDir">
+                <WorkDir basePath={props.repo.path} />
+            </Tabs.TabPane>
             <Tabs.TabPane tab="提交列表" key="commitList">
-                <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll" }} extra={
-                    <Form layout="inline">
-                        <Form.Item label="分支">
-                            <Select value={filterBranch} onChange={value => {
-                                setFilterBranch(value);
-                                loadCommitList(value);
-                            }} style={{ width: "150px" }}>
-                                {branchList.map(branch => (
-                                    <Select.Option key={branch.name} value={branch.name}>{branch.name}</Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label="提交用户">
-                            <Select value={filterCommiter} onChange={value => setFilterCommiter(value)} style={{ width: "100px" }}>
-                                <Select.Option value="">全部</Select.Option>
-                                {commiterList.map(commiter => (
-                                    <Select.Option key={commiter} value={commiter}>{commiter}</Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Form>
-                }>
-                    <Table rowKey="id" dataSource={commitList.filter(commit => {
-                        if (filterCommiter == "") {
-                            return true;
-                        } else {
-                            return commit.commiter == filterCommiter;
-                        }
-                    })} columns={columns} pagination={{ pageSize: 10, showSizeChanger: false }} />
-                </Card>
+                {activeKey == "commitList" && (
+                    <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll" }} headStyle={{ backgroundColor: "#eee" }}
+                        extra={
+                            <Form layout="inline">
+                                <Form.Item label="分支">
+                                    <Select value={filterBranch} onChange={value => {
+                                        setFilterBranch(value);
+                                        loadCommitList(value);
+                                    }} style={{ width: "150px" }}>
+                                        {branchList.map(branch => (
+                                            <Select.Option key={branch.name} value={branch.name}>{branch.name}</Select.Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="提交用户">
+                                    <Select value={filterCommiter} onChange={value => setFilterCommiter(value)} style={{ width: "100px" }}>
+                                        <Select.Option value="">全部</Select.Option>
+                                        {commiterList.map(commiter => (
+                                            <Select.Option key={commiter} value={commiter}>{commiter}</Select.Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Form>
+                        }>
+                        <Table rowKey="id" dataSource={commitList.filter(commit => {
+                            if (filterCommiter == "") {
+                                return true;
+                            } else {
+                                return commit.commiter == filterCommiter;
+                            }
+                        })} columns={columns} pagination={{ pageSize: 10, showSizeChanger: false }} />
+                    </Card>
+                )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                <List rowKey="name" dataSource={branchList} renderItem={item => (
-                    <List.Item style={{ display: "block" }}>
-                        <Space size="small">
-                            <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                        </Space>
-                        <br />
-                        <Space size="small">
-                            <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                openBranchDiff(item);
-                            }}>{item.commit_summary}</a>
-                        </Space>
-                    </List.Item>
-                )} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                <List rowKey="name" dataSource={tagList} renderItem={item => (
-                    <List.Item style={{ display: "block" }}>
-                        <Space size="small">
-                            <TagOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                        </Space>
-                        <br />
-                        <Space size="small">
-                            <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                openTagDiff(item);
-                            }}>{item.commit_summary}</a>
-                        </Space>
-                    </List.Item>
-                )} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                <List rowKey="path" dataSource={status?.path_list ?? []} renderItem={item => (
-                    <List.Item >
-                        <div style={{ display: "flex", width: "100%" }}>
-                            <div style={{ flex: 1 }}>
-                                {item.path}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                {item.status.join(",")}
-                            </div>
-                        </div>
-                    </List.Item>
-                )} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                <List rowKey="name" dataSource={remoteList} renderItem={item => (
-                    <List.Item>
-                        <div style={{ display: "flex", width: "100%" }}>
-                            <div style={{ width: "200px" }}>
-                                <a onClick={e => {
+                {activeKey == "branchList" && (
+                    <List rowKey="name" dataSource={branchList} renderItem={item => (
+                        <List.Item style={{ display: "block" }}>
+                            <Space size="small">
+                                <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                            </Space>
+                            <br />
+                            <Space size="small">
+                                <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    shell_open(get_http_url(item.url));
-                                }}>{item.name}</a>
+                                    openBranchDiff(item);
+                                }}>{item.commit_summary}</a>
+                            </Space>
+                        </List.Item>
+                    )} />
+                )}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                {activeKey == "tagList" && (
+                    <List rowKey="name" dataSource={tagList} renderItem={item => (
+                        <List.Item style={{ display: "block" }}>
+                            <Space size="small">
+                                <TagOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                            </Space>
+                            <br />
+                            <Space size="small">
+                                <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    openTagDiff(item);
+                                }}>{item.commit_summary}</a>
+                            </Space>
+                        </List.Item>
+                    )} />
+                )}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                {activeKey == "status" && (
+                    <List rowKey="path" dataSource={status?.path_list ?? []} renderItem={item => (
+                        <List.Item >
+                            <div style={{ display: "flex", width: "100%" }}>
+                                <div style={{ flex: 1 }}>
+                                    {item.path}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    {item.status.join(",")}
+                                </div>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                {item.url}
+                        </List.Item>
+                    )} />
+                )}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                {activeKey == "remotes" && (
+                    <List rowKey="name" dataSource={remoteList} renderItem={item => (
+                        <List.Item>
+                            <div style={{ display: "flex", width: "100%" }}>
+                                <div style={{ width: "200px" }}>
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        shell_open(get_http_url(item.url));
+                                    }}>{item.name}</a>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    {item.url}
+                                </div>
                             </div>
-                        </div>
-                    </List.Item>
-                )} />
+                        </List.Item>
+                    )} />
+                )}
             </Tabs.TabPane>
         </Tabs>
     );
@@ -537,12 +630,6 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                         e.preventDefault();
                                         setLaunchRepo(repo);
                                     }}>启动开发环境</Button>
-                                    <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            open_dir(repo.path);
-                                        }}>打开目录</Button>
                                     <div onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();

@@ -1,15 +1,16 @@
 import { useStores } from "@/hooks";
-import { Button, Card, Dropdown, Empty, Input, Layout, Menu, Space, Tabs, message } from "antd";
+import { Button, Card, Dropdown, Empty, Input, Layout, Menu, Select, Space, Tabs, message } from "antd";
 import React, { useEffect, useState } from "react";
 import type { AtomGitRepo } from "@/api/atomgit/repo";
-import { list_repo } from "@/api/atomgit/repo";
-import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
+import { list_user_repo, list_org_repo } from "@/api/atomgit/repo";
+import { DownOutlined, ExportOutlined, FilterFilled, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { list_repo as list_local_repo, list_remote as list_local_remote } from "@/api/local_repo";
 import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
 import { AtomGitBranchList, AtomGitIssueList, AtomGitTagList } from "./components/AtomGitList";
+import { type AtomGitOrg, list_user_org } from "@/api/atomgit/org";
 
 
 interface AtomGitRepoPanelProps {
@@ -178,10 +179,17 @@ const AtomGitPanel = () => {
 
     const [repoList, setRepoList] = useState([] as AtomGitRepo[]);
     const [curRepoId, setCurRepoId] = useState("");
+    const [curOrgId, setCurOrgId] = useState("");
+    const [orgList, setOrgList] = useState([] as AtomGitOrg[]);
     const [keyword, setKeyword] = useState("");
 
     const loadRepoList = async () => {
-        const res = await list_repo(userStore.userInfo.extraToken, userStore.userInfo.userName, 99, 1);
+        let res: null | AtomGitRepo[] = null;
+        if (curOrgId == "") {
+            res = await list_user_repo(userStore.userInfo.extraToken, userStore.userInfo.userName, 99, 1);
+        } else {
+            res = await list_org_repo(userStore.userInfo.extraToken, curOrgId, 99, 1);
+        }
         setRepoList(res);
         if (res.length > 0 && res.map(item => item.id.toFixed(0)).includes(curRepoId) == false) {
             setCurRepoId(res[0].id.toFixed(0));
@@ -190,24 +198,42 @@ const AtomGitPanel = () => {
 
     useEffect(() => {
         loadRepoList();
+    }, [curOrgId]);
+
+    useEffect(() => {
+        list_user_org(userStore.userInfo.extraToken).then(res => setOrgList(res));
     }, []);
 
     return (
         <Layout>
             <Layout.Sider style={{ borderRight: "1px solid #e4e4e8" }} theme="light">
-                <Space style={{ fontSize: "16px", fontWeight: 600, padding: "10px 10px", backgroundColor: "#eee" }}>
-                    <Input value={keyword} allowClear onChange={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setKeyword(e.target.value.trim());
-                    }} />
+                <Space style={{ padding: "10px 0px 10px 4px", backgroundColor: "#eee" }}>
+                    <Select value={curOrgId} onChange={value => {
+                        setCurOrgId(value);
+                        setKeyword("");
+                    }}
+                        style={{ width: "160px" }}>
+                        <Select.Option value="">个人项目</Select.Option>
+                        {orgList.map(org => (
+                            <Select.Option key={org.id} value={org.login}>组织&nbsp;{org.login}</Select.Option>
+                        ))}
+                    </Select>
                     <Button title="刷新" type="text" icon={<ReloadOutlined />} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         loadRepoList().then(() => {
                             message.info("刷新成功");
                         });
-                    }} />
+                    }} style={{ minWidth: 0, padding: "0px 0px" }} />
+                </Space>
+                <Space style={{ margin: "4px 0px" }}>
+                    <Input placeholder="搜索项目" style={{ width: "170px" }} allowClear value={keyword}
+                        onChange={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setKeyword(e.target.value.trim());
+                        }} />
+                    <FilterFilled />
                 </Space>
                 <Menu items={repoList.filter(repo => repo.name.includes(keyword)).map(repo => ({
                     key: repo.id.toFixed(0),
@@ -218,7 +244,7 @@ const AtomGitPanel = () => {
                             <div>{repo.name}</div>
                         </Space>
                     ),
-                }))} style={{ border: "none", height: "calc(100vh - 290px)", overflowY: "scroll" }} selectedKeys={curRepoId == "" ? [] : [curRepoId]}
+                }))} style={{ border: "none", height: "calc(100vh - 320px)", overflowY: "scroll" }} selectedKeys={curRepoId == "" ? [] : [curRepoId]}
                     onSelect={info => {
                         setCurRepoId(info.key);
                     }} />
