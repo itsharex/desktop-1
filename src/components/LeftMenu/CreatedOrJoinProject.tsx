@@ -26,6 +26,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
 
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
 
   const [prjName, setPrjName] = useState("");
   const [mainContent, setMainContent] = useState(MAIN_CONTENT_CONTENT_LIST);
@@ -96,6 +97,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
         history.push(APP_PROJECT_HOME_PATH);
         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
       });
+      orgStore.setCurOrgId("");
     } catch (e) {
       console.log(e);
     }

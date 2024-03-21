@@ -63,6 +63,8 @@ class NoticeStore {
           this.processBoardNotice(notice.BoardNotice);
         } else if (notice.ChatNotice !== undefined) {
           this.processChatNotice(notice.ChatNotice);
+        } else if (notice.OrgNotice !== undefined) {
+          this.processOrgNotice(notice.OrgNotice);
         }
       } catch (e) {
         console.log(e);
@@ -197,6 +199,24 @@ class NoticeStore {
     }
   }
 
+  private async processOrgNotice(notice: NoticeType.org.AllNotice) {
+    if (notice.JoinOrgNotice !== undefined) {
+      this.rootStore.orgStore.onJoin(notice.JoinOrgNotice.org_id, notice.JoinOrgNotice.member_user_id);
+    } else if (notice.LeaveOrgNotice !== undefined) {
+      this.rootStore.orgStore.onLeave(notice.LeaveOrgNotice.org_id, notice.LeaveOrgNotice.member_user_id, this.history);
+    } else if (notice.UpdateOrgNotice !== undefined) {
+      this.rootStore.orgStore.initLoadOrgList();
+    } else if (notice.CreateDepartMentNotice !== undefined) {
+      this.rootStore.orgStore.onUpdateDepartMent(notice.CreateDepartMentNotice.org_id, notice.CreateDepartMentNotice.depart_ment_id);
+    } else if (notice.RemoveDepartMentNotice !== undefined) {
+      this.rootStore.orgStore.onRemoveDepartMent(notice.RemoveDepartMentNotice.org_id, notice.RemoveDepartMentNotice.depart_ment_id);
+    } else if (notice.UpdateDepartMentNotice !== undefined) {
+      this.rootStore.orgStore.onUpdateDepartMent(notice.UpdateDepartMentNotice.org_id, notice.UpdateDepartMentNotice.depart_ment_id);
+    } else if (notice.UpdateMemberNotice !== undefined) {
+      this.rootStore.orgStore.onUpdateMember(notice.UpdateMemberNotice.org_id,notice.UpdateMemberNotice.member_user_id);
+    }
+  }
+
   private async processIdeaNotice(notice: NoticeType.idea.AllNotice) {
     if (notice.KeywordChangeNotice !== undefined) {
       if (this.rootStore.projectStore.curProjectId === notice.KeywordChangeNotice.project_id) {
@@ -234,9 +254,11 @@ class NoticeStore {
               this.rootStore.projectStore.showPostHookModal = true;
               this.history.push(APP_PROJECT_HOME_PATH);
             });
+            this.rootStore.orgStore.setCurOrgId("");
           });
         } else {
           await this.rootStore.projectStore.setCurProjectId(projectId);
+          await this.rootStore.orgStore.setCurOrgId("");
           this.rootStore.projectStore.showPostHookModal = true;
           this.history.push(APP_PROJECT_HOME_PATH);
         }

@@ -21,6 +21,7 @@ const ProjectManager = () => {
     const appStore = useStores('appStore');
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
+    const orgStore = useStores('orgStore');
 
     const [leaverProjectInfo, setLeaverProjectInfo] = useState<WebProjectInfo | null>(null);
     const [removeProjectInfo, setRemoveProjectInfo] = useState<WebProjectInfo | null>(null);
@@ -69,6 +70,7 @@ const ProjectManager = () => {
                             }
                         }} showEditIcon={true} onClick={() => {
                             projectStore.setCurProjectId(row.project_id);
+                            orgStore.setCurOrgId("");
                             history.push(APP_PROJECT_HOME_PATH);
                         }} />
                 </Space>
@@ -150,6 +152,7 @@ const ProjectManager = () => {
 
     useMemo(() => {
         projectStore.setCurProjectId('');
+        orgStore.setCurOrgId("");
     }, []);
 
     return (

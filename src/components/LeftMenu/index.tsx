@@ -19,6 +19,7 @@ const LeftMenu: React.FC = () => {
   const userStore = useStores('userStore');
   const appStore = useStores('appStore');
   const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
 
   return (
     <Sider className={cls.sider}>
@@ -41,10 +42,12 @@ const LeftMenu: React.FC = () => {
               appStore.showCheckLeave(() => {
                 history.push(WORKBENCH_PATH);
                 projectStore.setCurProjectId("");
+                orgStore.setCurOrgId("");
               });
             } else {
               history.push(WORKBENCH_PATH);
               projectStore.setCurProjectId("");
+              orgStore.setCurOrgId("");
             }
           }}>
           <img src={workbench_icon} alt="" className={cls.workbench_icon} />
@@ -62,11 +65,13 @@ const LeftMenu: React.FC = () => {
               appStore.showCheckLeave(() => {
                 history.push(PUB_RES_PATH);
                 projectStore.setCurProjectId("");
+                orgStore.setCurOrgId("");
               });
               return;
             }
             history.push(PUB_RES_PATH);
             projectStore.setCurProjectId("");
+            orgStore.setCurOrgId("");
           }}>
           <GlobalOutlined />&nbsp;公共资源
         </div>

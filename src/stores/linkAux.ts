@@ -347,6 +347,7 @@ class LinkAuxStore {
       const taskLink = link as LinkTaskInfo;
       if (this.rootStore.projectStore.curProjectId != taskLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(taskLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
         if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
           history.push(APP_PROJECT_HOME_PATH);
         }
@@ -357,6 +358,7 @@ class LinkAuxStore {
       const bugLink = link as LinkBugInfo;
       if (this.rootStore.projectStore.curProjectId != bugLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(bugLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
         if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
           history.push(APP_PROJECT_HOME_PATH);
         }
@@ -394,6 +396,7 @@ class LinkAuxStore {
       const reqLink = link as LinkRequirementInfo;
       if (this.rootStore.projectStore.curProjectId != reqLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(reqLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
         if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
           history.push(APP_PROJECT_HOME_PATH);
         }
@@ -404,6 +407,7 @@ class LinkAuxStore {
       const commentLink = link as LinkCodeCommentInfo;
       if (this.rootStore.projectStore.curProjectId != commentLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(commentLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
       }
       this.rootStore.projectStore.setCodeCommentInfo(commentLink.threadId, commentLink.commentId);
       if (!history.location.pathname.startsWith(APP_PROJECT_PATH)) {
@@ -413,6 +417,7 @@ class LinkAuxStore {
       const ideaPageLink = link as LinkIdeaPageInfo;
       if (this.rootStore.projectStore.curProjectId != ideaPageLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(ideaPageLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
       }
       if (ideaPageLink.showTip) {
         if (ideaPageLink.keywordList.length > 0) {
@@ -428,6 +433,7 @@ class LinkAuxStore {
       const entryLink = link as LinkEntryInfo;
       if (this.rootStore.projectStore.curProjectId != entryLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(entryLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
       }
       const res = await request(get_entry({
         session_id: this.rootStore.userStore.sessionId,
@@ -442,11 +448,12 @@ class LinkAuxStore {
         await this.goToLink(new LinkBoardInfo("", entryLink.projectId, entryLink.entryId), history);
       } else if (res.entry.entry_type == ENTRY_TYPE_API_COLL) {
         await this.goToLink(new LinkApiCollInfo("", entryLink.projectId, entryLink.entryId), history);
-      } 
+      }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_API_COLL) {
       const apiCollLink = link as LinkApiCollInfo;
       if (this.rootStore.projectStore.curProjectId != apiCollLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(apiCollLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
       }
       const res = await request(get_entry({
         session_id: this.rootStore.userStore.sessionId,
@@ -459,6 +466,7 @@ class LinkAuxStore {
       const testCaseLink = link as LinkTestCaseInfo;
       if (this.rootStore.projectStore.curProjectId != testCaseLink.projectId) {
         await this.rootStore.projectStore.setCurProjectId(testCaseLink.projectId);
+        await this.rootStore.orgStore.setCurOrgId("");
       }
       this.rootStore.projectStore.projectModal.testCaseLinkSpritId = testCaseLink.spritId;
       this.rootStore.projectStore.projectModal.testCaseTab = testCaseLink.showTab;
@@ -476,6 +484,7 @@ class LinkAuxStore {
   private async goToDoc(docLink: LinkDocInfo, history: History) {
     if (this.rootStore.projectStore.curProjectId != docLink.projectId) {
       await this.rootStore.projectStore.setCurProjectId(docLink.projectId);
+      await this.rootStore.orgStore.setCurOrgId("");
     }
 
     this.rootStore.docStore.fromLink = true;
@@ -487,6 +496,7 @@ class LinkAuxStore {
   private async goToSprit(spritLink: LinkSpritInfo, history: History) {
     if (this.rootStore.projectStore.curProjectId != spritLink.projectId) {
       await this.rootStore.projectStore.setCurProjectId(spritLink.projectId);
+      await this.rootStore.orgStore.setCurOrgId("");
     }
     await this.rootStore.entryStore.loadEntry(spritLink.spritId);
     history.push(APP_PROJECT_WORK_PLAN_PATH);
@@ -495,6 +505,7 @@ class LinkAuxStore {
   private async goToBoard(boardLink: LinkBoardInfo, history: History) {
     if (this.rootStore.projectStore.curProjectId != boardLink.projectId) {
       await this.rootStore.projectStore.setCurProjectId(boardLink.projectId);
+      await this.rootStore.orgStore.setCurOrgId("");
     }
     await this.rootStore.entryStore.loadEntry(boardLink.boardId);
     history.push(APP_PROJECT_KB_BOARD_PATH);
@@ -504,16 +515,18 @@ class LinkAuxStore {
   async goToCreateTask(content: string, projectId: string, history: History, spritId: string | undefined = undefined) {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
+      await this.rootStore.orgStore.setCurOrgId("");
     }
-    //TODO
+    this.rootStore.projectStore.projectModal.setCreateIssue(true, ISSUE_TYPE_TASK, spritId ?? "");
   }
 
   //跳转到创建缺陷
   async goToCreateBug(content: string, projectId: string, history: History, spritId: string | undefined = undefined) {
     if (projectId != this.rootStore.projectStore.curProjectId) {
       await this.rootStore.projectStore.setCurProjectId(projectId);
+      await this.rootStore.orgStore.setCurOrgId("");
     }
-    //TODO
+    this.rootStore.projectStore.projectModal.setCreateIssue(true, ISSUE_TYPE_BUG, spritId ?? "");
   }
 
   //跳转到任务列表
