@@ -164,6 +164,9 @@
           "$HOME/.linksaas/**",
           "$HOME/.local/**"
         ]
+      },
+      "path": {
+        "all": true
       }
     },
     "windows": [
