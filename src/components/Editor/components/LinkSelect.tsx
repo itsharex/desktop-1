@@ -265,6 +265,9 @@ export const LinkSelect: React.FC<LinkSelectProps> = observer((props) => {
     } else if (tab == "apicoll") {
       entryType = ENTRY_TYPE_API_COLL;
     }
+    if(projectStore.curProjectId == ""){
+      return;
+    }
     request(list_entry({
       session_id: userStore.sessionId,
       project_id: projectStore.curProjectId,

@@ -11,6 +11,7 @@ import ProjectList from './ProjectList';
 import { GlobalOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import OrgList from './OrgList';
 
 const LeftMenu: React.FC = () => {
   const location = useLocation();
@@ -53,8 +54,15 @@ const LeftMenu: React.FC = () => {
           <img src={workbench_icon} alt="" className={cls.workbench_icon} />
           工作台
         </div>
-        <div style={{ borderBottom: "2px dotted #333", margin: "5px 24px", paddingTop: "5px" }} />
-        <ProjectList />
+        {userStore.sessionId != "" && (
+          <>
+            <div style={{ borderBottom: "2px dotted #333", margin: "5px 24px", paddingTop: "5px" }} />
+            <ProjectList />
+            <div style={{ borderTop: "2px dotted #333", margin: "5px 24px", paddingTop: "5px" }} />
+            <OrgList />
+          </>
+        )}
+
         <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
 
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(PUB_RES_PATH) ? cls.active_menu : ""}`}

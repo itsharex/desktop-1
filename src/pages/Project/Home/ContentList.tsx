@@ -107,6 +107,11 @@ const ProjectHome = () => {
             if (listParam == null) {
                 return;
             }
+            if(projectStore.curProjectId == ""){
+                projectStore.projectHome.contentTotalCount = 0;
+                entryStore.entryOrFolderList = [];
+                return;
+            }
 
             const res = await request(list_entry({
                 session_id: userStore.sessionId,

@@ -35,6 +35,7 @@ import {
   ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
   ADMIN_PATH_IDEA_STORE_SUFFIX,
   ADMIN_PATH_IDEA_SUFFIX,
+  APP_ORG_MANAGER_PATH,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -67,6 +68,7 @@ import IdeaStoreCateList from '@/pages/Admin/IdeaAdmin/IdeaStoreCateList';
 import IdeaStoreList from '@/pages/Admin/IdeaAdmin/IdeaStoreList';
 import IdeaList from '@/pages/Admin/IdeaAdmin/IdeaList';
 import RecycleItemList from '@/pages/Project/Recycle/RecycleItemList';
+import OrgManager from '@/pages/Org/OrgManager';
 
 export interface IRouteConfig {
   // 路由路径
@@ -193,6 +195,12 @@ const routesConfig: IRouteConfig[] = [
         path: PUB_RES_PATH,
         title: "公共资源",
         component: PubRes,
+        exact: true,
+      },
+      {
+        path: APP_ORG_MANAGER_PATH,
+        title: "团队管理",
+        component: OrgManager,
         exact: true,
       },
       {

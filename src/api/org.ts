@@ -14,6 +14,8 @@ export type OrgInfo = {
     owner_display_name: string;
     owner_logo_uri: string;
     new_member_depart_ment_id: string;
+    depart_ment_count: number;
+    member_count: number;
 };
 
 export type DepartMentInfo = {

@@ -128,6 +128,10 @@ const EditSpritRef: React.FC<WidgetProps> = observer((props) => {
     const [entryList, setEntryList] = useState<EntryInfo[]>([]);
 
     const loadSpritInfo = async () => {
+        if(projectStore.curProjectId == ""){
+            setEntryList([]);
+            return;
+        }
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
