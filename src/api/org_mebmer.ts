@@ -14,6 +14,7 @@ export type MemberInfo = {
     member_user_id: string;
     create_time: number;
     parent_depart_ment_id: string;
+    depart_ment_id_path: string[];
     display_name: string;
     logo_uri: string;
 };

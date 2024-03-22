@@ -6,6 +6,7 @@ import { list_depart_ment, list_org, get_depart_ment } from "@/api/org";
 import { list_member, get_member } from "@/api/org_mebmer";
 import { request } from '@/utils/request';
 import type { History } from 'history';
+import { APP_ORG_MANAGER_PATH } from '@/utils/constant';
 
 export default class OrgStore {
     constructor(rootStore: RootStore) {
@@ -130,7 +131,10 @@ export default class OrgStore {
                 this._orgList = tmpList;
             });
             if (this._curOrgId == orgId) {
-                //TODO
+                runInAction(()=>{
+                    this._curOrgId = "";
+                });
+                history.push(APP_ORG_MANAGER_PATH);
                 return;
             }
         }

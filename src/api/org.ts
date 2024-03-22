@@ -33,8 +33,8 @@ export type DepartMentInfo = {
 };
 
 export type DepartMentOrMember = {
-    type: "departMent" | "member",
-    id: string,
+    type: "departMent" | "member";
+    id: string;
     value: DepartMentInfo | MemberInfo | undefined;
 };
 
