@@ -7,6 +7,7 @@ import { APP_ORG_MANAGER_PATH, APP_ORG_PATH } from "@/utils/constant";
 import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
 import CreatedOrJoinOrg from "./CreatedOrJoinOrg";
+import InviteOrgMember from "./InviteOrgMember";
 
 const OrgList = () => {
     const location = useLocation();
@@ -47,7 +48,7 @@ const OrgList = () => {
                 </div>
             </div>
 
-            <div style={{ height: "calc(50vh - 150px)", overflowY: "scroll" }}>
+            <div style={{ maxHeight: "calc(50vh - 150px)", overflowY: "scroll" }}>
                 {orgStore.orgList.map(item => (
                     <div key={item.org_id} className={cls.project_child_menu}>
                         <div className={cls.project_child_wrap}>
@@ -81,6 +82,8 @@ const OrgList = () => {
                 visible={appStore.showCreateOrJoinOrg}
                 onChange={(val) => (appStore.showCreateOrJoinOrg = val)}
             />}
+
+            {orgStore.showInviteMember && <InviteOrgMember visible={orgStore.showInviteMember} onChange={val => orgStore.showInviteMember = val} />}
         </div>
     );
 };

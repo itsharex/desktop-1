@@ -7,6 +7,7 @@ import { request } from "@/utils/request";
 import { useStores } from "@/hooks";
 import { joinOrgOrProject } from "./join";
 import { useHistory } from "react-router-dom";
+import { APP_ORG_PATH } from "@/utils/constant";
 
 type CreatedOrJoinOrgProps = {
     visible: boolean;
@@ -60,7 +61,9 @@ const CreatedOrJoinOrg = (props: CreatedOrJoinOrgProps) => {
         }));
         await orgStore.onJoin(res.org_id, userStore.userInfo.userId);
         projectStore.setCurProjectId("");
-        //TODO 跳转到团队详情页面
+        //跳转到团队详情页面
+        orgStore.setCurOrgId(res.org_id);
+        history.push(APP_ORG_PATH);
         onChange(false);
     };
 

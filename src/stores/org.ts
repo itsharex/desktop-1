@@ -195,4 +195,16 @@ export default class OrgStore {
             this._memberList = tmpList;
         });
     }
+
+    private _showInviteMember = false;
+
+    get showInviteMember(): boolean {
+        return this._showInviteMember;
+    }
+
+    set showInviteMember(val: boolean) {
+        runInAction(() => {
+            this._showInviteMember = val;
+        });
+    }
 } 

@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
+import type { MemberInfo } from "./org_mebmer";
 
-export type BasicOrgInfo ={
+export type BasicOrgInfo = {
     org_name: string;
     org_desc: string;
 };
@@ -29,6 +30,12 @@ export type DepartMentInfo = {
     update_time: number;
     sub_depart_ment_count: number;
     sub_member_count: number;
+};
+
+export type DepartMentOrMember = {
+    type: "departMent" | "member",
+    id: string,
+    value: DepartMentInfo | MemberInfo | undefined;
 };
 
 export type CreateOrgRequest = {

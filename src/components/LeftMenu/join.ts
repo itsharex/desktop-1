@@ -5,7 +5,7 @@ import { message } from "antd";
 import type ProjectStore from "@/stores/project";
 import type OrgStore from "@/stores/org";
 import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
-import { APP_PROJECT_HOME_PATH, PROJECT_SETTING_TAB } from "@/utils/constant";
+import { APP_ORG_PATH, APP_PROJECT_HOME_PATH, PROJECT_SETTING_TAB } from "@/utils/constant";
 import type { History } from 'history';
 
 const joinOrg = async (sessionId: string, inviteCode: string, userId: string, projectStore: ProjectStore, orgStore: OrgStore, history: History) => {
@@ -16,7 +16,9 @@ const joinOrg = async (sessionId: string, inviteCode: string, userId: string, pr
     message.success('加入成功');
     await orgStore.onJoin(res.org_id, userId);
     projectStore.setCurProjectId("");
-    //TODO 跳转到团队详情页面
+    //跳转到团队详情页面
+    orgStore.setCurOrgId(res.org_id);
+    history.push(APP_ORG_PATH);
 };
 
 const joinProject = async (sessionId: string, inviteCode: string, userId: string, projectStore: ProjectStore, orgStore: OrgStore, history: History) => {

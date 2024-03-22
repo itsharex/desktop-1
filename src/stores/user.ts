@@ -124,6 +124,7 @@ class UserStore {
         };
         sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
         this.rootStore.projectStore.initLoadProjectList();
+        this.rootStore.orgStore.initLoadOrgList();
       });
       await showMyShortNote(res.session_id);
     }

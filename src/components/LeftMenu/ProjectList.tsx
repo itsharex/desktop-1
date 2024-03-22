@@ -5,7 +5,7 @@ import { useStores } from "@/hooks";
 
 import ProjectItem from "./ProjectItem";
 import CreatedOrJoinProject from "./CreatedOrJoinProject";
-import AddMember from "./AddMember";
+import InviteProjectMember from "./InviteProjectMember";
 import { PlusOutlined, ProjectOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 import { useHistory, useLocation } from "react-router-dom";
@@ -52,7 +52,7 @@ const ProjectList = () => {
                 </div>
 
             </div>
-            <div style={{ height: "calc(50vh - 150px)", overflowY: "scroll" }}>
+            <div style={{ maxHeight: "calc(50vh - 150px)", overflowY: "scroll" }}>
                 {projectStore.projectList.map(item => (
                     <div key={item.project_id} className={cls.project_child_menu}>
                         <ProjectItem item={item} />
@@ -65,7 +65,7 @@ const ProjectList = () => {
                 onChange={(val) => (appStore.showCreateOrJoinProject = val)}
             />}
             {
-                memberStore.showInviteMember && <AddMember
+                memberStore.showInviteMember && <InviteProjectMember
                     visible={memberStore.showInviteMember}
                     onChange={(val) => memberStore.showInviteMember = val} />
             }
