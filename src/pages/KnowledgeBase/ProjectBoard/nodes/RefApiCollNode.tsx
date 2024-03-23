@@ -32,6 +32,11 @@ const SelectApiCollModal = (props: SelectApiCollModalProps) => {
 
 
     const loadApiCollList = async () => {
+        if (projectStore.curProjectId == "") {
+            setTotalCount(0);
+            setApiCollList([]);
+            return;
+        }
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,

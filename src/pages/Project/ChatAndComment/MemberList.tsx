@@ -24,6 +24,9 @@ const MemberList = () => {
     const [ownerMemberUserId, setOwnerMemberUserId] = useState("");
 
     const loadRoleList = async () => {
+        if(projectStore.curProjectId == ""){
+            return;
+        }
         const res = await request(list_role(userStore.sessionId, projectStore.curProjectId));
         if (res) {
             setRoleList(res.role_list);

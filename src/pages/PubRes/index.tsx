@@ -21,6 +21,7 @@ const PubRes = () => {
 
     const appStore = useStores('appStore');
     const projectStore = useStores('projectStore');
+    const orgStore = useStores('orgStore');
     const pubResStore = useStores('pubResStore');
 
     const urlParams = new URLSearchParams(location.search);
@@ -33,6 +34,7 @@ const PubRes = () => {
 
     useMemo(() => {
         projectStore.setCurProjectId('');
+        orgStore.setCurOrgId("");
     }, []);
 
     return (

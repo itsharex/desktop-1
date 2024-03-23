@@ -29,6 +29,7 @@ const Workbench: React.FC = () => {
   const [passwordModal, setPasswordModal] = useState(type === 'resetPassword');
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
 
   const tab = urlParams.get('tab') ?? "localRepo";
 
@@ -39,6 +40,7 @@ const Workbench: React.FC = () => {
 
   useMemo(() => {
     projectStore.setCurProjectId('');
+    orgStore.setCurOrgId("");
   }, []);
 
   useEffect(() => {

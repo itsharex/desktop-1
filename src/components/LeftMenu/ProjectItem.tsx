@@ -29,6 +29,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
 
     const appStore = useStores('appStore');
     const projectStore = useStores('projectStore');
+    const orgStore = useStores('orgStore');
     const entryStore = useStores('entryStore');
 
     const calcHotKey = (): string => {
@@ -73,6 +74,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     history.push(APP_PROJECT_HOME_PATH);
                                 }
                             });
+                            orgStore.setCurOrgId("");
                         });
                         return;
                     }
@@ -85,6 +87,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             history.push(APP_PROJECT_HOME_PATH);
                         }
                     });
+                    orgStore.setCurOrgId("");
                 }}><FolderFilled style={{ color: item.project_id == projectStore.curProjectId ? "white" : "inherit" }} />
                     &nbsp;<Tooltip title={item.project_id == projectStore.curProjectId ? `快捷键:${calcHotKey()}` : ""} placement="right" color="cyan">{item.basic_info.project_name}</Tooltip>
                 </span>
@@ -103,6 +106,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -111,6 +115,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="内容面板" hotkey="alt+0" /></div>
 
                     )}
@@ -127,6 +132,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_SPRIT_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -135,6 +141,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_SPRIT_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="工作计划" hotkey="alt+1" /></div>
 
                     )}
@@ -151,6 +158,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_DOC_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -159,6 +167,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_DOC_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="项目文档" hotkey="alt+2" /></div>
                     )}
 
@@ -174,6 +183,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_BOARD_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -182,6 +192,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_BOARD_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="信息面板" hotkey="alt+3" /></div>
                     )}
 
@@ -197,6 +208,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_PAGES_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -204,6 +216,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     entryStore.reset();
                                     projectStore.projectHome.homeType = MAIN_CONTENT_PAGES_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
+                                    orgStore.setCurOrgId("");
                                 });
                             }}><CaretRightFilled /><HotkeyWrap title="静态网页" hotkey="alt+4" /></div>
                     )}
@@ -220,6 +233,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_FILE_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -228,6 +242,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_FILE_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="项目文件" hotkey="alt+5" /></div>
                     )}
 
@@ -244,6 +259,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_API_COLL_LIST;
                                             history.push(APP_PROJECT_HOME_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -252,6 +268,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_API_COLL_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="接口集合" hotkey="alt+6" /></div>
                     )}
 
@@ -267,6 +284,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                             projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                                             history.push(APP_PROJECT_MY_WORK_PATH);
                                         });
+                                        orgStore.setCurOrgId("");
                                     });
                                     return;
                                 }
@@ -275,6 +293,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                     projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                                     history.push(APP_PROJECT_MY_WORK_PATH);
                                 });
+                                orgStore.setCurOrgId("");
                             }}><CaretRightFilled /><HotkeyWrap title="我的工作" hotkey="alt+9" /></div>
                     )}
                 </div>

@@ -60,6 +60,18 @@ class AppStore {
     });
   }
 
+  private _showCreateOrJoinOrg: boolean = false;
+
+  get showCreateOrJoinOrg(): boolean {
+    return this._showCreateOrJoinOrg;
+  }
+
+  set showCreateOrJoinOrg(val: boolean) {
+    runInAction(() => {
+      this._showCreateOrJoinOrg = val;
+    });
+  }
+
   //显示全局服务器设置
   private _showGlobalServerModal = false;
 

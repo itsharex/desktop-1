@@ -55,7 +55,6 @@ export default class ProjectStore {
   private _curProjectId: string = '';
   //全部项目
   private _projectList: WebProjectInfo[] = [];
-  private _projectMap: Map<string, WebProjectInfo> = new Map();
 
   public projectModal = new ProjectModalStore();
   public projectHome = new ProjectHomeStore();
@@ -98,11 +97,11 @@ export default class ProjectStore {
   }
 
   get curProject(): WebProjectInfo | undefined {
-    return this._projectMap.get(this._curProjectId);
+    return this._projectList.find(item=>item.project_id == this._curProjectId);
   }
 
   getProject(projectId: string): WebProjectInfo | undefined {
-    return this._projectMap.get(projectId);
+    return this._projectList.find(item=>item.project_id == projectId);
   }
 
   reset() {
@@ -122,13 +121,9 @@ export default class ProjectStore {
         chat_store: new ProjectChatStore(this.rootStore, info.project_id),
       };
     });
-    const prjMap: Map<string, WebProjectInfo> = new Map();
-    prjList.forEach((item: WebProjectInfo) => {
-      prjMap.set(item.project_id, item);
-    });
+
     runInAction(() => {
       this._projectList = prjList;
-      this._projectMap = prjMap;
     });
     //更新项目状态
     const projectIdList = this._projectList.map((item) => item.project_id);
@@ -140,12 +135,6 @@ export default class ProjectStore {
         if (index != -1) {
           this._projectList[index].project_status = status;
           this._projectList[index].tag_list = tagList;
-        }
-        const value = this._projectMap.get(projectId);
-        if (value !== undefined) {
-          value.project_status = status;
-          value.tag_list = tagList;
-          this._projectMap.set(projectId, value);
         }
       });
     });
@@ -210,11 +199,6 @@ export default class ProjectStore {
       if (index != -1) {
         this._projectList[index].tag_list = tagList;
       }
-      const prj = this._projectMap.get(projectId);
-      if (prj !== undefined) {
-        prj.tag_list = tagList;
-        this._projectMap.set(projectId, prj);
-      }
     });
   }
 
@@ -228,12 +212,6 @@ export default class ProjectStore {
       if (index != -1) {
         this._projectList[index].project_status.alarm_hit_count = res.hit_count;
         this._projectList[index].project_status.alarm_alert_count = res.alert_count;
-      }
-      const prj = this._projectMap.get(projectId);
-      if (prj !== undefined) {
-        prj.project_status.alarm_hit_count = res.hit_count;
-        prj.project_status.alarm_alert_count = res.alert_count;
-        this._projectMap.set(projectId, prj);
       }
     });
   }
@@ -251,11 +229,6 @@ export default class ProjectStore {
       if (index != -1) {
         this._projectList[index].project_status.bulletin_count = res.total_count;
       }
-      const prj = this._projectMap.get(projectId);
-      if (prj !== undefined) {
-        prj.project_status.bulletin_count = res.total_count;
-        this._projectMap.set(projectId, prj);
-      }
     });
   }
 
@@ -268,11 +241,6 @@ export default class ProjectStore {
       const index = this._projectList.findIndex((item) => item.project_id == projectId);
       if (index != -1) {
         this._projectList[index].project_status.unread_comment_count = res.un_read_count;
-      }
-      const prj = this._projectMap.get(projectId);
-      if (prj !== undefined) {
-        prj.project_status.unread_comment_count = res.un_read_count;
-        this._projectMap.set(projectId, prj);
       }
     });
   }
@@ -294,12 +262,6 @@ export default class ProjectStore {
           this._projectList[index].project_status.undone_bug_count = undoneBugCount;
           this._projectList[index].project_status.undone_task_count = undoneTaskCount;
         }
-        const prj = this._projectMap.get(projectId);
-        if (prj !== undefined) {
-          prj.project_status.undone_bug_count = undoneBugCount;
-          prj.project_status.undone_task_count = undoneTaskCount;
-          this._projectMap.set(projectId, prj);
-        }
       });
     }
   }
@@ -316,17 +278,15 @@ export default class ProjectStore {
       return;
     }
     tmpList[index].my_weight = weight;
-    const tmpProject = tmpList[index];
     tmpList = tmpList.sort((a, b) => b.my_weight - a.my_weight);
     runInAction(() => {
       this._projectList = tmpList;
-      this._projectMap.set(projectId, tmpProject);
     });
   }
 
   addNewEventCount(projectId: string) {
     let oldCount = 0;
-    const prj = this._projectMap.get(projectId);
+    const prj = this.getProject(projectId);
     if (prj == undefined) {
       return;
     }
@@ -337,11 +297,6 @@ export default class ProjectStore {
       if (index != -1) {
         this._projectList[index].project_status.new_event_count = newCount;
       }
-      const prjItem = this._projectMap.get(projectId);
-      if (prjItem !== undefined) {
-        prjItem.project_status.new_event_count = newCount;
-        this._projectMap.set(projectId, prjItem);
-      }
     });
   }
 
@@ -350,11 +305,6 @@ export default class ProjectStore {
       const index = this._projectList.findIndex((item) => item.project_id == projectId);
       if (index != -1) {
         this._projectList[index].project_status.new_event_count = 0;
-      }
-      const prj = this._projectMap.get(projectId);
-      if (prj !== undefined) {
-        prj.project_status.new_event_count = 0;
-        this._projectMap.set(projectId, prj);
       }
     });
   }
@@ -378,7 +328,6 @@ export default class ProjectStore {
         if (prj == null) {
           return;
         }
-        this._projectMap.set(prj.project_id, prj);
         if (index == -1) {
           tmpList.unshift(prj);
         } else {
@@ -395,7 +344,6 @@ export default class ProjectStore {
     let newProjectId = "";
     runInAction(() => {
       this._projectList = tmpList;
-      this._projectMap.delete(projecId);
       if (this._curProjectId == projecId) {
         if (tmpList.length > 0) {
           newProjectId = tmpList[0].project_id;

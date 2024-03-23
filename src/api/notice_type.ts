@@ -302,6 +302,53 @@ export namespace testcase {
   };
 }
 
+export namespace org {
+
+  export type JoinOrgNotice = {
+    org_id: string;
+    member_user_id: string;
+  };
+
+  export type LeaveOrgNotice = {
+    org_id: string;
+    member_user_id: string;
+  };
+
+  export type UpdateOrgNotice = {
+    org_id: string;
+  };
+
+  export type CreateDepartMentNotice = {
+    org_id: string;
+    depart_ment_id: string;
+  };
+
+  export type RemoveDepartMentNotice = {
+    org_id: string;
+    depart_ment_id: string;
+  };
+
+  export type UpdateDepartMentNotice = {
+    org_id: string;
+    depart_ment_id: string;
+  };
+
+  export type UpdateMemberNotice = {
+    org_id: string;
+    member_user_id: string;
+  };
+
+  export type AllNotice = {
+    JoinOrgNotice?: JoinOrgNotice;
+    LeaveOrgNotice?: LeaveOrgNotice;
+    UpdateOrgNotice?: UpdateOrgNotice;
+    CreateDepartMentNotice?: CreateDepartMentNotice;
+    RemoveDepartMentNotice?: RemoveDepartMentNotice;
+    UpdateDepartMentNotice?: UpdateDepartMentNotice;
+    UpdateMemberNotice?: UpdateMemberNotice;
+  };
+}
+
 export namespace client {
   export type WrongSessionNotice = {
     name: string;
@@ -541,4 +588,5 @@ export type AllNotice = {
   EntryNotice?: entry.AllNotice;
   RequirementNotice?: requirement.AllNotice;
   TestcaseNotice?: testcase.AllNotice;
+  OrgNotice?: org.AllNotice;
 };

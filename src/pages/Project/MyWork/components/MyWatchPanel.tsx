@@ -122,6 +122,11 @@ const WatchEntryList = (props: WatchEntryListProps) => {
     const [showFileEntryInfo, setShowFileEntryInfo] = useState<EntryInfo | null>(null);
 
     const loadEntryList = async () => {
+        if (projectStore.curProjectId == "") {
+            setTotalCount(0);
+            setEntryList([]);
+            return;
+        }
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
