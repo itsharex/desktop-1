@@ -52,6 +52,10 @@ const ProjectHome = () => {
     };
 
     const loadEntryList = async () => {
+        if(projectStore.curProjectId == ""){
+            entryStore.entryOrFolderList = [];
+            return;
+        }
         const tmpList = [] as EntryOrFolderInfo[];
 
         if (projectStore.projectHome.contentActiveKey == "folder") {
@@ -107,6 +111,11 @@ const ProjectHome = () => {
             if (listParam == null) {
                 return;
             }
+            if (projectStore.curProjectId == "") {
+                projectStore.projectHome.contentTotalCount = 0;
+                entryStore.entryOrFolderList = [];
+                return;
+            }
 
             const res = await request(list_entry({
                 session_id: userStore.sessionId,
@@ -128,6 +137,10 @@ const ProjectHome = () => {
     };
 
     const loadSysEntryList = async () => {
+        if (projectStore.curProjectId == "") {
+            entryStore.sysEntryList = [];
+            return;
+        }
         const res = await request(list_sys_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,

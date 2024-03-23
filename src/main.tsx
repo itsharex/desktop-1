@@ -19,6 +19,9 @@ const App = () => {
     stores.appStore.loadClientCfg();
     stores.appStore.loadLocalProxy();
     stores.projectStore.initLoadProjectList();
+    stores.orgStore.initLoadOrgList().then(() => {
+      stores.orgStore.setCurOrgId("");
+    });
   }
   return (
     <Provider stores={stores}>

@@ -116,12 +116,12 @@ const InviteList = observer(() => {
 });
 
 
-type AddMemberProps = {
+type InviteProjectMemberProps = {
   visible: boolean;
   onChange: (boo: boolean) => void;
 };
 
-const AddMember: FC<AddMemberProps> = (props) => {
+const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
   const { visible, onChange } = props;
 
   const appStore = useStores('appStore');
@@ -225,4 +225,4 @@ const AddMember: FC<AddMemberProps> = (props) => {
   );
 };
 
-export default observer(AddMember);
+export default observer(InviteProjectMember);

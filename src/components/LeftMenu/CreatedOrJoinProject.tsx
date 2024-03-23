@@ -1,5 +1,4 @@
 import { Form, Input, message, Modal, Select, Tabs } from 'antd';
-import type { FC } from 'react';
 import React, { useState } from 'react';
 import type { BasicProjectInfo } from '@/api/project';
 import { add_tag, create, MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_tip_list } from '@/api/project';
@@ -8,24 +7,25 @@ import { request } from '@/utils/request';
 import { useCommonEditor } from '@/components/Editor';
 import { useHistory } from 'react-router-dom';
 import { APP_PROJECT_HOME_PATH, PROJECT_SETTING_TAB } from '@/utils/constant';
-import { join } from '@/api/project_member';
 import { unixTipList } from '@/pages/Project/Setting/components/TipListSettingPanel';
 import randomColor from 'randomcolor';
 import { FILE_OWNER_TYPE_NONE } from '@/api/fs';
 import { create_folder } from '@/api/project_entry';
+import { joinOrgOrProject } from './join';
 
-type CreatedProjectProps = {
+type CreatedOrJoinProjectProps = {
   visible: boolean;
   onChange: (boo: boolean) => void;
 };
 
-const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
+const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
   const { visible, onChange } = props;
 
   const history = useHistory();
 
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
 
   const [prjName, setPrjName] = useState("");
   const [mainContent, setMainContent] = useState(MAIN_CONTENT_CONTENT_LIST);
@@ -96,16 +96,10 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
         history.push(APP_PROJECT_HOME_PATH);
         projectStore.showProjectSetting = PROJECT_SETTING_TAB.PROJECT_SETTING_ALARM;
       });
+      orgStore.setCurOrgId("");
     } catch (e) {
       console.log(e);
     }
-  };
-
-  const joinProject = async () => {
-    const res = await request(join(userStore.sessionId, linkText));
-    message.success('加入成功');
-    await projectStore.updateProject(res.project_id);
-    onChange(false);
   };
 
   const checkValid = () => {
@@ -120,6 +114,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
 
   return (
     <Modal open={visible} title="创建/加入项目" width={800}
+      bodyStyle={{ padding: "2px 10px" }}
       okText={activeKey == "create" ? "创建" : "加入"} okButtonProps={{ disabled: !checkValid() }}
       onCancel={e => {
         e.stopPropagation();
@@ -132,7 +127,7 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
         if (activeKey == "create") {
           createProject();
         } else if (activeKey == "join") {
-          joinProject();
+          joinOrgOrProject(userStore.sessionId, linkText, userStore.userInfo.userId, projectStore, orgStore, history).then(() => onChange(false));
         }
       }}>
       <Tabs type="card" activeKey={activeKey} onChange={value => setActiveKey(value)}
@@ -173,16 +168,17 @@ const CreatedOrJoinProject: FC<CreatedProjectProps> = (props) => {
           },
           {
             key: "join",
-            label: "加入项目",
+            label: "加入项目/团队",
             children: (
-              <div style={{ height: "280px", overflowY: "scroll" }}>
-                <Input.TextArea
-                  placeholder="请输入项目邀请码"
-                  allowClear
-                  autoSize={{ minRows: 4, maxRows: 4 }}
-                  onChange={(e) => setLinkText(e.target.value)}
-                />
-              </div>
+              <Form labelCol={{ span: 2 }} style={{ paddingRight: "20px" }}>
+                <Form.Item label="邀请码">
+                  <Input
+                    placeholder="请输入邀请码"
+                    allowClear
+                    onChange={(e) => setLinkText(e.target.value)}
+                  />
+                </Form.Item>
+              </Form>
             ),
           }
         ]} />

@@ -14,6 +14,8 @@ export const APP_PROJECT_KB_DOC_PATH = '/app/project/kb/doc';
 export const APP_PROJECT_KB_BOARD_PATH = '/app/project/kb/board';
 export const APP_PROJECT_MY_WORK_PATH = '/app/project/my_work';
 
+export const APP_ORG_MANAGER_PATH = '/app/org_mgr';
+export const APP_ORG_PATH = '/app/org';
 
 export const ADMIN_PATH = "/admin";
 

@@ -5,7 +5,7 @@ import { useStores } from "@/hooks";
 
 import ProjectItem from "./ProjectItem";
 import CreatedOrJoinProject from "./CreatedOrJoinProject";
-import AddMember from "./AddMember";
+import InviteProjectMember from "./InviteProjectMember";
 import { PlusOutlined, ProjectOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 import { useHistory, useLocation } from "react-router-dom";
@@ -17,8 +17,8 @@ const ProjectList = () => {
     const history = useHistory();
 
     const appStore = useStores('appStore');
-    const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
+    const orgStore = useStores('orgStore');
     const memberStore = useStores('memberStore');
 
     return (
@@ -27,18 +27,16 @@ const ProjectList = () => {
                 <div style={{ width: "120px", cursor: "pointer" }} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    if (userStore.sessionId == "") {
-                        userStore.showUserLogin = () => {
+                    if (appStore.inEdit) {
+                        appStore.showCheckLeave(() => {
+                            projectStore.setCurProjectId("");
+                            orgStore.setCurOrgId("");
                             history.push(APP_PROJECT_MANAGER_PATH);
-                        };
+                        });
                     } else {
-                        if (appStore.inEdit) {
-                            appStore.showCheckLeave(() => {
-                                history.push(APP_PROJECT_MANAGER_PATH);
-                            });
-                        } else {
-                            history.push(APP_PROJECT_MANAGER_PATH);
-                        }
+                        projectStore.setCurProjectId("");
+                        orgStore.setCurOrgId("");
+                        history.push(APP_PROJECT_MANAGER_PATH);
                     }
                 }}>
                     <ProjectOutlined style={{ width: "20px" }} />项目
@@ -47,36 +45,27 @@ const ProjectList = () => {
                     <a className={cls.icon_wrap} onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
-                        if (userStore.sessionId == "") {
-                            userStore.showUserLogin = () => {
-                                appStore.showCreateOrJoinProject = true;
-                            };
-                        } else {
-                            appStore.showCreateOrJoinProject = true;
-                        }
+                        appStore.showCreateOrJoinProject = true;
                     }}>
                         <i><PlusOutlined /></i>
                     </a>
                 </div>
 
             </div>
-            <div style={{ maxHeight: "calc(100vh - 260px)", overflowY: "scroll" }}>
+            <div style={{ maxHeight: "calc(50vh - 150px)", overflowY: "scroll" }}>
                 {projectStore.projectList.map(item => (
                     <div key={item.project_id} className={cls.project_child_menu}>
                         <ProjectItem item={item} />
                     </div>
                 ))}
             </div>
-            {projectStore.projectList.length == 0 && (<div className={cls.zero_project_tips}>
-                您可以通过上方的&nbsp;<PlusOutlined />&nbsp;加入或创建新项目。
-            </div>)}
 
             {appStore.showCreateOrJoinProject && <CreatedOrJoinProject
                 visible={appStore.showCreateOrJoinProject}
                 onChange={(val) => (appStore.showCreateOrJoinProject = val)}
             />}
             {
-                memberStore.showInviteMember && <AddMember
+                memberStore.showInviteMember && <InviteProjectMember
                     visible={memberStore.showInviteMember}
                     onChange={(val) => memberStore.showInviteMember = val} />
             }

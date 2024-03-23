@@ -15,6 +15,7 @@ mod project_content_api;
 mod project_mgr_api;
 mod project_misc_api;
 mod pubres_api;
+mod org_api;
 
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
@@ -453,6 +454,9 @@ fn main() {
         .plugin(project_cloud_api::net_proxy_api_plugin::NetProxyApiPlugin::new())
         .plugin(dev_container_api_plugin::DevContainerApiPlugin::new())
         .plugin(dev_container_admin_api_plugin::DevContainerAdminApiPlugin::new())
+        .plugin(org_api::org_api_plugin::OrgApiPlugin::new())
+        .plugin(org_api::org_member_api_plugin::OrgMemberApiPlugin::new())
+        .plugin(org_api::org_okr_api_plugin::OrgOkrApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {

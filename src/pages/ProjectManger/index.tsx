@@ -21,6 +21,7 @@ const ProjectManager = () => {
     const appStore = useStores('appStore');
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
+    const orgStore = useStores('orgStore');
 
     const [leaverProjectInfo, setLeaverProjectInfo] = useState<WebProjectInfo | null>(null);
     const [removeProjectInfo, setRemoveProjectInfo] = useState<WebProjectInfo | null>(null);
@@ -69,6 +70,7 @@ const ProjectManager = () => {
                             }
                         }} showEditIcon={true} onClick={() => {
                             projectStore.setCurProjectId(row.project_id);
+                            orgStore.setCurOrgId("");
                             history.push(APP_PROJECT_HOME_PATH);
                         }} />
                 </Space>
@@ -150,6 +152,7 @@ const ProjectManager = () => {
 
     useMemo(() => {
         projectStore.setCurProjectId('');
+        orgStore.setCurOrgId("");
     }, []);
 
     return (
@@ -161,8 +164,8 @@ const ProjectManager = () => {
             }}>创建/加入项目</Button>
         }
             headStyle={{ fontSize: "18px" }}
-            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "scroll" }}>
-            <Table rowKey="project_id" dataSource={projectStore.projectList} columns={columns} pagination={false} />
+            bodyStyle={{ height: "calc(100vh - 90px)", overflowY: "hidden" }}>
+            <Table rowKey="project_id" dataSource={projectStore.projectList} columns={columns} pagination={false} scroll={{ y: "calc(100vh - 170px)" }}/>
             {leaverProjectInfo !== null && (
                 <Modal open title={`退出项目 ${leaverProjectInfo.basic_info.project_name}`}
                     okText="退出" okButtonProps={{ danger: true }}

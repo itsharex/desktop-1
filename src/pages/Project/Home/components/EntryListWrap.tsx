@@ -25,6 +25,9 @@ const EntryListWrap = (props: EntryListWrapProps) => {
 
     const loadEntryList = async () => {
         entryStore.entryOrFolderList = [];
+        if(projectStore.curProjectId == ""){
+            return;
+        }
         const res = await request(list_entry({
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,

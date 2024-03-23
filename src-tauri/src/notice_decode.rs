@@ -501,6 +501,57 @@ pub mod testcase {
     }
 }
 
+pub mod org {
+    use prost::Message;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::notices_org;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    pub enum Notice {
+        JoinOrgNotice(notices_org::JoinOrgNotice),
+        LeaveOrgNotice(notices_org::LeaveOrgNotice),
+        UpdateOrgNotice(notices_org::UpdateOrgNotice),
+        CreateDepartMentNotice(notices_org::CreateDepartMentNotice),
+        RemoveDepartMentNotice(notices_org::RemoveDepartMentNotice),
+        UpdateDepartMentNotice(notices_org::UpdateDepartMentNotice),
+        UpdateMemberNotice(notices_org::UpdateMemberNotice),
+    }
+
+    pub fn decode_notice(data: &Any) -> Option<Notice> {
+        if data.type_url == notices_org::JoinOrgNotice::type_url() {
+            if let Ok(notice) = notices_org::JoinOrgNotice::decode(data.value.as_slice()) {
+                return Some(Notice::JoinOrgNotice(notice));
+            }
+        } else if data.type_url == notices_org::LeaveOrgNotice::type_url() {
+            if let Ok(notice) = notices_org::LeaveOrgNotice::decode(data.value.as_slice()) {
+                return Some(Notice::LeaveOrgNotice(notice));
+            }
+        } else if data.type_url == notices_org::UpdateOrgNotice::type_url() {
+            if let Ok(notice) = notices_org::UpdateOrgNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateOrgNotice(notice));
+            }
+        } else if data.type_url == notices_org::CreateDepartMentNotice::type_url() {
+            if let Ok(notice) = notices_org::CreateDepartMentNotice::decode(data.value.as_slice()) {
+                return Some(Notice::CreateDepartMentNotice(notice));
+            }
+        } else if data.type_url == notices_org::RemoveDepartMentNotice::type_url() {
+            if let Ok(notice) = notices_org::RemoveDepartMentNotice::decode(data.value.as_slice()) {
+                return Some(Notice::RemoveDepartMentNotice(notice));
+            }
+        } else if data.type_url == notices_org::UpdateDepartMentNotice::type_url() {
+            if let Ok(notice) = notices_org::UpdateDepartMentNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateDepartMentNotice(notice));
+            }
+        } else if data.type_url == notices_org::UpdateMemberNotice::type_url() {
+            if let Ok(notice) = notices_org::UpdateMemberNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UpdateMemberNotice(notice));
+            }
+        }
+        None
+    }
+}
+
 pub mod client {
     #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
     #[serde(rename_all = "snake_case")]
@@ -559,6 +610,7 @@ pub enum NoticeMessage {
     EntryNotice(entry::Notice),
     RequirementNotice(requirement::Notice),
     TestcaseNotice(testcase::Notice),
+    OrgNotice(org::Notice),
     ClientNotice(client::Notice),
 }
 
@@ -591,6 +643,9 @@ pub fn decode_notice(data: &Any) -> Option<NoticeMessage> {
     }
     if let Some(ret) = testcase::decode_notice(data) {
         return Some(NoticeMessage::TestcaseNotice(ret));
+    }
+    if let Some(ret) = org::decode_notice(data){
+        return Some(NoticeMessage::OrgNotice(ret));
     }
     None
 }
