@@ -8,6 +8,8 @@ import UpdateOrgModal from "./components/UpdateOrgModal";
 import type { DepartMentInfo, DepartMentOrMember } from "@/api/org";
 import OrgTree from "./components/OrgTree";
 import DepartMentPanel from "./components/DepartMentPanel";
+import MemberPanel from "./components/MemberPanel";
+import type { MemberInfo } from "@/api/org_mebmer";
 
 const OrgDetail = () => {
     const userStore = useStores('userStore');
@@ -48,6 +50,9 @@ const OrgDetail = () => {
                 {curDepartMentOrMember.type == "departMent" && (
                     <DepartMentPanel curDepartMent={curDepartMentOrMember.value as (DepartMentInfo | undefined)}
                         onSelect={newItem => setCurDepartMentOrMember(newItem)} />
+                )}
+                {curDepartMentOrMember.type == "member" && curDepartMentOrMember.value !== undefined && (
+                    <MemberPanel curMember={curDepartMentOrMember.value as MemberInfo} />
                 )}
             </div>
 
