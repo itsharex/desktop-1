@@ -61,7 +61,7 @@
 cd src-tauri
 cargo update
 cd ..
-yarn tauri dev -f skip-updater
+yarn tauri dev
 ```
 
 # 构建项目
@@ -69,5 +69,5 @@ yarn tauri dev -f skip-updater
 cd src-tauri
 cargo update
 cd ..
-yarn tauri build -f skip-updater
+yarn tauri build
 ```

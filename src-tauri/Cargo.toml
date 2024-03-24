@@ -44,7 +44,7 @@ sled = "0.34.7"
 ssh-key = {version = "0.5.1", features = ["alloc", "rsa", "dsa", "p256", "p384"] }
 substring = "1.4.5"
 swagger = {version = "6.1", features = ["serdejson", "server", "client", "tls", "tcp"] }
-tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v3", features = [ "path-all", "updater", "fs-all",
+tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v3", features = [ "path-all", "fs-all",
   "clipboard-all",
   "devtools",
   "dialog-all",
@@ -72,8 +72,7 @@ walkdir = "2.3.2"
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
-default = ["custom-protocol"]
+default = ["custom-protocol", "tauri/updater"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
-skip-updater = ["tauri/updater"]
