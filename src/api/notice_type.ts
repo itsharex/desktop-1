@@ -1,6 +1,26 @@
 import type { COMMENT_TARGET_TYPE } from "./project_comment";
 
 /* eslint-disable @typescript-eslint/no-namespace */
+
+export namespace user {
+  export type UserOnlineNotice = {
+    user_id: string;
+  };
+  export type UserOfflineNotice = {
+    user_id: string;
+  };
+
+  export type UserNewNoticeNotice = {
+    user_id: string;
+  }
+
+  export type AllNotice = {
+    UserOnlineNotice?: UserOnlineNotice;
+    UserOfflineNotice?: UserOfflineNotice;
+    UserNewNoticeNotice?: UserNewNoticeNotice;
+  }
+}
+
 export namespace project {
   export type UpdateProjectNotice = {
     project_id: string;
@@ -21,12 +41,7 @@ export namespace project {
     member_user_id: string;
   };
 
-  export type UserOnlineNotice = {
-    user_id: string;
-  };
-  export type UserOfflineNotice = {
-    user_id: string;
-  };
+
   export type NewEventNotice = {
     project_id: string;
     member_user_id: string;
@@ -89,8 +104,6 @@ export namespace project {
     AddMemberNotice?: AddMemberNotice;
     UpdateMemberNotice?: UpdateMemberNotice;
     RemoveMemberNotice?: RemoveMemberNotice;
-    UserOnlineNotice?: UserOnlineNotice;
-    UserOfflineNotice?: UserOfflineNotice;
     NewEventNotice?: NewEventNotice;
     SetMemberRoleNotice?: SetMemberRoleNotice;
     UpdateShortNoteNotice?: UpdateShortNoteNotice;
@@ -578,6 +591,7 @@ export namespace chat {
 }
 
 export type AllNotice = {
+  UserNotice?: user.AllNotice;
   ProjectNotice?: project.AllNotice;
   IssueNotice?: issue.AllNotice;
   ClientNotice?: client.AllNotice;

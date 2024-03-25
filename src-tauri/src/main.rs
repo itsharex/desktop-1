@@ -28,6 +28,7 @@ mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
+mod user_notice_api_plugin;
 
 mod my_updater;
 
@@ -393,6 +394,7 @@ fn main() {
         .plugin(project_comm_api::project_api_plugin::ProjectApiPlugin::new())
         .plugin(project_comm_api::project_member_api_plugin::ProjectMemberApiPlugin::new())
         .plugin(user_api_plugin::UserApiPlugin::new())
+        .plugin(user_notice_api_plugin::UserNoticeApiPlugin::new())
         .plugin(project_comm_api::events_api_plugin::EventsApiPlugin::new())
         .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
         .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())

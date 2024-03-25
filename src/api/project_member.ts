@@ -145,7 +145,27 @@ export type  GenOneTimeTokenResponse = {
   token: string;
 };
 
+export type AddFromOrgRequest = {
+  session_id: string;
+  project_id: string;
+  org_id: string;
+  member_user_id: string;
+};
 
+export type AddFromOrgResponse = {
+  code: number;
+  err_msg: string;
+};
+
+export type AckJoinRequest = {
+   session_id: string;
+   project_id: string;
+};
+
+export type AckJoinResponse = {
+  code: number;
+  err_msg: string;
+};
 
 //生成加入项目邀请码（ttl单位 小时）
 export async function gen_invite(
@@ -374,6 +394,24 @@ export async function gen_one_time_token(request: GenOneTimeTokenRequest): Promi
   const cmd = 'plugin:project_member_api|gen_one_time_token';
   console.log(`%c${cmd}`, 'color:#0f0;', request);
   return invoke<GenOneTimeTokenResponse>(cmd, {
+    request,
+  });
+}
+
+//从团队增加项目成员
+export async function add_from_org(request: AddFromOrgRequest): Promise<AddFromOrgResponse> {
+  const cmd = 'plugin:project_member_api|add_from_org';
+  console.log(`%c${cmd}`, 'color:#0f0;', request);
+  return invoke<AddFromOrgResponse>(cmd, {
+    request,
+  });
+}
+
+//确认加入项目
+export async function ack_join(request: AckJoinRequest): Promise<AckJoinResponse> {
+  const cmd = 'plugin:project_member_api|ack_join';
+  console.log(`%c${cmd}`, 'color:#0f0;', request);
+  return invoke<AckJoinResponse>(cmd, {
     request,
   });
 }

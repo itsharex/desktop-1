@@ -1,5 +1,11 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
+export type PROJECT_MEMBER_STATE = number;
+export const MEMBER_IN_PROJECT: PROJECT_MEMBER_STATE = 0;   //项目成员
+export const MEMBER_TO_ACK_JOIN: PROJECT_MEMBER_STATE = 1;  //待确认加入
+export const MEMBER_UNJOIN: PROJECT_MEMBER_STATE = 2;       //未加入项目
+
+
 export type InviteInfo = {
     invite_code: string;
     create_user_id: string;
@@ -15,6 +21,13 @@ export type MemberInfo = {
     create_time: number;
     parent_depart_ment_id: string;
     depart_ment_id_path: string[];
+    display_name: string;
+    logo_uri: string;
+};
+
+export type ProjectMemberInfo = {
+    member_user_id: string;
+    project_member_state: PROJECT_MEMBER_STATE;
     display_name: string;
     logo_uri: string;
 };
@@ -131,6 +144,18 @@ export type GetMemberResponse = {
     member: MemberInfo;
 };
 
+export type ListForProjectRequest = {
+    session_id: string;
+    org_id: string;
+    project_id: string;
+}
+
+export type ListForProjectResponse = {
+    code: number;
+    err_msg: string;
+    member_list: ProjectMemberInfo[];
+};
+
 //创建邀请码
 export async function gen_invite(request: GenInviteRequest): Promise<GenInviteResponse> {
     const cmd = 'plugin:org_member_api|gen_invite';
@@ -208,6 +233,15 @@ export async function get_member(request: GetMemberRequest): Promise<GetMemberRe
     const cmd = 'plugin:org_member_api|get_member';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<GetMemberResponse>(cmd, {
+        request,
+    });
+}
+
+//获取可加入项目的成员
+export async function list_for_project(request: ListForProjectRequest): Promise<ListForProjectResponse> {
+    const cmd = 'plugin:org_member_api|list_for_project';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListForProjectResponse>(cmd, {
         request,
     });
 }
