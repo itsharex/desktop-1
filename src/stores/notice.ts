@@ -294,7 +294,7 @@ class NoticeStore {
 
   private async processUserNotice(notice: NoticeType.user.AllNotice) {
     if (notice.UserNewNoticeNotice !== undefined) {
-      //TODO
+      await this.rootStore.userStore.updateNoticeStatus(this.rootStore.userStore.sessionId);
     } else if (notice.UserOnlineNotice !== undefined) {
       await this.rootStore.memberStore.updateOnline(notice.UserOnlineNotice.user_id, true);
     } else if (notice.UserOfflineNotice !== undefined) {

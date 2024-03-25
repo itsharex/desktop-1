@@ -1,13 +1,9 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
 export type AddToProjectFromOrgData = {
-
     org_id: string;
-
     org_name: string;
-
     project_id: string;
-
     project_name: string;
 };
 
@@ -18,17 +14,13 @@ export type NoticeData  = {
 
 export type UserNoticeInfo = {
     notice_from_id: string;
-
     time_stamp: number;
-
     has_read: boolean;
-
     notice_data: NoticeData;
 };
 
 
 export type GetStatusRequest ={
-
     session_id: string;
 };
 
