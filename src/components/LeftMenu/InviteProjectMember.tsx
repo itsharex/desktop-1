@@ -1,9 +1,9 @@
-import { Button, Form, Input, message, Modal, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Form, Input, message, Modal, Select, Space, Table, Tabs, Tag } from 'antd';
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { writeText } from '@tauri-apps/api/clipboard';
-import { gen_invite } from '@/api/project_member';
+import { gen_invite, add_from_org } from '@/api/project_member';
 import { request } from '@/utils/request';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
@@ -12,6 +12,10 @@ import { list_invite, remove_invite } from "@/api/project_member";
 import type { ColumnsType } from 'antd/es/table';
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from 'moment';
+import s from "./InviteProjectMember.module.less";
+import type { ProjectMemberInfo } from "@/api/org_mebmer";
+import { list_for_project, MEMBER_IN_PROJECT, MEMBER_TO_ACK_JOIN, MEMBER_UNJOIN } from "@/api/org_mebmer";
+
 
 const { TextArea } = Input;
 
@@ -24,7 +28,6 @@ const InviteList = observer(() => {
   const [inviteList, setInviteList] = useState<InviteInfo[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [curPage, setCurPage] = useState(0);
-
 
   const loadInviteList = async () => {
     const res = await request(list_invite({
@@ -127,11 +130,18 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
   const appStore = useStores('appStore');
   const userStore = useStores("userStore");
   const projectStore = useStores("projectStore");
+  const orgStore = useStores('orgStore');
 
   const [linkText, setLinkText] = useState('');
   const [ttl, setTtl] = useState(1);
 
   const [activeKey, setActiveKey] = useState('invite');
+  const [curOrgId, setCurOrgId] = useState("");
+
+  const [inPrjMemberList, setInPrjMemberList] = useState<ProjectMemberInfo[]>([]);
+  const [toAckMemberList, setToAckMemberList] = useState<ProjectMemberInfo[]>([]);
+  const [unJoinMemberList, setUnJoinMemberList] = useState<ProjectMemberInfo[]>([]);
+  const [selUserIdList, setSelUserIdList] = useState<string[]>([]);
 
   const getTtlStr = () => {
     if (ttl < 24) {
@@ -158,13 +168,61 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
     message.success('复制成功');
   };
 
+  const loadOrgMemberList = async () => {
+    const res = await request(list_for_project({
+      session_id: userStore.sessionId,
+      org_id: curOrgId,
+      project_id: projectStore.curProjectId,
+    }));
+    setInPrjMemberList(res.member_list.filter(item => item.project_member_state == MEMBER_IN_PROJECT));
+    setToAckMemberList(res.member_list.filter(item => item.project_member_state == MEMBER_TO_ACK_JOIN));
+    setUnJoinMemberList(res.member_list.filter(item => item.project_member_state == MEMBER_UNJOIN));
+    setSelUserIdList([]);
+  };
+
+  const getOkText = (): string => {
+    if (activeKey == "inviteFromOrg") {
+      return "邀请";
+    } else if (activeKey == "invite") {
+      return linkText == "" ? "生成邀请码" : "复制并关闭";
+    }
+    return "";
+  }
+
+  const addFromOrg = async () => {
+    for (const memberUserId of selUserIdList) {
+      await request(add_from_org({
+        session_id: userStore.sessionId,
+        project_id: projectStore.curProjectId,
+        org_id: curOrgId,
+        member_user_id: memberUserId,
+      }));
+    }
+    message.info("已发送邀请");
+    await loadOrgMemberList();
+  };
+
+  useEffect(() => {
+    if (orgStore.orgList.length > 0) {
+      setActiveKey("inviteFromOrg");
+      setCurOrgId(orgStore.orgList[0].org_id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (curOrgId != "") {
+      loadOrgMemberList();
+    }
+  }, [curOrgId]);
+
   return (
     <Modal
       open={visible}
       title="邀请项目成员"
       width={700}
       footer={activeKey == "history" ? null : undefined}
-      okText={linkText == "" ? "生成邀请码" : "复制并关闭"}
+      okText={getOkText()}
+      okButtonProps={{ disabled: activeKey == "inviteFromOrg" && selUserIdList.length == 0 }}
       bodyStyle={{ padding: "0px 10px" }}
       onCancel={e => {
         e.stopPropagation();
@@ -174,14 +232,68 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
       onOk={e => {
         e.stopPropagation();
         e.preventDefault();
-        if (linkText == "") {
-          genInvite();
-        } else {
-          copyAndClose();
+        if (activeKey == "inviteFromOrg") {
+          addFromOrg();
+        } else if (activeKey == "invite") {
+          if (linkText == "") {
+            genInvite();
+          } else {
+            copyAndClose();
+          }
         }
       }}
     >
       <Tabs activeKey={activeKey} onChange={key => { setActiveKey(key); console.log(key) }}>
+        <Tabs.TabPane tab="从团队中邀请" key="inviteFromOrg">
+          <Tabs items={orgStore.orgList.map(orgInfo => (
+            {
+              label: orgInfo.basic_info.org_name,
+              key: orgInfo.org_id,
+              children: (
+                <Form style={{ height: "calc(100vh - 440px)", overflowY: "scroll" }} labelCol={{ span: 4 }}>
+                  {inPrjMemberList.length > 0 && (
+                    <Form.Item label="已加入">
+                      <Space>
+                        {inPrjMemberList.map(member => (
+                          <Tag style={{ padding: "0px 4px" }}>
+                            <Space>
+                              <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                              {member.display_name}
+                            </Space>
+                          </Tag>
+                        ))}
+                      </Space>
+                    </Form.Item>
+                  )}
+                  {toAckMemberList.length > 0 && (
+                    <Form.Item label="待确认加入">
+                      <Space>
+                        {toAckMemberList.map(member => (
+                          <Tag style={{ padding: "0px 4px" }}>
+                            <Space>
+                              <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                              {member.display_name}
+                            </Space>
+                          </Tag>
+                        ))}
+                      </Space>
+                    </Form.Item>
+                  )}
+                  {unJoinMemberList.length > 0 && (
+                    <Form.Item label="待加入">
+                      <Checkbox.Group options={unJoinMemberList.map(member => ({
+                        label: member.display_name,
+                        value: member.member_user_id,
+                      }))} onChange={values => setSelUserIdList(values as string[])} />
+                    </Form.Item>
+                  )}
+                </Form>
+              ),
+            }
+          ))} tabPosition='left' style={{ maxHeight: "calc(100vh - 400px)" }} popupClassName={s.tabList}
+            tabBarStyle={{ width: "100px", overflow: "hidden" }}
+            activeKey={curOrgId} onChange={key => setCurOrgId(key)} />
+        </Tabs.TabPane>
         <Tabs.TabPane tab="邀请" key='invite'>
           {linkText == "" && (
             <Form>
