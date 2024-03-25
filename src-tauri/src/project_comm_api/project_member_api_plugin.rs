@@ -374,6 +374,59 @@ async fn gen_one_time_token<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn add_from_org<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AddFromOrgRequest,
+) -> Result<AddFromOrgResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectMemberApiClient::new(chan.unwrap());
+    match client.add_from_org(request.clone()).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == add_from_org_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("add_from_org".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn ack_join<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AckJoinRequest,
+) -> Result<AckJoinResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ProjectMemberApiClient::new(chan.unwrap());
+    match client.ack_join(request.clone()).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == ack_join_response::Code::WrongSession as i32 {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("ack_join".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
 
 pub struct ProjectMemberApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
@@ -397,6 +450,8 @@ impl<R: Runtime> ProjectMemberApiPlugin<R> {
                 list_member,
                 get_member,
                 gen_one_time_token,
+                add_from_org,
+                ack_join,
             ]),
         }
     }
