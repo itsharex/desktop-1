@@ -26,7 +26,6 @@ import RemoveEntryModal from '@/pages/Project/Home/components/RemoveEntryModal';
 import ServerConnInfo from './ServerConnInfo';
 import UserNoticeList from './UserNoticeList';
 
-
 const { Header } = Layout;
 
 let windowSize: PhysicalSize = new PhysicalSize(1400, 750);

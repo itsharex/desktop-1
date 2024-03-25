@@ -14,6 +14,7 @@ import { type AtomGitOrg, list_user_org } from "@/api/atomgit/org";
 
 
 interface AtomGitRepoPanelProps {
+    curOrgId: string;
     repoInfo?: AtomGitRepo;
 }
 
@@ -134,7 +135,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "工单列表",
                                     children: (
                                         <>
-                                            {activeKey == "issue" && <AtomGitIssueList repoName={props.repoInfo.name ?? ""} />}
+                                            {activeKey == "issue" && <AtomGitIssueList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
                                         </>
                                     ),
                                 },
@@ -143,7 +144,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "分支列表",
                                     children: (
                                         <>
-                                            {activeKey == "branch" && <AtomGitBranchList repoName={props.repoInfo.name ?? ""} />}
+                                            {activeKey == "branch" && <AtomGitBranchList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
                                         </>
                                     ),
                                 },
@@ -152,7 +153,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "标签列表",
                                     children: (
                                         <>
-                                            {activeKey == "tag" && <AtomGitTagList repoName={props.repoInfo.name ?? ""} />}
+                                            {activeKey == "tag" && <AtomGitTagList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
                                         </>
                                     ),
                                 },
@@ -250,7 +251,7 @@ const AtomGitPanel = () => {
                     }} />
             </Layout.Sider>
             <Layout.Content style={{ height: "calc(100vh - 230px)", overflowY: "scroll", backgroundColor: "white" }}>
-                <AtomGitRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} />
+                <AtomGitRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} curOrgId={curOrgId} />
             </Layout.Content>
         </Layout>
     )
