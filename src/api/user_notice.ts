@@ -16,6 +16,9 @@ export type UserNoticeInfo = {
     notice_from_id: string;
     time_stamp: number;
     has_read: boolean;
+    send_user_id: string;
+    send_user_display_name: string;
+    send_user_logo_uri: string;
     notice_data: NoticeData;
 };
 

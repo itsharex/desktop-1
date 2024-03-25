@@ -5,7 +5,7 @@ import style from './index.module.less';
 import { Badge, Button, Layout, Popover, Progress, Space, Table, message } from 'antd';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
-import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailOutlined, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
+import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
@@ -296,8 +296,8 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
             <Popover trigger="click" placement='bottom' content={
               <UserNoticeList />
             } destroyTooltipOnHide>
-              <Badge count={userStore.userInfo.unReadNotice} size='small' dot style={{ left: "16px", top: "2px" }}>
-                <MailOutlined style={{ marginRight: "20px", fontSize: "18px", color: "#777", cursor: "pointer" }} />
+              <Badge count={userStore.userInfo.unReadNotice} size='small' style={{ left: "16px", top: "2px", backgroundColor: "orange" }} offset={[-20, 6]}>
+                <MailTwoTone style={{ marginRight: "30px", fontSize: "18px", cursor: "pointer" }} twoToneColor={userStore.userInfo.unReadNotice > 0 ? ["orange", "white"] : ["#777", "white"]} />
               </Badge>
             </Popover>
           )}

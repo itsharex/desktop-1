@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Button, List, message, Modal, Popover, Tabs } from "antd";
+import { Button, List, message, Modal, Popover, Space, Tabs } from "antd";
 import { useStores } from "@/hooks";
 import type { UserNoticeInfo } from "@/api/user_notice";
 import { list_notice, mark_has_read, remove_notice } from "@/api/user_notice";
@@ -11,6 +11,7 @@ import { MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_MY_WORK } from "@/api/project";
 import { useHistory } from "react-router-dom";
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constant";
 import { MoreOutlined } from "@ant-design/icons";
+import UserPhoto from "../Portrait/UserPhoto";
 
 const PAGE_SIZE = 10;
 
@@ -39,6 +40,12 @@ const NoticeMsg = (props: NoticeMsgProps) => {
         <div>
             <span>{moment(props.notice.time_stamp).format("YYYY-MM-DD HH:mm")}</span>
             &nbsp;&nbsp;
+            {props.notice.send_user_id != "" && (
+                <Space style={{ paddingRight: "10px" }}>
+                    <UserPhoto logoUri={props.notice.send_user_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                    {props.notice.send_user_display_name}
+                </Space>
+            )}
             {props.notice.notice_data.AddToProjectFromOrgData !== undefined && (
                 <a onClick={e => {
                     e.stopPropagation();
@@ -93,8 +100,10 @@ const UserNoticeList = () => {
             session_id: userStore.sessionId,
             project_id: projectId,
         }));
+
         setCurNoticeInfo(null);
         message.info("加入项目成功");
+        await userStore.updateNoticeStatus(userStore.sessionId);
         projectStore.updateProject(projectId);
 
         if (appStore.inEdit) {
