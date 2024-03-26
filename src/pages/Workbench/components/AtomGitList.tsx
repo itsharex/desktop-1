@@ -10,6 +10,7 @@ import UserPhoto from "@/components/Portrait/UserPhoto";
 import moment from "moment";
 
 export interface AtomGitIssueListProps {
+    curOrgId: string;
     repoName: string;
 }
 
@@ -19,7 +20,7 @@ export const AtomGitIssueList = (props: AtomGitIssueListProps) => {
     const [issueList, setIssueList] = useState([] as AtomGitIssue[]);
 
     const loadIssueList = async () => {
-        const res = await list_issue(userStore.userInfo.extraToken, userStore.userInfo.userName, props.repoName, {
+        const res = await list_issue(userStore.userInfo.extraToken, props.curOrgId == "" ? userStore.userInfo.userName : props.curOrgId, props.repoName, {
             state: "all",
             sort: "created",
             direction: "desc",
@@ -105,7 +106,7 @@ export const AtomGitBranchList = (props: AtomGitIssueListProps) => {
     const [branchList, setBranchList] = useState([] as AtomGitBranch[]);
 
     const loadBranchList = async () => {
-        const res = await list_branch(userStore.userInfo.extraToken, userStore.userInfo.userName, props.repoName);
+        const res = await list_branch(userStore.userInfo.extraToken, props.curOrgId == "" ? userStore.userInfo.userName : props.curOrgId, props.repoName);
         setBranchList(res);
     };
 
@@ -127,7 +128,7 @@ export const AtomGitTagList = (props: AtomGitIssueListProps) => {
     const [tagList, setTagList] = useState([] as AtomGitTag[]);
 
     const loadTagList = async () => {
-        const res = await list_tag(userStore.userInfo.extraToken, userStore.userInfo.userName, props.repoName);
+        const res = await list_tag(userStore.userInfo.extraToken, props.curOrgId == "" ? userStore.userInfo.userName : props.curOrgId, props.repoName);
         setTagList(res);
     };
 

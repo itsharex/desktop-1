@@ -47,7 +47,9 @@ class NoticeStore {
       try {
         const notice = ev.payload
         console.log("notice", notice);
-        if (notice.ProjectNotice !== undefined) {
+        if (notice.UserNotice !== undefined) {
+          this.processUserNotice(notice.UserNotice);
+        } else if (notice.ProjectNotice !== undefined) {
           this.processProjectNotice(notice.ProjectNotice);
         } else if (notice.IssueNotice !== undefined) {
           this.processIssueNotice(notice.IssueNotice);
@@ -213,7 +215,7 @@ class NoticeStore {
     } else if (notice.UpdateDepartMentNotice !== undefined) {
       this.rootStore.orgStore.onUpdateDepartMent(notice.UpdateDepartMentNotice.org_id, notice.UpdateDepartMentNotice.depart_ment_id);
     } else if (notice.UpdateMemberNotice !== undefined) {
-      this.rootStore.orgStore.onUpdateMember(notice.UpdateMemberNotice.org_id,notice.UpdateMemberNotice.member_user_id);
+      this.rootStore.orgStore.onUpdateMember(notice.UpdateMemberNotice.org_id, notice.UpdateMemberNotice.member_user_id);
     }
   }
 
@@ -290,6 +292,16 @@ class NoticeStore {
     }
   }
 
+  private async processUserNotice(notice: NoticeType.user.AllNotice) {
+    if (notice.UserNewNoticeNotice !== undefined) {
+      await this.rootStore.userStore.updateNoticeStatus(this.rootStore.userStore.sessionId);
+    } else if (notice.UserOnlineNotice !== undefined) {
+      await this.rootStore.memberStore.updateOnline(notice.UserOnlineNotice.user_id, true);
+    } else if (notice.UserOfflineNotice !== undefined) {
+      await this.rootStore.memberStore.updateOnline(notice.UserOfflineNotice.user_id, false);
+    }
+  }
+
   private async processProjectNotice(notice: NoticeType.project.AllNotice) {
     if (notice.UpdateProjectNotice !== undefined) {
       await this.rootStore.projectStore.updateProject(notice.UpdateProjectNotice.project_id);
@@ -321,10 +333,6 @@ class NoticeStore {
       } else if (notice.RemoveMemberNotice.project_id == this.rootStore.projectStore.curProjectId) {
         this.rootStore.memberStore.loadMemberList(notice.RemoveMemberNotice.project_id);
       }
-    } else if (notice.UserOnlineNotice !== undefined) {
-      await this.rootStore.memberStore.updateOnline(notice.UserOnlineNotice.user_id, true);
-    } else if (notice.UserOfflineNotice !== undefined) {
-      await this.rootStore.memberStore.updateOnline(notice.UserOfflineNotice.user_id, false);
     } else if (notice.NewEventNotice !== undefined) {
       if (notice.NewEventNotice.project_id == this.rootStore.projectStore.curProjectId) {
         await this.rootStore.memberStore.updateLastEvent(notice.NewEventNotice.project_id, notice.NewEventNotice.member_user_id, notice.NewEventNotice.event_id);

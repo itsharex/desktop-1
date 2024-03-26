@@ -254,7 +254,7 @@ const OkrCard = (props: OkrCardProps) => {
             <List rowKey="id" dataSource={props.okrInfo.okr_item_list} grid={{ gutter: 16 }} renderItem={(okrItem, okrIndex) => (
                 <List.Item>
                     <Card title={`目标${okrIndex + 1}:${okrItem.objective}`} style={{ width: "250px" }} headStyle={{ backgroundColor: "#eee" }}
-                        bodyStyle={{ height: "150px", overflowY: "scroll" }}>
+                        bodyStyle={{ height: "150px", overflowY: "scroll",backgroundColor:"lightyellow" }}>
                         <List rowKey="id" dataSource={okrItem.key_result_list} renderItem={(krItem, krIndex) => (
                             <List.Item style={{ border: "none" }}>
                                 关键结果{krIndex + 1}:{krItem.key_result}
@@ -328,6 +328,7 @@ const MemberPanel = (props: MemberPanelProps) => {
             okr_id: okrId,
         }));
         tmpList[index] = convert_okr_info(res.okr);
+        setOkrList(tmpList);
     };
 
     useEffect(() => {

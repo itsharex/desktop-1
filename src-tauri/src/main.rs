@@ -28,8 +28,8 @@ mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
+mod user_notice_api_plugin;
 
-#[cfg(not(feature = "skip-updater"))]
 mod my_updater;
 
 mod dev_container_admin_api_plugin;
@@ -258,16 +258,9 @@ async fn init_local_storage() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[cfg(not(feature = "skip-updater"))]
 #[tauri::command]
 async fn check_update(app_handle: AppHandle) {
     my_updater::check_update_with_dialog(app_handle).await;
-}
-
-#[cfg(feature = "skip-updater")]
-#[tauri::command]
-async fn check_update(_app_handle: AppHandle) {
-    //do nothing
 }
 
 pub fn window_invoke_responder<R: Runtime>(
@@ -401,6 +394,7 @@ fn main() {
         .plugin(project_comm_api::project_api_plugin::ProjectApiPlugin::new())
         .plugin(project_comm_api::project_member_api_plugin::ProjectMemberApiPlugin::new())
         .plugin(user_api_plugin::UserApiPlugin::new())
+        .plugin(user_notice_api_plugin::UserNoticeApiPlugin::new())
         .plugin(project_comm_api::events_api_plugin::EventsApiPlugin::new())
         .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
         .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())

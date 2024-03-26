@@ -231,6 +231,31 @@ async fn get_member<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn list_for_project<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListForProjectRequest,
+) -> Result<ListForProjectResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = OrgMemberApiClient::new(chan.unwrap());
+    match client.list_for_project(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_for_project_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_for_project".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 pub struct OrgMemberApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -248,6 +273,7 @@ impl<R: Runtime> OrgMemberApiPlugin<R> {
                 move_member,
                 list_member,
                 get_member,
+                list_for_project,
             ]),
         }
     }

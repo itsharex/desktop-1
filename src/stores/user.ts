@@ -5,6 +5,7 @@ import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
 import { WebviewWindow } from '@tauri-apps/api/window';
 import { sleep } from '@/utils/time';
+import { get_status } from "@/api/user_notice";
 
 type UserInfo = {
   userId: string;
@@ -15,6 +16,8 @@ type UserInfo = {
   userFsId: string;
   extraToken: string;
   testAccount: boolean;
+  unReadNotice: number;
+  totalNotice: number;
 };
 
 class UserStore {
@@ -39,6 +42,8 @@ class UserStore {
     userFsId: '',
     extraToken: '',
     testAccount: false,
+    unReadNotice: 0,
+    totalNotice: 0,
   };
 
   // 帐号管理弹窗
@@ -76,6 +81,8 @@ class UserStore {
         userFsId: '',
         extraToken: '',
         testAccount: false,
+        unReadNotice: 0,
+        totalNotice: 0,
       };
     });
     sessionStorage.removeItem('sessionId');
@@ -121,12 +128,15 @@ class UserStore {
           userFsId: res.user_info.user_fs_id,
           extraToken: res.extra_token,
           testAccount: res.user_info.test_account,
+          unReadNotice: 0,
+          totalNotice: 0,
         };
-        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
         this.rootStore.projectStore.initLoadProjectList();
         this.rootStore.orgStore.initLoadOrgList();
       });
       await showMyShortNote(res.session_id);
+      await this.updateNoticeStatus(res.session_id);
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
     }
     if (this._showUserLogin != null) {
       this._showUserLogin();
@@ -134,6 +144,14 @@ class UserStore {
         this._showUserLogin = null;
       });
     }
+  }
+
+  async updateNoticeStatus(sessionId: string) {
+    const res = await request(get_status({ session_id: sessionId }));
+    runInAction(() => {
+      this.userInfo.unReadNotice = res.un_read_count;
+      this.userInfo.totalNotice = res.total_count;
+    });
   }
 
   get accountsModal() {

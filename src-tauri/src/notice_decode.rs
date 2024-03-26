@@ -1,3 +1,34 @@
+pub mod user {
+    use prost::Message;
+    use proto_gen_rust::google::protobuf::Any;
+    use proto_gen_rust::notices_user;
+    use proto_gen_rust::TypeUrl;
+
+    #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+    pub enum Notice {
+        UserOnlineNotice(notices_user::UserOnlineNotice),
+        UserOfflineNotice(notices_user::UserOfflineNotice),
+        UserNewNoticeNotice(notices_user::UserNewNoticeNotice),
+    }
+
+    pub fn decode_notice(data: &Any) -> Option<Notice> {
+        if data.type_url == notices_user::UserOnlineNotice::type_url() {
+            if let Ok(notice) = notices_user::UserOnlineNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UserOnlineNotice(notice));
+            }
+        } else if data.type_url == notices_user::UserOfflineNotice::type_url() {
+            if let Ok(notice) = notices_user::UserOfflineNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UserOfflineNotice(notice));
+            }
+        } else if data.type_url == notices_user::UserNewNoticeNotice::type_url() {
+            if let Ok(notice) = notices_user::UserNewNoticeNotice::decode(data.value.as_slice()) {
+                return Some(Notice::UserNewNoticeNotice(notice));
+            }
+        }
+        None
+    }
+}
+
 pub mod project {
     use prost::Message;
     use proto_gen_rust::google::protobuf::Any;
@@ -11,8 +42,6 @@ pub mod project {
         AddMemberNotice(notices_project::AddMemberNotice),
         UpdateMemberNotice(notices_project::UpdateMemberNotice),
         RemoveMemberNotice(notices_project::RemoveMemberNotice),
-        UserOnlineNotice(notices_project::UserOnlineNotice),
-        UserOfflineNotice(notices_project::UserOfflineNotice),
         NewEventNotice(notices_project::NewEventNotice),
         SetMemberRoleNotice(notices_project::SetMemberRoleNotice),
         UpdateShortNoteNotice(notices_project::UpdateShortNoteNotice),
@@ -48,14 +77,6 @@ pub mod project {
         } else if data.type_url == notices_project::RemoveMemberNotice::type_url() {
             if let Ok(notice) = notices_project::RemoveMemberNotice::decode(data.value.as_slice()) {
                 return Some(Notice::RemoveMemberNotice(notice));
-            }
-        } else if data.type_url == notices_project::UserOnlineNotice::type_url() {
-            if let Ok(notice) = notices_project::UserOnlineNotice::decode(data.value.as_slice()) {
-                return Some(Notice::UserOnlineNotice(notice));
-            }
-        } else if data.type_url == notices_project::UserOfflineNotice::type_url() {
-            if let Ok(notice) = notices_project::UserOfflineNotice::decode(data.value.as_slice()) {
-                return Some(Notice::UserOfflineNotice(notice));
             }
         } else if data.type_url == notices_project::NewEventNotice::type_url() {
             if let Ok(notice) = notices_project::NewEventNotice::decode(data.value.as_slice()) {
@@ -601,6 +622,7 @@ pub mod client {
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
 pub enum NoticeMessage {
+    UserNotice(user::Notice),
     ProjectNotice(project::Notice),
     IssueNotice(issue::Notice),
     IdeaNotice(idea::Notice),
@@ -617,6 +639,9 @@ pub enum NoticeMessage {
 use proto_gen_rust::google::protobuf::Any;
 
 pub fn decode_notice(data: &Any) -> Option<NoticeMessage> {
+    if let Some(ret) = user::decode_notice(data) {
+        return Some(NoticeMessage::UserNotice(ret));
+    }
     if let Some(ret) = project::decode_notice(data) {
         return Some(NoticeMessage::ProjectNotice(ret));
     }
@@ -644,7 +669,7 @@ pub fn decode_notice(data: &Any) -> Option<NoticeMessage> {
     if let Some(ret) = testcase::decode_notice(data) {
         return Some(NoticeMessage::TestcaseNotice(ret));
     }
-    if let Some(ret) = org::decode_notice(data){
+    if let Some(ret) = org::decode_notice(data) {
         return Some(NoticeMessage::OrgNotice(ret));
     }
     None
