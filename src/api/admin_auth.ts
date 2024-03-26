@@ -84,6 +84,13 @@ export type IdeaStorePerm = {
     remove_idea: boolean;
 };
 
+export type WidgetStorePerm = {
+    read: boolean;
+    add_widget: boolean;
+    update_widget: boolean;
+    remove_widget: boolean;
+};
+
 export type AdminPermInfo = {
     user_perm: UserPerm;
     project_perm: ProjectPerm;
@@ -93,6 +100,7 @@ export type AdminPermInfo = {
     docker_template_perm: DockerTemplatePerm;
     dev_container_perm: DevContainerPerm;
     idea_store_perm: IdeaStorePerm;
+    widget_store_perm: WidgetStorePerm;
     global_server: boolean;
 };
 

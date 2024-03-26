@@ -9,18 +9,19 @@ use tonic::transport::{Channel, Endpoint};
 
 mod admin_auth_api_plugin;
 mod minapp_api;
+mod org_api;
 mod project_cloud_api;
 mod project_comm_api;
 mod project_content_api;
 mod project_mgr_api;
 mod project_misc_api;
 mod pubres_api;
-mod org_api;
 
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
 mod events_decode;
 mod fs_api_plugin;
+mod git_widget_plugin;
 mod helper;
 mod image_utils;
 mod local_api;
@@ -75,11 +76,26 @@ Object.defineProperty(window, "__TAURI_POST_MESSAGE__", {
           window.ipc.postMessage(JSON.stringify(message));
           return;
         }
+      } else if (
+        window.__TAURI_METADATA__ != undefined &&
+        window.__TAURI_METADATA__.__currentWindow.label.startsWith("pages:")
+      ) {
+        return;
+      } else if (
+        window.__TAURI_METADATA__ != undefined &&
+        window.__TAURI_METADATA__.__currentWindow.label.startsWith("gw:")
+      ) {
+        if (message.cmd.startsWith("plugin:git_widget|read_") || message.cmd.startsWith("plugin:git_widget|get_file_path")) {
+          window.ipc.postMessage(JSON.stringify(message));
+          return;
+        }else{
+          return;
+        }
       } else {
         window.ipc.postMessage(JSON.stringify(message));
       }
     },
-  });  
+  });    
 "#;
 
 #[derive(Default)]
@@ -331,9 +347,13 @@ fn main() {
                 tauri::async_runtime::spawn(async move {
                     minapp_api::min_app_plugin::clear_by_close(app_handle.clone(), label.clone())
                         .await;
-                    project_content_api::pages_plugin::clear_by_close(app_handle, label.clone())
-                        .await;
+                    project_content_api::pages_plugin::clear_by_close(
+                        app_handle.clone(),
+                        label.clone(),
+                    )
+                    .await;
                     dev_container_api_plugin::clear_by_close(label.clone()).await;
+                    git_widget_plugin::clear_by_close(app_handle.clone(), label.clone()).await;
                 });
             }
             _ => {}
@@ -408,6 +428,7 @@ fn main() {
         .plugin(
             project_comm_api::project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new(),
         )
+        .plugin(git_widget_plugin::GitWidgetPlugin::new())
         .plugin(user_admin_api_plugin::UserAdminApiPlugin::new())
         .plugin(client_cfg_admin_api_plugin::ClientCfgAdminApiPlugin::new())
         .plugin(project_comm_api::events_admin_api_plugin::EventsAdminApiPlugin::new())
@@ -440,6 +461,8 @@ fn main() {
         .plugin(project_misc_api::project_comment_api_plugin::ProjectCommentApiPlugin::new())
         .plugin(pubres_api::idea_store_admin_api_plugin::IdeaStoreAdminApiPlugin::new())
         .plugin(pubres_api::idea_store_api_plugin::IdeaStoreApiPlugin::new())
+        .plugin(pubres_api::widget_store_api_plugin::WidgetStoreApiPlugin::new())
+        .plugin(pubres_api::widget_store_admin_api_plugin::WidgetStoreAdminApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())

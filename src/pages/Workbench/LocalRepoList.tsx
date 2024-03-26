@@ -16,6 +16,7 @@ import { open as shell_open } from '@tauri-apps/api/shell';
 import LaunchRepoModal from "./components/LaunchRepoModal";
 import { readDir, type FileEntry } from '@tauri-apps/api/fs';
 import { resolve } from '@tauri-apps/api/path';
+import OpenGitFileModal from "./components/OpenGitFileModal";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -234,9 +235,9 @@ interface WorkDirProps {
 const WorkDir = (props: WorkDirProps) => {
     const [curDirList, setCurDirList] = useState([] as string[]);
     const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
+    const [openFilePath, setOpenFilePath] = useState("");
 
     const loadFileEntryList = async () => {
-        console.log(curDirList);
         const path = await resolve(props.basePath, ...curDirList);
         const tmpList = await readDir(path);
         setFileEntryList(tmpList.filter(item => item.name != null && item.name != ".git"));
@@ -295,10 +296,19 @@ const WorkDir = (props: WorkDirProps) => {
                                     setCurDirList([...curDirList, entry.name ?? ""]);
                                 }}>{entry.name}</a>
                             )}
-                            {entry.children == null && entry.name}
+                            {entry.children == null && (
+                                <a onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    resolve(props.basePath, ...curDirList, entry.name ?? "").then(res => setOpenFilePath(res));
+                                }}>{entry.name}</a>
+                            )}
                         </Space>
                     </List.Item>
                 )} />
+            {openFilePath != "" && (
+                <OpenGitFileModal filePath={openFilePath} onClose={() => setOpenFilePath("")} />
+            )}
         </Card>
     );
 };

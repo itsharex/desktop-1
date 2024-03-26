@@ -54,15 +54,7 @@ const DebugMinAppModal: React.FC<DebugMinAppModalProps> = (props) => {
     const startDebug = async () => {
         let path = "";
         if (useUrl == true) {
-            if (remoteUrl.trim() == "") {
-                message.error("请输入url地址");
-                return;
-            }
-            if (!remoteUrl.trim().startsWith("localhost")) {
-                message.error("只支持localhost的url地址");
-                return;
-            }
-            path = "http://" + remoteUrl;
+            path = "http://localhost" + remoteUrl;
         } else {
             if (localPath.trim() == "") {
                 message.error("请选择本地目录");
@@ -106,7 +98,7 @@ const DebugMinAppModal: React.FC<DebugMinAppModalProps> = (props) => {
                 </Form.Item>
                 {useUrl == true && (
                     <Form.Item label="url地址">
-                        <Input prefix="http://" value={remoteUrl} onChange={e => {
+                        <Input prefix="http://localhost" value={remoteUrl} onChange={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoteUrl(e.target.value);
