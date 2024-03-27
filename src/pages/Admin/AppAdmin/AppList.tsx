@@ -268,7 +268,7 @@ const AppList = () => {
                         e.stopPropagation();
                         e.preventDefault();
                         setShowAddModal(true);
-                    }}>增加应用</Button>
+                    }} disabled={!(permInfo?.app_store_perm.add_app ?? false)}>增加应用</Button>
                 </Space>
             }>
             <div style={{ height: "calc(100vh - 100px)", overflowY: "scroll" }}>
@@ -363,7 +363,7 @@ const AppList = () => {
                     }} />
             )}
             {showCommentAppInfo != null && (
-                <CommentListModal appInfo={showCommentAppInfo} onClose={()=>setShowCommentAppInfo(null)}/>
+                <CommentListModal appInfo={showCommentAppInfo} onClose={() => setShowCommentAppInfo(null)} />
             )}
         </Card>
     );

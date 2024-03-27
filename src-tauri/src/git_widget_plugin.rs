@@ -12,8 +12,15 @@ use tokio::time::sleep;
 #[derive(Default)]
 pub struct HttpServerMap(pub Mutex<HashMap<String, tokio::sync::oneshot::Sender<()>>>);
 
+#[derive(Default)]
+pub struct FilePathMap(pub Mutex<HashMap<String, String>>);
+
 pub async fn clear_by_close<R: Runtime>(app_handle: AppHandle<R>, label: String) {
-    println!("clear pages resource");
+    println!("clear git widget resource");
+
+    let file_path_map = app_handle.state::<FilePathMap>().inner();
+    let mut file_path_map_data = file_path_map.0.lock().await;
+    file_path_map_data.remove(&label);
 
     let serv_map = app_handle.state::<HttpServerMap>().inner();
     let mut serv_map_data = serv_map.0.lock().await;
@@ -30,6 +37,7 @@ async fn start<R: Runtime>(
     label: String,
     title: String,
     path: String,
+    file_path: String,
 ) -> Result<(), String> {
     if window.label() != "main" {
         return Err("no permission".into());
@@ -69,6 +77,12 @@ async fn start<R: Runtime>(
         return Err(open_url.err().unwrap().to_string());
     }
 
+    {
+        let file_path_map = app_handle.state::<FilePathMap>().inner();
+        let mut file_path_map = file_path_map.0.lock().await;
+        file_path_map.insert(label.clone(), file_path);
+    }
+
     let pos = window.inner_position();
     if pos.is_err() {
         return Err(pos.err().unwrap().to_string());
@@ -92,21 +106,86 @@ async fn start<R: Runtime>(
     Ok(())
 }
 
-pub struct PagesPlugin<R: Runtime> {
+#[tauri::command]
+async fn read_binary<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+) -> Result<Vec<u8>, String> {
+    let label = window.label();
+
+    let file_path_map = app_handle.state::<FilePathMap>().inner();
+    let file_path_map_data = file_path_map.0.lock().await;
+    let file_path = file_path_map_data.get(label);
+    if file_path.is_none() {
+        return Err("no file find".into());
+    }
+    let file_path = file_path.unwrap();
+    let data = tauri::api::file::read_binary(file_path);
+    if data.is_err() {
+        return Err(data.err().unwrap().to_string());
+    }
+    return Ok(data.unwrap());
+}
+
+#[tauri::command]
+async fn read_text<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+) -> Result<String, String> {
+    let label = window.label();
+
+    let file_path_map = app_handle.state::<FilePathMap>().inner();
+    let file_path_map_data = file_path_map.0.lock().await;
+    let file_path = file_path_map_data.get(label);
+    if file_path.is_none() {
+        return Err("no file find".into());
+    }
+    let file_path = file_path.unwrap();
+    let data = tauri::api::file::read_string(file_path);
+    if data.is_err() {
+        return Err(data.err().unwrap().to_string());
+    }
+    return Ok(data.unwrap());
+}
+
+#[tauri::command]
+async fn get_file_path<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+) -> Result<String, String> {
+    let label = window.label();
+
+    let file_path_map = app_handle.state::<FilePathMap>().inner();
+    let file_path_map_data = file_path_map.0.lock().await;
+    let file_path = file_path_map_data.get(label);
+    if file_path.is_none() {
+        return Err("no file find".into());
+    }
+    let file_path = file_path.unwrap();
+
+    return Ok(String::from(file_path));
+}
+
+pub struct GitWidgetPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> PagesPlugin<R> {
+impl<R: Runtime> GitWidgetPlugin<R> {
     pub fn new() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![start,]),
+            invoke_handler: Box::new(tauri::generate_handler![
+                start,
+                read_binary,
+                read_text,
+                get_file_path
+            ]),
         }
     }
 }
 
-impl<R: Runtime> Plugin<R> for PagesPlugin<R> {
+impl<R: Runtime> Plugin<R> for GitWidgetPlugin<R> {
     fn name(&self) -> &'static str {
-        "pages"
+        "git_widget"
     }
     fn initialization_script(&self) -> Option<String> {
         None
@@ -114,6 +193,7 @@ impl<R: Runtime> Plugin<R> for PagesPlugin<R> {
 
     fn initialize(&mut self, app: &AppHandle<R>, _config: serde_json::Value) -> PluginResult<()> {
         app.manage(HttpServerMap(Default::default()));
+        app.manage(FilePathMap(Default::default()));
         Ok(())
     }
 
