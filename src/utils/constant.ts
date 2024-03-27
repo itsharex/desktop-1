@@ -34,6 +34,7 @@ export const ADMIN_PATH_IDEA_STORE_CATE_SUFFIX = "/admin/ideastore/cate";
 export const ADMIN_PATH_IDEA_STORE_SUFFIX = "/admin/ideastore/store";
 export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
 
+export const ADMIN_PATH_WIDGET_SUFFIX = "/admin/widgetstore/widget"
 
 export const ADMIN_PATH_CLIENT_MENU_SUFFIX = '/admin/client/menu';
 

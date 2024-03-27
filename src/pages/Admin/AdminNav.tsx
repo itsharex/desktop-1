@@ -17,7 +17,8 @@ import {
     ADMIN_PATH_IDEA_SUFFIX,
     ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
     ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
-    ADMIN_PATH_USER_LIST_SUFFIX
+    ADMIN_PATH_USER_LIST_SUFFIX,
+    ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
 import { useStores } from "@/hooks";
 import { runInAction } from "mobx";
@@ -33,6 +34,7 @@ const AdminNav = () => {
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
+    const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
     const [ideastoreSelectedKeys, setIdeastoreSelectedKeys] = useState<string[]>([]);
     const [dockerTemplateSelectedKeys, setDockerTemplateSelectedKeys] = useState<string[]>([]);
     const [devContainerSelectedKeys, setDevContainerSelectedKeys] = useState<string[]>([]);
@@ -69,6 +71,13 @@ const AdminNav = () => {
             setAppstoreSelectedKeys(["app_cate"]);
         } else if (location.pathname == ADMIN_PATH_APPSTORE_APP_SUFFIX) {
             setAppstoreSelectedKeys(["app_app"]);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
+        setWidgetStoreSelectedKeys([]);
+        if (location.pathname == ADMIN_PATH_WIDGET_SUFFIX) {
+            setWidgetStoreSelectedKeys(["git_widget"]);
         }
     }, [location.pathname]);
 
@@ -121,7 +130,7 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -193,6 +202,26 @@ const AdminNav = () => {
                                         history.push(ADMIN_PATH_APPSTORE_CATE_SUFFIX);
                                     } else if (e.selectedKeys[0] == "app_app") {
                                         history.push(ADMIN_PATH_APPSTORE_APP_SUFFIX);
+                                    }
+                                }
+                            }}
+                        />
+                    </Collapse.Panel>
+                )}
+                {permInfo?.global_server == true && (
+                    <Collapse.Panel header="Git插件管理" key="widgetStore">
+                        <Menu selectedKeys={widgetStoreSelectedKeys} items={[
+                            {
+                                label: "管理Git插件",
+                                key: "git_widget",
+                                disabled: !(permInfo?.widget_store_perm.read ?? false),
+                            },
+                        ]}
+                            style={{ borderRightWidth: "0px" }}
+                            onSelect={e => {
+                                if (e.selectedKeys.length == 1) {
+                                    if (e.selectedKeys[0] == "git_widget") {
+                                        history.push(ADMIN_PATH_WIDGET_SUFFIX);
                                     }
                                 }
                             }}
