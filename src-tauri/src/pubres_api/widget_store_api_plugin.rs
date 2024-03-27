@@ -26,6 +26,25 @@ async fn list_widget<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn get_widget<R: Runtime>(
+    app_handle: AppHandle<R>,
+    request: GetWidgetRequest,
+) -> Result<GetWidgetResponse, String> {
+    let serv_addr = get_global_server_addr(app_handle).await;
+    let chan = crate::conn_extern_server(serv_addr).await;
+    if chan.is_err() {
+        return Err(chan.err().unwrap());
+    }
+    let mut client = WidgetStoreApiClient::new(chan.unwrap());
+    match client.get_widget(request).await {
+        Ok(response) => {
+            return Ok(response.into_inner());
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 
 pub struct WidgetStoreApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
@@ -36,6 +55,7 @@ impl<R: Runtime> WidgetStoreApiPlugin<R> {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
                 list_widget,
+                get_widget,
                 ]),
         }
     }

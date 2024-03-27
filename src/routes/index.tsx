@@ -37,6 +37,7 @@ import {
   ADMIN_PATH_IDEA_SUFFIX,
   APP_ORG_MANAGER_PATH,
   APP_ORG_PATH,
+  ADMIN_PATH_WIDGET_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -71,6 +72,7 @@ import IdeaList from '@/pages/Admin/IdeaAdmin/IdeaList';
 import RecycleItemList from '@/pages/Project/Recycle/RecycleItemList';
 import OrgManager from '@/pages/Org/OrgManager';
 import OrgDetail from '@/pages/Org/OrgDetail';
+import WidgetList from '@/pages/Admin/GitWidgetAdmin/WidgetList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -314,6 +316,12 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_APPSTORE_APP_SUFFIX,
         title: "应用管理",
         component: AppList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_WIDGET_SUFFIX,
+        title: "Git插件管理",
+        component: WidgetList,
         exact: true,
       },
       {

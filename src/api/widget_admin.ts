@@ -7,6 +7,7 @@ export type AdminAddWidgetRequest = {
     file_list: string[];
     file_id: string;
     icon_file_id: string;
+    weight: number;
 };
 
 export type AdminAddWidgetResponse = {
@@ -53,8 +54,18 @@ export type AdminUpdateFileResponse = {
     err_msg: string;
 };
 
+export type AdminUpdateWeightRequest = {
+    admin_session_id: string;
+    widget_id: string;
+    weight: number;
+};
 
-export type AdminRemoveWidgetRequest ={
+export type AdminUpdateWeightResponse = {
+    code: number;
+    err_msg: string;
+};
+
+export type AdminRemoveWidgetRequest = {
     admin_session_id: string;
     widget_id: string;
 };
@@ -67,7 +78,7 @@ export type AdminRemoveWidgetResponse = {
 // 上传插件
 export async function add_widget(request: AdminAddWidgetRequest): Promise<AdminAddWidgetResponse> {
     const cmd = 'plugin:widget_store_admin_api|add_widget';
-    console.log(`%c${cmd}`, 'color:#0f0;',request);
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminAddWidgetResponse>(cmd, {
         request,
     });
@@ -76,7 +87,7 @@ export async function add_widget(request: AdminAddWidgetRequest): Promise<AdminA
 // 更新插件信息
 export async function update_widget(request: AdminUpdateWidgetRequest): Promise<AdminUpdateWidgetResponse> {
     const cmd = 'plugin:widget_store_admin_api|update_widget';
-    console.log(`%c${cmd}`, 'color:#0f0;',request);
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminUpdateWidgetResponse>(cmd, {
         request,
     });
@@ -85,7 +96,7 @@ export async function update_widget(request: AdminUpdateWidgetRequest): Promise<
 // 更新icon
 export async function update_icon_file(request: AdminUpdateIconFileRequest): Promise<AdminUpdateIconFileResponse> {
     const cmd = 'plugin:widget_store_admin_api|update_icon_file';
-    console.log(`%c${cmd}`, 'color:#0f0;',request);
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminUpdateIconFileResponse>(cmd, {
         request,
     });
@@ -94,8 +105,17 @@ export async function update_icon_file(request: AdminUpdateIconFileRequest): Pro
 // 更新文件
 export async function update_file(request: AdminUpdateFileRequest): Promise<AdminUpdateFileResponse> {
     const cmd = 'plugin:widget_store_admin_api|update_file';
-    console.log(`%c${cmd}`, 'color:#0f0;',request);
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminUpdateFileResponse>(cmd, {
+        request,
+    });
+}
+
+//更新权重
+export async function update_weight(request: AdminUpdateWeightRequest): Promise<AdminUpdateWeightResponse> {
+    const cmd = 'plugin:widget_store_admin_api|update_weight';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<AdminUpdateWeightResponse>(cmd, {
         request,
     });
 }
@@ -103,7 +123,7 @@ export async function update_file(request: AdminUpdateFileRequest): Promise<Admi
 // 删除插件
 export async function remove_widget(request: AdminRemoveWidgetRequest): Promise<AdminRemoveWidgetResponse> {
     const cmd = 'plugin:widget_store_admin_api|remove_widget';
-    console.log(`%c${cmd}`, 'color:#0f0;',request);
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminRemoveWidgetResponse>(cmd, {
         request,
     });

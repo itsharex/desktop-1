@@ -128,6 +128,36 @@ async fn update_file<R: Runtime>(
 }
 
 #[tauri::command]
+async fn update_weight<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AdminUpdateWeightRequest,
+) -> Result<AdminUpdateWeightResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = WidgetStoreAdminApiClient::new(chan.unwrap());
+    match client.update_weight(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == admin_update_weight_response::Code::WrongSession as i32
+                || inner_resp.code == admin_update_weight_response::Code::NotAuth as i32
+            {
+                crate::admin_auth_api_plugin::logout(app_handle).await;
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("update_weight".into()))
+                {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn remove_widget<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -169,6 +199,7 @@ impl<R: Runtime> WidgetStoreAdminApiPlugin<R> {
                 update_widget,
                 update_icon_file,
                 update_file,
+                update_weight,
                 remove_widget,
             ]),
         }

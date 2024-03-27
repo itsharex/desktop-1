@@ -7,6 +7,7 @@ export type WidgetInfo = {
     file_list: string[];
     file_id: string;
     icon_file_id: string;
+    weight: number;
     create_time: number;
     update_time: number;
 }
@@ -17,11 +18,32 @@ export type ListWidgetResponse = {
     widget_list: WidgetInfo[];
 };
 
+export type GetWidgetRequest = {
+    widget_id: string;
+};
+
+export type GetWidgetResponse = {
+    code: number;
+    err_msg: string;
+    widget: WidgetInfo;
+};
+
 // 列出所有插件
 export async function list_widget(): Promise<ListWidgetResponse> {
     const cmd = 'plugin:widget_store_api|list_widget';
     console.log(`%c${cmd}`, 'color:#0f0;');
-    return invoke<ListWidgetResponse>(cmd, {});
+    return invoke<ListWidgetResponse>(cmd, {
+        request: {},
+    });
+}
+
+//获取单个插件信息
+export async function get_widget(request: GetWidgetRequest): Promise<GetWidgetResponse> {
+    const cmd = 'plugin:widget_store_api|get_widget';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetWidgetResponse>(cmd, {
+        request,
+    });
 }
 
 // 启动git widget
