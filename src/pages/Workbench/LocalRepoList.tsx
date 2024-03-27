@@ -17,6 +17,8 @@ import LaunchRepoModal from "./components/LaunchRepoModal";
 import { readDir, type FileEntry } from '@tauri-apps/api/fs';
 import { resolve } from '@tauri-apps/api/path';
 import OpenGitFileModal from "./components/OpenGitFileModal";
+import { list_widget, type WidgetInfo } from "@/api/widget";
+import { request } from "@/utils/request";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -230,12 +232,13 @@ const AnalyseRepoModal: React.FC<AnalyseRepoModalProps> = (props) => {
 
 interface WorkDirProps {
     basePath: string;
+    widgetList: WidgetInfo[];
 }
 
 const WorkDir = (props: WorkDirProps) => {
     const [curDirList, setCurDirList] = useState([] as string[]);
     const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
-    const [openFilePath, setOpenFilePath] = useState("");
+    const [curFileName, setCurFileName] = useState("");
 
     const loadFileEntryList = async () => {
         const path = await resolve(props.basePath, ...curDirList);
@@ -300,14 +303,14 @@ const WorkDir = (props: WorkDirProps) => {
                                 <a onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    resolve(props.basePath, ...curDirList, entry.name ?? "").then(res => setOpenFilePath(res));
+                                    setCurFileName(entry.name ?? "");
                                 }}>{entry.name}</a>
                             )}
                         </Space>
                     </List.Item>
                 )} />
-            {openFilePath != "" && (
-                <OpenGitFileModal filePath={openFilePath} onClose={() => setOpenFilePath("")} />
+            {curFileName != "" && (
+                <OpenGitFileModal basePath={props.basePath} curDirList={curDirList} curFileName={curFileName} onClose={() => setCurFileName("")} widgetList={props.widgetList} />
             )}
         </Card>
     );
@@ -328,6 +331,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const [filterBranch, setFilterBranch] = useState("");
     const [commiterList, setCommiterList] = useState<string[]>([]);
     const [activeKey, setActiveKey] = useState("workDir");
+    const [widgetList, setWidgetList] = useState<WidgetInfo[]>([]);
 
     const loadCommitList = async (branch: string) => {
         const commitRes = await list_repo_commit(props.repo.path, `refs/heads/${branch}`);
@@ -361,6 +365,11 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             console.log(e);
             message.error(`${e}`);
         }
+    };
+
+    const loadWidgetList = async () => {
+        const res = await request(list_widget());
+        setWidgetList(res.widget_list.sort((a, b) => b.weight - a.weight));
     };
 
     const reloadStatus = async () => {
@@ -433,6 +442,10 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
         loadRepoInfo();
     }, [props.repo.path, props.repoVersion]);
 
+    useEffect(() => {
+        loadWidgetList();
+    }, []);
+
     return (
         <Tabs type="card" tabPosition="left" key={props.repo.id} activeKey={activeKey} onChange={key => {
             if (key == "status") {
@@ -441,7 +454,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             setActiveKey(key);
         }}>
             <Tabs.TabPane tab="工作目录" key="workDir">
-                <WorkDir basePath={props.repo.path} />
+                <WorkDir basePath={props.repo.path} widgetList={widgetList} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交列表" key="commitList">
                 {activeKey == "commitList" && (

@@ -1,16 +1,25 @@
-import React, { useState } from "react";
-import { Button, Form, Input, message, Modal, Radio, Tabs } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Empty, Form, Input, List, message, Modal, Radio, Space, Spin, Tabs, Tag } from "antd";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
 import { FolderOpenOutlined } from "@ant-design/icons";
-import { start } from "@/api/widget";
+import { start, type WidgetInfo } from "@/api/widget";
 import { uniqId } from "@/utils/utils";
+import { resolve } from '@tauri-apps/api/path';
+import AsyncImage from "@/components/AsyncImage";
+import { download_file, get_cache_file, GLOBAL_WIDGET_STORE_FS_ID } from "@/api/fs";
+import { check_unpark, get_min_app_path, unpack_min_app } from '@/api/min_app';
+import { useStores } from "@/hooks";
 
 export interface OpenGitFileModalProps {
-    filePath: string;
+    widgetList: WidgetInfo[];
+    basePath: string;
+    curDirList: string[];
+    curFileName: string;
     onClose: () => void;
 }
 
 const OpenGitFileModal = (props: OpenGitFileModalProps) => {
+    const userStore = useStores("userStore");
 
     const [activeKey, setActiveKey] = useState<"widget" | "debug">("widget");
 
@@ -18,6 +27,9 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
     const [remoteUrl, setRemoteUrl] = useState("");
     const [localPath, setLocalPath] = useState("");
 
+    const [fileMatchWidgetList, setFileMatchWidgetList] = useState([] as WidgetInfo[]);
+    const [extMatchWidgetList, setExtMatchWidgetList] = useState([] as WidgetInfo[]);
+    const [curWidgetId, setCurWidgetId] = useState("");
 
     const choicePath = async () => {
         const selected = await open_dialog({
@@ -52,9 +64,49 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
             }
             path = localPath;
         }
-        await start(`gw:${uniqId()}`, props.filePath, path, props.filePath);
+        const filePath = await resolve(props.basePath, ...props.curDirList, props.curFileName);
+        await start(`gw:${uniqId()}`, filePath, path, filePath);
         props.onClose();
     };
+
+    const startView = async (widgetFileId: string) => {
+        try {
+            //下载文件
+            const res = await get_cache_file(GLOBAL_WIDGET_STORE_FS_ID, widgetFileId, "content.zip");
+            let localFilePath = "";
+            if (res.exist_in_local) {
+                localFilePath = res.local_path;
+            }
+            if (localFilePath == "") {
+                const downloadRes = await download_file(userStore.sessionId, GLOBAL_WIDGET_STORE_FS_ID, widgetFileId, "", "content.zip");
+                localFilePath = downloadRes.local_path;
+            }
+            //解压文件
+            const ok = await check_unpark(GLOBAL_WIDGET_STORE_FS_ID, widgetFileId);
+            if (!ok) {
+                await unpack_min_app(GLOBAL_WIDGET_STORE_FS_ID, widgetFileId, "");
+            }
+            const path = await get_min_app_path(GLOBAL_WIDGET_STORE_FS_ID, widgetFileId);
+            const filePath = await resolve(props.basePath, ...props.curDirList, props.curFileName);
+            await start(`gw:${uniqId()}`, filePath, path, filePath);
+            props.onClose();
+        } finally {
+            setCurWidgetId("");
+        }
+    };
+
+    useEffect(() => {
+        const fileMatchList = props.widgetList.filter(item => item.file_list.includes(props.curFileName));
+        setFileMatchWidgetList(fileMatchList);
+        const pos = props.curFileName.indexOf(".");
+        if (pos == -1) {
+            setExtMatchWidgetList([]);
+        } else {
+            const ext = props.curFileName.substring(pos + 1);
+            const extMatchList = props.widgetList.filter(item => item.extension_list.includes(ext));
+            setExtMatchWidgetList(extMatchList);
+        }
+    }, [props.curFileName]);
 
     return (
         <Modal open title="打开文件" footer={activeKey == "widget" ? null : undefined}
@@ -75,7 +127,37 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
                     {
                         key: "widget",
                         label: "打开方式",
-                        children: "TODO",
+                        children: (
+                            <>
+                                {fileMatchWidgetList.length == 0 && extMatchWidgetList.length == 0 && (
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                )}
+                                {fileMatchWidgetList.length > 0 && (
+                                    <List />
+                                )}
+                                {extMatchWidgetList.length > 0 && (
+                                    <List rowKey="widget_id" dataSource={extMatchWidgetList} pagination={false} grid={{ gutter: 16 }}
+                                        renderItem={widget => (
+                                            <List.Item>
+                                                <Tag style={{ padding: "4px 4px" }}>
+                                                    <a onClick={e => {
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
+                                                        setCurWidgetId(widget.widget_id);
+                                                        startView(widget.file_id);
+                                                    }}>
+                                                        <Space>
+                                                            <AsyncImage src={`fs://localhost/${GLOBAL_WIDGET_STORE_FS_ID}/${widget.icon_file_id}/icon.png`} useRawImg style={{ width: "16px", borderRadius: "10px" }} />
+                                                            {widget.widget_name}
+                                                            {curWidgetId == widget.widget_id && <Spin size="small" />}
+                                                        </Space>
+                                                    </a>
+                                                </Tag>
+                                            </List.Item>
+                                        )} />
+                                )}
+                            </>
+                        ),
                     },
                     {
                         key: "debug",
