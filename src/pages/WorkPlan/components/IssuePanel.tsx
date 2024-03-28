@@ -25,6 +25,8 @@ import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";
 import type { LocalIssueStore } from "@/stores/local";
 import { EditTag } from "@/components/EditCell/EditTag";
+import { ExtraIssueInfo } from "@/pages/Issue/components/ExtraIssueInfo";
+import s from "./IssuePanel.module.less";
 
 interface SubIssuePopoverProps {
     issueId: string;
@@ -492,7 +494,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     ];
 
     return (
-        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }} className={s.listWrap}>
             <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
                 <Table
                     rowKey="issue_id"
@@ -509,6 +511,18 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                     columns={columns.filter(item => (item.issueType == undefined || item.issueType == ISSUE_TYPE_TASK))}
                     pagination={false}
                     scroll={{ x: 1100 }}
+                    expandable={{
+                        expandedRowRender: (row: IssueInfo) => (
+                            <ExtraIssueInfo issueId={row.issue_id}
+                                canOptDependence={row.user_issue_perm.can_opt_dependence}
+                                canOptSubIssue={row.user_issue_perm.can_opt_sub_issue} />
+                        ),
+                        rowExpandable: () => true,
+                        showExpandColumn: true,
+                        expandIconColumnIndex: 1,
+                        columnTitle: "子面板",
+                        columnWidth: 60,                        
+                    }}
                 />
             </Card>
             <Card title="缺陷列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>

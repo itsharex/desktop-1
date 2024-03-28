@@ -530,6 +530,9 @@ const IssueEditList: React.FC<IssueEditListProps> = ({
           ),
           rowExpandable: () => true,
           showExpandColumn: getIsTask(location.pathname),
+          expandIconColumnIndex: 2,
+          columnTitle: "子面板",
+          columnWidth: 60,
         }}
       />
     </div>
