@@ -16,7 +16,7 @@ import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
-import { USER_TYPE_ATOM_GIT } from '@/api/user';
+import { get_session, USER_TYPE_ATOM_GIT } from '@/api/user';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -101,7 +101,7 @@ class NoticeStore {
 
   }
 
-  private async forwardCommentNotice(targetType: COMMENT_TARGET_TYPE, targetId: string, notice: NoticeType.comment.AllNotice) {
+  private async forwardCommentNotice(_targetType: COMMENT_TARGET_TYPE, targetId: string, notice: NoticeType.comment.AllNotice) {
     //只有独立窗口的需要转发
     const winList = await getAllWindow();
     for (const win of winList) {
@@ -238,7 +238,10 @@ class NoticeStore {
         });
         this.history.push("/");
       } else {
-        // this.rootStore.userStore.logout();
+        const sessInRust = await get_session();
+        if (sessInRust == "") {
+          this.rootStore.userStore.logout();
+        }
         message.warn("会话失效");
       }
     } else if (notice.GitPostHookNotice !== undefined) {

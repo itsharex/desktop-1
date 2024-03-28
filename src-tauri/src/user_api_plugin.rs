@@ -1,5 +1,5 @@
-use crate::project_cloud_api::net_proxy_api_plugin::stop_all_listen;
 use crate::notice_decode::{decode_notice, new_extra_token_notice, new_wrong_session_notice};
+use crate::project_cloud_api::net_proxy_api_plugin::stop_all_listen;
 use image::EncodableLayout;
 use libaes::Cipher;
 use prost::Message;
@@ -113,18 +113,35 @@ async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
                         let window = (&handle).get_window("main").unwrap();
                         let resp = resp.unwrap().into_inner();
                         if resp.code != keep_alive_response::Code::Ok as i32 {
+                            //清空session
+                            {
+                                let user_id = handle.state::<CurUserId>().inner();
+                                *user_id.0.lock().await = None;
+                                let user_secret = handle.state::<CurUserSecret>().inner();
+                                *user_secret.0.lock().await = None;
+                                let user_session = handle.state::<CurSession>().inner();
+                                *user_session.0.lock().await = None;
+                                let mq_client = handle.state::<CurNoticeClient>().inner();
+                                if let Some(c) = mq_client.0.lock().await.clone() {
+                                    if let Err(err) = c.disconnect().await {
+                                        println!("{:?}", err);
+                                    }
+                                }
+                                *mq_client.0.lock().await = None;
+                            }
+                            //发送通知
                             let res = window
                                 .emit("notice", new_wrong_session_notice("keep_alive".into()));
                             if res.is_err() {
                                 println!("{:?}", res);
                             }
-                        }else{
+                        } else {
                             if &resp.new_extra_token != "" {
                                 let res = window
-                                .emit("notice", new_extra_token_notice(resp.new_extra_token));
-                            if res.is_err() {
-                                println!("{:?}", res);
-                            }
+                                    .emit("notice", new_extra_token_notice(resp.new_extra_token));
+                                if res.is_err() {
+                                    println!("{:?}", res);
+                                }
                             }
                         }
                     }
