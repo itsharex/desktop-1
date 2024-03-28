@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, login, logout as user_logout } from '@/api/user';
+import { USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, get_session, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
 import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
@@ -23,7 +23,7 @@ type UserInfo = {
 class UserStore {
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
-    this.sessionId = sessionStorage.getItem('sessionId') || '';
+    this._sessionId = sessionStorage.getItem('sessionId') || '';
     const userInfo = sessionStorage.getItem('userInfo');
     if (userInfo) this.userInfo = JSON.parse(userInfo);
     makeAutoObservable(this);
@@ -31,7 +31,7 @@ class UserStore {
 
   connectServerSuccess = false;
   rootStore: RootStore;
-  sessionId: string;
+  _sessionId: string;
   adminSessionId = "";
   userInfo: UserInfo = {
     userId: '',
@@ -66,12 +66,21 @@ class UserStore {
     }, 3000);
   }
 
+  get sessionId() {
+    get_session().then(sessInRust => {
+      if (this._sessionId != "" && sessInRust == "") {
+        this.logout();
+      }
+    });
+    return this._sessionId;
+  }
+
   async logout() {
     this.rootStore.projectStore.reset();
-    const tmpSessionId = this.sessionId;
+    const tmpSessionId = this._sessionId;
     const tmpUserType = this.userInfo.userType;
     runInAction(() => {
-      this.sessionId = '';
+      this._sessionId = '';
       this.userInfo = {
         userId: '',
         userType: USER_TYPE_INTERNAL,
@@ -117,7 +126,7 @@ class UserStore {
 
     if (res) {
       runInAction(() => {
-        this.sessionId = res.session_id;
+        this._sessionId = res.session_id;
         sessionStorage.setItem('sessionId', res.session_id);
         this.userInfo = {
           userId: res.user_info.user_id,
@@ -185,7 +194,7 @@ class UserStore {
   }
 
   updateDisplayName(val: string) {
-    if (this.sessionId && this.userInfo) {
+    if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.displayName = val;
       });
@@ -193,7 +202,7 @@ class UserStore {
   }
 
   updateLogoUri(val: string) {
-    if (this.sessionId && this.userInfo) {
+    if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.logoUri = val;
       });
@@ -201,7 +210,7 @@ class UserStore {
   }
 
   updateExtraToken(val: string) {
-    if (this.sessionId && this.userInfo) {
+    if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.extraToken = val;
       });

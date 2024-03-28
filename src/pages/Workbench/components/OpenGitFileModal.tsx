@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Button, Empty, Form, Input, List, message, Modal, Radio, Space, Spin, Tabs, Tag } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, List, message, Modal, Radio, Space, Spin, Tabs, Tag } from "antd";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { start, type WidgetInfo } from "@/api/widget";
@@ -27,8 +27,6 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
     const [remoteUrl, setRemoteUrl] = useState("");
     const [localPath, setLocalPath] = useState("");
 
-    const [fileMatchWidgetList, setFileMatchWidgetList] = useState([] as WidgetInfo[]);
-    const [extMatchWidgetList, setExtMatchWidgetList] = useState([] as WidgetInfo[]);
     const [curWidgetId, setCurWidgetId] = useState("");
 
     const choicePath = async () => {
@@ -95,19 +93,6 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
         }
     };
 
-    useEffect(() => {
-        const fileMatchList = props.widgetList.filter(item => item.file_list.includes(props.curFileName));
-        setFileMatchWidgetList(fileMatchList);
-        const pos = props.curFileName.indexOf(".");
-        if (pos == -1) {
-            setExtMatchWidgetList([]);
-        } else {
-            const ext = props.curFileName.substring(pos + 1);
-            const extMatchList = props.widgetList.filter(item => item.extension_list.includes(ext));
-            setExtMatchWidgetList(extMatchList);
-        }
-    }, [props.curFileName]);
-
     return (
         <Modal open title="打开文件" footer={activeKey == "widget" ? null : undefined}
             okText="打开" okButtonProps={{ disabled: !checkValid() }}
@@ -128,35 +113,25 @@ const OpenGitFileModal = (props: OpenGitFileModalProps) => {
                         key: "widget",
                         label: "打开方式",
                         children: (
-                            <>
-                                {fileMatchWidgetList.length == 0 && extMatchWidgetList.length == 0 && (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                )}
-                                {fileMatchWidgetList.length > 0 && (
-                                    <List />
-                                )}
-                                {extMatchWidgetList.length > 0 && (
-                                    <List rowKey="widget_id" dataSource={extMatchWidgetList} pagination={false} grid={{ gutter: 16 }}
-                                        renderItem={widget => (
-                                            <List.Item>
-                                                <Tag style={{ padding: "4px 4px" }}>
-                                                    <a onClick={e => {
-                                                        e.stopPropagation();
-                                                        e.preventDefault();
-                                                        setCurWidgetId(widget.widget_id);
-                                                        startView(widget.file_id);
-                                                    }}>
-                                                        <Space>
-                                                            <AsyncImage src={`fs://localhost/${GLOBAL_WIDGET_STORE_FS_ID}/${widget.icon_file_id}/icon.png`} useRawImg style={{ width: "16px", borderRadius: "10px" }} />
-                                                            {widget.widget_name}
-                                                            {curWidgetId == widget.widget_id && <Spin size="small" />}
-                                                        </Space>
-                                                    </a>
-                                                </Tag>
-                                            </List.Item>
-                                        )} />
-                                )}
-                            </>
+                            <List rowKey="widget_id" dataSource={props.widgetList} pagination={false} grid={{ gutter: 16 }}
+                                renderItem={widget => (
+                                    <List.Item>
+                                        <Tag style={{ padding: "4px 4px" }}>
+                                            <a onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setCurWidgetId(widget.widget_id);
+                                                startView(widget.file_id);
+                                            }}>
+                                                <Space>
+                                                    <AsyncImage src={`fs://localhost/${GLOBAL_WIDGET_STORE_FS_ID}/${widget.icon_file_id}/icon.png`} useRawImg style={{ width: "16px", borderRadius: "10px" }} />
+                                                    {widget.widget_name}
+                                                    {curWidgetId == widget.widget_id && <Spin size="small" />}
+                                                </Space>
+                                            </a>
+                                        </Tag>
+                                    </List.Item>
+                                )} />
                         ),
                     },
                     {
