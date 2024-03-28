@@ -1,10 +1,13 @@
 import { Modal, Form, Input, Button, message, Radio, Progress } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { CloneProgressInfo } from "@/api/local_repo";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog, save as save_dialog } from '@tauri-apps/api/dialog';
 import { get_repo_status, add_repo, clone as clone_repo } from "@/api/local_repo";
 import { uniqId } from "@/utils/utils";
+import { useStores } from "@/hooks";
+import { observer } from 'mobx-react';
+import { USER_TYPE_ATOM_GIT } from "@/api/user";
 
 interface AddRepoModalProps {
     remoteUrl?: string;
@@ -13,6 +16,8 @@ interface AddRepoModalProps {
 }
 
 const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
+    const userStore = useStores('userStore');
+
     const [name, setName] = useState("");
     const [repoType, setRepoType] = useState<"local" | "remote">(props.remoteUrl == undefined ? "local" : "remote");
     const [remoteUrl, setRemoteUrl] = useState(props.remoteUrl ?? "");
@@ -109,6 +114,20 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
         }
     };
 
+    useEffect(() => {
+        if (remoteUrl.startsWith("git@")) {
+            setAuthType("privkey");
+        } else if (remoteUrl.startsWith("http")) {
+            setAuthType("none");
+        }
+    }, [remoteUrl]);
+
+    useEffect(() => {
+        if (remoteUrl.includes("atomgit") && userStore.userInfo.userType == USER_TYPE_ATOM_GIT) {
+            setUsername(userStore.userInfo.userName.substring("atomgit:".length));
+        }
+    }, [remoteUrl]);
+
     return (
         <Modal open title={repoType == "local" ? "添加本地仓库" : "克隆远程仓库"}
             okText={repoType == "local" ? "添加" : "克隆"} okButtonProps={{ disabled: !checkValid() || cloneProgress != null }}
@@ -151,7 +170,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoteUrl(e.target.value.trim());
-                        }} />
+                        }} disabled={props.remoteUrl != undefined} />
                     </Form.Item>
                 )}
                 <Form.Item label="本地路径">
@@ -227,4 +246,4 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     );
 };
 
-export default AddRepoModal;
+export default observer(AddRepoModal);
