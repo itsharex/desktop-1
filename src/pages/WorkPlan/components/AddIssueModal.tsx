@@ -21,6 +21,7 @@ import { request } from "@/utils/request";
 
 
 export interface AddIssueModalProps {
+    issueType?: ISSUE_TYPE;
     onClose: () => void;
 }
 
@@ -31,7 +32,7 @@ const AddIssueModal = (props: AddIssueModalProps) => {
     const entryStore = useStores('entryStore');
 
 
-    const [issueType, setIssueType] = useState<ISSUE_TYPE>(ISSUE_TYPE_TASK);
+    const [issueType, setIssueType] = useState<ISSUE_TYPE>(props.issueType ?? ISSUE_TYPE_TASK);
     const [title, setTitle] = useState("");
     const [execUserId, setExecUserId] = useState("");
     const [checkUserId, setCheckUserId] = useState("");
@@ -86,7 +87,7 @@ const AddIssueModal = (props: AddIssueModalProps) => {
             }}>
             <Form labelCol={{ span: 3 }}>
                 <Form.Item label="类型">
-                    <Select value={issueType} onChange={value => setIssueType(value)}>
+                    <Select value={issueType} onChange={value => setIssueType(value)} disabled={props.issueType != null}>
                         <Select.Option value={ISSUE_TYPE_TASK}>任务</Select.Option>
                         <Select.Option value={ISSUE_TYPE_BUG}>缺陷</Select.Option>
                     </Select>

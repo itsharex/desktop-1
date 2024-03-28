@@ -318,30 +318,32 @@ const SpritDetail = () => {
                                                 ))}
                                             </Select>
                                         </Form.Item>
-                                        <Form.Item>
-                                            <Dropdown.Button type="primary"
-                                                disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
-                                                menu={{
-                                                    items: [
-                                                        {
-                                                            key: "refTask",
-                                                            label: "引用任务",
-                                                            disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
-                                                            onClick: () => setRefIssueType(ISSUE_TYPE_TASK),
-                                                        },
-                                                        {
-                                                            key: "refBug",
-                                                            label: "引用缺陷",
-                                                            disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
-                                                            onClick: () => setRefIssueType(ISSUE_TYPE_BUG),
-                                                        }
-                                                    ]
-                                                }} onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    setShowAddIssueModal(true);
-                                                }}><PlusOutlined />增加</Dropdown.Button>
-                                        </Form.Item>
+                                        {spritTab == "kanban" && (
+                                            <Form.Item>
+                                                <Dropdown.Button type="primary"
+                                                    disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                                                    menu={{
+                                                        items: [
+                                                            {
+                                                                key: "refTask",
+                                                                label: "引用任务",
+                                                                disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                                                onClick: () => setRefIssueType(ISSUE_TYPE_TASK),
+                                                            },
+                                                            {
+                                                                key: "refBug",
+                                                                label: "引用缺陷",
+                                                                disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                                                onClick: () => setRefIssueType(ISSUE_TYPE_BUG),
+                                                            }
+                                                        ]
+                                                    }} onClick={e => {
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
+                                                        setShowAddIssueModal(true);
+                                                    }}><PlusOutlined />增加</Dropdown.Button>
+                                            </Form.Item>
+                                        )}
                                     </Form>
                                 )}
                                 {spritTab == "testplan" && (
