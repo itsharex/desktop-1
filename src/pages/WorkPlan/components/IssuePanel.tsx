@@ -494,8 +494,17 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     ];
 
     return (
-        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }} className={s.listWrap}>
-            <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
+            <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }} className={props.taskStore.itemList.filter(item => {
+                if (props.memberId == "") {
+                    return true;
+                } else {
+                    if (item.exec_user_id == props.memberId || item.check_user_id == props.memberId) {
+                        return true;
+                    }
+                    return false;
+                }
+            }).length == 0 ? "" : s.listWrap}>
                 <Table
                     rowKey="issue_id"
                     dataSource={props.taskStore.itemList.filter(item => {
@@ -521,7 +530,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                         showExpandColumn: true,
                         expandIconColumnIndex: 1,
                         columnTitle: "子面板",
-                        columnWidth: 60,                        
+                        columnWidth: 60,
                     }}
                 />
             </Card>
