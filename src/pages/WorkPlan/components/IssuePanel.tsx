@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Card, Popover, Space, Table, Tooltip, List } from "antd";
+import { Card, Popover, Space, Table, Tooltip, List, Form, Dropdown } from "antd";
 import { useStores } from "@/hooks";
-import { EditOutlined, ExclamationCircleOutlined, CheckOutlined } from "@ant-design/icons";
+import { EditOutlined, ExclamationCircleOutlined, CheckOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE, SubIssueInfo } from "@/api/project_issue";
-import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, update_tag_id_list } from "@/api/project_issue";
-import { LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
+import { ISSUE_TYPE_BUG, ISSUE_TYPE_TASK, ISSUE_STATE_PLAN, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, ISSUE_STATE_CLOSE, PROCESS_STAGE_TODO, PROCESS_STAGE_DOING, PROCESS_STAGE_DONE, update_tag_id_list, link_sprit } from "@/api/project_issue";
+import { type LinkInfo, LINK_TARGET_TYPE, LinkBugInfo, LinkTaskInfo } from "@/stores/linkAux";
 import { cancel_link_sprit, list_sub_issue } from '@/api/project_issue';
 import { request } from "@/utils/request";
 import { issueState, ISSUE_STATE_COLOR_ENUM } from "@/utils/constant";
@@ -27,6 +27,8 @@ import type { LocalIssueStore } from "@/stores/local";
 import { EditTag } from "@/components/EditCell/EditTag";
 import { ExtraIssueInfo } from "@/pages/Issue/components/ExtraIssueInfo";
 import s from "./IssuePanel.module.less";
+import AddIssueModal from "./AddIssueModal";
+import AddTaskOrBug from "@/components/Editor/components/AddTaskOrBug";
 
 interface SubIssuePopoverProps {
     issueId: string;
@@ -107,6 +109,9 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
 
     const [stageIssue, setStageIssue] = useState<IssueInfo | null>(null);
 
+    const [refIssueType, setRefIssueType] = useState<ISSUE_TYPE | null>(null);
+    const [newIssueType, setNewIssueType] = useState<ISSUE_TYPE | null>(null);
+
     const cancelLinkSprit = async (issueId: string) => {
         await request(cancel_link_sprit(userStore.sessionId, projectStore.curProjectId, issueId));
     }
@@ -136,6 +141,32 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             }
         });
     };
+
+    const linkSprit = async (links: LinkInfo[]) => {
+        let issueIdList: string[] = [];
+        for (const link of links) {
+            if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_BUG) {
+                issueIdList.push((link as LinkBugInfo).issueId);
+            } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TASK) {
+                issueIdList.push((link as LinkTaskInfo).issueId);
+            }
+        }
+        issueIdList = issueIdList.filter(issueId => {
+            const bugIndex = props.bugStore.itemList.findIndex(bug => bug.issue_id == issueId);
+            if (bugIndex != -1) {
+                return false;
+            }
+            const taskIndex = props.taskStore.itemList.findIndex(task => task.issue_id == issueId);
+            if (taskIndex != -1) {
+                return false;
+            }
+            return true;
+        });
+        for (const issueId of issueIdList) {
+            await request(link_sprit(userStore.sessionId, projectStore.curProjectId, issueId, entryStore.curEntry?.entry_id ?? ""));
+        }
+        setRefIssueType(null);
+    }
 
     const memberSelectItems = getMemberSelectItems(memberStore.memberList.map(item => item.member));
 
@@ -494,8 +525,38 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     ];
 
     return (
-        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }} className={s.listWrap}>
-            <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
+        <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
+            <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }} className={props.taskStore.itemList.filter(item => {
+                if (props.memberId == "") {
+                    return true;
+                } else {
+                    if (item.exec_user_id == props.memberId || item.check_user_id == props.memberId) {
+                        return true;
+                    }
+                    return false;
+                }
+            }).length == 0 ? "" : s.listWrap} extra={
+                <Form style={{ marginRight: "20px" }}>
+                    <Form.Item>
+                        <Dropdown.Button type="primary"
+                            disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                            menu={{
+                                items: [
+                                    {
+                                        key: "refTask",
+                                        label: "引用任务",
+                                        disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                        onClick: () => setRefIssueType(ISSUE_TYPE_TASK),
+                                    },
+                                ]
+                            }} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setNewIssueType(ISSUE_TYPE_TASK);
+                            }}><PlusOutlined />增加</Dropdown.Button>
+                    </Form.Item>
+                </Form>
+            }>
                 <Table
                     rowKey="issue_id"
                     dataSource={props.taskStore.itemList.filter(item => {
@@ -521,11 +582,33 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                         showExpandColumn: true,
                         expandIconColumnIndex: 1,
                         columnTitle: "子面板",
-                        columnWidth: 60,                        
+                        columnWidth: 60,
                     }}
                 />
             </Card>
-            <Card title="缺陷列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}>
+            <Card title="缺陷列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }}
+                extra={
+                    <Form style={{ marginRight: "20px" }}>
+                        <Form.Item>
+                            <Dropdown.Button type="primary"
+                                disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                                menu={{
+                                    items: [
+                                        {
+                                            key: "refBug",
+                                            label: "引用缺陷",
+                                            disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                            onClick: () => setRefIssueType(ISSUE_TYPE_BUG),
+                                        }
+                                    ]
+                                }} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setNewIssueType(ISSUE_TYPE_BUG);
+                                }}><PlusOutlined />增加</Dropdown.Button>
+                        </Form.Item>
+                    </Form>
+                }>
                 <Table
                     rowKey="issue_id"
                     dataSource={props.bugStore.itemList.filter(item => {
@@ -546,6 +629,20 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 issue={stageIssue}
                 onClose={() => setStageIssue(null)}
             />}
+            {newIssueType != null && (
+                <AddIssueModal issueType={newIssueType} onClose={() => setNewIssueType(null)} />
+            )}
+            {refIssueType != null && (
+                <AddTaskOrBug
+                    open
+                    title={refIssueType == ISSUE_TYPE_TASK ? "选择任务" : "选择缺陷"}
+                    onOK={links => linkSprit(links as LinkInfo[])}
+                    onCancel={() => setRefIssueType(null)}
+                    issueIdList={refIssueType == ISSUE_TYPE_TASK ?
+                        props.taskStore.itemList.map(item => item.issue_id) : props.bugStore.itemList.map(item => item.issue_id)}
+                    type={refIssueType == ISSUE_TYPE_TASK ? "task" : "bug"}
+                />
+            )}
         </div>
     );
 }

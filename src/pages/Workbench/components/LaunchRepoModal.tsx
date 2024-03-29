@@ -270,7 +270,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
         return pkgInfoList.find(item => item.name == pkgName)?.plugin_url ?? ""
     }
 
-    const checkDocker = async () =>{
+    const checkDocker = async () => {
         const cmd = Command.sidecar("bin/devc", ["image", "exist"]);
         const output = await cmd.execute();
         const result = JSON.parse(output.stdout) as CommandResult;
@@ -285,7 +285,8 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
         if (simpleDevInfo == null) {
             return;
         }
-        if (hasChange) {
+        console.log(simpleDevInfo);
+        if (hasChange || (simpleDevInfo.env_list.length == 0 && simpleDevInfo.extension_list.length == 0 && simpleDevInfo.forward_port_list.length == 0 && simpleDevInfo.pkg_version_list.length == 0)) {
             await save_simple_dev_info(props.repo.path, simpleDevInfo);
         }
 

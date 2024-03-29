@@ -301,13 +301,13 @@ const GitFile = (props: GitFileProps) => {
             setHover(false);
         }}>
             <Space>
-                <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontSize: "16px" }}
+                <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontSize: "16px", width: "200px", overflow: "hidden", textAlign: "left" }}
                     disabled={findWidget() == null}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                         startView();
-                    }}>{props.curFileName}</Button>
+                    }} title={props.curFileName}>{props.curFileName}</Button>
                 {hover == true && (
                     <Popover placement="bottom" trigger="click" content={
                         <div style={{ padding: "10px 10px" }}>
@@ -385,9 +385,9 @@ const WorkDir = (props: WorkDirProps) => {
                     }}>在文件管理器中打开</Button>
             }>
             <List rowKey="name" dataSource={fileEntryList} pagination={false}
-                grid={{ gutter: 16, column: 4 }}
+                grid={{ gutter: 16 }}
                 renderItem={entry => (
-                    <List.Item>
+                    <List.Item style={{ width: "250px" }}>
                         <Space style={{ fontSize: "16px" }}>
                             {entry.children != null && <FolderOutlined />}
                             {entry.children == null && <FileOutlined />}
@@ -396,7 +396,7 @@ const WorkDir = (props: WorkDirProps) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     setCurDirList([...curDirList, entry.name ?? ""]);
-                                }}>{entry.name}</a>
+                                }} title={entry.name ?? ""} style={{ display: "inline-block", width: "200px", overflow: "hidden", textAlign: "left" }}>{entry.name}</a>
                             )}
                             {entry.children == null && (
                                 <GitFile basePath={props.basePath} curDirList={curDirList} curFileName={entry.name ?? ""} widgetList={props.widgetList} />
