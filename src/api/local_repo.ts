@@ -1,6 +1,13 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { Command } from '@tauri-apps/api/shell';
 import { message } from 'antd';
+import { resolve, homeDir } from '@tauri-apps/api/path';
+import { exists as exist_path, readDir } from '@tauri-apps/api/fs';
+
+export type SshKeyPairInfo = {
+    pub_key: string;
+    priv_key: string;
+};
 
 export type LocalRepoInfo = {
     id: string;
@@ -177,6 +184,10 @@ export async function remove_repo(id: string): Promise<void> {
 
 export async function list_repo(): Promise<LocalRepoInfo[]> {
     return invoke<LocalRepoInfo[]>("plugin:local_repo|list_repo", {});
+}
+
+export async function gen_ssh_key(): Promise<SshKeyPairInfo> {
+    return invoke<SshKeyPairInfo>("plugin:local_repo|gen_ssh_key", {});
 }
 
 export async function get_repo_status(path: string): Promise<LocalRepoStatusInfo> {
@@ -446,3 +457,28 @@ export function get_host(url: string): string {
     const l = new URL(get_http_url(url));
     return l.host
 }
+
+
+export async function list_ssh_key_name(): Promise<string[]> {
+    const homePath = await homeDir();
+    const sshDirPath = await resolve(homePath, ".ssh");
+    const exist = await exist_path(sshDirPath);
+    if (!exist) {
+        return [];
+    }
+    const tmpSet: Set<string> = new Set();
+    const fileList = await readDir(sshDirPath);
+    for (const file of fileList) {
+        if (file.children == null) {
+            tmpSet.add(file.name ?? "");
+        }
+    }
+    const retList = [] as string[];
+    for (const file of tmpSet) {
+        if (tmpSet.has(file + ".pub")) {
+            retList.push(file);
+        }
+    }
+    return retList;
+}
+

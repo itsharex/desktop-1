@@ -161,6 +161,7 @@
           "**",
           "**/.env",
           "**/.simple_dev.json",
+          "$HOME/.ssh",
           "$HOME/.linksaas/**",
           "$HOME/.local/**"
         ]
