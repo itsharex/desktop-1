@@ -251,6 +251,9 @@ class NoticeStore {
       setTimeout(() => {
         appWindow.setAlwaysOnTop(false);
       }, 200);
+      if(this.rootStore.userStore.sessionId == ""){
+        return;
+      }
       const projectId = notice.GitPostHookNotice.project_id;
       if (projectId != this.rootStore.projectStore.curProjectId) {
         if (this.rootStore.appStore.inEdit) {
