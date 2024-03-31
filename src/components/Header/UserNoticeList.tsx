@@ -12,6 +12,8 @@ import { useHistory } from "react-router-dom";
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constant";
 import { MoreOutlined } from "@ant-design/icons";
 import UserPhoto from "../Portrait/UserPhoto";
+import { update_feature } from "@/api/user";
+import { sleep } from "@/utils/time";
 
 const PAGE_SIZE = 10;
 
@@ -96,6 +98,22 @@ const UserNoticeList = () => {
     };
 
     const ackJoinProject = async (projectId: string) => {
+        //调整用户feature
+        if (userStore.userInfo.featureInfo.enable_project == false || userStore.userInfo.featureInfo.enable_org == false) {
+            await request(update_feature({
+                session_id: userStore.sessionId,
+                feature: {
+                    enable_project: true,
+                    enable_org: true,
+                },
+            }));
+            userStore.updateFeature({
+                enable_project: true,
+                enable_org: true,
+            });
+            message.info("打开项目和团队功能");
+            sleep(500);
+        }
         await request(ack_join_project({
             session_id: userStore.sessionId,
             project_id: projectId,
