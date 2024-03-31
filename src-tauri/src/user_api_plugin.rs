@@ -290,7 +290,7 @@ async fn logout<R: Runtime>(
 #[tauri::command]
 async fn update<R: Runtime>(
     app_handle: AppHandle<R>,
-    _window: Window<R>,
+    window: Window<R>,
     request: UpdateRequest,
 ) -> Result<UpdateResponse, String> {
     let chan = super::get_grpc_chan(&app_handle).await;
@@ -299,7 +299,40 @@ async fn update<R: Runtime>(
     }
     let mut client = UserApiClient::new(chan.unwrap());
     match client.update(request).await {
-        Ok(response) => Ok(response.into_inner()),
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == update_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("update".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn update_feature<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: UpdateFeatureRequest,
+) -> Result<UpdateFeatureResponse, String> {
+    let chan = super::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = UserApiClient::new(chan.unwrap());
+    match client.update_feature(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == update_feature_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("update_feature".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
         Err(status) => Err(status.message().into()),
     }
 }
@@ -307,7 +340,7 @@ async fn update<R: Runtime>(
 #[tauri::command]
 async fn change_passwd<R: Runtime>(
     app_handle: AppHandle<R>,
-    _window: Window<R>,
+    window: Window<R>,
     request: ChangePasswdRequest,
 ) -> Result<ChangePasswdResponse, String> {
     let chan = super::get_grpc_chan(&app_handle).await;
@@ -316,7 +349,15 @@ async fn change_passwd<R: Runtime>(
     }
     let mut client = UserApiClient::new(chan.unwrap());
     match client.change_passwd(request).await {
-        Ok(response) => Ok(response.into_inner()),
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == change_passwd_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("change_passwd".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
         Err(status) => Err(status.message().into()),
     }
 }
@@ -333,7 +374,10 @@ async fn pre_reset_password<R: Runtime>(
     }
     let mut client = UserApiClient::new(chan.unwrap());
     match client.pre_reset_password(request).await {
-        Ok(response) => Ok(response.into_inner()),
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            return Ok(inner_resp);
+        }
         Err(status) => Err(status.message().into()),
     }
 }
@@ -350,7 +394,10 @@ async fn reset_password<R: Runtime>(
     }
     let mut client = UserApiClient::new(chan.unwrap());
     match client.reset_password(request).await {
-        Ok(response) => Ok(response.into_inner()),
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            return Ok(inner_resp);
+        }
         Err(status) => Err(status.message().into()),
     }
 }
@@ -479,6 +526,7 @@ impl<R: Runtime> UserApiPlugin<R> {
                 login,
                 logout,
                 update,
+                update_feature,
                 change_passwd,
                 pre_reset_password,
                 reset_password,

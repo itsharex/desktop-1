@@ -28,6 +28,24 @@ export type BasicUserInfo = {
   logo_uri: string;
 };
 
+export type FeatureInfo = {
+  enable_project: boolean;
+  enable_org: boolean;
+}
+
+export type UserInfo = {
+  user_id: string;
+  user_name: string;
+  basic_info: BasicUserInfo;
+  feature: FeatureInfo;
+  create_time: number;
+  update_time: number;
+  user_fs_id: string;
+  user_state: USER_STATE;
+  user_type: USER_TYPE;
+  test_account: boolean;
+};
+
 export type RegisterRequest = {
   user_name: string;
   basic_info: BasicUserInfo;
@@ -38,18 +56,6 @@ export type RegisterRequest = {
 export type RegisterResponse = {
   code: number;
   err_msg: string;
-};
-
-export type UserInfo = {
-  user_id: string;
-  user_name: string;
-  basic_info: BasicUserInfo;
-  create_time: number;
-  update_time: number;
-  user_fs_id: string;
-  user_state: USER_STATE;
-  user_type: USER_TYPE;
-  test_account: boolean;
 };
 
 export type LoginResponse = {
@@ -91,6 +97,16 @@ type CheckSessionResponse = {
   code: number;
   err_msg: string;
   valid: boolean;
+};
+
+export type UpdateFeatureRequest = {
+  session_id: string;
+  feature: FeatureInfo;
+};
+
+export type UpdateFeatureResponse = {
+  code: number;
+  err_msg: string;
 };
 
 //生成图片验证码
@@ -170,7 +186,16 @@ export async function update(
     basic_info,
   };
   console.log(`%c${cmd}`, 'color:#0f0;', request);
-  return invoke<UpdateResponse>('plugin:user_api|update', {
+  return invoke<UpdateResponse>(cmd, {
+    request,
+  });
+}
+
+//更新用户feature
+export async function update_feature(request: UpdateFeatureRequest): Promise<UpdateFeatureResponse> {
+  const cmd = 'plugin:user_api|update_feature';
+  console.log(`%c${cmd}`, 'color:#0f0;', request);
+  return invoke<UpdateResponse>(cmd, {
     request,
   });
 }
