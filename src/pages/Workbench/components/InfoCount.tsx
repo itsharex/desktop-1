@@ -4,14 +4,15 @@ import memberIcon from '@/assets/allIcon/icon-member.png';
 import { useStores } from '@/hooks';
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, Space, Switch, message } from 'antd';
 import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
-import { APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
+import { FeatureInfo, update_feature } from '@/api/user';
 
 
 const InfoCount = () => {
@@ -19,6 +20,7 @@ const InfoCount = () => {
 
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
   const appStore = useStores('appStore');
 
   const [myTodoCount, setMyTodoCount] = useState(0);
@@ -94,7 +96,7 @@ const InfoCount = () => {
         <div className={s.item}>
           <div>SSH密钥</div>
           <div>
-            <Button type='text' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+            <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
               onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -108,7 +110,7 @@ const InfoCount = () => {
           <div className={s.item}>
             <div>当前待办</div>
             <div>
-              <Button type='text' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+              <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
                 onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -124,14 +126,54 @@ const InfoCount = () => {
           <div className={s.item}>
             <div>当前项目数</div>
             <div>
-              <Button type='text' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  history.push(APP_PROJECT_MANAGER_PATH);
-                }}>
-                {projectStore.projectList.filter((item) => !item.closed).length}
-              </Button>
+              <Space>
+                <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    history.push(APP_PROJECT_MANAGER_PATH);
+                  }} disabled={!userStore.userInfo.featureInfo.enable_project}>
+                  {projectStore.projectList.filter((item) => !item.closed).length}
+                </Button>
+                <Switch size='small' checked={userStore.userInfo.featureInfo.enable_project} onChange={value => {
+                  const feature: FeatureInfo = {
+                    enable_project: value,
+                    enable_org: userStore.userInfo.featureInfo.enable_org,
+                  };
+                  request(update_feature({
+                    session_id: userStore.sessionId,
+                    feature: feature,
+                  })).then(() => userStore.updateFeature(feature));
+                }} />
+              </Space>
+            </div>
+          </div>
+        )}
+
+        {userStore.sessionId != "" && (
+          <div className={s.item}>
+            <div>当前团队数</div>
+            <div>
+              <Space>
+                <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    history.push(APP_ORG_MANAGER_PATH);
+                  }} disabled={!userStore.userInfo.featureInfo.enable_org}>
+                  {orgStore.orgList.length}
+                </Button>
+                <Switch size='small' checked={userStore.userInfo.featureInfo.enable_org} onChange={value => {
+                  const feature: FeatureInfo = {
+                    enable_project: userStore.userInfo.featureInfo.enable_project,
+                    enable_org: value,
+                  };
+                  request(update_feature({
+                    session_id: userStore.sessionId,
+                    feature: feature,
+                  })).then(() => userStore.updateFeature(feature));
+                }} />
+              </Space>
             </div>
           </div>
         )}
@@ -142,7 +184,7 @@ const InfoCount = () => {
         <MyTodoListModal onCount={value => setMyTodoCount(value)} onClose={() => setShowMyTodoModal(false)} />
       )}
       {showSshKeyModal == true && (
-        <SshKeyListModal onCount={value =>setSshKeyCount(value)} onClose={()=>setShowSshKeyModal(false)} />
+        <SshKeyListModal onCount={value => setSshKeyCount(value)} onClose={() => setShowSshKeyModal(false)} />
       )}
       {showExit == true && (
         <Modal

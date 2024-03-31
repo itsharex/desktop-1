@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, get_session, login, logout as user_logout } from '@/api/user';
+import { type FeatureInfo, type USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, get_session, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
 import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
@@ -18,6 +18,7 @@ type UserInfo = {
   testAccount: boolean;
   unReadNotice: number;
   totalNotice: number;
+  featureInfo: FeatureInfo;
 };
 
 class UserStore {
@@ -44,6 +45,10 @@ class UserStore {
     testAccount: false,
     unReadNotice: 0,
     totalNotice: 0,
+    featureInfo: {
+      enable_project: false,
+      enable_org: false,
+    },
   };
 
   // 帐号管理弹窗
@@ -92,6 +97,10 @@ class UserStore {
         testAccount: false,
         unReadNotice: 0,
         totalNotice: 0,
+        featureInfo: {
+          enable_project: false,
+          enable_org: false,
+        },
       };
     });
     sessionStorage.removeItem('sessionId');
@@ -139,6 +148,10 @@ class UserStore {
           testAccount: res.user_info.test_account,
           unReadNotice: 0,
           totalNotice: 0,
+          featureInfo: res.user_info.feature ?? {
+            enable_project: false,
+            enable_org: false,
+          },
         };
         this.rootStore.projectStore.initLoadProjectList();
         this.rootStore.orgStore.initLoadOrgList();
@@ -213,6 +226,14 @@ class UserStore {
     if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.extraToken = val;
+      });
+    }
+  }
+
+  updateFeature(val: FeatureInfo) {
+    if (this._sessionId != "" && this.userInfo) {
+      runInAction(() => {
+        this.userInfo.featureInfo = val;
       });
     }
   }
