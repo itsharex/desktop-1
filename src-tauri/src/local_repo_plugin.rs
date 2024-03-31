@@ -1,3 +1,5 @@
+use base64ct::LineEnding;
+use ssh_key::{private::{KeypairData, RsaKeypair}, PrivateKey};
 use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
@@ -11,6 +13,12 @@ pub struct LocalRepoInfo {
     pub id: String,
     pub name: String,
     pub path: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
+pub struct SshKeyPairInfo {
+    pub pub_key: String,
+    pub priv_key: String,
 }
 
 async fn load_data() -> Result<Vec<LocalRepoInfo>, String> {
@@ -100,11 +108,7 @@ async fn add_repo(id: String, name: String, path: String) -> Result<(), String> 
 }
 
 #[tauri::command]
-async fn update_repo(
-    id: String,
-    name: String,
-    path: String,
-) -> Result<(), String> {
+async fn update_repo(id: String, name: String, path: String) -> Result<(), String> {
     let repo_list = load_data().await;
     if repo_list.is_err() {
         return Err(repo_list.err().unwrap());
@@ -154,6 +158,34 @@ async fn list_repo() -> Result<Vec<LocalRepoInfo>, String> {
     return Ok(repo_list);
 }
 
+#[tauri::command]
+async fn gen_ssh_key() -> Result<SshKeyPairInfo, String> {
+    let mut rng = rand::thread_rng();
+    let key_pair = RsaKeypair::random(&mut rng, 2048);
+    if key_pair.is_err() {
+        return Err(key_pair.err().unwrap().to_string());
+    }
+    let priv_key = PrivateKey::new(KeypairData::Rsa(key_pair.unwrap()), "linksaas");
+    if priv_key.is_err() {
+        return Err(priv_key.err().unwrap().to_string());
+    }
+    let priv_key = priv_key.unwrap();
+    let priv_key_str = priv_key.to_openssh(LineEnding::CRLF);
+    if priv_key_str.is_err() {
+        return Err(priv_key_str.err().unwrap().to_string());
+    }
+    let pub_key = priv_key.public_key();
+    let pub_key_str = pub_key.to_openssh();
+    if pub_key_str.is_err() {
+        return Err(pub_key_str.err().unwrap().to_string());
+    }
+    
+    return Ok(SshKeyPairInfo{
+        priv_key: priv_key_str.unwrap().to_string(),
+        pub_key: pub_key_str.unwrap(),
+    });
+}
+
 pub struct LocalRepoPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -165,7 +197,8 @@ impl<R: Runtime> LocalRepoPlugin<R> {
                 add_repo,
                 update_repo,
                 remove_repo,
-                list_repo
+                list_repo,
+                gen_ssh_key
             ]),
         }
     }

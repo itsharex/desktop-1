@@ -10,7 +10,8 @@ import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
 import { APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
-
+import { list_ssh_key_name } from '@/api/local_repo';
+import SshKeyListModal from './SshKeyListModal';
 
 
 const InfoCount = () => {
@@ -21,7 +22,9 @@ const InfoCount = () => {
   const appStore = useStores('appStore');
 
   const [myTodoCount, setMyTodoCount] = useState(0);
+  const [sshKeyCount, setSshKeyCount] = useState(0);
   const [showMyTodoModal, setShowMyTodoModal] = useState(false);
+  const [showSshKeyModal, setShowSshKeyModal] = useState(false);
   const [showExit, setShowExit] = useState(false);
 
   const loadMyTodoCount = async () => {
@@ -34,9 +37,18 @@ const InfoCount = () => {
     setMyTodoCount(res.total_count);
   };
 
+  const loadSshKeyCount = async () => {
+    const sshKeyNameList = await list_ssh_key_name();
+    setSshKeyCount(sshKeyNameList.length);
+  };
+
   useEffect(() => {
     loadMyTodoCount();
   }, [userStore.sessionId]);
+
+  useEffect(() => {
+    loadSshKeyCount();
+  }, []);
 
   return (
     <div className={s.infoCount_wrap}>
@@ -75,8 +87,24 @@ const InfoCount = () => {
           </div>
         </div>
       </div>
-      {userStore.sessionId != "" && (
-        <div className={s.right_wrap}>
+
+
+      <div className={s.right_wrap}>
+
+        <div className={s.item}>
+          <div>SSH密钥</div>
+          <div>
+            <Button type='text' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowSshKeyModal(true);
+              }}>
+              {sshKeyCount}
+            </Button>
+          </div>
+        </div>
+        {userStore.sessionId != "" && (
           <div className={s.item}>
             <div>当前待办</div>
             <div>
@@ -90,7 +118,9 @@ const InfoCount = () => {
               </Button>
             </div>
           </div>
+        )}
 
+        {userStore.sessionId != "" && (
           <div className={s.item}>
             <div>当前项目数</div>
             <div>
@@ -104,11 +134,15 @@ const InfoCount = () => {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
 
       {showMyTodoModal == true && (
         <MyTodoListModal onCount={value => setMyTodoCount(value)} onClose={() => setShowMyTodoModal(false)} />
+      )}
+      {showSshKeyModal == true && (
+        <SshKeyListModal onCount={value =>setSshKeyCount(value)} onClose={()=>setShowSshKeyModal(false)} />
       )}
       {showExit == true && (
         <Modal
