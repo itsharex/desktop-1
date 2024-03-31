@@ -1,13 +1,15 @@
-import { Modal, Form, Input, Button, message, Radio, Progress } from "antd";
+import { Modal, Form, Input, Button, message, Radio, Progress, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import type { CloneProgressInfo } from "@/api/local_repo";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog, save as save_dialog } from '@tauri-apps/api/dialog';
-import { get_repo_status, add_repo, clone as clone_repo } from "@/api/local_repo";
+import { get_repo_status, add_repo, clone as clone_repo, list_ssh_key_name } from "@/api/local_repo";
 import { uniqId } from "@/utils/utils";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
+import { resolve } from "@tauri-apps/api/path";
+import { homeDir } from '@tauri-apps/api/path';
 
 interface AddRepoModalProps {
     remoteUrl?: string;
@@ -25,8 +27,10 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const [authType, setAuthType] = useState<"none" | "privkey" | "password">("none");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [privKey, setPrivKey] = useState("");
     const [cloneProgress, setCloneProgress] = useState<CloneProgressInfo | null>(null);
+
+    const [sshKeyNameList, setSshKeyNameList] = useState([] as string[]);
+    const [curSshKey, setCurSshKey] = useState("");
 
     const choiceLocalPath = async () => {
         if (repoType == "local") {
@@ -49,16 +53,6 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
         }
     };
 
-    const choicePrivKey = async () => {
-        const selected = await open_dialog({
-            title: "选择ssh私钥",
-        });
-        if (selected == null || Array.isArray(selected)) {
-            return;
-        }
-        setPrivKey(selected);
-    };
-
     const checkValid = () => {
         if (name == "") {
             return false;
@@ -70,7 +64,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
             if (remoteUrl == "") {
                 return false;
             }
-            if (authType == "privkey" && privKey == "") {
+            if (authType == "privkey" && curSshKey == "") {
                 return false;
             } else if (authType == "password") {
                 if (username == "" || password == "") {
@@ -95,6 +89,8 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const cloneRepo = async () => {
         setCloneProgress(null);
         try {
+            const homePath = await homeDir();
+            const privKey = await resolve(homePath, ".ssh", curSshKey);
             await clone_repo(localPath, remoteUrl, authType, username, password, privKey, info => {
                 setCloneProgress(info);
                 if (info.totalObjs == info.indexObjs) {
@@ -118,7 +114,9 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
         if (remoteUrl.startsWith("git@")) {
             setAuthType("privkey");
         } else if (remoteUrl.startsWith("http")) {
-            setAuthType("none");
+            if (authType == "privkey") {
+                setAuthType("none");
+            }
         }
     }, [remoteUrl]);
 
@@ -127,6 +125,15 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
             setUsername(userStore.userInfo.userName.substring("atomgit:".length));
         }
     }, [remoteUrl]);
+
+    useEffect(() => {
+        list_ssh_key_name().then(res => {
+            setSshKeyNameList(res);
+            if (res.length > 0) {
+                setCurSshKey(res[0]);
+            }
+        });
+    }, []);
 
     return (
         <Modal open title={repoType == "local" ? "添加本地仓库" : "克隆远程仓库"}
@@ -187,16 +194,19 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                 </Form.Item>
                 {repoType == "remote" && (
                     <>
-                        <Form.Item label="验证方式">
-                            <Radio.Group value={authType} onChange={e => {
-                                e.stopPropagation();
-                                setAuthType(e.target.value);
-                            }}>
-                                <Radio value="none">无需验证</Radio>
-                                <Radio value="password">账号密码</Radio>
-                                <Radio value="privkey">SSH公钥</Radio>
-                            </Radio.Group>
-                        </Form.Item>
+                        {(remoteUrl.startsWith("git@") || remoteUrl.startsWith("http")) && (
+                            <Form.Item label="验证方式">
+                                <Radio.Group value={authType} onChange={e => {
+                                    e.stopPropagation();
+                                    setAuthType(e.target.value);
+                                }}>
+                                    <Radio value="none" disabled={remoteUrl.startsWith("git@")}>无需验证</Radio>
+                                    <Radio value="password" disabled={remoteUrl.startsWith("git@")}>账号密码</Radio>
+                                    <Radio value="privkey" disabled={remoteUrl.startsWith("http")}>SSH公钥</Radio>
+                                </Radio.Group>
+                            </Form.Item>
+                        )}
+
                         {authType == "password" && (
                             <>
                                 <Form.Item label="账号">
@@ -217,16 +227,11 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                         )}
                         {authType == "privkey" && (
                             <Form.Item label="SSH密钥">
-                                <Input value={privKey} onChange={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setPrivKey(e.target.value);
-                                }}
-                                    addonAfter={<Button type="link" style={{ height: 20 }} icon={<FolderOpenOutlined />} onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        choicePrivKey();
-                                    }} />} />
+                                <Select value={curSshKey} onChange={key => setCurSshKey(key)}>
+                                    {sshKeyNameList.map(sshName => (
+                                        <Select.Option key={sshName} value={sshName}>{sshName}</Select.Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         )}
                         {cloneProgress != null && (
