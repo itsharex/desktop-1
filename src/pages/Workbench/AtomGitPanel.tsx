@@ -135,7 +135,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "工单列表",
                                     children: (
                                         <>
-                                            {activeKey == "issue" && <AtomGitIssueList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
+                                            {activeKey == "issue" && <AtomGitIssueList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -144,7 +144,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "分支列表",
                                     children: (
                                         <>
-                                            {activeKey == "branch" && <AtomGitBranchList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
+                                            {activeKey == "branch" && <AtomGitBranchList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -153,7 +153,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "标签列表",
                                     children: (
                                         <>
-                                            {activeKey == "tag" && <AtomGitTagList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId}/>}
+                                            {activeKey == "tag" && <AtomGitTagList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -162,7 +162,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                 </>
             )}
             {cloneUrl != "" && (
-                <AddRepoModal remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
+                <AddRepoModal name={props.repoInfo?.name ?? ""} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
                     onOk={() => {
                         findLocalRepo();
                         setCloneUrl("");

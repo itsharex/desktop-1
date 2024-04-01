@@ -19,6 +19,8 @@ import { USER_TYPE_ATOM_GIT } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
+import { list_config } from '@/api/local_repo';
+import GitConfigModal from './components/GitConfigModal';
 
 
 const Workbench: React.FC = () => {
@@ -36,7 +38,22 @@ const Workbench: React.FC = () => {
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
   const [repoDataVersion, setRepoDataVersion] = useState(0);
   const [showResetDevModal, setShowResetDevModal] = useState(false);
+  const [hasGitConfig, setHasGitConfig] = useState(false); //是否配置了user.name和user.email
+  const [showGitConfigModal, setShowGitConfigModal] = useState(false);
 
+  const checkGitConfig = async () => {
+    let name = "";
+    let email = "";
+    const cfgItemList = await list_config();
+    for (const cfgItem of cfgItemList) {
+      if (cfgItem.name == "user.name") {
+        name = cfgItem.value;
+      } else if (cfgItem.name == "user.email") {
+        email = cfgItem.value;
+      }
+    }
+    setHasGitConfig(name != "" && email != "");
+  };
 
   useMemo(() => {
     projectStore.setCurProjectId('');
@@ -48,6 +65,10 @@ const Workbench: React.FC = () => {
       history.push(`${WORKBENCH_PATH}?tab=localRepo`);
     }
   }, [userStore.sessionId]);
+
+  useEffect(() => {
+    checkGitConfig();
+  }, []);
 
   return (
     <div className={s.workbench_wrap}>
@@ -71,6 +92,13 @@ const Workbench: React.FC = () => {
             )}
             {tab == "localRepo" && (
               <Space>
+                {hasGitConfig == false && (
+                  <Button type="text" onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setShowGitConfigModal(true);
+                  }}>未配置git用户</Button>
+                )}
                 <Button style={{ marginRight: "20px" }} onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -79,13 +107,18 @@ const Workbench: React.FC = () => {
                   添加代码仓库
                 </Button>
                 <Popover trigger="click" placement="bottom" content={
-                  <div style={{ padding: "10px 10px" }}>
+                  <Space direction="vertical" style={{ padding: "10px 10px" }}>
                     <Button type="link" onClick={e => {
                       e.stopPropagation();
                       e.preventDefault();
                       setShowResetDevModal(true);
                     }}>重置研发环境</Button>
-                  </div>
+                    <Button type="link" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setShowGitConfigModal(true);
+                    }}>配置git用户</Button>
+                  </Space>
                 }>
                   <MoreOutlined style={{ marginRight: "32px" }} />
                 </Popover>
@@ -169,7 +202,12 @@ const Workbench: React.FC = () => {
       {showResetDevModal == true && (
         <ResetDevModal onClose={() => setShowResetDevModal(false)} />
       )}
-
+      {showGitConfigModal == true && (
+        <GitConfigModal onCancel={() => setShowGitConfigModal(false)} onOk={() => {
+          setShowGitConfigModal(false);
+          checkGitConfig();
+        }} />
+      )}
     </div>
   );
 };

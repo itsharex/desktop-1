@@ -115,7 +115,7 @@ const InfoCount = () => {
                   e.stopPropagation();
                   e.preventDefault();
                   setShowMyTodoModal(true);
-                }}>
+                }} disabled={!userStore.userInfo.featureInfo.enable_project}>
                 {myTodoCount}
               </Button>
             </div>

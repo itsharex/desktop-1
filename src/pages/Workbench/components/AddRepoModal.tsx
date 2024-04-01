@@ -12,6 +12,7 @@ import { resolve } from "@tauri-apps/api/path";
 import { homeDir } from '@tauri-apps/api/path';
 
 interface AddRepoModalProps {
+    name?: string;
     remoteUrl?: string;
     onCancel: () => void;
     onOk: () => void;
@@ -20,7 +21,7 @@ interface AddRepoModalProps {
 const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const userStore = useStores('userStore');
 
-    const [name, setName] = useState("");
+    const [name, setName] = useState(props.name ?? "");
     const [repoType, setRepoType] = useState<"local" | "remote">(props.remoteUrl == undefined ? "local" : "remote");
     const [remoteUrl, setRemoteUrl] = useState(props.remoteUrl ?? "");
     const [localPath, setLocalPath] = useState("");
@@ -160,7 +161,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setName(e.target.value);
-                    }} />
+                    }} placeholder="请输入项目名称"/>
                 </Form.Item>
                 <Form.Item label="仓库类型">
                     <Radio.Group value={repoType} onChange={e => {
@@ -177,7 +178,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoteUrl(e.target.value.trim());
-                        }} disabled={props.remoteUrl != undefined} />
+                        }} disabled={props.remoteUrl != undefined} placeholder="请输入远程仓库地址"/>
                     </Form.Item>
                 )}
                 <Form.Item label="本地路径">
@@ -190,7 +191,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             choiceLocalPath();
-                        }} />} />
+                        }} />} placeholder="请输入本地路径"/>
                 </Form.Item>
                 {repoType == "remote" && (
                     <>
@@ -214,14 +215,14 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setUsername(e.target.value.trim());
-                                    }} />
+                                    }} placeholder="请输入远程Git仓库账号"/>
                                 </Form.Item>
                                 <Form.Item label="密码">
                                     <Input.Password value={password} onChange={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setPassword(e.target.value.trim());
-                                    }} />
+                                    }} placeholder="请输入账号密码或双重认证密码"/>
                                 </Form.Item>
                             </>
                         )}
