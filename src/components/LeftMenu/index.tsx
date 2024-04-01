@@ -54,10 +54,15 @@ const LeftMenu: React.FC = () => {
           <img src={workbench_icon} alt="" className={cls.workbench_icon} />
           工作台
         </div>
-        {userStore.sessionId != "" && (
+        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_project && (
           <>
             <div style={{ borderBottom: "2px dotted #333", margin: "5px 24px", paddingTop: "5px" }} />
             <ProjectList />
+          </>
+        )}
+
+        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_org && (
+          <>
             <div style={{ borderTop: "2px dotted #333", margin: "5px 24px", paddingTop: "5px" }} />
             <OrgList />
           </>

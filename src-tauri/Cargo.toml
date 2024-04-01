@@ -7,7 +7,7 @@ license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.7.46"
+version = "0.7.47"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -29,7 +29,7 @@ libaes = "0.6.5"
 local_api_rust = {git = "https://atomgit.com/openlinksaas/local-api-rust.git", tag = "0.1.20"}
 mktemp = "0.5.0"
 prost = "0.9.0"
-proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.21"}
+proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.22"}
 rand = "0.8.5"
 regex = "1.8.4"
 reqwest = {version = "0.11.12", features = ["blocking"] }
@@ -39,9 +39,9 @@ rust-string-random = "0.1.0"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.19"
-signature = "1.6.4"
+signature = "2.2.0"
 sled = "0.34.7"
-ssh-key = {version = "0.5.1", features = ["alloc", "rsa", "dsa", "p256", "p384"] }
+ssh-key = {version = "0.6.5", features = ["alloc", "rsa", "dsa", "p256", "p384"] }
 substring = "1.4.5"
 swagger = {version = "6.1", features = ["serdejson", "server", "client", "tls", "tcp"] }
 tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v3", features = [ "updater", "path-all", "fs-all",
@@ -68,6 +68,7 @@ tonic = "0.6.2"
 url = "2.2.2"
 uuid = {version = "0.8", features = ["serde", "v4"] }
 walkdir = "2.3.2"
+base64ct = "1.6.0"
 
 [features]
 # by default Tauri runs in production mode
