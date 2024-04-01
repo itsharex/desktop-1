@@ -160,6 +160,11 @@ export type CommitGraphInfo = {
     stats: unknown; //特殊处理，不计算，太消耗计算时间
 };
 
+export type GitConfigItem = {
+    name: string;
+    value: string;
+}
+
 export async function add_repo(id: string, name: string, path: string): Promise<void> {
     return invoke<void>("plugin:local_repo|add_repo", {
         id,
@@ -426,6 +431,24 @@ export async function remove_from_index(path: string, filePathList: string[]): P
 
 export async function run_commit(path: string, msg: string): Promise<void> {
     const command = Command.sidecar('bin/gitspy', ["--git-path", path, "commit", msg]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return;
+}
+
+export async function list_config(): Promise<GitConfigItem[]> {
+    const command = Command.sidecar('bin/gitspy', ["--git-path", ".", "list-config"]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return JSON.parse(result.stdout);
+}
+
+export async function set_config(name: string, value: string): Promise<void> {
+    const command = Command.sidecar('bin/gitspy', ["--git-path", ".", "set-config", name, value]);
     const result = await command.execute();
     if (result.code != 0) {
         throw new Error(result.stderr);
