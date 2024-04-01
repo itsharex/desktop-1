@@ -84,7 +84,7 @@ const LoginModal = () => {
                             </Space>
                         </Tabs.TabPane>
                     )}
-                    <Tabs.TabPane tab="账号密码" key="password">
+                    <Tabs.TabPane tab="内部账号" key="password">
                         <Form labelCol={{ span: 3 }}>
                             <Form.Item label="用户名">
                                 <Input value={userName} onChange={e => {
