@@ -391,6 +391,33 @@ export async function fetch_remote(path: string, remoteName: string, authType: s
     await command.spawn();
 }
 
+export async function run_push(path: string, remoteName: string, branch: string, authType: string, username: string, password: string, privKey: string): Promise<void> {
+    const args = ["--git-path", path, "push", "--auth-type", authType];
+    if (authType == "privkey") {
+        args.push(...["--priv-key", privKey]);
+    } else if (authType == "password") {
+        args.push(...["--username", username, "--password", password]);
+    }
+    args.push(remoteName);
+    args.push(branch);
+
+    const command = Command.sidecar('bin/gitspy', args);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return;
+}
+
+export async function run_pull(path: string, remoteName: string, branch: string): Promise<void> {
+    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "pull", remoteName, branch]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return;
+}
+
 export async function get_git_info(path: string): Promise<GitInfo> {
     const command = Command.sidecar('bin/gitspy', ["--git-path", path, "info"]);
     const result = await command.execute();
@@ -400,6 +427,15 @@ export async function get_git_info(path: string): Promise<GitInfo> {
     const retItem = JSON.parse(result.stdout) as GitInfo;
     retItem.tag_list = retItem.tag_list.map(item => ({ ...item, name: item.name.startsWith("refs/tags/") ? item.name.substring("refs/tags/".length) : item.name }));
     return retItem;
+}
+
+export async function get_head_info(path: string): Promise<HeadInfo> {
+    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "head"]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return JSON.parse(result.stdout) as HeadInfo;
 }
 
 export async function list_commit_graph(path: string, commitId: string): Promise<CommitGraphInfo[]> {

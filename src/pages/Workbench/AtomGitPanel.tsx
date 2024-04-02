@@ -6,11 +6,12 @@ import { list_user_repo, list_org_repo } from "@/api/atomgit/repo";
 import { DownOutlined, ExportOutlined, FilterFilled, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { list_repo as list_local_repo, list_remote as list_local_remote } from "@/api/local_repo";
-import { WebviewWindow, appWindow } from "@tauri-apps/api/window";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
 import { AtomGitBranchList, AtomGitIssueList, AtomGitTagList } from "./components/AtomGitList";
 import { type AtomGitOrg, list_user_org } from "@/api/atomgit/org";
+import { useHistory } from "react-router-dom";
+import { WORKBENCH_PATH } from "@/utils/constant";
 
 
 interface AtomGitRepoPanelProps {
@@ -19,6 +20,8 @@ interface AtomGitRepoPanelProps {
 }
 
 const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
+    const history = useHistory();
+
     const [localRepo, setLocalRepo] = useState<LocalRepoInfo | null>(null);
     const [cloneUrl, setCloneUrl] = useState("");
     const [showLaunchRepo, setShowLaunchRepo] = useState(false);
@@ -39,31 +42,6 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                 }
             }
         }
-    };
-
-    const openGitPro = async () => {
-        if (localRepo == null) {
-            return;
-        }
-        const label = `gitpro:${localRepo.id}`;
-        const view = WebviewWindow.getByLabel(label);
-        if (view != null) {
-            message.warn("已打开窗口");
-            return;
-        }
-        const pos = await appWindow.innerPosition();
-        new WebviewWindow(label, {
-            url: `gitpro.html?id=${encodeURIComponent(localRepo.id)}`,
-            width: 1300,
-            minWidth: 1300,
-            height: 800,
-            minHeight: 800,
-            center: true,
-            title: `${localRepo.name}(${localRepo.path})`,
-            resizable: true,
-            x: pos.x + Math.floor(Math.random() * 200),
-            y: pos.y + Math.floor(Math.random() * 200),
-        });
     };
 
     useEffect(() => {
@@ -87,7 +65,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                         <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
-                                            openGitPro();
+                                            history.push(`${WORKBENCH_PATH}?tab=localRepo&repoId=${localRepo.id}`);
                                         }}>查看本地仓库<ExportOutlined /></Button>
                                         <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                             e.stopPropagation();
