@@ -1,11 +1,9 @@
-import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Table, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider, Breadcrumb } from "antd";
+import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider } from "antd";
 import React, { useEffect, useState } from "react";
-import type { LocalRepoInfo, LocalRepoStatusInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoCommitInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
-import { list_repo, remove_repo, get_repo_status, list_repo_branch, list_repo_tag, list_repo_commit, analyse, list_remote, get_http_url } from "@/api/local_repo";
-import { open as open_dir } from '@tauri-apps/api/shell';
-import { BranchesOutlined, ExportOutlined, FileOutlined, FolderOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
+import type { LocalRepoInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo, HeadInfo } from "@/api/local_repo";
+import { list_repo, remove_repo, list_repo_branch, list_repo_tag, analyse, list_remote, get_http_url, get_head_info } from "@/api/local_repo";
+import { BranchesOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
 import SetLocalRepoModal from "./components/SetLocalRepoModal";
-import type { ColumnsType } from 'antd/lib/table';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import moment, { type Moment } from "moment";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
@@ -14,14 +12,14 @@ import { observer } from "mobx-react";
 import { get_git_hook, set_git_hook } from "@/api/project_tool";
 import { open as shell_open } from '@tauri-apps/api/shell';
 import LaunchRepoModal from "./components/LaunchRepoModal";
-import { readDir, type FileEntry } from '@tauri-apps/api/fs';
-import { resolve } from '@tauri-apps/api/path';
-import OpenGitFileModal from "./components/OpenGitFileModal";
-import { start, list_widget, type WidgetInfo } from "@/api/widget";
+import { list_widget, type WidgetInfo } from "@/api/widget";
 import { request } from "@/utils/request";
-import { download_file, get_cache_file, GLOBAL_WIDGET_STORE_FS_ID } from "@/api/fs";
-import { check_unpark, get_min_app_path, unpack_min_app } from '@/api/min_app';
-import { uniqId } from "@/utils/utils";
+import CommitList from "./components/repo/CommitList";
+import { useLocation } from "react-router-dom";
+import ChangeFileList from "./components/repo/ChangeFileList";
+import WorkDir from "./components/repo/WorkDir";
+import ChangeBranchModal from "./components/repo/ChangeBranchModal";
+import CreateBranchModal from "./components/repo/CreateBranchModal";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -233,215 +231,24 @@ const AnalyseRepoModal: React.FC<AnalyseRepoModalProps> = (props) => {
     );
 };
 
-interface GitFileProps {
-    basePath: string;
-    curDirList: string[];
-    curFileName: string;
-    widgetList: WidgetInfo[];
-}
-
-const GitFile = (props: GitFileProps) => {
-    const userStore = useStores('userStore');
-
-    const [showModal, setShowModal] = useState(false);
-    const [hover, setHover] = useState(false);
-
-    const findWidget = (): WidgetInfo | null => {
-        for (const widget of props.widgetList) {
-            if (widget.file_list.includes(props.curFileName)) {
-                return widget;
-            }
-        }
-        const pos = props.curFileName.lastIndexOf(".")
-        if (pos == -1) {
-            return null;
-        }
-        const ext = props.curFileName.substring(pos + 1);
-        for (const widget of props.widgetList) {
-            if (widget.extension_list.includes(ext)) {
-                return widget;
-            }
-        }
-        return null;
-    }
-
-    const startView = async () => {
-        const widget = findWidget();
-        if (widget == null) {
-            return;
-        }
-        //下载文件
-        const res = await get_cache_file(GLOBAL_WIDGET_STORE_FS_ID, widget.file_id, "content.zip");
-        let localFilePath = "";
-        if (res.exist_in_local) {
-            localFilePath = res.local_path;
-        }
-        if (localFilePath == "") {
-            const downloadRes = await download_file(userStore.sessionId, GLOBAL_WIDGET_STORE_FS_ID, widget.file_id, "", "content.zip");
-            localFilePath = downloadRes.local_path;
-        }
-        //解压文件
-        const ok = await check_unpark(GLOBAL_WIDGET_STORE_FS_ID, widget.file_id);
-        if (!ok) {
-            await unpack_min_app(GLOBAL_WIDGET_STORE_FS_ID, widget.file_id, "");
-        }
-        const path = await get_min_app_path(GLOBAL_WIDGET_STORE_FS_ID, widget.file_id);
-        const filePath = await resolve(props.basePath, ...props.curDirList, props.curFileName);
-        await start(`gw:${uniqId()}`, filePath, path, filePath);
-    };
-
-    return (
-        <div onMouseEnter={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            setHover(true);
-        }} onMouseLeave={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            setHover(false);
-        }}>
-            <Space>
-                <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontSize: "16px", width: "200px", overflow: "hidden", textAlign: "left" }}
-                    disabled={findWidget() == null}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        startView();
-                    }} title={props.curFileName}>{props.curFileName}</Button>
-                {hover == true && (
-                    <Popover placement="bottom" trigger="click" content={
-                        <div style={{ padding: "10px 10px" }}>
-                            <a onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setShowModal(true);
-                            }}>选择打开方式</a>
-                        </div>
-                    }>
-                        <MoreOutlined />
-                    </Popover>
-                )}
-            </Space>
-            {showModal == true && (
-                <OpenGitFileModal basePath={props.basePath} curDirList={props.curDirList} curFileName={props.curFileName}
-                    onClose={() => setShowModal(false)} widgetList={props.widgetList} />
-            )}
-        </div>
-    );
-};
-
-interface WorkDirProps {
-    basePath: string;
-    widgetList: WidgetInfo[];
-}
-
-const WorkDir = (props: WorkDirProps) => {
-    const [curDirList, setCurDirList] = useState([] as string[]);
-    const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
-
-    const loadFileEntryList = async () => {
-        const path = await resolve(props.basePath, ...curDirList);
-        const tmpList = await readDir(path);
-        setFileEntryList(tmpList.filter(item => item.name != null && item.name != ".git"));
-    };
-
-    useEffect(() => {
-        loadFileEntryList();
-    }, [curDirList]);
-
-    return (
-        <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
-            headStyle={{ backgroundColor: "#eee" }}
-            title={
-                <Breadcrumb>
-                    <Breadcrumb.Item>
-                        <Button type="link" disabled={curDirList.length == 0} onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setCurDirList([]);
-                        }}>
-                            根目录
-                        </Button>
-                    </Breadcrumb.Item>
-                    {curDirList.map((name, index) => (
-                        <Breadcrumb.Item key={index}>
-                            <Button type="link" disabled={(index + 1) == curDirList.length}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setCurDirList(curDirList.slice(0, index + 1));
-                                }}>
-                                {name}
-                            </Button>
-                        </Breadcrumb.Item>
-                    ))}
-                </Breadcrumb>
-            } extra={
-                <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        resolve(props.basePath, ...curDirList).then(path => open_dir(path));
-                    }}>在文件管理器中打开</Button>
-            }>
-            <List rowKey="name" dataSource={fileEntryList} pagination={false}
-                grid={{ gutter: 16 }}
-                renderItem={entry => (
-                    <List.Item style={{ width: "250px" }}>
-                        <Space style={{ fontSize: "16px" }}>
-                            {entry.children != null && <FolderOutlined />}
-                            {entry.children == null && <FileOutlined />}
-                            {entry.children != null && (
-                                <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setCurDirList([...curDirList, entry.name ?? ""]);
-                                }} title={entry.name ?? ""} style={{ display: "inline-block", width: "200px", overflow: "hidden", textAlign: "left" }}>{entry.name}</a>
-                            )}
-                            {entry.children == null && (
-                                <GitFile basePath={props.basePath} curDirList={curDirList} curFileName={entry.name ?? ""} widgetList={props.widgetList} />
-                            )}
-                        </Space>
-                    </List.Item>
-                )} />
-
-        </Card>
-    );
-};
 
 interface LocalRepoPanelProps {
     repoVersion: number;
+    headBranch: string;
     repo: LocalRepoInfo;
 }
 
 const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
-    const [status, setStatus] = useState<LocalRepoStatusInfo | null>(null);
     const [remoteList, setRemoteList] = useState<LocalRepoRemoteInfo[]>([]);
     const [branchList, setBranchList] = useState<LocalRepoBranchInfo[]>([]);
     const [tagList, setTagList] = useState<LocalRepoTagInfo[]>([]);
-    const [commitList, setCommitList] = useState<LocalRepoCommitInfo[]>([]);
-    const [filterCommiter, setFilterCommiter] = useState("");
-    const [filterBranch, setFilterBranch] = useState("");
-    const [commiterList, setCommiterList] = useState<string[]>([]);
     const [activeKey, setActiveKey] = useState("workDir");
     const [widgetList, setWidgetList] = useState<WidgetInfo[]>([]);
 
-    const loadCommitList = async (branch: string) => {
-        const commitRes = await list_repo_commit(props.repo.path, `refs/heads/${branch}`);
-        setCommitList(commitRes);
-        const tmpList: string[] = [];
-        for (const commit of commitRes) {
-            if (!tmpList.includes(commit.commiter)) {
-                tmpList.push(commit.commiter);
-            }
-        }
-        setCommiterList(tmpList);
-    };
+    const [createBranchFrom, setCreateBranchFrom] = useState("");
 
     const loadRepoInfo = async () => {
         try {
-            const statusRes = await get_repo_status(props.repo.path);
-            setStatus(statusRes);
             const branchRes = await list_repo_branch(props.repo.path);
             setBranchList(branchRes);
             const tagRes = await list_repo_tag(props.repo.path);
@@ -449,9 +256,6 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             if (branchRes.length == 0) {
                 return;
             }
-            const branch = branchRes.map(item => item.name).includes(statusRes.head) ? statusRes.head : branchRes[0].name;
-            setFilterBranch(branch);
-            await loadCommitList(branch);
             const remoteRes = await list_remote(props.repo.path);
             setRemoteList(remoteRes);
         } catch (e) {
@@ -465,20 +269,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
         setWidgetList(res.widget_list.sort((a, b) => b.weight - a.weight));
     };
 
-    const reloadStatus = async () => {
-        const statusRes = await get_repo_status(props.repo.path);
-        setStatus(statusRes);
-    };
 
-    const openCommitDiff = async (row: LocalRepoCommitInfo) => {
-        const pos = await appWindow.innerPosition();
-        new WebviewWindow(`commit:${row.id}`, {
-            url: `git_diff.html?path=${encodeURIComponent(props.repo.path)}&commitId=${row.id}&summary=${encodeURIComponent(row.summary)}&commiter=${encodeURIComponent(row.commiter)}`,
-            title: `${props.repo.name}(commit:${row.id.substring(0, 8)})`,
-            x: pos.x + Math.floor(Math.random() * 200),
-            y: pos.y + Math.floor(Math.random() * 200),
-        })
-    };
 
     const openBranchDiff = async (item: LocalRepoBranchInfo) => {
         const pos = await appWindow.innerPosition();
@@ -500,37 +291,6 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
         });
     };
 
-    const columns: ColumnsType<LocalRepoCommitInfo> = [
-        {
-            title: "",
-            width: 60,
-            render: (_, row: LocalRepoCommitInfo) => (
-                <span title={row.id}>{row.id.substring(0, 8)}</span>
-            ),
-        },
-        {
-            title: "提交备注",
-            width: 200,
-            render: (_, row: LocalRepoCommitInfo) => (
-                <a onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    openCommitDiff(row);
-                }}>{row.summary}</a>
-            ),
-        },
-        {
-            title: "提交时间",
-            width: 100,
-            render: (_, row: LocalRepoCommitInfo) => `${moment(row.time_stamp).format("YYYY-MM-DD HH:mm")}`,
-        },
-        {
-            title: "提交者",
-            width: 100,
-            render: (_, row: LocalRepoCommitInfo) => `${row.commiter}(${row.email})`,
-        }
-    ];
-
     useEffect(() => {
         loadRepoInfo();
     }, [props.repo.path, props.repoVersion]);
@@ -541,66 +301,50 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
 
     return (
         <Tabs type="card" tabPosition="left" key={props.repo.id} activeKey={activeKey} onChange={key => {
-            if (key == "status") {
-                reloadStatus();
-            }
             setActiveKey(key);
         }}>
             <Tabs.TabPane tab="工作目录" key="workDir">
-                <WorkDir basePath={props.repo.path} widgetList={widgetList} />
+                <WorkDir basePath={props.repo.path} widgetList={widgetList} headBranch={props.headBranch} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交列表" key="commitList">
                 {activeKey == "commitList" && (
-                    <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll" }} headStyle={{ backgroundColor: "#eee" }}
-                        extra={
-                            <Form layout="inline">
-                                <Form.Item label="分支">
-                                    <Select value={filterBranch} onChange={value => {
-                                        setFilterBranch(value);
-                                        loadCommitList(value);
-                                    }} style={{ width: "150px" }}>
-                                        {branchList.map(branch => (
-                                            <Select.Option key={branch.name} value={branch.name}>{branch.name}</Select.Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="提交用户">
-                                    <Select value={filterCommiter} onChange={value => setFilterCommiter(value)} style={{ width: "100px" }}>
-                                        <Select.Option value="">全部</Select.Option>
-                                        {commiterList.map(commiter => (
-                                            <Select.Option key={commiter} value={commiter}>{commiter}</Select.Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            </Form>
-                        }>
-                        <Table rowKey="id" dataSource={commitList.filter(commit => {
-                            if (filterCommiter == "") {
-                                return true;
-                            } else {
-                                return commit.commiter == filterCommiter;
-                            }
-                        })} columns={columns} pagination={{ pageSize: 10, showSizeChanger: false }} />
-                    </Card>
+                    <CommitList repo={props.repo} branchList={branchList} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
                 {activeKey == "branchList" && (
-                    <List rowKey="name" dataSource={branchList} renderItem={item => (
-                        <List.Item style={{ display: "block" }}>
-                            <Space size="small">
-                                <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                            </Space>
-                            <br />
-                            <Space size="small">
-                                <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    openBranchDiff(item);
-                                }}>{item.commit_summary}</a>
-                            </Space>
-                        </List.Item>
-                    )} />
+                    <>
+                        <List rowKey="name" dataSource={branchList} renderItem={item => (
+                            <List.Item style={{ display: "block" }}>
+                                <Space size="small">
+                                    <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                                    {item.upstream != "" && (
+                                        <span>({item.upstream})</span>
+                                    )}
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setCreateBranchFrom(item.name);
+                                    }}>创建分支</a>
+                                </Space>
+                                <br />
+                                <Space size="small">
+                                    <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        openBranchDiff(item);
+                                    }}>{item.commit_summary}</a>
+                                </Space>
+                            </List.Item>
+                        )} />
+                        {createBranchFrom != "" && (
+                            <CreateBranchModal repo={props.repo} fromBranch={createBranchFrom} 
+                            onCancel={()=>setCreateBranchFrom("")} onOk={()=>{
+                                setCreateBranchFrom("");
+                                loadRepoInfo();
+                            }}/>
+                        )}
+                    </>
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -622,20 +366,9 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
                     )} />
                 )}
             </Tabs.TabPane>
-            <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+            <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
                 {activeKey == "status" && (
-                    <List rowKey="path" dataSource={status?.path_list ?? []} renderItem={item => (
-                        <List.Item >
-                            <div style={{ display: "flex", width: "100%" }}>
-                                <div style={{ flex: 1 }}>
-                                    {item.path}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    {item.status.join(",")}
-                                </div>
-                            </div>
-                        </List.Item>
-                    )} />
+                    <ChangeFileList repo={props.repo} onCommit={() => loadRepoInfo()} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -667,19 +400,42 @@ interface LocalRepoListProps {
     onChange: () => void;
 }
 
+interface LocalRepoInfoWithHead {
+    id: string;
+    repoInfo: LocalRepoInfo;
+    headInfo: HeadInfo;
+}
+
 const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
-    const [repoList, setRepoList] = useState<LocalRepoInfo[]>([]);
-    const [activeKey, setActiveKey] = useState("");
+    const location = useLocation();
+    const urlParams = new URLSearchParams(location.search);
+    const repoId = urlParams.get('repoId') ?? "";
+
+    const [repoList, setRepoList] = useState<LocalRepoInfoWithHead[]>([]);
+    const [activeKey, setActiveKey] = useState(repoId);
     const [editRepo, setEditRepo] = useState<LocalRepoInfo | null>(null);
     const [analyseRepo, setAnalyseRepo] = useState<LocalRepoInfo | null>(null);
     const [linkProjectRepo, setLinkProjectRepo] = useState<LocalRepoInfo | null>(null);
     const [launchRepo, setLaunchRepo] = useState<LocalRepoInfo | null>(null);
+    const [selRepoBranchInfo, setSelRepoBranchInfo] = useState<LocalRepoInfoWithHead | null>(null);
 
     const loadRepoList = async () => {
         try {
             const res = await list_repo();
-            setRepoList(res);
-            console.log(res);
+            const tmpList = [] as LocalRepoInfoWithHead[];
+            for (const repo of res) {
+                try {
+                    const headInfo = await get_head_info(repo.path);
+                    tmpList.push({
+                        id: repo.id,
+                        repoInfo: repo,
+                        headInfo: headInfo,
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            setRepoList(tmpList);
         } catch (e) {
             console.log(e);
             message.error(`${e}`);
@@ -696,26 +452,15 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
         }
     };
 
-    const openGitPro = async (repo: LocalRepoInfo) => {
-        const label = `gitpro:${repo.id}`;
-        const view = WebviewWindow.getByLabel(label);
-        if (view != null) {
-            message.warn("已打开窗口");
+    const updateRepoHeadInfo = async (repoId: string) => {
+        const tmpList = repoList.slice();
+        const index = tmpList.findIndex(item => item.id == repoId);
+        if (index == -1) {
             return;
         }
-        const pos = await appWindow.innerPosition();
-        new WebviewWindow(label, {
-            url: `gitpro.html?id=${encodeURIComponent(repo.id)}`,
-            width: 1300,
-            minWidth: 1300,
-            height: 800,
-            minHeight: 800,
-            center: true,
-            title: `${repo.name}(${repo.path})`,
-            resizable: true,
-            x: pos.x + Math.floor(Math.random() * 200),
-            y: pos.y + Math.floor(Math.random() * 200),
-        });
+        const headInfo = await get_head_info(tmpList[index].repoInfo.path);
+        tmpList[index].headInfo = headInfo;
+        setRepoList(tmpList);
     };
 
     useEffect(() => {
@@ -733,18 +478,23 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                     }
                 }}>
                     {repoList.map(repo => (
-                        <Collapse.Panel key={repo.id} header={<span>{repo.name}({repo.path})</span>}
+                        <Collapse.Panel key={repo.id} header={<span>{repo.repoInfo.name}({repo.repoInfo.path})
+                            {repo.headInfo.branch_name != "" && (
+                                <a style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px" }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSelRepoBranchInfo(repo);
+                                    }}>{repo.headInfo.branch_name}</a>
+                            )}
+
+                        </span>}
                             extra={
                                 <Space size="middle">
                                     <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
-                                        openGitPro(repo);
-                                    }}>专家模式<ExportOutlined /></Button>
-                                    <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setLaunchRepo(repo);
+                                        setLaunchRepo(repo.repoInfo);
                                     }}>启动开发环境</Button>
                                     <div onClick={e => {
                                         e.stopPropagation();
@@ -757,7 +507,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                                         <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
                                                             e.stopPropagation();
                                                             e.preventDefault();
-                                                            setAnalyseRepo(repo);
+                                                            setAnalyseRepo(repo.repoInfo);
                                                         }}>
                                                             统计数据
                                                         </Button>
@@ -771,14 +521,14 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                                         <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
                                                             e.stopPropagation();
                                                             e.preventDefault();
-                                                            setLinkProjectRepo(repo);
+                                                            setLinkProjectRepo(repo.repoInfo);
                                                         }}>
                                                             关联项目
                                                         </Button>
                                                         <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
                                                             e.stopPropagation();
                                                             e.preventDefault();
-                                                            setEditRepo(repo);
+                                                            setEditRepo(repo.repoInfo);
                                                         }}>
                                                             修改设置
                                                         </Button>
@@ -799,7 +549,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                 </Space>
                             }>
                             {activeKey == repo.id && (
-                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo} key={repo.id} />
+                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name} />
                             )}
                         </Collapse.Panel>
                     ))}
@@ -819,6 +569,14 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
             )}
             {launchRepo !== null && (
                 <LaunchRepoModal repo={launchRepo} onClose={() => setLaunchRepo(null)} />
+            )}
+            {selRepoBranchInfo != null && (
+                <ChangeBranchModal repo={selRepoBranchInfo.repoInfo} headBranch={selRepoBranchInfo.headInfo.branch_name}
+                    onCancel={() => setSelRepoBranchInfo(null)}
+                    onOk={() => {
+                        updateRepoHeadInfo(selRepoBranchInfo.id);
+                        setSelRepoBranchInfo(null);
+                    }} />
             )}
         </>
     );

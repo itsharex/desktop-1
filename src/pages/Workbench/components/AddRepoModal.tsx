@@ -8,7 +8,7 @@ import { uniqId } from "@/utils/utils";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
-import { resolve } from "@tauri-apps/api/path";
+import { documentDir, resolve } from "@tauri-apps/api/path";
 import { homeDir } from '@tauri-apps/api/path';
 
 interface AddRepoModalProps {
@@ -34,18 +34,22 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const [curSshKey, setCurSshKey] = useState("");
 
     const choiceLocalPath = async () => {
+        const home = await documentDir();
         if (repoType == "local") {
             const selected = await open_dialog({
                 title: "项目代码路径",
                 directory: true,
+                defaultPath: home,
             });
             if (selected == null || Array.isArray(selected)) {
                 return;
             }
             setLocalPath(selected);
         } else {
+            const savePath = await resolve(home, props.name ?? "new_prj");
             const selected = await save_dialog({
                 title: "保存路径",
+                defaultPath: savePath,
             });
             if (selected == null) {
                 return;
@@ -161,7 +165,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setName(e.target.value);
-                    }} placeholder="请输入项目名称"/>
+                    }} placeholder="请输入项目名称" />
                 </Form.Item>
                 <Form.Item label="仓库类型">
                     <Radio.Group value={repoType} onChange={e => {
@@ -178,7 +182,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoteUrl(e.target.value.trim());
-                        }} disabled={props.remoteUrl != undefined} placeholder="请输入远程仓库地址"/>
+                        }} disabled={props.remoteUrl != undefined} placeholder="请输入远程仓库地址" />
                     </Form.Item>
                 )}
                 <Form.Item label="本地路径">
@@ -191,7 +195,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             choiceLocalPath();
-                        }} />} placeholder="请输入本地路径"/>
+                        }} />} placeholder="请输入本地路径" />
                 </Form.Item>
                 {repoType == "remote" && (
                     <>
@@ -215,14 +219,14 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setUsername(e.target.value.trim());
-                                    }} placeholder="请输入远程Git仓库账号"/>
+                                    }} placeholder="请输入远程Git仓库账号" />
                                 </Form.Item>
                                 <Form.Item label="密码">
                                     <Input.Password value={password} onChange={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setPassword(e.target.value.trim());
-                                    }} placeholder="请输入账号密码或双重认证密码"/>
+                                    }} placeholder="请输入账号密码或双重认证密码" />
                                 </Form.Item>
                             </>
                         )}
