@@ -18,6 +18,7 @@ import CommitList from "./components/repo/CommitList";
 import { useLocation } from "react-router-dom";
 import ChangeFileList from "./components/repo/ChangeFileList";
 import WorkDir from "./components/repo/WorkDir";
+import ChangeBranchModal from "./components/repo/ChangeBranchModal";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -401,6 +402,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
     const [analyseRepo, setAnalyseRepo] = useState<LocalRepoInfo | null>(null);
     const [linkProjectRepo, setLinkProjectRepo] = useState<LocalRepoInfo | null>(null);
     const [launchRepo, setLaunchRepo] = useState<LocalRepoInfo | null>(null);
+    const [selRepoBranchInfo, setSelRepoBranchInfo] = useState<LocalRepoInfoWithHead | null>(null);
 
     const loadRepoList = async () => {
         try {
@@ -435,6 +437,17 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
         }
     };
 
+    const updateRepoHeadInfo = async (repoId: string) => {
+        const tmpList = repoList.slice();
+        const index = tmpList.findIndex(item => item.id == repoId);
+        if (index == -1) {
+            return;
+        }
+        const headInfo = await get_head_info(tmpList[index].repoInfo.path);
+        tmpList[index].headInfo = headInfo;
+        setRepoList(tmpList);
+    };
+
     useEffect(() => {
         loadRepoList();
     }, [props.repoVersion]);
@@ -452,7 +465,12 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                     {repoList.map(repo => (
                         <Collapse.Panel key={repo.id} header={<span>{repo.repoInfo.name}({repo.repoInfo.path})
                             {repo.headInfo.branch_name != "" && (
-                                <span style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px" }}>{repo.headInfo.branch_name}</span>
+                                <a style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px" }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSelRepoBranchInfo(repo);
+                                    }}>{repo.headInfo.branch_name}</a>
                             )}
 
                         </span>}
@@ -516,7 +534,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                 </Space>
                             }>
                             {activeKey == repo.id && (
-                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name}/>
+                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name} />
                             )}
                         </Collapse.Panel>
                     ))}
@@ -536,6 +554,14 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
             )}
             {launchRepo !== null && (
                 <LaunchRepoModal repo={launchRepo} onClose={() => setLaunchRepo(null)} />
+            )}
+            {selRepoBranchInfo != null && (
+                <ChangeBranchModal repo={selRepoBranchInfo.repoInfo} headBranch={selRepoBranchInfo.headInfo.branch_name}
+                    onCancel={() => setSelRepoBranchInfo(null)}
+                    onOk={() => {
+                        updateRepoHeadInfo(selRepoBranchInfo.id);
+                        setSelRepoBranchInfo(null);
+                    }} />
             )}
         </>
     );
