@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
 import ChangeFileList from "./components/repo/ChangeFileList";
 import WorkDir from "./components/repo/WorkDir";
 import ChangeBranchModal from "./components/repo/ChangeBranchModal";
+import CreateBranchModal from "./components/repo/CreateBranchModal";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -244,7 +245,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const [activeKey, setActiveKey] = useState("workDir");
     const [widgetList, setWidgetList] = useState<WidgetInfo[]>([]);
 
-
+    const [createBranchFrom, setCreateBranchFrom] = useState("");
 
     const loadRepoInfo = async () => {
         try {
@@ -312,24 +313,38 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
                 {activeKey == "branchList" && (
-                    <List rowKey="name" dataSource={branchList} renderItem={item => (
-                        <List.Item style={{ display: "block" }}>
-                            <Space size="small">
-                                <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                                {item.upstream != "" && (
-                                    <span>({item.upstream})</span>
-                                )}
-                            </Space>
-                            <br />
-                            <Space size="small">
-                                <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    openBranchDiff(item);
-                                }}>{item.commit_summary}</a>
-                            </Space>
-                        </List.Item>
-                    )} />
+                    <>
+                        <List rowKey="name" dataSource={branchList} renderItem={item => (
+                            <List.Item style={{ display: "block" }}>
+                                <Space size="small">
+                                    <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                                    {item.upstream != "" && (
+                                        <span>({item.upstream})</span>
+                                    )}
+                                    <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setCreateBranchFrom(item.name);
+                                    }}>创建分支</a>
+                                </Space>
+                                <br />
+                                <Space size="small">
+                                    <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        openBranchDiff(item);
+                                    }}>{item.commit_summary}</a>
+                                </Space>
+                            </List.Item>
+                        )} />
+                        {createBranchFrom != "" && (
+                            <CreateBranchModal repo={props.repo} fromBranch={createBranchFrom} 
+                            onCancel={()=>setCreateBranchFrom("")} onOk={()=>{
+                                setCreateBranchFrom("");
+                                loadRepoInfo();
+                            }}/>
+                        )}
+                    </>
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -353,7 +368,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
                 {activeKey == "status" && (
-                    <ChangeFileList repo={props.repo} />
+                    <ChangeFileList repo={props.repo} onCommit={() => loadRepoInfo()} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>

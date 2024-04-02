@@ -6,6 +6,7 @@ import { add_to_index, get_repo_status, remove_from_index, run_commit } from "@/
 
 export interface ChangeFileListProps {
     repo: LocalRepoInfo;
+    onCommit: () => void;
 }
 
 const ChangeFileList = (props: ChangeFileListProps) => {
@@ -45,6 +46,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
         await loadStatus();
         setShowModal(false);
         message.info("提交成功");
+        props.onCommit();
     };
 
     useEffect(() => {

@@ -64,7 +64,7 @@ const PullModal = observer((props: ModalProps) => {
             message.info("拉取成功");
             props.onClose();
         } catch (e) {
-            message.info(`${e}`);
+            message.error(`${e}`);
         } finally {
             setInPull(false);
             setRecvRatio(0);
@@ -222,7 +222,7 @@ const PushModal = observer((props: ModalProps) => {
             message.info("推送成功");
             props.onClose();
         } catch (e) {
-            message.info(`${e}`);
+            message.error(`${e}`);
         } finally {
             setInPush(false);
         }
