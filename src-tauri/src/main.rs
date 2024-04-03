@@ -463,6 +463,8 @@ fn main() {
         .plugin(pubres_api::idea_store_api_plugin::IdeaStoreApiPlugin::new())
         .plugin(pubres_api::widget_store_api_plugin::WidgetStoreApiPlugin::new())
         .plugin(pubres_api::widget_store_admin_api_plugin::WidgetStoreAdminApiPlugin::new())
+        .plugin(pubres_api::sw_store_api_plugin::SwStoreApiPlugin::new())
+        .plugin(pubres_api::sw_store_admin_api_plugin::SwStoreAdminApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())

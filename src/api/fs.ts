@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 export const GLOBAL_APPSTORE_FS_ID = "globalAppStore";
 export const GLOBAL_WIDGET_STORE_FS_ID = "globalWidgetStore";
+export const GLOBAL_SOFT_WARE_STORE_FS_ID = "globalSwStore";
 export const GLOBAL_DOCKER_TEMPLATE_FS_ID = "globalDockerTemplate";
 
 export type FS_OWNER_TYPE = number;
