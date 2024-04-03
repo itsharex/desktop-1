@@ -16,7 +16,7 @@ import {
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
     ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -34,6 +34,7 @@ const AdminNav = () => {
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
+    const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
     const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
     const [ideastoreSelectedKeys, setIdeastoreSelectedKeys] = useState<string[]>([]);
     const [dockerTemplateSelectedKeys, setDockerTemplateSelectedKeys] = useState<string[]>([]);
@@ -109,6 +110,15 @@ const AdminNav = () => {
     }, [location.pathname]);
 
     useEffect(() => {
+        setSwStoreSelectedKeys([]);
+        if (location.pathname == ADMIN_PATH_SOFTWARE_CATE_SUFFIX) {
+            setSwStoreSelectedKeys(["sw_cate"]);
+        } else if (location.pathname == ADMIN_PATH_SOFTWARE_SUFFIX) {
+            setSwStoreSelectedKeys(["software"]);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
         get_admin_perm().then(res => {
             console.log(res);
             setPermInfo(res);
@@ -130,7 +140,7 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -202,6 +212,33 @@ const AdminNav = () => {
                                         history.push(ADMIN_PATH_APPSTORE_CATE_SUFFIX);
                                     } else if (e.selectedKeys[0] == "app_app") {
                                         history.push(ADMIN_PATH_APPSTORE_APP_SUFFIX);
+                                    }
+                                }
+                            }}
+                        />
+                    </Collapse.Panel>
+                )}
+                {permInfo?.global_server == true && (
+                    <Collapse.Panel header="软件管理" key="swstore">
+                        <Menu selectedKeys={swStoreSelectedKeys} items={[
+                            {
+                                label: "管理类别",
+                                key: "sw_cate",
+                                disabled: !(permInfo?.sw_store_perm.read ?? false),
+                            },
+                            {
+                                label: "管理软件",
+                                key: "software",
+                                disabled: !(permInfo?.sw_store_perm.read ?? false),
+                            },
+                        ]}
+                            style={{ borderRightWidth: "0px" }}
+                            onSelect={e => {
+                                if (e.selectedKeys.length == 1) {
+                                    if (e.selectedKeys[0] == "sw_cate") {
+                                        history.push(ADMIN_PATH_SOFTWARE_CATE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "software") {
+                                        history.push(ADMIN_PATH_SOFTWARE_SUFFIX);
                                     }
                                 }
                             }}

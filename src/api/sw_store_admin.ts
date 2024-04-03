@@ -134,7 +134,7 @@ export async function update_soft_ware(request: AdminUpdateSoftWareRequest): Pro
 
 //删除软件
 export async function remove_soft_ware(request: AdminRemoveSoftWareRequest): Promise<AdminRemoveSoftWareResponse> {
-    const cmd = 'plugin:sw_store_admin_api|xx';
+    const cmd = 'plugin:sw_store_admin_api|remove_soft_ware';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminRemoveSoftWareResponse>(cmd, {
         request,

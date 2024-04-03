@@ -11,6 +11,8 @@ export type SoftWareCateInfo = {
     cate_name: string;
     weight: number;
     soft_ware_count: number;
+    create_time: number;
+    update_time: number;
 };
 
 export type SoftWareInfo = {
@@ -24,9 +26,12 @@ export type SoftWareInfo = {
     os_list: OS_TYPE[];
     download_url: string;
     icon_file_id: string;
+    create_time: number;
+    update_time: number;
 };
 
 export type ListSoftWareParam = {
+    filterby_os_type: boolean;
     os_type: OS_TYPE;
     filter_by_cate_id: boolean;
     cate_id: string;
