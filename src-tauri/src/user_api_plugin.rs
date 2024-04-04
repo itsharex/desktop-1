@@ -86,67 +86,70 @@ async fn register<R: Runtime>(
     }
 }
 
-async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
-    let handle = app_handle.clone();
-    tauri::async_runtime::spawn(async move {
-        loop {
-            sleep(Duration::from_secs(30)).await;
-            let mut session_id = String::from("");
-            {
-                let cur_value = handle.state::<CurSession>().inner();
-                let cur_session = cur_value.0.lock().await;
-                if let Some(cur_session_id) = cur_session.clone() {
-                    session_id.clone_from(&cur_session_id);
-                }
-            }
-            if session_id != "" {
-                if let Some(chan) = super::get_grpc_chan(&handle).await {
-                    let mut client = UserApiClient::new(chan);
-                    let resp = client
-                        .keep_alive(KeepAliveRequest {
-                            session_id: session_id,
-                        })
-                        .await;
-                    if let Err(err) = resp {
-                        println!("err {}", err);
-                    } else {
-                        let window = (&handle).get_window("main").unwrap();
-                        let resp = resp.unwrap().into_inner();
-                        if resp.code != keep_alive_response::Code::Ok as i32 {
-                            //清空session
-                            {
-                                let user_id = handle.state::<CurUserId>().inner();
-                                *user_id.0.lock().await = None;
-                                let user_secret = handle.state::<CurUserSecret>().inner();
-                                *user_secret.0.lock().await = None;
-                                let user_session = handle.state::<CurSession>().inner();
-                                *user_session.0.lock().await = None;
-                                let mq_client = handle.state::<CurNoticeClient>().inner();
-                                if let Some(c) = mq_client.0.lock().await.clone() {
-                                    if let Err(err) = c.disconnect().await {
-                                        println!("{:?}", err);
-                                    }
-                                }
-                                *mq_client.0.lock().await = None;
+async fn keep_alive_run<R: Runtime>(handle: &AppHandle<R>) {
+    let mut session_id = String::from("");
+    {
+        let cur_value = handle.state::<CurSession>().inner();
+        let cur_session = cur_value.0.lock().await;
+        if let Some(cur_session_id) = cur_session.clone() {
+            session_id.clone_from(&cur_session_id);
+        }
+    }
+    if session_id != "" {
+        if let Some(chan) = super::get_grpc_chan(&handle).await {
+            let mut client = UserApiClient::new(chan);
+            let resp = client
+                .keep_alive(KeepAliveRequest {
+                    session_id: session_id,
+                })
+                .await;
+            if let Err(err) = resp {
+                println!("err {}", err);
+            } else {
+                let window = (&handle).get_window("main").unwrap();
+                let resp = resp.unwrap().into_inner();
+                if resp.code != keep_alive_response::Code::Ok as i32 {
+                    //清空session
+                    {
+                        let user_id = handle.state::<CurUserId>().inner();
+                        *user_id.0.lock().await = None;
+                        let user_secret = handle.state::<CurUserSecret>().inner();
+                        *user_secret.0.lock().await = None;
+                        let user_session = handle.state::<CurSession>().inner();
+                        *user_session.0.lock().await = None;
+                        let mq_client = handle.state::<CurNoticeClient>().inner();
+                        if let Some(c) = mq_client.0.lock().await.clone() {
+                            if let Err(err) = c.disconnect().await {
+                                println!("{:?}", err);
                             }
-                            //发送通知
-                            let res = window
-                                .emit("notice", new_wrong_session_notice("keep_alive".into()));
-                            if res.is_err() {
-                                println!("{:?}", res);
-                            }
-                        } else {
-                            if &resp.new_extra_token != "" {
-                                let res = window
-                                    .emit("notice", new_extra_token_notice(resp.new_extra_token));
-                                if res.is_err() {
-                                    println!("{:?}", res);
-                                }
-                            }
+                        }
+                        *mq_client.0.lock().await = None;
+                    }
+                    //发送通知
+                    let res = window.emit("notice", new_wrong_session_notice("keep_alive".into()));
+                    if res.is_err() {
+                        println!("{:?}", res);
+                    }
+                } else {
+                    if &resp.new_extra_token != "" {
+                        let res =
+                            window.emit("notice", new_extra_token_notice(resp.new_extra_token));
+                        if res.is_err() {
+                            println!("{:?}", res);
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {  
+    let handle = app_handle.clone();
+    tauri::async_runtime::spawn(async move {
+        loop {
+            sleep(Duration::from_secs(30)).await;
+            keep_alive_run(&handle).await;
         }
     });
 }
@@ -327,7 +330,9 @@ async fn update_feature<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == update_feature_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("update_feature".into())) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("update_feature".into()))
+                {
                     println!("{:?}", err);
                 }
             }
@@ -352,7 +357,9 @@ async fn change_passwd<R: Runtime>(
         Ok(response) => {
             let inner_resp = response.into_inner();
             if inner_resp.code == change_passwd_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("change_passwd".into())) {
+                if let Err(err) =
+                    window.emit("notice", new_wrong_session_notice("change_passwd".into()))
+                {
                     println!("{:?}", err);
                 }
             }
