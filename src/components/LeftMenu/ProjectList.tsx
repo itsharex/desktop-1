@@ -6,7 +6,7 @@ import { useStores } from "@/hooks";
 import ProjectItem from "./ProjectItem";
 import CreatedOrJoinProject from "./CreatedOrJoinProject";
 import InviteProjectMember from "./InviteProjectMember";
-import { PlusOutlined, ProjectOutlined } from "@ant-design/icons";
+import { ProjectOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 import { useHistory, useLocation } from "react-router-dom";
 import { APP_PROJECT_MANAGER_PATH } from "@/utils/constant";
@@ -40,15 +40,6 @@ const ProjectList = () => {
                     }
                 }}>
                     <ProjectOutlined style={{ width: "20px" }} />项目
-                </div>
-                <div className={cls.menu_icon_wrap}>
-                    <a className={cls.icon_wrap} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        appStore.showCreateOrJoinProject = true;
-                    }}>
-                        <i><PlusOutlined /></i>
-                    </a>
                 </div>
 
             </div>

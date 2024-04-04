@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import { useHistory, useLocation } from "react-router-dom";
 import classNames from "classnames";
 import { APP_ORG_MANAGER_PATH, APP_ORG_PATH } from "@/utils/constant";
-import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
+import { TeamOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
 import CreatedOrJoinOrg from "./CreatedOrJoinOrg";
 import InviteOrgMember from "./InviteOrgMember";
@@ -36,15 +36,6 @@ const OrgList = () => {
                     }
                 }}>
                     <TeamOutlined style={{ width: "20px" }} />团队
-                </div>
-                <div className={cls.menu_icon_wrap}>
-                    <a className={cls.icon_wrap} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        appStore.showCreateOrJoinOrg = true;
-                    }}>
-                        <i><PlusOutlined /></i>
-                    </a>
                 </div>
             </div>
 

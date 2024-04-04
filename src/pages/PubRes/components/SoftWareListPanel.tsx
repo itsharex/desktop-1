@@ -53,7 +53,7 @@ const SoftWareList = (props: SoftWareListProps) => {
 
     return (
         <List rowKey="sw_id" dataSource={softWareList}
-            pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), showSizeChanger: false,hideOnSinglePage:true }}
+            pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}
             renderItem={item => (
                 <Card title={<span style={{ fontSize: "20px", fontWeight: 700 }}>{item.sw_name}</span>} bordered={false}
                     extra={
@@ -69,7 +69,7 @@ const SoftWareList = (props: SoftWareListProps) => {
                                 src={`fs://localhost/${GLOBAL_SOFT_WARE_STORE_FS_ID}/${item.icon_file_id}/icon.png`}
                                 preview={false}
                                 fallback={defaultIcon}
-                                onClick={e=>{
+                                onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     shell_open(item.download_url);

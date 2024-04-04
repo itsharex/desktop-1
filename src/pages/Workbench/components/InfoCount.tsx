@@ -4,7 +4,7 @@ import memberIcon from '@/assets/allIcon/icon-member.png';
 import { useStores } from '@/hooks';
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import { Button, Modal, Space, Switch, message } from 'antd';
+import { Button, Form, Input, Modal, Space, Switch, message } from 'antd';
 import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
@@ -13,7 +13,52 @@ import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
 import { FeatureInfo, update_feature } from '@/api/user';
+import { PlusSquareTwoTone } from '@ant-design/icons';
+import { joinOrgOrProject } from '@/components/LeftMenu/join';
 
+interface JoinModalProps {
+  onClose: () => void;
+}
+
+const JoinModal = observer((props: JoinModalProps) => {
+  const history = useHistory();
+
+  const userStore = useStores('userStore');
+  const projectStore = useStores('projectStore');
+  const orgStore = useStores('orgStore');
+
+  const [linkText, setLinkText] = useState('');
+
+  const runJoin = async () => {
+    await joinOrgOrProject(linkText, userStore, projectStore, orgStore, history);
+    props.onClose();
+  };
+
+  return (
+    <Modal open title="加入项目/团队"
+      okText="加入" okButtonProps={{ disabled: linkText == "" }}
+      onCancel={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        props.onClose();
+      }}
+      onOk={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        runJoin();
+      }}>
+      <Form labelCol={{ span: 3 }} style={{ paddingRight: "20px" }}>
+        <Form.Item label="邀请码">
+          <Input
+            placeholder="请输入邀请码"
+            allowClear
+            onChange={(e) => setLinkText(e.target.value.trim())}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+});
 
 const InfoCount = () => {
   const history = useHistory();
@@ -28,6 +73,7 @@ const InfoCount = () => {
   const [showMyTodoModal, setShowMyTodoModal] = useState(false);
   const [showSshKeyModal, setShowSshKeyModal] = useState(false);
   const [showExit, setShowExit] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   const loadMyTodoCount = async () => {
     if (userStore.sessionId == "") {
@@ -177,6 +223,19 @@ const InfoCount = () => {
             </div>
           </div>
         )}
+
+        {userStore.sessionId != "" && (
+          <div className={s.item}>
+            <div>加入项目/团队</div>
+            <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+              icon={<PlusSquareTwoTone style={{ fontSize: "20px",paddingTop:"4px" }} twoToneColor={["orange", "#eee"]} />}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowJoinModal(true);
+              }} />
+          </div>
+        )}
       </div>
 
 
@@ -203,6 +262,9 @@ const InfoCount = () => {
         >
           <p style={{ textAlign: 'center' }}>是否确认退出?</p>
         </Modal>
+      )}
+      {showJoinModal == true && (
+        <JoinModal onClose={() => setShowJoinModal(false)} />
       )}
     </div>
   );
