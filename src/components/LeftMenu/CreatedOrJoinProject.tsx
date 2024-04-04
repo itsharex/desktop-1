@@ -127,7 +127,7 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
         if (activeKey == "create") {
           createProject();
         } else if (activeKey == "join") {
-          joinOrgOrProject(userStore.sessionId, linkText, userStore.userInfo.userId, projectStore, orgStore, history).then(() => onChange(false));
+          joinOrgOrProject(linkText, userStore, projectStore, orgStore, history).then(() => onChange(false));
         }
       }}>
       <Tabs type="card" activeKey={activeKey} onChange={value => setActiveKey(value)}
@@ -175,7 +175,7 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
                   <Input
                     placeholder="请输入邀请码"
                     allowClear
-                    onChange={(e) => setLinkText(e.target.value)}
+                    onChange={(e) => setLinkText(e.target.value.trim())}
                   />
                 </Form.Item>
               </Form>
