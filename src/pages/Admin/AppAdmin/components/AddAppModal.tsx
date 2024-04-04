@@ -215,7 +215,7 @@ const AddAppModal: React.FC<AddAppModalProps> = (props) => {
                     />
                 </div>
                 <div className={s.right}>
-                    <Form labelCol={{ span: 5 }}>
+                    <Form labelCol={{ span: 3 }}>
                         <Form.Item label="应用名称">
                             <Input value={appName} onChange={e => {
                                 e.stopPropagation();

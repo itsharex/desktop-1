@@ -1,5 +1,3 @@
-import { message } from 'antd';
-
 export interface SuccessData {
   code: number;
   err_msg: string;
@@ -16,7 +14,6 @@ export function request<T>(func: Promise<T & SuccessData>): Promise<T & SuccessD
           resolve(resp);
         } else {
           console.log(resp);
-          message.error(resp.err_msg);
           reject(resp.err_msg);
         }
       })

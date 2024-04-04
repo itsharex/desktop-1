@@ -173,6 +173,7 @@ class UserStore {
     runInAction(() => {
       this.userInfo.unReadNotice = res.un_read_count;
       this.userInfo.totalNotice = res.total_count;
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
     });
   }
 
@@ -210,6 +211,7 @@ class UserStore {
     if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.displayName = val;
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
       });
     }
   }
@@ -218,6 +220,7 @@ class UserStore {
     if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.logoUri = val;
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
       });
     }
   }
@@ -226,6 +229,7 @@ class UserStore {
     if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.extraToken = val;
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
       });
     }
   }
@@ -234,6 +238,7 @@ class UserStore {
     if (this._sessionId != "" && this.userInfo) {
       runInAction(() => {
         this.userInfo.featureInfo = val;
+        sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
       });
     }
   }

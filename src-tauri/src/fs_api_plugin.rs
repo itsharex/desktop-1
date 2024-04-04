@@ -127,7 +127,7 @@ pub async fn download_file<R: Runtime>(
     *download_count += 1;
 
     let notice_name = format!("downloadFile_{}", track_id);
-    let chan = if &fs_id  == "globalAppStore" || &fs_id == "globalDockerTemplate" || &fs_id == "globalWidgetStore"{
+    let chan = if &fs_id  == "globalAppStore" || &fs_id == "globalDockerTemplate" || &fs_id == "globalWidgetStore" || &fs_id == "globalSwStore" {
         let serv_addr = get_global_server_addr(app_handle.clone()).await;
         let tmp_chan = super::conn_extern_server(serv_addr).await;
         if tmp_chan.is_err() {
