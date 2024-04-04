@@ -13,6 +13,7 @@ import { observer } from 'mobx-react';
 import AppStoreDetail from './components/AppStoreDetail';
 import DockerTemplateDetail from './components/DockerTemplateDetail';
 import IdeaListPanel from './components/IdeaListPanel';
+import SoftWareListPanel from './components/SoftWareListPanel';
 
 
 const PubRes = () => {
@@ -51,6 +52,14 @@ const PubRes = () => {
                         <div className={s.content_wrap}>
                             {pubResStore.showAppId == "" && <AppStorePanel />}
                             {pubResStore.showAppId != "" && <AppStoreDetail />}
+                        </div>
+                    )}
+                </Tabs.TabPane>
+
+                <Tabs.TabPane tab={<h2><AppstoreOutlined />&nbsp;常用软件</h2>} key="swStore">
+                    {activeKey == "swStore" && (
+                        <div className={s.content_wrap}>
+                            <SoftWareListPanel />
                         </div>
                     )}
                 </Tabs.TabPane>

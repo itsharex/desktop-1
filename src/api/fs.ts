@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 export const GLOBAL_APPSTORE_FS_ID = "globalAppStore";
 export const GLOBAL_WIDGET_STORE_FS_ID = "globalWidgetStore";
+export const GLOBAL_SOFT_WARE_STORE_FS_ID = "globalSwStore";
 export const GLOBAL_DOCKER_TEMPLATE_FS_ID = "globalDockerTemplate";
 
 export type FS_OWNER_TYPE = number;
@@ -43,6 +44,8 @@ export const FILE_OWNER_TYPE_FILE: FILE_OWNER_TYPE = 25;
 export const FILE_OWNER_TYPE_TEST_CASE: FILE_OWNER_TYPE = 26;
 export const FILE_OWNER_TYPE_TEST_RESULT: FILE_OWNER_TYPE = 27;
 export const FILE_OWNER_TYPE_WIDGET_STORE: FILE_OWNER_TYPE = 28; //git插件
+export const FILE_OWNER_TYPE_SOFT_WARE_STORE: FILE_OWNER_TYPE = 29;
+
 
 export const FILE_OWNER_TYPE_PROJECT: FILE_OWNER_TYPE = 99; //项目范围 
 

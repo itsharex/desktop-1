@@ -38,6 +38,8 @@ import {
   APP_ORG_MANAGER_PATH,
   APP_ORG_PATH,
   ADMIN_PATH_WIDGET_SUFFIX,
+  ADMIN_PATH_SOFTWARE_CATE_SUFFIX,
+  ADMIN_PATH_SOFTWARE_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -73,6 +75,8 @@ import RecycleItemList from '@/pages/Project/Recycle/RecycleItemList';
 import OrgManager from '@/pages/Org/OrgManager';
 import OrgDetail from '@/pages/Org/OrgDetail';
 import WidgetList from '@/pages/Admin/GitWidgetAdmin/WidgetList';
+import SoftWareCateList from '@/pages/Admin/SoftWareAdmin/SoftWareCateList';
+import SoftWareList from '@/pages/Admin/SoftWareAdmin/SoftWareList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -316,6 +320,18 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_APPSTORE_APP_SUFFIX,
         title: "应用管理",
         component: AppList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SOFTWARE_CATE_SUFFIX,
+        title: "软件类别管理",
+        component: SoftWareCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SOFTWARE_SUFFIX,
+        title: "软件管理",
+        component: SoftWareList,
         exact: true,
       },
       {

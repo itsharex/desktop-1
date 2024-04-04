@@ -36,6 +36,10 @@ export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
 
 export const ADMIN_PATH_WIDGET_SUFFIX = "/admin/widgetstore/widget"
 
+export const ADMIN_PATH_SOFTWARE_CATE_SUFFIX = '/admin/swstore/cate';
+export const ADMIN_PATH_SOFTWARE_SUFFIX = '/admin/swstore/software';
+
+
 export const ADMIN_PATH_CLIENT_MENU_SUFFIX = '/admin/client/menu';
 
 export const ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX = '/admin/dockertemplate/cate';
