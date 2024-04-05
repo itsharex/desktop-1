@@ -1,17 +1,60 @@
 import React, { useEffect, useState } from "react";
-import type { WeekReportInfo } from "@/api/org_report";
+import type { DayReportInfo, WeekReportInfo } from "@/api/org_report";
 import { useStores } from "@/hooks";
 import { Button, Card, DatePicker, List, Modal, Popover, Space } from "antd";
 import { Moment } from "moment";
 import moment from "moment";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
-import { add_week_report, update_week_report, list_week_report, get_week_report, remove_week_report } from "@/api/org_report";
+import { add_week_report, update_week_report, list_week_report, get_week_report, remove_week_report, list_day_report } from "@/api/org_report";
 import { request } from "@/utils/request";
 import { observer } from 'mobx-react';
 import { MoreOutlined } from "@ant-design/icons";
 
 const PAGE_SIZE = 10;
+
+interface SimpleDayReportListProps {
+    fromTime: Moment;
+    toTime: Moment;
+}
+
+const SimpleDayReportList = (props: SimpleDayReportListProps) => {
+    const userStore = useStores('userStore');
+    const orgStore = useStores('orgStore');
+
+    const [reportList, setReportList] = useState<DayReportInfo[]>([]);
+
+    const loadReportList = async () => {
+        const res = await request(list_day_report({
+            session_id: userStore.sessionId,
+            org_id: orgStore.curOrgId,
+            member_user_id: userStore.userInfo.userId,
+            list_param: {
+                filter_by_day_time: true,
+                from_day_time: props.fromTime.valueOf(),
+                to_day_time: props.toTime.valueOf(),
+            },
+            offset: 0,
+            limit: 99,
+        }));
+        setReportList(res.report_list);
+    };
+
+    useEffect(() => {
+        loadReportList();
+    }, [props.fromTime, props.toTime]);
+
+    return (
+        <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>参考日报</span>} style={{ width: "400px",marginTop:"-13px" }} bordered={false}
+            bodyStyle={{ height: "286px", overflowY: "scroll" }}>
+            <List rowKey="report_id" dataSource={reportList} pagination={false} renderItem={reportItem => (
+                <Card title={`${moment(reportItem.basic_info.day_time).format("YYYY-MM-DD")}`} style={{ width: "100%", marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                    <ReadOnlyEditor content={reportItem.basic_info.content} />
+                </Card>
+            )} />
+        </Card>
+    )
+};
 
 interface EditModalProps {
     reportInfo?: WeekReportInfo;
@@ -85,13 +128,13 @@ export const EditModal = (props: EditModalProps) => {
                         setToTime(values[1]);
                     }
                 }} popupStyle={{ zIndex: 8000 }}
-                    disabled={props.reportInfo != undefined} 
-                    disabledDate={date => (date.valueOf() < moment().add(-14, "days").valueOf()) || (date.valueOf() > moment().add(1,"days").valueOf())} />
+                    disabled={props.reportInfo != undefined}
+                    disabledDate={date => (date.valueOf() < moment().add(-14, "days").valueOf()) || (date.valueOf() > moment().add(1, "days").valueOf())} />
             </Space>
         }
             okText={props.reportInfo == undefined ? "创建" : "修改"}
             okButtonProps={{ disabled: fromTime == null || toTime == null }}
-            width={800}
+            width={1000}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -106,8 +149,13 @@ export const EditModal = (props: EditModalProps) => {
                     updateReport();
                 }
             }}>
-            <div className="_orgReportContext">
-                {editor}
+            <div style={{ display: "flex" }}>
+                <div className="_orgReportContext" style={{ flex: 1 }}>
+                    {editor}
+                </div>
+                {fromTime != null && toTime != null && (
+                    <SimpleDayReportList fromTime={fromTime} toTime={toTime} />
+                )}
             </div>
         </Modal>
     );
