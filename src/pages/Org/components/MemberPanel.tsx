@@ -4,6 +4,7 @@ import { Button, Tabs } from "antd";
 import { observer } from 'mobx-react';
 import OkrList, { EditModal as EditOkrModal } from "./OkrList";
 import DayReportList, { EditModal as EditDayReportModal } from "./DayReportList";
+import WeekReportList, { EditModal as EditWeekReportModal } from "./WeekReportList";
 import { PlusOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
 
@@ -19,7 +20,7 @@ const MemberPanel = (props: MemberPanelProps) => {
     const [activeKey, setActiveKey] = useState<"dayReport" | "weekReport" | "okr">("dayReport");
 
     const [dayReportDataVersion, setDayReportDataVersion] = useState(0);
-    // const [weekReportDataVersion, setWeekReportDataVersion] = useState(0);
+    const [weekReportDataVersion, setWeekReportDataVersion] = useState(0);
     const [okrDataVersion, setOkrDataVersion] = useState(0);
 
     return (
@@ -40,6 +41,11 @@ const MemberPanel = (props: MemberPanelProps) => {
                     {
                         key: "weekReport",
                         label: "周报",
+                        children: (
+                            <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                                <WeekReportList memberUserId={props.curMember.member_user_id} dataVersion={weekReportDataVersion} />
+                            </div>
+                        ),
                     },
                     {
                         key: "okr",
@@ -81,7 +87,12 @@ const MemberPanel = (props: MemberPanelProps) => {
                     setShowCreateModal(false);
                 }} />
             )}
-            {showCreateModal == true && activeKey == "weekReport" && "xx"}
+            {showCreateModal == true && activeKey == "weekReport" && (
+                <EditWeekReportModal onCancel={() => setShowCreateModal(false)} onOk={() => {
+                    setWeekReportDataVersion(oldValue => oldValue + 1);
+                    setShowCreateModal(false);
+                }} />
+            )}
             {showCreateModal == true && activeKey == "okr" && (
                 <EditOkrModal onCancel={() => setShowCreateModal(false)} onOk={() => {
                     setOkrDataVersion(oldValue => oldValue + 1);

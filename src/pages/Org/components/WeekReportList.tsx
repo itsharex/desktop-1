@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import type { DayReportInfo } from "@/api/org_report";
+import type { WeekReportInfo } from "@/api/org_report";
 import { useStores } from "@/hooks";
 import { Button, Card, DatePicker, List, Modal, Popover, Space } from "antd";
 import { Moment } from "moment";
 import moment from "moment";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
-import { add_day_report, update_day_report, list_day_report, get_day_report, remove_day_report } from "@/api/org_report";
+import { add_week_report, update_week_report, list_week_report, get_week_report, remove_week_report } from "@/api/org_report";
 import { request } from "@/utils/request";
 import { observer } from 'mobx-react';
 import { MoreOutlined } from "@ant-design/icons";
@@ -14,7 +14,7 @@ import { MoreOutlined } from "@ant-design/icons";
 const PAGE_SIZE = 10;
 
 interface EditModalProps {
-    reportInfo?: DayReportInfo;
+    reportInfo?: WeekReportInfo;
     onCancel: () => void;
     onOk: () => void;
 }
@@ -23,7 +23,9 @@ export const EditModal = (props: EditModalProps) => {
     const userStore = useStores('userStore');
     const orgStore = useStores('orgStore');
 
-    const [dayTime, setDayTime] = useState<Moment | null>(props.reportInfo == undefined ? null : moment(props.reportInfo.basic_info.day_time));
+    const [fromTime, setFromTime] = useState<Moment | null>(props.reportInfo == undefined ? null : moment(props.reportInfo.basic_info.from_time));
+    const [toTime, setToTime] = useState<Moment | null>(props.reportInfo == undefined ? null : moment(props.reportInfo.basic_info.to_time));
+
 
     const { editor, editorRef } = useCommonEditor({
         content: props.reportInfo?.basic_info.content ?? "",
@@ -39,15 +41,16 @@ export const EditModal = (props: EditModalProps) => {
     });
 
     const createReport = async () => {
-        if (dayTime == null) {
+        if (fromTime == null || toTime == null) {
             return;
         }
         const content = editorRef.current?.getContent() ?? { type: "doc" };
-        await request(add_day_report({
+        await request(add_week_report({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             basic_info: {
-                day_time: dayTime.startOf("day").valueOf(),
+                from_time: fromTime.startOf("day").valueOf(),
+                to_time: toTime.endOf("day").valueOf(),
                 content: JSON.stringify(content),
             },
         }));
@@ -55,16 +58,17 @@ export const EditModal = (props: EditModalProps) => {
     };
 
     const updateReport = async () => {
-        if (dayTime == null) {
+        if (fromTime == null || toTime == null) {
             return;
         }
         const content = editorRef.current?.getContent() ?? { type: "doc" };
-        await request(update_day_report({
+        await request(update_week_report({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             report_id: props.reportInfo?.report_id ?? "",
             basic_info: {
-                day_time: dayTime.startOf("day").valueOf(),
+                from_time: fromTime.startOf("day").valueOf(),
+                to_time: toTime.endOf("day").valueOf(),
                 content: JSON.stringify(content),
             },
         }));
@@ -74,14 +78,19 @@ export const EditModal = (props: EditModalProps) => {
     return (
         <Modal open title={
             <Space>
-                日报
-                <DatePicker value={dayTime} onChange={value => setDayTime(value)} popupStyle={{ zIndex: 8000 }}
-                    disabled={props.reportInfo != undefined}
-                    disabledDate={date => (date.valueOf() < moment().add(-7, "days").valueOf()) || (date.valueOf() > moment().add(1, "days").valueOf())} />
+                周报
+                <DatePicker.RangePicker value={[fromTime, toTime]} onChange={values => {
+                    if (values != null && values.length == 2) {
+                        setFromTime(values[0]);
+                        setToTime(values[1]);
+                    }
+                }} popupStyle={{ zIndex: 8000 }}
+                    disabled={props.reportInfo != undefined} 
+                    disabledDate={date => (date.valueOf() < moment().add(-14, "days").valueOf()) || (date.valueOf() > moment().add(1,"days").valueOf())} />
             </Space>
         }
             okText={props.reportInfo == undefined ? "创建" : "修改"}
-            okButtonProps={{ disabled: dayTime == null }}
+            okButtonProps={{ disabled: fromTime == null || toTime == null }}
             width={800}
             onCancel={e => {
                 e.stopPropagation();
@@ -104,32 +113,28 @@ export const EditModal = (props: EditModalProps) => {
     );
 };
 
-export interface DayReportListProps {
+
+export interface WeekReportListProps {
     memberUserId: string;
     dataVersion: number;
 }
 
-const DayReportList = (props: DayReportListProps) => {
+const WeekReportList = (props: WeekReportListProps) => {
     const userStore = useStores('userStore');
     const orgStore = useStores('orgStore');
 
-    const [reportList, setReportList] = useState<DayReportInfo[]>([]);
+    const [reportList, setReportList] = useState<WeekReportInfo[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
-    const [updateReportInfo, setUpdateReportInfo] = useState<DayReportInfo | null>(null);
-    const [removeReportInfo, setRemoveReportInfo] = useState<DayReportInfo | null>(null);
+    const [updateReportInfo, setUpdateReportInfo] = useState<WeekReportInfo | null>(null);
+    const [removeReportInfo, setRemoveReportInfo] = useState<WeekReportInfo | null>(null);
 
     const loadReportList = async () => {
-        const res = await request(list_day_report({
+        const res = await request(list_week_report({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             member_user_id: props.memberUserId,
-            list_param: {
-                filter_by_day_time: false,
-                from_day_time: 0,
-                to_day_time: 0,
-            },
             offset: curPage * PAGE_SIZE,
             limit: PAGE_SIZE,
         }));
@@ -138,7 +143,7 @@ const DayReportList = (props: DayReportListProps) => {
     };
 
     const onUpdate = async (reportId: string) => {
-        const res = await request(get_day_report({
+        const res = await request(get_week_report({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             report_id: reportId,
@@ -155,7 +160,7 @@ const DayReportList = (props: DayReportListProps) => {
         if (removeReportInfo == null) {
             return;
         }
-        await request(remove_day_report({
+        await request(remove_week_report({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             report_id: removeReportInfo.report_id,
@@ -182,7 +187,7 @@ const DayReportList = (props: DayReportListProps) => {
             <List rowKey="report_id" dataSource={reportList} renderItem={reportItem => (
                 <List.Item style={{ border: "none" }}>
                     <Card style={{ width: "100%" }} headStyle={{ backgroundColor: "#eee" }}
-                        title={`${moment(reportItem.basic_info.day_time).format("YYYY-MM-DD")}`}
+                        title={`${moment(reportItem.basic_info.from_time).format("YYYY-MM-DD")}至${moment(reportItem.basic_info.to_time).format("YYYY-MM-DD")}`}
                         extra={
                             <Space>
                                 {reportItem.user_perm.can_update && (
@@ -218,7 +223,7 @@ const DayReportList = (props: DayReportListProps) => {
                 }} />
             )}
             {removeReportInfo != null && (
-                <Modal open title="删除日报"
+                <Modal open title="删除周报"
                     okText="删除" okButtonProps={{ danger: true }}
                     onCancel={e => {
                         e.stopPropagation();
@@ -230,11 +235,11 @@ const DayReportList = (props: DayReportListProps) => {
                         e.preventDefault();
                         removeReport();
                     }}>
-                    是否删除日报?
+                    是否删除周报?
                 </Modal>
             )}
         </>
     );
 };
 
-export default observer(DayReportList);
+export default observer(WeekReportList);
