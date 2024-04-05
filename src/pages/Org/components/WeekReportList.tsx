@@ -106,7 +106,7 @@ export const EditModal = (props: EditModalProps) => {
                     updateReport();
                 }
             }}>
-            <div className="_editChatContext">
+            <div className="_orgReportContext">
                 {editor}
             </div>
         </Modal>

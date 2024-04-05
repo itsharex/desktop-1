@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { DayReportInfo } from "@/api/org_report";
 import { useStores } from "@/hooks";
-import { Button, Card, DatePicker, List, Modal, Popover, Space } from "antd";
+import { Button, Card, DatePicker, List, Modal, Popover, Space, Tabs } from "antd";
 import { Moment } from "moment";
 import moment from "moment";
 import { ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
@@ -10,8 +10,79 @@ import { add_day_report, update_day_report, list_day_report, get_day_report, rem
 import { request } from "@/utils/request";
 import { observer } from 'mobx-react';
 import { MoreOutlined } from "@ant-design/icons";
+import { list_project_event, type PluginEvent } from "@/api/events";
+import s from "./fix.module.less";
+import EventCom from "@/components/EventCom";
 
 const PAGE_SIZE = 10;
+
+interface ProjectEventListProps {
+    projectId: string;
+    dayTime: Moment;
+}
+
+const ProjectEventList = (props: ProjectEventListProps) => {
+    const userStore = useStores('userStore');
+    const [eventList, setEventList] = useState<PluginEvent[]>([]);
+
+    const loadEventList = async () => {
+        const res = await request(list_project_event({
+            session_id: userStore.sessionId,
+            project_id: props.projectId,
+            filter_by_member_user_id: true,
+            member_user_id: userStore.userInfo.userId,
+            from_time: props.dayTime.startOf("day").valueOf(),
+            to_time: props.dayTime.endOf("day").valueOf(),
+            offset: 0,
+            limit: 99,
+        }));
+        setEventList(res.event_list);
+    };
+
+    useEffect(() => {
+        loadEventList();
+    }, [props.dayTime, props.projectId]);
+    return (
+        <List rowKey="event_id" dataSource={eventList} pagination={false} renderItem={event => (
+            <div>
+                <Space>
+                    {moment(event.event_time).format("YYYY-MM-DD HH:mm:ss")}
+                    <EventCom item={event} skipProjectName={true} skipLink={true} showMoreLink={false} showSource={false} />
+                </Space>
+            </div>
+        )} />
+    );
+};
+
+interface AllProjectEventListProps {
+    dayTime: Moment;
+}
+
+const AllProjectEventList = observer((props: AllProjectEventListProps) => {
+    const projectStore = useStores("projectStore");
+
+    const [activeKey, setActiveKey] = useState(projectStore.projectList.length > 0 ? projectStore.projectList[0].project_id : "");
+
+    return (
+        <div style={{ width: "400px", marginLeft: "20px" }}>
+            <Tabs tabBarExtraContent={{
+                "left": <span style={{ fontSize: "16px", fontWeight: 600, marginRight: "10px" }}>参考</span>,
+            }} type="card" popupClassName={s.popup} activeKey={activeKey} onChange={key => setActiveKey(key)}
+                items={projectStore.projectList.map(prjItem => ({
+                    key: prjItem.project_id,
+                    label: prjItem.basic_info.project_name,
+                    children: (
+                        <div style={{ height: "290px", overflowY: "scroll" }}>
+                            {prjItem.project_id == activeKey && (
+                                <ProjectEventList projectId={prjItem.project_id} dayTime={props.dayTime} />
+                            )}
+                        </div>
+                    ),
+                }))}
+            />
+        </div>
+    );
+});
 
 interface EditModalProps {
     reportInfo?: DayReportInfo;
@@ -19,8 +90,9 @@ interface EditModalProps {
     onOk: () => void;
 }
 
-export const EditModal = (props: EditModalProps) => {
+export const EditModal = observer((props: EditModalProps) => {
     const userStore = useStores('userStore');
+    const projectStore = useStores("projectStore");
     const orgStore = useStores('orgStore');
 
     const [dayTime, setDayTime] = useState<Moment | null>(props.reportInfo == undefined ? null : moment(props.reportInfo.basic_info.day_time));
@@ -82,7 +154,7 @@ export const EditModal = (props: EditModalProps) => {
         }
             okText={props.reportInfo == undefined ? "创建" : "修改"}
             okButtonProps={{ disabled: dayTime == null }}
-            width={800}
+            width={1000}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -97,12 +169,18 @@ export const EditModal = (props: EditModalProps) => {
                     updateReport();
                 }
             }}>
-            <div className="_editChatContext">
-                {editor}
+            <div style={{ display: "flex" }}>
+                <div className="_orgReportContext" style={{ flex: 1 }}>
+                    {editor}
+                </div>
+
+                {projectStore.projectList.length > 0 && dayTime != null && (
+                    <AllProjectEventList dayTime={dayTime} />
+                )}
             </div>
         </Modal>
     );
-};
+});
 
 export interface DayReportListProps {
     memberUserId: string;
