@@ -476,6 +476,7 @@ fn main() {
         .plugin(org_api::org_api_plugin::OrgApiPlugin::new())
         .plugin(org_api::org_member_api_plugin::OrgMemberApiPlugin::new())
         .plugin(org_api::org_okr_api_plugin::OrgOkrApiPlugin::new())
+        .plugin(org_api::org_report_api_plugin::OrgReportApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {
