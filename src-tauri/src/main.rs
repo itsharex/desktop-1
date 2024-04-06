@@ -490,6 +490,15 @@ fn main() {
                         .state::<admin_auth_api_plugin::CurAdminSession>()
                         .inner();
                     return tauri::async_runtime::block_on(async move {
+                        if req_url.path().starts_with("/global") {
+                            return fs_api_plugin::http_download_file(
+                                app_handle,
+                                String::from("main"),
+                                req_url.path(),
+                                "",
+                            )
+                            .await;
+                        }
                         let cur_session = user_value.0.lock().await;
                         if let Some(cur_session_id) = cur_session.clone() {
                             return fs_api_plugin::http_download_file(
