@@ -44,12 +44,12 @@ const ProjectEventList = (props: ProjectEventListProps) => {
     }, [props.dayTime, props.projectId]);
     return (
         <List rowKey="event_id" dataSource={eventList} pagination={false} renderItem={event => (
-            <div>
-                <Space>
-                    {moment(event.event_time).format("YYYY-MM-DD HH:mm:ss")}
+            <List.Item>
+                <div>
+                    <div>{moment(event.event_time).format("YYYY-MM-DD HH:mm:ss")}</div>
                     <EventCom item={event} skipProjectName={true} skipLink={true} showMoreLink={false} showSource={false} />
-                </Space>
-            </div>
+                </div>
+            </List.Item>
         )} />
     );
 };

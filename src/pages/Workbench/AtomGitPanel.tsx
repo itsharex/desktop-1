@@ -66,7 +66,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                             e.stopPropagation();
                                             e.preventDefault();
                                             history.push(`${WORKBENCH_PATH}?tab=localRepo&repoId=${localRepo.id}`);
-                                        }}>查看本地仓库<ExportOutlined /></Button>
+                                        }}>查看本地仓库</Button>
                                         <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                             e.stopPropagation();
                                             e.preventDefault();
