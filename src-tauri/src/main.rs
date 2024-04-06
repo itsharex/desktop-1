@@ -476,6 +476,7 @@ fn main() {
         .plugin(org_api::org_api_plugin::OrgApiPlugin::new())
         .plugin(org_api::org_member_api_plugin::OrgMemberApiPlugin::new())
         .plugin(org_api::org_okr_api_plugin::OrgOkrApiPlugin::new())
+        .plugin(org_api::org_report_api_plugin::OrgReportApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {
@@ -489,6 +490,15 @@ fn main() {
                         .state::<admin_auth_api_plugin::CurAdminSession>()
                         .inner();
                     return tauri::async_runtime::block_on(async move {
+                        if req_url.path().starts_with("/global") {
+                            return fs_api_plugin::http_download_file(
+                                app_handle,
+                                String::from("main"),
+                                req_url.path(),
+                                "",
+                            )
+                            .await;
+                        }
                         let cur_session = user_value.0.lock().await;
                         if let Some(cur_session_id) = cur_session.clone() {
                             return fs_api_plugin::http_download_file(
