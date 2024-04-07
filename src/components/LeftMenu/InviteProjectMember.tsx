@@ -203,7 +203,7 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
   };
 
   useEffect(() => {
-    if (orgStore.orgList.length > 0) {
+    if (userStore.userInfo.featureInfo.enable_org == true && orgStore.orgList.length > 0) {
       setActiveKey("inviteFromOrg");
       setCurOrgId(orgStore.orgList[0].org_id);
     }
@@ -244,56 +244,59 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
       }}
     >
       <Tabs activeKey={activeKey} onChange={key => { setActiveKey(key); console.log(key) }}>
-        <Tabs.TabPane tab="从团队中邀请" key="inviteFromOrg">
-          <Tabs items={orgStore.orgList.map(orgInfo => (
-            {
-              label: orgInfo.basic_info.org_name,
-              key: orgInfo.org_id,
-              children: (
-                <Form style={{ height: "calc(100vh - 440px)", overflowY: "scroll" }} labelCol={{ span: 4 }}>
-                  {inPrjMemberList.length > 0 && (
-                    <Form.Item label="已加入">
-                      <Space>
-                        {inPrjMemberList.map(member => (
-                          <Tag style={{ padding: "0px 4px" }}>
-                            <Space>
-                              <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
-                              {member.display_name}
-                            </Space>
-                          </Tag>
-                        ))}
-                      </Space>
-                    </Form.Item>
-                  )}
-                  {toAckMemberList.length > 0 && (
-                    <Form.Item label="待确认加入">
-                      <Space>
-                        {toAckMemberList.map(member => (
-                          <Tag style={{ padding: "0px 4px" }}>
-                            <Space>
-                              <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
-                              {member.display_name}
-                            </Space>
-                          </Tag>
-                        ))}
-                      </Space>
-                    </Form.Item>
-                  )}
-                  {unJoinMemberList.length > 0 && (
-                    <Form.Item label="待加入">
-                      <Checkbox.Group options={unJoinMemberList.map(member => ({
-                        label: member.display_name,
-                        value: member.member_user_id,
-                      }))} onChange={values => setSelUserIdList(values as string[])} />
-                    </Form.Item>
-                  )}
-                </Form>
-              ),
-            }
-          ))} tabPosition='left' style={{ maxHeight: "calc(100vh - 400px)" }} popupClassName={s.tabList}
-            tabBarStyle={{ width: "100px", overflow: "hidden" }}
-            activeKey={curOrgId} onChange={key => setCurOrgId(key)} />
-        </Tabs.TabPane>
+        {userStore.userInfo.featureInfo.enable_org == true && orgStore.orgList.length > 0 && (
+          <Tabs.TabPane tab="从团队中邀请" key="inviteFromOrg">
+            <Tabs items={orgStore.orgList.map(orgInfo => (
+              {
+                label: orgInfo.basic_info.org_name,
+                key: orgInfo.org_id,
+                children: (
+                  <Form style={{ height: "calc(100vh - 440px)", overflowY: "scroll" }} labelCol={{ span: 4 }}>
+                    {inPrjMemberList.length > 0 && (
+                      <Form.Item label="已加入">
+                        <Space>
+                          {inPrjMemberList.map(member => (
+                            <Tag style={{ padding: "0px 4px" }}>
+                              <Space>
+                                <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                                {member.display_name}
+                              </Space>
+                            </Tag>
+                          ))}
+                        </Space>
+                      </Form.Item>
+                    )}
+                    {toAckMemberList.length > 0 && (
+                      <Form.Item label="待确认加入">
+                        <Space>
+                          {toAckMemberList.map(member => (
+                            <Tag style={{ padding: "0px 4px" }}>
+                              <Space>
+                                <UserPhoto logoUri={member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                                {member.display_name}
+                              </Space>
+                            </Tag>
+                          ))}
+                        </Space>
+                      </Form.Item>
+                    )}
+                    {unJoinMemberList.length > 0 && (
+                      <Form.Item label="待加入">
+                        <Checkbox.Group options={unJoinMemberList.map(member => ({
+                          label: member.display_name,
+                          value: member.member_user_id,
+                        }))} onChange={values => setSelUserIdList(values as string[])} />
+                      </Form.Item>
+                    )}
+                  </Form>
+                ),
+              }
+            ))} tabPosition='left' style={{ maxHeight: "calc(100vh - 400px)" }} popupClassName={s.tabList}
+              tabBarStyle={{ width: "100px", overflow: "hidden" }}
+              activeKey={curOrgId} onChange={key => setCurOrgId(key)} />
+          </Tabs.TabPane>
+        )}
+
         <Tabs.TabPane tab="邀请" key='invite'>
           {linkText == "" && (
             <Form>
