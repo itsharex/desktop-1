@@ -80,9 +80,12 @@ const Portrait = ({ ...props }) => {
     return (
       <div className={s.portrait_wrap}>
         <div className={s.portrait_img}
-          style={{ cursor: userStore.userInfo.testAccount ? "default" : "pointer" }}
+          style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "default" : "pointer" }}
           onClick={() => {
             if (userStore.userInfo.testAccount) {
+              return;
+            }
+            if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
               return;
             }
             setPictrueListVisible(true);
@@ -110,6 +113,9 @@ const Portrait = ({ ...props }) => {
           style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "default" : "pointer", color: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "gray" : "black" }}
           onClick={() => {
             if (userStore.userInfo.testAccount) {
+              return;
+            }
+            if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
               return;
             }
             setPasswordVisible(true);
