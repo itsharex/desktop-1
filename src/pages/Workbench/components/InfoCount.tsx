@@ -12,9 +12,12 @@ import { useHistory } from 'react-router-dom';
 import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
-import { FeatureInfo, update_feature } from '@/api/user';
+import { FeatureInfo, update_feature, USER_TYPE_INTERNAL, update as update_user } from '@/api/user';
 import { PlusSquareTwoTone } from '@ant-design/icons';
 import { joinOrgOrProject } from '@/components/LeftMenu/join';
+import Profile from '@/components/Profile';
+import * as fsApi from '@/api/fs';
+import PasswordModal from '@/components/PasswordModal';
 
 interface JoinModalProps {
   onClose: () => void;
@@ -75,6 +78,9 @@ const InfoCount = () => {
   const [showExit, setShowExit] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
+  const [pictrueListVisible, setPictrueListVisible] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
   const loadMyTodoCount = async () => {
     if (userStore.sessionId == "") {
       return;
@@ -90,6 +96,40 @@ const InfoCount = () => {
     setSshKeyCount(sshKeyNameList.length);
   };
 
+
+  const uploadFile = async (data: string | null) => {
+    if (data === null) {
+      return;
+    }
+    //上传文件
+    const uploadRes = await request(fsApi.write_file_base64(userStore.sessionId, userStore.userInfo.userFsId, "portrait.png", data, ""));
+    console.log(uploadRes);
+    if (!uploadRes) {
+      return;
+    }
+    //设置文件owner
+    const ownerRes = await request(fsApi.set_file_owner({
+      session_id: userStore.sessionId,
+      fs_id: userStore.userInfo.userFsId,
+      file_id: uploadRes.file_id,
+      owner_type: fsApi.FILE_OWNER_TYPE_USER_PHOTO,
+      owner_id: userStore.userInfo.userId,
+    }));
+    if (!ownerRes) {
+      return;
+    }
+    //设置头像url
+    const logoUri = `fs://localhost/${userStore.userInfo.userFsId}/${uploadRes.file_id}/portrait.png`;
+    const updateRes = await request(update_user(userStore.sessionId, {
+      display_name: userStore.userInfo.displayName,
+      logo_uri: logoUri,
+    }));
+    if (updateRes) {
+      setPictrueListVisible(false);
+    }
+    userStore.updateLogoUri(logoUri);
+  };
+
   useEffect(() => {
     loadMyTodoCount();
   }, [userStore.sessionId]);
@@ -101,13 +141,50 @@ const InfoCount = () => {
   return (
     <div className={s.infoCount_wrap}>
       <div className={s.left_wrap}>
-        <UserPhoto logoUri={userStore.userInfo.logoUri} />
+        <div style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "default" : "pointer" }}
+          onClick={e => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (userStore.userInfo.testAccount) {
+              return;
+            }
+            if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
+              return;
+            }
+            setPictrueListVisible(true);
+            userStore.accountsModal = false;
+          }}>
+          <UserPhoto logoUri={userStore.userInfo.logoUri} width='60px' style={{ border: "1px solid white", borderRadius: "30px", marginRight: "14px" }} />
+        </div>
         <div className={s.content}>
-          <div className={s.name}>
-            欢迎您！{userStore.userInfo.displayName}
-            {userStore.sessionId !== "" && (
-              <>
-                (<a style={{ fontSize: "12px" }} onClick={e => {
+          {userStore.sessionId != "" && (
+            <div className={s.name}>
+              欢迎您！{userStore.userInfo.displayName}
+            </div>
+          )}
+          <div
+            className={s.account}
+          >
+            {userStore.sessionId != "" && (
+              <img src={memberIcon} alt="" />
+            )}
+            {userStore.sessionId == "" ? (
+              <Button type="primary" onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                userStore.showUserLogin = () => { };
+              }}>登录</Button>
+            ) : (
+              <Space style={{ paddingLeft: "2px" }}>
+                {userStore.userInfo.testAccount == false && userStore.userInfo.userType == USER_TYPE_INTERNAL && (
+                  <a onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setPasswordVisible(true);
+                    userStore.accountsModal = false;
+                  }}>修改密码</a>
+                )}
+                <a style={{ fontSize: "12px" }} onClick={e => {
                   e.stopPropagation();
                   e.preventDefault();
                   if (appStore.inEdit) {
@@ -116,22 +193,9 @@ const InfoCount = () => {
                   }
                   setShowExit(true);
                   userStore.accountsModal = false;
-                }}>退出登录</a>)
-              </>
+                }}>退出登录</a>
+              </Space>
             )}
-          </div>
-          <div
-            className={s.account}
-            onClick={() => {
-              if (userStore.sessionId == "") {
-                userStore.showUserLogin = () => { };
-              } else {
-                userStore.accountsModal = true;
-              }
-
-            }}
-          >
-            <img src={memberIcon} alt="" /> {userStore.sessionId == "" ? "请登录" : "账号管理"}
           </div>
         </div>
       </div>
@@ -228,7 +292,7 @@ const InfoCount = () => {
           <div className={s.item}>
             <div>加入项目/团队</div>
             <Button type="link" style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
-              icon={<PlusSquareTwoTone style={{ fontSize: "20px",paddingTop:"4px" }} twoToneColor={["orange", "#eee"]} />}
+              icon={<PlusSquareTwoTone style={{ fontSize: "20px", paddingTop: "4px" }} twoToneColor={["orange", "#eee"]} />}
               onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -265,6 +329,17 @@ const InfoCount = () => {
       )}
       {showJoinModal == true && (
         <JoinModal onClose={() => setShowJoinModal(false)} />
+      )}
+      {pictrueListVisible == true && (
+        <Profile
+          visible={pictrueListVisible}
+          defaultSrc={userStore.userInfo.logoUri ?? ""}
+          onCancel={() => setPictrueListVisible(false)}
+          onOK={(data: string | null) => uploadFile(data)}
+        />
+      )}
+      {passwordVisible && (
+        <PasswordModal visible={passwordVisible} onCancel={setPasswordVisible} />
       )}
     </div>
   );
