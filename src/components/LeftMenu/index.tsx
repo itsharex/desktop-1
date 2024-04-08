@@ -71,6 +71,7 @@ const LeftMenu: React.FC = () => {
         <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
 
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(PUB_RES_PATH) ? cls.active_menu : ""}`}
+          style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();
