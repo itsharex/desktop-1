@@ -2,45 +2,53 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  > div {
+
+  >div {
     display: flex;
   }
+
   .left_wrap {
     display: flex;
     align-items: center;
-    > img {
-      width: 60px;
-      height: 60px;
-      margin: 0 14px;
-      border: 1px solid #fff;
-      border-radius: 60px;
-    }
+
+    // img {
+    //   width: 60px;
+    //   height: 60px;
+    //   margin: 0 14px;
+    //   border: 1px solid #fff;
+    //   border-radius: 60px;
+    // }
+
     .content {
-      cursor: pointer;
       .name {
         color: #202021;
         font-size: 14px;
         line-height: 20px;
       }
+
       .account {
         color: #868689;
         font-size: 12px;
         line-height: 17px;
         margin-top: 4px;
+
         img {
           width: 16px;
         }
       }
     }
   }
+
   .right_wrap {
     .item {
       padding: 0 30px;
       text-align: center;
+
       &:nth-child(1) {
         border-right: 1px solid rgb(204 204 204 / 20%);
       }
-      > div {
+
+      >div {
         color: #868689;
         font-size: 12px;
       }

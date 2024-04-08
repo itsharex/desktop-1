@@ -6,6 +6,8 @@ import { homeDir } from '@tauri-apps/api/path';
 import { readTextFile, exists as existPath, createDir, writeTextFile } from '@tauri-apps/api/fs';
 import { writeText } from '@tauri-apps/api/clipboard';
 import { open as shell_open } from '@tauri-apps/api/shell';
+import { useStores } from "@/hooks";
+import { USER_TYPE_ATOM_GIT } from "@/api/user";
 
 export interface SshKeyListModalProps {
     onCount: (count: number) => void;
@@ -13,6 +15,8 @@ export interface SshKeyListModalProps {
 }
 
 const SshKeyListModal = (props: SshKeyListModalProps) => {
+    const userStore = useStores('userStore');
+
     const [sshNameList, setSshNameList] = useState([] as string[]);
     const [inGen, setInGen] = useState(false);
     const [newSshName, setNewSshName] = useState("");
@@ -73,7 +77,19 @@ const SshKeyListModal = (props: SshKeyListModalProps) => {
     }, []);
 
     return (
-        <Modal open title="SSH密钥" footer={null}
+        <Modal open title={
+            <span>
+                SSH密钥&nbsp;
+                {userStore.userInfo.userType == USER_TYPE_ATOM_GIT && (
+                    <>
+                        (<a onClick={e=>{
+                            e.stopPropagation();
+                            e.preventDefault();
+                            shell_open("https://atomgit.com/-/profile/keys");
+                        }}>设置AtomGit密钥</a>)
+                    </>
+                )}
+            </span>} footer={null}
             bodyStyle={{ maxHeight: "calc(100vh - 300px)", overflowY: "scroll" }}
             onCancel={e => {
                 e.stopPropagation();
@@ -102,7 +118,7 @@ const SshKeyListModal = (props: SshKeyListModalProps) => {
             <Form>
                 <Form.Item label="密钥名称" help={
                     <>
-                    {inGen == true && "生成中，请稍等..."}
+                        {inGen == true && "生成中，请稍等..."}
                     </>
                 }>
                     <Space>

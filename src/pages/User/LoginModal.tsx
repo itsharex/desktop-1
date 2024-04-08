@@ -23,7 +23,7 @@ const LoginModal = () => {
 
     const getLoginTagStr = () => {
         if (loginTab == "login") {
-            return `请登录`;
+            return `登录`;
         } else if (loginTab == "reset") {
             return `重置密码`;
         } else if (loginTab == "register") {
