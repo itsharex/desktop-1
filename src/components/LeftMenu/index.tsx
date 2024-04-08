@@ -3,7 +3,6 @@ import { useStores } from '@/hooks';
 import { Layout } from 'antd';
 import { observer } from 'mobx-react';
 import React from 'react';
-import Portrait from '../Portrait';
 import cls from './index.module.less';
 const { Sider } = Layout;
 import UserPhoto from '@/components/Portrait/UserPhoto';
@@ -24,14 +23,15 @@ const LeftMenu: React.FC = () => {
 
   return (
     <Sider className={cls.sider}>
-      <Portrait>
+      {userStore.sessionId == "" && <div style={{ height: "10px" }} />}
+      {userStore.sessionId != "" && (
         <div className={cls.user}>
           <div className={cls.avatar}>
             <UserPhoto logoUri={userStore.userInfo.logoUri ?? ''} />
           </div>
           <div className={cls.name}>{userStore.userInfo.displayName}</div>
         </div>
-      </Portrait>
+      )}
 
       <div>
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(WORKBENCH_PATH) ? cls.active_menu : ""}`}
@@ -71,6 +71,7 @@ const LeftMenu: React.FC = () => {
         <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
 
         <div className={`${cls.workbench_menu} ${location.pathname.startsWith(PUB_RES_PATH) ? cls.active_menu : ""}`}
+          style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();

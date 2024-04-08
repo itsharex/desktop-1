@@ -338,11 +338,11 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
                             </List.Item>
                         )} />
                         {createBranchFrom != "" && (
-                            <CreateBranchModal repo={props.repo} fromBranch={createBranchFrom} 
-                            onCancel={()=>setCreateBranchFrom("")} onOk={()=>{
-                                setCreateBranchFrom("");
-                                loadRepoInfo();
-                            }}/>
+                            <CreateBranchModal repo={props.repo} fromBranch={createBranchFrom}
+                                onCancel={() => setCreateBranchFrom("")} onOk={() => {
+                                    setCreateBranchFrom("");
+                                    loadRepoInfo();
+                                }} />
                         )}
                     </>
                 )}
@@ -479,18 +479,19 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                 }}>
                     {repoList.map(repo => (
                         <Collapse.Panel key={repo.id} header={<span>{repo.repoInfo.name}({repo.repoInfo.path})
-                            {repo.headInfo.branch_name != "" && (
-                                <a style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px" }}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setSelRepoBranchInfo(repo);
-                                    }}>{repo.headInfo.branch_name}</a>
-                            )}
+
 
                         </span>}
                             extra={
                                 <Space size="middle">
+                                    {repo.headInfo.branch_name != "" && (
+                                        <a style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px", width: "100px", display: "inline-block"}}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setSelRepoBranchInfo(repo);
+                                            }}>{repo.headInfo.branch_name}</a>
+                                    )}
                                     <Button style={{ color: "orange", fontWeight: 500 }} onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
