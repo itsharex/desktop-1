@@ -6,7 +6,7 @@ import type { ServerInfo } from '@/api/client_cfg';
 import { list_server } from '@/api/client_cfg';
 import { conn_grpc_server, get_conn_server_addr } from '@/api/main';
 import { MoreOutlined } from "@ant-design/icons";
-import { get_port } from '@/api/local_api';
+import { get_port, get_token } from '@/api/local_api';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { AdminLoginModal } from "@/pages/User/AdminLoginModal";
 import ServerMgrModal from "@/pages/User/ServerMgrModal";
@@ -51,6 +51,7 @@ const ServerConnInfo = () => {
 
     const openLocalApi = async () => {
         const port = await get_port();
+        const token = await get_token();
 
         const label = "localapi";
         const view = WebviewWindow.getByLabel(label);
@@ -60,7 +61,7 @@ const ServerConnInfo = () => {
         const pos = await appWindow.innerPosition();
 
         new WebviewWindow(label, {
-            url: `local_api.html?port=${port}`,
+            url: `local_api.html?port=${port}&token=${token}`,
             width: 800,
             minWidth: 800,
             height: 600,

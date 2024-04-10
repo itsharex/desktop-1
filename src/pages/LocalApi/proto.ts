@@ -1,6 +1,6 @@
 export const PROTO = `openapi: 3.0.0
 info:
-  version: 0.1.20
+  version: 0.1.21
   title: local-api
   description: local api for linksaas desktop
   contact:
@@ -22,10 +22,6 @@ tags:
     description: 项目中缺陷相关接口
   - name: projectEvent
     description: 项目中事件相关接口
-  - name: projectMember
-    description: 项目中成员相关接口
-  - name: projectDoc
-    description: 项目中文档相关接口
   - name: projectCodeComment
     description: 项目中的代码评论
   - name: projectTool
@@ -40,6 +36,8 @@ paths:
       summary: 握手协议
       description: 检查是否linksaas desktop的本地接口服务
       operationId: helloGet
+      parameters:
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -60,6 +58,8 @@ paths:
       summary: 列出微应用
       description: 列出微应用
       operationId: minappGet
+      parameters:
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -94,6 +94,7 @@ paths:
       operationId: minappMinappIdGet
       parameters:
         - $ref: '#/components/parameters/MinappId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -124,6 +125,8 @@ paths:
       summary: 获取项目列表
       description: 获取项目列表
       operationId: projectGet
+      parameters:
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -160,6 +163,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -200,6 +204,7 @@ paths:
       operationId: projectProjectIdBugMyGet
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AccessToken'
         - name: state
           in: query
           required: true
@@ -246,6 +251,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/BugId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -281,6 +287,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/BugId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -314,6 +321,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/BugId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -347,6 +355,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/CommentThreadId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -381,6 +390,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/CommentThreadId'
+        - $ref: '#/components/parameters/AccessToken'
       requestBody:
         content:
           application/json:
@@ -434,6 +444,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/CommentThreadId'
         - $ref: '#/components/parameters/CommentId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -467,6 +478,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/CommentThreadId'
         - $ref: '#/components/parameters/CommentId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -500,6 +512,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/CommentThreadId'
         - $ref: '#/components/parameters/CommentId'
+        - $ref: '#/components/parameters/AccessToken'
       requestBody:
         content:
           application/json:
@@ -548,6 +561,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/EntryId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -581,6 +595,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/FolderId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -636,6 +651,7 @@ paths:
             description: 非空表示只显示对应用户事件，空表示所有用户
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -675,6 +691,7 @@ paths:
       operationId: projectProjectIdEventPost
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AccessToken'
       requestBody:
         content:
           application/json:
@@ -721,6 +738,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -772,6 +790,7 @@ paths:
               - all
               - closed
               - unclose
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -807,6 +826,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -849,6 +869,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -884,6 +905,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -917,6 +939,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -950,6 +973,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/TaskId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -984,6 +1008,7 @@ paths:
       operationId: projectProjectIdToolsPostHookGet
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -1014,6 +1039,8 @@ paths:
       summary: 显示软件桌面
       description: 显示软件桌面
       operationId: showGet
+      parameters:
+        - $ref: '#/components/parameters/AccessToken'
       responses:
         '200':
           description: 成功
@@ -1039,6 +1066,13 @@ paths:
                 $ref: '#/components/schemas/ErrInfo'
 components:
   parameters:
+    AccessToken:
+      in: query
+      name: accessToken
+      schema:
+        type: string
+      required: true
+      description: 访问令牌
     BugId:
       in: path
       name: bugId
