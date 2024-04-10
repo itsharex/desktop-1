@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use local_api_rust::server::MakeService;
 use proto_gen_rust::events_api::{EventRefType, EventType};
 use proto_gen_rust::project_issue_api::IssueType;
+use rust_string_random::{random, Options, RandWay};
 use serde_json::json;
 use std::marker::PhantomData;
 use std::net::TcpListener;
@@ -16,6 +17,17 @@ use tokio::fs;
 use tokio::io::AsyncWriteExt;
 
 pub async fn run(app: AppHandle) {
+    //设置token
+    let options = Options {
+        rand: RandWay::LETTER,
+        numbers: None,
+        letters: None,
+        specials: None,
+    };
+    let rand_str = random(32, options).unwrap_or(String::from(""));
+    let serv_token = app.state::<ServToken>().inner();
+    *serv_token.0.lock().await = Some(rand_str.clone());
+
     for port in 8001..8099 {
         let addr = format!("127.0.0.1:{}", port);
         let listener = TcpListener::bind(&addr);
@@ -41,8 +53,9 @@ pub async fn run(app: AppHandle) {
                 .open(file_path)
                 .await;
             if file.is_ok() {
+                let line = format!("{} {}", &addr, &rand_str);
                 let mut file = file.unwrap();
-                if let Ok(_) = file.write_all(addr.as_bytes()).await {
+                if let Ok(_) = file.write_all(line.as_bytes()).await {
                     //do nothing
                     if let Err(err) = file.flush().await {
                         println!("{}", err);
@@ -101,7 +114,7 @@ use local_api_rust::{
 };
 use swagger::ApiError;
 
-use super::{entry_api, ServPort};
+use super::{entry_api, get_token, ServPort, ServToken};
 
 #[async_trait]
 impl<C> Api<C> for Server<C>
@@ -109,7 +122,18 @@ where
     C: Has<XSpanIdString> + Send + Sync,
 {
     /// 握手协议
-    async fn hello_get(&self, _context: &C) -> Result<HelloGetResponse, ApiError> {
+    async fn hello_get(
+        &self,
+        access_token: String,
+        _context: &C,
+    ) -> Result<HelloGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(HelloGetResponse::Status200 {
+                body: "wrong access token".into(),
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         Ok(HelloGetResponse::Status200 {
             body: "hello linksaas".into(),
             access_control_allow_origin: Some("*".into()),
@@ -117,7 +141,20 @@ where
     }
 
     /// 显示软件桌面
-    async fn show_get(&self, _context: &C) -> Result<ShowGetResponse, ApiError> {
+    async fn show_get(
+        &self,
+        access_token: String,
+        _context: &C,
+    ) -> Result<ShowGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ShowGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(ShowGetResponse::Status500 {
@@ -141,7 +178,20 @@ where
     }
 
     /// 列出微应用
-    async fn minapp_get(&self, _context: &C) -> Result<MinappGetResponse, ApiError> {
+    async fn minapp_get(
+        &self,
+        access_token: String,
+        _context: &C,
+    ) -> Result<MinappGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(MinappGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let app_id_list = crate::user_app_api_plugin::list_app().await;
         if app_id_list.is_err() {
             return Ok(MinappGetResponse::Status500 {
@@ -201,8 +251,18 @@ where
     async fn minapp_minapp_id_get(
         &self,
         minapp_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<MinappMinappIdGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(MinappMinappIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(MinappMinappIdGetResponse::Status500 {
@@ -233,8 +293,18 @@ where
         project_id: String,
         offset: i32,
         limit: i32,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdBugAllGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdBugAllGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res = super::issue_api::list_issue(
             &self.app,
             &project_id,
@@ -274,9 +344,19 @@ where
     async fn project_project_id_bug_my_get(
         &self,
         project_id: String,
+        access_token: String,
         state: String,
         _context: &C,
     ) -> Result<ProjectProjectIdBugMyGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdBugMyGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res =
             super::issue_api::list_my_issue(&self.app, &project_id, IssueType::Bug as i32, &state)
                 .await;
@@ -309,8 +389,18 @@ where
         &self,
         project_id: String,
         bug_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdBugRecordBugIdShowGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdBugRecordBugIdShowGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(ProjectProjectIdBugRecordBugIdShowGetResponse::Status500 {
@@ -352,9 +442,19 @@ where
         to_time: i64,
         offset: i32,
         limit: i32,
+        access_token: String,
         user_id: Option<String>,
         _context: &C,
     ) -> Result<ProjectProjectIdEventGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdEventGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let mut member_user_id = String::from("");
         if let Some(user_id) = user_id {
             member_user_id = user_id;
@@ -402,8 +502,18 @@ where
         project_id: String,
         offset: i32,
         limit: i32,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskAllGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdTaskAllGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res = super::issue_api::list_issue(
             &self.app,
             &project_id,
@@ -444,8 +554,18 @@ where
         &self,
         project_id: String,
         state: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskMyGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdTaskMyGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res =
             super::issue_api::list_my_issue(&self.app, &project_id, IssueType::Task as i32, &state)
                 .await;
@@ -478,8 +598,18 @@ where
         &self,
         project_id: String,
         task_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskRecordTaskIdShowGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdTaskRecordTaskIdShowGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(ProjectProjectIdTaskRecordTaskIdShowGetResponse::Status500 {
@@ -518,8 +648,20 @@ where
         &self,
         project_id: String,
         bug_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdBugRecordBugIdShortNoteGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdBugRecordBugIdShortNoteGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(
@@ -564,8 +706,20 @@ where
         &self,
         project_id: String,
         task_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskRecordTaskIdShortNoteGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdTaskRecordTaskIdShortNoteGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(
@@ -610,8 +764,20 @@ where
         &self,
         project_id: String,
         task_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskRecordTaskIdEventsGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdTaskRecordTaskIdEventsGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let res = super::event_api::list_event_by_ref(
             &self.app,
             &project_id,
@@ -655,8 +821,18 @@ where
         &self,
         project_id: String,
         bug_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdBugRecordBugIdEventsGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdBugRecordBugIdEventsGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res = super::event_api::list_event_by_ref(
             &self.app,
             &project_id,
@@ -694,8 +870,20 @@ where
         &self,
         project_id: String,
         task_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskRecordTaskIdSubTaskGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdTaskRecordTaskIdSubTaskGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let res = super::issue_api::list_sub_task(&self.app, &project_id, &task_id).await;
         if res.is_err() {
             return Ok(
@@ -732,8 +920,20 @@ where
         &self,
         project_id: String,
         task_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdTaskRecordTaskIdDependGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdTaskRecordTaskIdDependGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let my_dep_res = super::issue_api::list_my_depend(&self.app, &project_id, &task_id).await;
         let mut my_dep_list: Vec<IssueInfo> = Vec::new();
         if my_dep_res.is_err() {
@@ -809,8 +1009,20 @@ where
         project_id: String,
         _comment_thread_id: String,
         comment_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdCommentIdDeleteResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdCodeCommentCommentThreadIdCommentIdDeleteResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let res =
             super::project_code_api::remove_comment(&self.app, &project_id, &comment_id).await;
         if res.is_err() {
@@ -849,8 +1061,20 @@ where
         project_id: String,
         _comment_thread_id: String,
         comment_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdCommentIdGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdCodeCommentCommentThreadIdCommentIdGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let res = super::project_code_api::get_comment(&self.app, &project_id, &comment_id).await;
         if res.is_err() {
             return Ok(
@@ -899,9 +1123,21 @@ where
         project_id: String,
         _comment_thread_id: String,
         comment_id: String,
+        access_token: String,
         request: Option<ProjectProjectIdCodeCommentCommentThreadIdPutRequest>,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdCommentIdPostResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdCodeCommentCommentThreadIdCommentIdPostResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         if request.is_none() {
             return Ok(
                 ProjectProjectIdCodeCommentCommentThreadIdCommentIdPostResponse::Status500 {
@@ -962,8 +1198,20 @@ where
         &self,
         project_id: String,
         thread_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdCodeCommentCommentThreadIdGetResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         let res = super::project_code_api::list_comment(&self.app, &project_id, &thread_id).await;
         if res.is_err() {
             return Ok(
@@ -1000,9 +1248,21 @@ where
         &self,
         project_id: String,
         thread_id: String,
+        access_token: String,
         request: Option<ProjectProjectIdCodeCommentCommentThreadIdPutRequest>,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdPutResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(
+                ProjectProjectIdCodeCommentCommentThreadIdPutResponse::Status500 {
+                    body: ErrInfo {
+                        err_msg: Some("令牌错误".into()),
+                    },
+                    access_control_allow_origin: Some("*".into()),
+                },
+            );
+        }
         if request.is_none() {
             return Ok(
                 ProjectProjectIdCodeCommentCommentThreadIdPutResponse::Status500 {
@@ -1065,8 +1325,18 @@ where
     async fn project_project_id_tools_post_hook_get(
         &self,
         project_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdToolsPostHookGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdToolsPostHookGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_some() {
             let win = win.unwrap();
@@ -1086,7 +1356,20 @@ where
     }
 
     /// 获取项目列表
-    async fn project_get(&self, _context: &C) -> Result<ProjectGetResponse, ApiError> {
+    async fn project_get(
+        &self,
+        access_token: String,
+        _context: &C,
+    ) -> Result<ProjectGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let res = super::project_api::list_project(&self.app).await;
         if res.is_err() {
             return Ok(ProjectGetResponse::Status500 {
@@ -1123,16 +1406,21 @@ where
     async fn project_project_id_event_post(
         &self,
         project_id: String,
-        project_project_id_event_post_request: Option<
-            local_api_rust::models::ProjectProjectIdEventPostRequest,
-        >,
+        access_token: String,
+        request: Option<local_api_rust::models::ProjectProjectIdEventPostRequest>,
         _context: &C,
     ) -> Result<ProjectProjectIdEventPostResponse, ApiError> {
-        println!(
-            "request is none {}",
-            project_project_id_event_post_request.is_none()
-        );
-        if project_project_id_event_post_request.is_none() {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdEventPostResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
+        println!("request is none {}", request.is_none());
+        if request.is_none() {
             return Ok(ProjectProjectIdEventPostResponse::Status500 {
                 body: ErrInfo {
                     err_msg: Some("错误的请求参数".into()),
@@ -1141,7 +1429,7 @@ where
             });
         }
 
-        let request = project_project_id_event_post_request.unwrap();
+        let request = request.unwrap();
         println!("{:?}", &request);
         let ev_type = request.ev_type.unwrap_or_default();
         let ev_content = request.ev_content.unwrap_or_default();
@@ -1174,6 +1462,7 @@ where
         _project_id: String,
         _comment_thread_id: String,
         _comment_id: String,
+        _access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdCommentIdOptionsResponse, ApiError> {
         return Ok(
@@ -1191,6 +1480,7 @@ where
         &self,
         _project_id: String,
         _comment_thread_id: String,
+        _access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdCodeCommentCommentThreadIdOptionsResponse, ApiError> {
         return Ok(
@@ -1207,6 +1497,7 @@ where
     async fn project_project_id_event_options(
         &self,
         _project_id: String,
+        _access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdEventOptionsResponse, ApiError> {
         return Ok(ProjectProjectIdEventOptionsResponse::Status200 {
@@ -1223,8 +1514,18 @@ where
         &self,
         project_id: String,
         entry_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdEntryShowEntryIdGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdEntryShowEntryIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let win = self.app.get_window("main");
         if win.is_none() {
             return Ok(ProjectProjectIdEntryShowEntryIdGetResponse::Status500 {
@@ -1254,8 +1555,18 @@ where
         &self,
         project_id: String,
         folder_id: String,
+        access_token: String,
         _context: &C,
     ) -> Result<ProjectProjectIdEntryFolderIdGetResponse, ApiError> {
+        let serv_token = get_token(self.app.clone()).await;
+        if serv_token != access_token {
+            return Ok(ProjectProjectIdEntryFolderIdGetResponse::Status500 {
+                body: ErrInfo {
+                    err_msg: Some("令牌错误".into()),
+                },
+                access_control_allow_origin: Some("*".into()),
+            });
+        }
         let mut parent_folder_id = folder_id;
         if &parent_folder_id == "__ROOT__" {
             let root_folder_id = String::from("");

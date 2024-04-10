@@ -8,16 +8,19 @@ use tauri::{
 
 use crate::project_misc_api::project_tool_api_plugin::ProjectLinksaasYml;
 
+mod entry_api;
 mod event_api;
 mod issue_api;
 mod notice;
 mod project_api;
 mod project_code_api;
-mod entry_api;
 mod server;
 
 #[derive(Default)]
 pub struct ServPort(Mutex<Option<i16>>);
+
+#[derive(Default)]
+pub struct ServToken(Mutex<Option<String>>);
 
 #[tauri::command]
 pub fn remove_info_file() {
@@ -38,6 +41,15 @@ async fn get_port<R: Runtime>(app_handle: AppHandle<R>) -> i16 {
     return 0;
 }
 
+#[tauri::command]
+async fn get_token<R: Runtime>(app_handle: AppHandle<R>) -> String {
+    let token = app_handle.state::<ServToken>().inner();
+    if let Some(value) = token.0.lock().await.clone() {
+        return value;
+    }
+    return String::from("");
+}
+
 pub fn is_instance_run() -> bool {
     let home_dir = dirs::home_dir();
     if home_dir.is_none() {
@@ -52,14 +64,25 @@ pub fn is_instance_run() -> bool {
     let mut file = file.unwrap();
     let mut data: Vec<u8> = Vec::new();
     if let Ok(_) = file.read_to_end(&mut data) {
-        if let Ok(addr) = String::from_utf8(data) {
+        if let Ok(line) = String::from_utf8(data) {
+            let parts: Vec<String> = line.split(" ").map(|x| String::from(x)).collect();
+            let mut addr = String::from("");
+            let mut token = String::from("");
+            if parts.len() >= 1 {
+                addr.clone_from(&parts[0]);
+            }
+            if parts.len() >= 2 {
+                token.clone_from(&parts[1]);
+            }
             let builder = ClientBuilder::new();
             let client = builder.build();
             if client.is_err() {
                 return false;
             }
             let client = client.unwrap();
-            let hello_res = client.get(format!("http://{}/hello", &addr)).send();
+            let hello_res = client
+                .get(format!("http://{}/hello?accessToken={}", &addr, &token))
+                .send();
             if hello_res.is_err() {
                 return false;
             }
@@ -73,7 +96,9 @@ pub fn is_instance_run() -> bool {
                 return false;
             }
             //调用show
-            let show_res = client.get(format!("http://{}/show", &addr)).send();
+            let show_res = client
+                .get(format!("http://{}/show?accessToken={}", &addr, &token))
+                .send();
             if show_res.is_err() {
                 println!("{:?}", show_res.err().unwrap());
             }
@@ -99,11 +124,20 @@ pub fn call_git_post_hook() {
     if let Err(_) = file.read_to_end(&mut data) {
         return;
     }
-    let addr = String::from_utf8(data);
-    if addr.is_err() {
+    let line = String::from_utf8(data);
+    if line.is_err() {
         return;
     }
-    let addr = addr.unwrap();
+    let line = line.unwrap();
+    let parts: Vec<String> = line.split(" ").map(|x| String::from(x)).collect();
+    let mut addr = String::from("");
+    let mut token = String::from("");
+    if parts.len() >= 1 {
+        addr.clone_from(&parts[0]);
+    }
+    if parts.len() >= 2 {
+        token.clone_from(&parts[1]);
+    }
     //读取.linksaas.yml
     let cur_dir = std::env::current_dir();
     if cur_dir.is_err() {
@@ -147,8 +181,8 @@ pub fn call_git_post_hook() {
     let client = client.unwrap();
     let res = client
         .get(format!(
-            "http://{}/project/{}/tools/postHook",
-            &addr, cfg.project_id
+            "http://{}/project/{}/tools/postHook?accessToken={}",
+            &addr, cfg.project_id, &token
         ))
         .send();
     if res.is_err() {
@@ -164,7 +198,11 @@ pub struct LocalApiPlugin {
 impl LocalApiPlugin {
     pub fn new() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![remove_info_file, get_port]),
+            invoke_handler: Box::new(tauri::generate_handler![
+                remove_info_file,
+                get_port,
+                get_token
+            ]),
         }
     }
 }
@@ -180,6 +218,7 @@ impl Plugin<tauri::Wry> for LocalApiPlugin {
     fn initialize(&mut self, app: &AppHandle, _config: serde_json::Value) -> PluginResult<()> {
         let handle = app.clone();
         app.manage(ServPort(Default::default()));
+        app.manage(ServToken(Default::default()));
         tauri::async_runtime::spawn(async move {
             server::run(handle).await;
         });
