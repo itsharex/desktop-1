@@ -17,6 +17,7 @@ use tokio::fs;
 use tokio::io::AsyncWriteExt;
 
 pub async fn run(app: AppHandle) {
+    println!("start local api server");
     //设置token
     let options = Options {
         rand: RandWay::LETTER,
@@ -25,8 +26,10 @@ pub async fn run(app: AppHandle) {
         specials: None,
     };
     let rand_str = random(32, options).unwrap_or(String::from(""));
-    let serv_token = app.state::<ServToken>().inner();
-    *serv_token.0.lock().await = Some(rand_str.clone());
+    {
+        let serv_token = app.state::<ServToken>().inner();
+        *serv_token.0.lock().await = Some(rand_str.clone());
+    }
 
     for port in 8001..8099 {
         let addr = format!("127.0.0.1:{}", port);
@@ -40,9 +43,10 @@ pub async fn run(app: AppHandle) {
         if builder.is_err() {
             continue;
         }
-        let serv_port = app.state::<ServPort>().inner();
-        *serv_port.0.lock().await = Some(port as i16);
-
+        {
+            let serv_port = app.state::<ServPort>().inner();
+            *serv_port.0.lock().await = Some(port as i16);
+        }
         //写入$HOME/.linksaas/local_api文件
         if let Some(home_dir) = dirs::home_dir() {
             let file_path = format!("{}/.linksaas/local_api", home_dir.to_str().unwrap());
@@ -74,6 +78,7 @@ pub async fn run(app: AppHandle) {
             local_api_rust::server::context::MakeAddContext::<_, EmptyContext>::new(service);
 
         builder.unwrap().serve(service).await.unwrap();
+        break;
     }
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigProvider } from 'antd';
+import { Card, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import { createRoot } from 'react-dom/client';
 import 'moment/dist/locale/zh-cn';
@@ -13,17 +13,16 @@ const Swagger = () => {
     const location = useLocation();
     const urlParams = new URLSearchParams(location.search);
     const portStr = urlParams.get("port") ?? "8001";
+    const tokenStr = urlParams.get("token") ?? "";
 
     return (
-        <div style={{ height: "100vh", overflow: "scroll" }}>
+        <Card title="本地接口" extra={`访问令牌    ${tokenStr}`} bodyStyle={{ height: "calc(100vh - 40px)", overflowY: "scroll" }}>
             <SwaggerUI spec={PROTO.replace("__PORT__", portStr)} />
-        </div>
+        </Card>
     );
 }
 
 const App = () => {
-
-
     return (
         <ConfigProvider locale={zhCN}>
             <BrowserRouter>
