@@ -112,6 +112,8 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     const [refIssueType, setRefIssueType] = useState<ISSUE_TYPE | null>(null);
     const [newIssueType, setNewIssueType] = useState<ISSUE_TYPE | null>(null);
 
+    const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+
     const cancelLinkSprit = async (issueId: string) => {
         await request(cancel_link_sprit(userStore.sessionId, projectStore.curProjectId, issueId));
     }
@@ -169,7 +171,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     }
 
     const memberSelectItems = getMemberSelectItems(memberStore.memberList.map(item => item.member));
-
 
     const columns: ColumnsTypes[] = [
         {
@@ -524,6 +525,14 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
         },
     ];
 
+    useEffect(() => {
+        if (expandedRowKeys.length == 0) {
+            const keys = props.taskStore.itemList.filter(item => item.sub_issue_status.total_count > 0).map(item => item.issue_id);
+            setExpandedRowKeys(keys);
+        }
+
+    }, [props.taskStore.itemList])
+
     return (
         <div style={{ height: "calc(100vh - 140px)", overflowY: "scroll" }}>
             <Card title="任务列表" bordered={false} headStyle={{ fontSize: "16px", fontWeight: 600 }} className={props.taskStore.itemList.filter(item => {
@@ -583,6 +592,8 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                         expandIconColumnIndex: 1,
                         columnTitle: "子面板",
                         columnWidth: 60,
+                        expandedRowKeys: expandedRowKeys,
+                        onExpandedRowsChange: keys => setExpandedRowKeys(keys as string[]),
                     }}
                 />
             </Card>
