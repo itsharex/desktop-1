@@ -12,3 +12,8 @@ export async function get_port(): Promise<number> {
     return invoke<number>(cmd, {});
 }
 
+//获取访问令牌
+export async function get_token(): Promise<string> {
+    const cmd = 'plugin:local_api|get_token';
+    return invoke<string>(cmd, {});
+}
