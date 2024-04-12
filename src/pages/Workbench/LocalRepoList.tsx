@@ -306,7 +306,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             <Tabs.TabPane tab="工作目录" key="workDir">
                 <WorkDir basePath={props.repo.path} widgetList={widgetList} headBranch={props.headBranch} />
             </Tabs.TabPane>
-            <Tabs.TabPane tab="提交列表" key="commitList">
+            <Tabs.TabPane tab="提交记录" key="commitList">
                 {activeKey == "commitList" && (
                     <CommitList repo={props.repo} branchList={branchList} />
                 )}
@@ -485,7 +485,11 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                             extra={
                                 <Space size="middle">
                                     {repo.headInfo.branch_name != "" && (
-                                        <a style={{ backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px", borderRadius: "10px", width: "100px", display: "inline-block"}}
+                                        <a style={{
+                                            backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px",
+                                            borderRadius: "10px", width: "150px", display: "block", textWrap: "wrap",
+                                            textOverflow: "ellipsis", overflow: "hidden"
+                                        }}
                                             onClick={e => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
