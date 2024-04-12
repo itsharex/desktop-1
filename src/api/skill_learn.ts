@@ -4,7 +4,9 @@ export type LearnRecordInfo = {
     user_id: string;
     point_id: string;
     learn_material_content: string;
+    learn_material_len: number;
     my_learned_content: string;
+    my_learned_len: number;
     learn_hour: number;
     user_display_name: string;
     user_logo_uri: string;
@@ -26,7 +28,9 @@ export type AddLearnRecordRequest ={
     cate_id: string;
     point_id: string;
     learn_material_content: string;
+    learn_material_len: number;
     my_learned_content: string;
+    my_learned_len: number;
     learn_hour: number;
 };
 
@@ -40,7 +44,9 @@ export type UpdateLearnRecordRequest ={
     cate_id: string;
     point_id: string;
     learn_material_content: string;
+    learn_material_len: number;
     my_learned_content: string;
+    my_learned_len: number;
     learn_hour: number;
 };
 
