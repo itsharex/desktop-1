@@ -16,7 +16,7 @@ import {
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
     ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -37,6 +37,7 @@ const AdminNav = () => {
     const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
     const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
     const [ideastoreSelectedKeys, setIdeastoreSelectedKeys] = useState<string[]>([]);
+    const [skillcenterSelectedKeys, setSkillcenterSelectedKeys] = useState<string[]>([]);
     const [dockerTemplateSelectedKeys, setDockerTemplateSelectedKeys] = useState<string[]>([]);
     const [devContainerSelectedKeys, setDevContainerSelectedKeys] = useState<string[]>([]);
 
@@ -94,6 +95,15 @@ const AdminNav = () => {
     }, [location.pathname]);
 
     useEffect(() => {
+        setSkillcenterSelectedKeys([]);
+        if (location.pathname == ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX) {
+            setSkillcenterSelectedKeys(["skillcenter_cate"]);
+        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX) {
+            setSkillcenterSelectedKeys(["skillcenter_point"]);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
         setDockerTemplateSelectedKeys([]);
         if (location.pathname == ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX) {
             setDockerTemplateSelectedKeys(["docker_template_cate"]);
@@ -140,7 +150,7 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore", "skillcenter"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -299,6 +309,30 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
+                <Collapse.Panel header="技能点管理" key="skillcenter">
+                    <Menu selectedKeys={skillcenterSelectedKeys} items={[
+                        {
+                            label: "技能分类",
+                            key: "skillcenter_cate",
+                            disabled: !(permInfo?.skill_center_perm.read ?? false),
+                        },
+                        {
+                            label: "技能点",
+                            key: "skillcenter_point",
+                            disabled: !(permInfo?.skill_center_perm.read ?? false),
+                        },
+                    ]} 
+                    style={{ borderRightWidth: "0px" }}
+                    onSelect={e=>{
+                        if(e.selectedKeys.length == 1){
+                            if(e.selectedKeys[0] == "skillcenter_cate"){
+                                history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
+                            }else if(e.selectedKeys[0] == "skillcenter_point"){
+                                history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);
+                            }
+                        }
+                    }}/>
+                </Collapse.Panel>
                 {permInfo?.global_server == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
                         <Menu selectedKeys={dockerTemplateSelectedKeys} items={[

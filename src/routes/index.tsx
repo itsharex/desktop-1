@@ -40,6 +40,8 @@ import {
   ADMIN_PATH_WIDGET_SUFFIX,
   ADMIN_PATH_SOFTWARE_CATE_SUFFIX,
   ADMIN_PATH_SOFTWARE_SUFFIX,
+  ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
+  ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -77,6 +79,8 @@ import OrgDetail from '@/pages/Org/OrgDetail';
 import WidgetList from '@/pages/Admin/GitWidgetAdmin/WidgetList';
 import SoftWareCateList from '@/pages/Admin/SoftWareAdmin/SoftWareCateList';
 import SoftWareList from '@/pages/Admin/SoftWareAdmin/SoftWareList';
+import SkillCateList from '@/pages/Admin/SkillCenterAdmin/SkillCateList';
+import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -344,6 +348,18 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
         title: "知识库类别管理",
         component: IdeaStoreCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
+        title: "技能列表管理",
+        component: SkillCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
+        title: "技能点管理",
+        component: SkillPointList,
         exact: true,
       },
       {
