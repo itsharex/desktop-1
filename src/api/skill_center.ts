@@ -61,7 +61,7 @@ export type GetSkillCateRequest = {
     cate_id: string;
 };
 
-export type GetSkillCateResponse ={
+export type GetSkillCateResponse = {
     code: number;
     err_msg: string;
     cate_info: SkillCateInfo;

@@ -312,12 +312,12 @@ const AdminNav = () => {
                 <Collapse.Panel header="技能点管理" key="skillcenter">
                     <Menu selectedKeys={skillcenterSelectedKeys} items={[
                         {
-                            label: "技能分类",
+                            label: "管理技能分类",
                             key: "skillcenter_cate",
                             disabled: !(permInfo?.skill_center_perm.read ?? false),
                         },
                         {
-                            label: "技能点",
+                            label: "管理技能点",
                             key: "skillcenter_point",
                             disabled: !(permInfo?.skill_center_perm.read ?? false),
                         },
