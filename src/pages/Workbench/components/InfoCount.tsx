@@ -138,6 +138,8 @@ const InfoCount = () => {
     loadSshKeyCount();
   }, []);
 
+
+
   return (
     <div className={s.infoCount_wrap}>
       <div className={s.left_wrap}>
@@ -216,6 +218,36 @@ const InfoCount = () => {
             </Button>
           </div>
         </div>
+
+        {userStore.sessionId != "" && (
+          <div className={s.item}>
+            <div>我的技能点</div>
+            <div>
+              <Space>
+                <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    //TODO
+                  }} disabled={!userStore.userInfo.featureInfo.enable_skill_center}>
+                  {userStore.userInfo.learnStateInfo.learn_point_count}
+                </Button>
+                <Switch size='small' checked={userStore.userInfo.featureInfo.enable_skill_center} onChange={value => {
+                  const feature: FeatureInfo = {
+                    enable_project: userStore.userInfo.featureInfo.enable_project,
+                    enable_org: userStore.userInfo.featureInfo.enable_org,
+                    enable_skill_center: value,
+                  };
+                  request(update_feature({
+                    session_id: userStore.sessionId,
+                    feature: feature,
+                  })).then(() => userStore.updateFeature(feature));
+                }} />
+              </Space>
+            </div>
+          </div>
+        )}
+
         {userStore.sessionId != "" && (
           <div className={s.item}>
             <div>当前待办</div>

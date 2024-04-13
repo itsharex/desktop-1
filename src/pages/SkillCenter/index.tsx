@@ -1,0 +1,34 @@
+import React, { useState } from "react";
+import s from "./index.module.less";
+import { observer } from 'mobx-react';
+import { Tabs } from "antd";
+import SkillCenter from "./SkillCenter";
+
+const SkillCenterPage = () => {
+    const [activeKey, setActiveKey] = useState<"myLearn" | "skillCenter">("myLearn");
+
+    return (
+        <div className={s.tabs_wrap}>
+            <Tabs activeKey={activeKey}
+                type='card'
+                onChange={key => setActiveKey(key as "myLearn" | "skillCenter")}>
+                <Tabs.TabPane tab={<h2>我的学习记录</h2>} key="myLearn">
+                    {activeKey == "myLearn" && (
+                        <div className={s.content_wrap}>
+                            xx
+                        </div>
+                    )}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={<h2>技能大全</h2>} key="skillCenter">
+                    {activeKey == "skillCenter" && (
+                        <div className={s.content_wrap}>
+                            <SkillCenter />
+                        </div>
+                    )}
+                </Tabs.TabPane>
+            </Tabs>
+        </div>
+    );
+};
+
+export default observer(SkillCenterPage);

@@ -2,6 +2,7 @@ import * as issueApi from '@/api/project_issue';
 
 export const WORKBENCH_PATH = '/app/workbench';
 export const PUB_RES_PATH = '/app/pubres';
+export const SKILL_CENTER_PATH = "/app/skillcenter"
 
 export const RESET_TEXT = 'resetPassword';
 
