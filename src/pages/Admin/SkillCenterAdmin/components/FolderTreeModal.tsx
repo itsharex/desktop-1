@@ -6,7 +6,7 @@ import { list_skill_folder } from "@/api/skill_center";
 import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
 import { FolderOutlined } from "@ant-design/icons";
-
+import s from "./FolderTreeModal.module.less";
 
 export interface FolderTreeModalProps {
     cateId: string;
@@ -33,6 +33,7 @@ const FolderTreeModal = (props: FolderTreeModalProps) => {
                 title: folderInfo.folder_name,
                 children: [],
                 icon: <FolderOutlined />,
+                switcherIcon: () => "",
                 selectable: true,
             }
             nodeList.push(subNode);
@@ -57,6 +58,7 @@ const FolderTreeModal = (props: FolderTreeModalProps) => {
             children: tmpNodeList,
             checkable: false,
             selectable: true,
+            switcherIcon: () => "",
             icon: <FolderOutlined />,
         }]);
 
@@ -71,6 +73,7 @@ const FolderTreeModal = (props: FolderTreeModalProps) => {
     return (
         <Modal open title="选择目录" footer={null}
             bodyStyle={{ maxHeight: "calc(100vh - 300px)", overflowY: "scroll" }}
+            className={s.treeWrap}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -78,7 +81,6 @@ const FolderTreeModal = (props: FolderTreeModalProps) => {
             }}>
 
             <Tree expandedKeys={expandKeyList} treeData={treeNodeList} showIcon
-                showLine
                 onSelect={keys => {
                     if (keys.length > 0) {
                         props.onOk(keys[0] as string);

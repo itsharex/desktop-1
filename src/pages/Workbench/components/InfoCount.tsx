@@ -249,6 +249,7 @@ const InfoCount = () => {
                   const feature: FeatureInfo = {
                     enable_project: value,
                     enable_org: userStore.userInfo.featureInfo.enable_org,
+                    enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                   };
                   request(update_feature({
                     session_id: userStore.sessionId,
@@ -277,6 +278,7 @@ const InfoCount = () => {
                   const feature: FeatureInfo = {
                     enable_project: userStore.userInfo.featureInfo.enable_project,
                     enable_org: value,
+                    enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                   };
                   request(update_feature({
                     session_id: userStore.sessionId,

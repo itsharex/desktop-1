@@ -48,6 +48,7 @@ class UserStore {
     featureInfo: {
       enable_project: false,
       enable_org: false,
+      enable_skill_center: false,
     },
   };
 
@@ -100,6 +101,7 @@ class UserStore {
         featureInfo: {
           enable_project: false,
           enable_org: false,
+          enable_skill_center: false,
         },
       };
     });
