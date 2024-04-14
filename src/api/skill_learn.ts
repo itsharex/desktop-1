@@ -18,12 +18,12 @@ export type LearnRecordInfo = {
     my_vote: boolean;
 };
 
-export type MyLearnStateInfo ={
+export type MyLearnStateInfo = {
     learn_point_count: number;
     last_learn_time: number;
 };
 
-export type AddLearnRecordRequest ={
+export type AddLearnRecordRequest = {
     session_id: string;
     cate_id: string;
     point_id: string;
@@ -34,12 +34,12 @@ export type AddLearnRecordRequest ={
     learn_hour: number;
 };
 
-export type AddLearnRecordResponse ={
+export type AddLearnRecordResponse = {
     code: number;
     err_msg: string;
 };
 
-export type UpdateLearnRecordRequest ={
+export type UpdateLearnRecordRequest = {
     session_id: string;
     cate_id: string;
     point_id: string;
@@ -50,7 +50,7 @@ export type UpdateLearnRecordRequest ={
     learn_hour: number;
 };
 
-export type UpdateLearnRecordResponse ={
+export type UpdateLearnRecordResponse = {
     code: number;
     err_msg: string;
 };
@@ -87,7 +87,7 @@ export type GetMySkillStateRequest = {
     session_id: string;
 };
 
-export type GetMySkillStateResponse ={
+export type GetMySkillStateResponse = {
     code: number;
     err_msg: string;
     state_info: MyLearnStateInfo;
@@ -107,6 +107,17 @@ export type ListMyLearnRecordResponse = {
     record_list: LearnRecordInfo[];
 };
 
+export type GetMyLearnRecordRequest = {
+    session_id: string;
+    cate_id: string;
+    point_id: string;
+};
+
+export type GetMyLearnRecordResponse = {
+    code: number;
+    err_msg: string;
+    record_info: LearnRecordInfo;
+};
 
 export type VoteRequest = {
     session_id: string;
@@ -129,7 +140,7 @@ export type CancelVoteRequest = {
 };
 
 export type CancelVoteResponse = {
-    code: number;  
+    code: number;
     err_msg: string;
 };
 
@@ -183,6 +194,15 @@ export async function list_my_learn_record(request: ListMyLearnRecordRequest): P
     const cmd = 'plugin:skill_learn_api|list_my_learn_record';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListMyLearnRecordResponse>(cmd, {
+        request,
+    });
+}
+
+//获取我的单条学习记录
+export async function get_my_learn_record(request: GetMyLearnRecordRequest): Promise<GetMyLearnRecordResponse> {
+    const cmd = 'plugin:skill_learn_api|get_my_learn_record';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetMyLearnRecordResponse>(cmd, {
         request,
     });
 }

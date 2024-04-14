@@ -116,6 +116,9 @@ export default class SkillCenterStore {
     }
 
     async onUpdatePoint(pointId: string) {
+        if (pointId == "") {
+            return;
+        }
         const tmpList = this._pointList.slice();
         const index = tmpList.findIndex(item => item.point_id == pointId);
         if (index == -1) {
