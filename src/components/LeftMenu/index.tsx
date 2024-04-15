@@ -6,9 +6,9 @@ import React from 'react';
 import cls from './index.module.less';
 const { Sider } = Layout;
 import ProjectList from './ProjectList';
-import { GlobalOutlined } from '@ant-design/icons';
+import { GlobalOutlined, RocketOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
-import { PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import OrgList from './OrgList';
 
 const LeftMenu: React.FC = () => {
@@ -79,6 +79,27 @@ const LeftMenu: React.FC = () => {
           }}>
           <GlobalOutlined />&nbsp;公共资源
         </div>
+        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_skill_center && (
+          <div className={`${cls.workbench_menu} ${location.pathname.startsWith(SKILL_CENTER_PATH) ? cls.active_menu : ""}`}
+            style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (appStore.inEdit) {
+                appStore.showCheckLeave(() => {
+                  history.push(SKILL_CENTER_PATH);
+                  projectStore.setCurProjectId("");
+                  orgStore.setCurOrgId("");
+                });
+                return;
+              }
+              history.push(SKILL_CENTER_PATH);
+              projectStore.setCurProjectId("");
+              orgStore.setCurOrgId("");
+            }}>
+            <RocketOutlined />&nbsp;技能中心
+          </div>
+        )}
       </div>
     </Sider>
   );
