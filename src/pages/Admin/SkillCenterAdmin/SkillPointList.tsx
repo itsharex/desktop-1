@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Breadcrumb, Button, Card, Form, Input, InputNumber, message, Modal, Select, Space, Table } from "antd";
+import { Breadcrumb, Button, Card, Dropdown, Form, Input, InputNumber, message, Modal, Select, Space, Table } from "antd";
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
 import type { SkillCateInfo, FolderPathInfo, SkillFolderInfo, SkillPointInfo } from "@/api/skill_center";
@@ -68,6 +68,53 @@ const AddFolderModal = (props: AddModalProps) => {
     );
 };
 
+const AddMultiFolderModal = (props: AddModalProps) => {
+    const [nameText, setNameText] = useState("");
+
+    const createFolder = async () => {
+        const sessionId = await get_admin_session();
+        for (const name of nameText.split("\n")) {
+            if (name.trim() == "") {
+                continue;
+            }
+            await request(create_skill_folder({
+                admin_session_id: sessionId,
+                folder_name: name.trim(),
+                parent_folder_id: props.curFolderId,
+                cate_id: props.curCateId,
+                weight: 0,
+            }));
+        }
+        props.onOk();
+        message.info("创建成功");
+    };
+
+    return (
+        <Modal open title="批量创建目录"
+            okText="创建"
+            onCancel={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.onCancel();
+            }}
+            onOk={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                createFolder();
+            }}>
+            <Form>
+                <Form.Item>
+                    <Input.TextArea value={nameText} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setNameText(e.target.value);
+                    }} autoSize={{ minRows: 10, maxRows: 10 }} />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+}
+
 const AddPointModal = (props: AddModalProps) => {
     const [name, setName] = useState("");
     const [weight, setWeight] = useState(0);
@@ -84,6 +131,7 @@ const AddPointModal = (props: AddModalProps) => {
         props.onOk();
         message.info("创建成功");
     };
+
     return (
         <Modal open title="创建技能点"
             okText="创建" okButtonProps={{ disabled: name == "" }}
@@ -118,6 +166,53 @@ const AddPointModal = (props: AddModalProps) => {
 };
 
 
+const AddMultiPointModal = (props: AddModalProps) => {
+    const [nameText, setNameText] = useState("");
+
+    const createPoint = async () => {
+        const sessionId = await get_admin_session();
+        for (const name of nameText.split("\n")) {
+            if (name.trim() == "") {
+                continue;
+            }
+            await request(create_skill_point({
+                admin_session_id: sessionId,
+                point_name: name.trim(),
+                parent_folder_id: props.curFolderId,
+                cate_id: props.curCateId,
+                weight: 0,
+            }));
+        }
+        props.onOk();
+        message.info("创建成功");
+    };
+
+    return (
+        <Modal open title="批量创建技能点"
+            okText="创建"
+            onCancel={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                props.onCancel();
+            }}
+            onOk={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                createPoint();
+            }}>
+            <Form>
+                <Form.Item>
+                    <Input.TextArea value={nameText} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setNameText(e.target.value);
+                    }} autoSize={{ minRows: 10, maxRows: 10 }} />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
+
 const SkillPointList = () => {
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
     const [cateList, setCateList] = useState<SkillCateInfo[]>([]);
@@ -129,6 +224,10 @@ const SkillPointList = () => {
 
     const [showAddFolderModal, setShowAddFolderModal] = useState(false);
     const [showAddPointModal, setShowAddPointModal] = useState(false);
+
+    const [showAddMultiFolderModal, setShowAddMultiFolderModal] = useState(false);
+    const [showAddMultiPointModal, setShowAddMultiPointModal] = useState(false);
+
 
     const [removeFolderInfo, setRemoveFolderInfo] = useState<SkillFolderInfo | null>(null);
     const [moveFolderInfo, setMoveFolderInfo] = useState<SkillFolderInfo | null>(null);
@@ -152,7 +251,6 @@ const SkillPointList = () => {
     };
 
     const loadSubFolderList = async () => {
-        console.log("xxxxxxxxxxxx");
         if (curCateId == "") {
             return;
         }
@@ -501,12 +599,23 @@ const SkillPointList = () => {
             <Card title="技能目录" bordered={false}
                 headStyle={{ fontSize: "16px", fontWeight: 700 }}
                 extra={
-                    <Button type="primary" disabled={!((permInfo?.skill_center_perm.create_folder ?? false) && curCateId != "")}
+                    <Dropdown.Button type="primary" disabled={!((permInfo?.skill_center_perm.create_folder ?? false) && curCateId != "")}
                         onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowAddFolderModal(true);
-                        }}>创建目录</Button>
+                        }}
+                        menu={{
+                            items: [
+                                {
+                                    key: "multiCreate",
+                                    label: "批量创建",
+                                    onClick: () => {
+                                        setShowAddMultiFolderModal(true);
+                                    },
+                                }
+                            ]
+                        }}>创建目录</Dropdown.Button>
                 }>
                 <Table rowKey="folder_id" dataSource={subFolderList} columns={folderColumns} pagination={false} />
             </Card>
@@ -514,12 +623,23 @@ const SkillPointList = () => {
             <Card title="技能点" bordered={false}
                 headStyle={{ fontSize: "16px", fontWeight: 700 }}
                 extra={
-                    <Button type="primary" disabled={!((permInfo?.skill_center_perm.create_point ?? false) && curCateId != "")}
+                    <Dropdown.Button type="primary" disabled={!((permInfo?.skill_center_perm.create_point ?? false) && curCateId != "")}
                         onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowAddPointModal(true);
-                        }}>创建技能点</Button>
+                        }}
+                        menu={{
+                            items: [
+                                {
+                                    key: "multiCreate",
+                                    label: "批量创建",
+                                    onClick: () => {
+                                        setShowAddMultiPointModal(true);
+                                    },
+                                }
+                            ]
+                        }}>创建技能点</Dropdown.Button>
                 }>
                 <Table rowKey="point_id" dataSource={subPointList} columns={pointColumns} pagination={false} />
             </Card>
@@ -531,10 +651,24 @@ const SkillPointList = () => {
                         loadSubFolderList();
                     }} />
             )}
+            {showAddMultiFolderModal == true && (
+                <AddMultiFolderModal curCateId={curCateId} curFolderId={curFolderId} onCancel={() => setShowAddMultiFolderModal(false)}
+                    onOk={() => {
+                        setShowAddMultiFolderModal(false);
+                        loadSubFolderList();
+                    }} />
+            )}
             {showAddPointModal == true && (
                 <AddPointModal curCateId={curCateId} curFolderId={curFolderId} onCancel={() => setShowAddPointModal(false)}
                     onOk={() => {
                         setShowAddPointModal(false);
+                        loadSubPointList();
+                    }} />
+            )}
+            {showAddMultiPointModal == true && (
+                <AddMultiPointModal curCateId={curCateId} curFolderId={curFolderId} onCancel={() => setShowAddMultiPointModal(false)}
+                    onOk={() => {
+                        setShowAddMultiPointModal(false);
                         loadSubPointList();
                     }} />
             )}
