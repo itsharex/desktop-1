@@ -12,6 +12,8 @@ export type LearnRecordInfo = {
     user_logo_uri: string;
     point_name: string;
     full_point_name: string;
+    cate_id: string;
+    cate_name: string;
     create_time: number;
     update_time: number;
     vote_count: number;

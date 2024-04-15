@@ -24,6 +24,7 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     const [materialCount, setMaterialCount] = useState(0);
     const [learnedCount, setLearnedCount] = useState(0);
 
+    const [hasLoad, setHasLoad] = useState(false);
 
     const materialEditor = useCommonEditor({
         content: "",
@@ -62,6 +63,10 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     };
 
     const loadLearnRecord = async () => {
+        if (hasLoad) {
+            return;
+        }
+        setHasLoad(true);
         const res = await request(get_my_learn_record({
             session_id: userStore.sessionId,
             cate_id: props.cateId,
@@ -69,7 +74,7 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
         }));
         setLearnHour(res.record_info.learn_hour);
         materialEditor.editorRef.current?.setContent(res.record_info.learn_material_content);
-        learnedEditor.editorRef.current?.setContent(res.record_info.learn_material_content);
+        learnedEditor.editorRef.current?.setContent(res.record_info.my_learned_content);
     };
 
     const addLearnRecord = async () => {
@@ -102,13 +107,14 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
             my_learned_len: learnedCount,
             learn_hour: learnHour,
         }));
+        props.onOk();
     };
 
     useEffect(() => {
         if (props.update && materialEditor.editorRef.current != null && learnedEditor.editorRef.current != null) {
             loadLearnRecord();
         }
-    }, [props.update, materialEditor.editorRef.current, learnedEditor.editorRef.current]);
+    }, [props.update, materialEditor.editorRef.current, learnedEditor.editorRef.current, props.pointId]);
 
     useEffect(() => {
         const timer = setInterval(() => updateCount(), 200);
