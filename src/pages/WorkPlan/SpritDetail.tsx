@@ -321,13 +321,13 @@ const SpritDetail = () => {
                                         {spritTab == "kanban" && (
                                             <Form.Item>
                                                 <Dropdown.Button type="primary"
-                                                    disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                                                    disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)) || !projectStore.isAdmin}
                                                     menu={{
                                                         items: [
                                                             {
                                                                 key: "refTask",
                                                                 label: "引用任务",
-                                                                disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                                                disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false) || !projectStore.isAdmin),
                                                                 onClick: () => setRefIssueType(ISSUE_TYPE_TASK),
                                                             },
                                                             {

@@ -1,7 +1,7 @@
-import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider } from "antd";
+import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo, HeadInfo } from "@/api/local_repo";
-import { list_repo, remove_repo, list_repo_branch, list_repo_tag, analyse, list_remote, get_http_url, get_head_info } from "@/api/local_repo";
+import { list_repo, remove_repo, list_repo_branch, list_repo_tag, analyse, list_remote, get_http_url, get_head_info, list_git_filter } from "@/api/local_repo";
 import { BranchesOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
 import SetLocalRepoModal from "./components/SetLocalRepoModal";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
@@ -236,6 +236,7 @@ interface LocalRepoPanelProps {
     repoVersion: number;
     headBranch: string;
     repo: LocalRepoInfo;
+    filterList: string[];
 }
 
 const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
@@ -304,7 +305,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             setActiveKey(key);
         }}>
             <Tabs.TabPane tab="工作目录" key="workDir">
-                <WorkDir basePath={props.repo.path} widgetList={widgetList} headBranch={props.headBranch} />
+                <WorkDir basePath={props.repo.path} widgetList={widgetList} headBranch={props.headBranch} filterList={props.filterList} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交记录" key="commitList">
                 {activeKey == "commitList" && (
@@ -368,7 +369,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
                 {activeKey == "status" && (
-                    <ChangeFileList repo={props.repo} onCommit={() => loadRepoInfo()} />
+                    <ChangeFileList repo={props.repo} onCommit={() => loadRepoInfo()} filterList={props.filterList} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -404,6 +405,7 @@ interface LocalRepoInfoWithHead {
     id: string;
     repoInfo: LocalRepoInfo;
     headInfo: HeadInfo;
+    filterList: string[];
 }
 
 const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
@@ -426,10 +428,12 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
             for (const repo of res) {
                 try {
                     const headInfo = await get_head_info(repo.path);
+                    const filterList = await list_git_filter(repo.path);
                     tmpList.push({
                         id: repo.id,
                         repoInfo: repo,
                         headInfo: headInfo,
+                        filterList: filterList,
                     });
                 } catch (e) {
                     console.log(e);
@@ -479,11 +483,12 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                 }}>
                     {repoList.map(repo => (
                         <Collapse.Panel key={repo.id} header={<span>{repo.repoInfo.name}({repo.repoInfo.path})
-
-
                         </span>}
                             extra={
                                 <Space size="middle">
+                                    {repo.filterList.map(filterItem => (
+                                        <Tag key={filterItem} style={{ fontSize: "14px", fontWeight: 700, padding: "4px 4px", backgroundColor: "#eee" }}>{filterItem}</Tag>
+                                    ))}
                                     {repo.headInfo.branch_name != "" && (
                                         <a style={{
                                             backgroundColor: "#ddd", padding: "4px 10px", marginLeft: "20px",
@@ -554,7 +559,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                 </Space>
                             }>
                             {activeKey == repo.id && (
-                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name} />
+                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name} filterList={repo.filterList} />
                             )}
                         </Collapse.Panel>
                     ))}

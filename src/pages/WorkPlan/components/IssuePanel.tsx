@@ -188,7 +188,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 }
                 return (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {(entryStore.curEntry?.can_update ?? false) && <Deliconsvg
+                        {(entryStore.curEntry?.can_update ?? false) && projectStore.isAdmin && <Deliconsvg
                             style={{ marginRight: '10px', cursor: 'pointer', color: '#0E83FF' }}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -548,13 +548,13 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 <Form style={{ marginRight: "20px" }}>
                     <Form.Item>
                         <Dropdown.Button type="primary"
-                            disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                            disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false) || !projectStore.isAdmin)}
                             menu={{
                                 items: [
                                     {
                                         key: "refTask",
                                         label: "引用任务",
-                                        disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                        disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false) || !projectStore.isAdmin),
                                         onClick: () => setRefIssueType(ISSUE_TYPE_TASK),
                                     },
                                 ]
@@ -602,13 +602,13 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                     <Form style={{ marginRight: "20px" }}>
                         <Form.Item>
                             <Dropdown.Button type="primary"
-                                disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false))}
+                                disabled={(projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)) || !projectStore.isAdmin}
                                 menu={{
                                     items: [
                                         {
                                             key: "refBug",
                                             label: "引用缺陷",
-                                            disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false)),
+                                            disabled: (projectStore.isClosed || !(entryStore.curEntry?.can_update ?? false) || !projectStore.isAdmin),
                                             onClick: () => setRefIssueType(ISSUE_TYPE_BUG),
                                         }
                                     ]
