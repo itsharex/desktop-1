@@ -6,6 +6,12 @@ export type BasicOrgInfo = {
     org_desc: string;
 };
 
+export type Setting = {
+    enable_day_report: boolean;
+    enble_week_report: boolean;
+    enable_okr: boolean;
+}
+
 export type OrgInfo = {
     org_id: string;
     basic_info: BasicOrgInfo;
@@ -17,6 +23,7 @@ export type OrgInfo = {
     new_member_depart_ment_id: string;
     depart_ment_count: number;
     member_count: number;
+    setting: Setting;
 };
 
 export type DepartMentInfo = {
@@ -41,6 +48,7 @@ export type DepartMentOrMember = {
 export type CreateOrgRequest = {
     session_id: string;
     basic_info: BasicOrgInfo;
+    setting: Setting;
 };
 
 export type CreateOrgResponse = {
@@ -61,6 +69,16 @@ export type UpdateOrgResponse = {
     err_msg: string;
 };
 
+export type UpdateOrgSettingRequest = {
+    session_id: string;
+    org_id: string;
+    setting: Setting;
+};
+
+export type UpdateOrgSettingResponse = {
+    code: number;
+    err_msg: string;
+};
 
 export type ListOrgRequest = {
     session_id: string;
@@ -198,6 +216,15 @@ export async function update_org(request: UpdateOrgRequest): Promise<UpdateOrgRe
     const cmd = 'plugin:org_api|update_org';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<UpdateOrgResponse>(cmd, {
+        request,
+    });
+}
+
+//更新组织设置
+export async function update_org_setting(request: UpdateOrgSettingRequest): Promise<UpdateOrgSettingResponse> {
+    const cmd = 'plugin:org_api|update_org_setting';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<UpdateOrgSettingResponse>(cmd, {
         request,
     });
 }

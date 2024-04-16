@@ -57,6 +57,31 @@ async fn update_org<R: Runtime>(
 }
 
 #[tauri::command]
+async fn update_org_setting<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: UpdateOrgSettingRequest,
+) -> Result<UpdateOrgSettingResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = OrgApiClient::new(chan.unwrap());
+    match client.update_org_setting(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == update_org_setting_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("update_org_setting".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn list_org<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -316,6 +341,7 @@ impl<R: Runtime> OrgApiPlugin<R> {
             invoke_handler: Box::new(tauri::generate_handler![
                 create_org,
                 update_org,
+                update_org_setting,
                 list_org,
                 get_org,
                 remove_org,

@@ -108,6 +108,32 @@ async fn list_learn_record<R: Runtime>(
 }
 
 #[tauri::command]
+async fn list_learn_record_in_org<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListLearnRecordInOrgRequest,
+) -> Result<ListLearnRecordInOrgResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = SkillLearnApiClient::new(chan.unwrap());
+    match client.list_learn_record_in_org(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_learn_record_in_org_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_learn_record_in_org".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+
+#[tauri::command]
 async fn get_my_skill_state<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -244,6 +270,7 @@ impl<R: Runtime> SkillLearnApiPlugin<R> {
                 update_learn_record,
                 remove_learn_record,
                 list_learn_record,
+                list_learn_record_in_org,
                 get_my_skill_state,
                 list_my_learn_record,
                 get_my_learn_record,

@@ -124,9 +124,9 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     }, []);
 
     return (
-        <Modal open title={props.update ? <div>修改学习记录(<span style={{ color: "red" }}>修改后会清空点赞数据</span>)</div> : "增加学习记录"}
+        <Modal open title={props.update ? <div>修改学习记录(<span style={{ color: "red" }}>修改后会清空点赞数据</span>)</div> : "我已学会"}
             width={600}
-            okText={props.update ? "修改" : "增加"}
+            okText={props.update ? "修改" : "我已学会"}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
