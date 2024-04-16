@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MemberInfo } from "@/api/org_mebmer";
 import { Button, Tabs } from "antd";
 import { observer } from 'mobx-react';
@@ -7,7 +7,8 @@ import DayReportList, { EditModal as EditDayReportModal } from "./DayReportList"
 import WeekReportList, { EditModal as EditWeekReportModal } from "./WeekReportList";
 import { PlusOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
-
+import type { Tab } from "rc-tabs/lib/interface";
+import LearnRecordList from "./LearnRecordList";
 
 export interface MemberPanelProps {
     curMember: MemberInfo;
@@ -15,48 +16,77 @@ export interface MemberPanelProps {
 
 const MemberPanel = (props: MemberPanelProps) => {
     const userStore = useStores('userStore');
+    const orgStore = useStores("orgStore");
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [activeKey, setActiveKey] = useState<"dayReport" | "weekReport" | "okr">("dayReport");
+    const [activeKey, setActiveKey] = useState<"dayReport" | "weekReport" | "okr" | "learnRecord" | "">("");
 
     const [dayReportDataVersion, setDayReportDataVersion] = useState(0);
     const [weekReportDataVersion, setWeekReportDataVersion] = useState(0);
     const [okrDataVersion, setOkrDataVersion] = useState(0);
 
+    const [tabList, setTabList] = useState<Tab[]>([]);
+
+    const calcTabList = () => {
+        const tmpList: Tab[] = [];
+        if (orgStore.curOrg?.setting.enable_day_report == true) {
+            tmpList.push({
+                key: "dayReport",
+                label: "日报",
+                children: (
+                    <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                        <DayReportList memberUserId={props.curMember.member_user_id} dataVersion={dayReportDataVersion} />
+                    </div>
+                ),
+            });
+        }
+        if (orgStore.curOrg?.setting.enble_week_report == true) {
+            tmpList.push({
+                key: "weekReport",
+                label: "周报",
+                children: (
+                    <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                        <WeekReportList memberUserId={props.curMember.member_user_id} dataVersion={weekReportDataVersion} />
+                    </div>
+                ),
+            });
+        }
+        if (orgStore.curOrg?.setting.enable_okr == true) {
+            tmpList.push({
+                key: "okr",
+                label: "个人目标",
+                children: (
+                    <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                        <OkrList memberUserId={props.curMember.member_user_id} dataVersion={okrDataVersion} />
+                    </div>
+                ),
+            });
+        }
+        tmpList.push({
+            key: "learnRecord",
+            label: "学习记录",
+            children: (
+                <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                    <LearnRecordList memberUserId={props.curMember.member_user_id} />
+                </div>
+            ),
+        });
+        if (tmpList.length > 0 && tmpList.map(item => item.key).includes(activeKey) == false) {
+            setActiveKey((tmpList[0].key ?? "") as "dayReport" | "weekReport" | "okr" | "learnRecord");
+        }
+        setTabList(tmpList);
+    };
+
+    useEffect(() => {
+        calcTabList();
+    }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report, orgStore.curOrg?.setting.enable_okr]);
+
     return (
         <>
-            <Tabs activeKey={activeKey} onChange={key => setActiveKey(key as "dayReport" | "weekReport" | "okr")}
+            <Tabs activeKey={activeKey} onChange={key => setActiveKey(key as "dayReport" | "weekReport" | "okr" | "learnRecord")}
                 type="card"
                 tabBarStyle={{ fontSize: "16px", fontWeight: 600, paddingLeft: "10px", height: "40px" }}
-                items={[
-                    {
-                        key: "dayReport",
-                        label: "日报",
-                        children: (
-                            <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
-                                <DayReportList memberUserId={props.curMember.member_user_id} dataVersion={dayReportDataVersion} />
-                            </div>
-                        ),
-                    },
-                    {
-                        key: "weekReport",
-                        label: "周报",
-                        children: (
-                            <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
-                                <WeekReportList memberUserId={props.curMember.member_user_id} dataVersion={weekReportDataVersion} />
-                            </div>
-                        ),
-                    },
-                    {
-                        key: "okr",
-                        label: "个人目标",
-                        children: (
-                            <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
-                                <OkrList memberUserId={props.curMember.member_user_id} dataVersion={okrDataVersion} />
-                            </div>
-                        ),
-                    }
-                ]} tabBarExtraContent={
+                items={tabList} tabBarExtraContent={
                     <div style={{ paddingRight: "10px" }}>
                         {activeKey == "dayReport" && props.curMember.member_user_id == userStore.userInfo.userId && (
                             <Button type="primary" icon={<PlusOutlined />} onClick={e => {
