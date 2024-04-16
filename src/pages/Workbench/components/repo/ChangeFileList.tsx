@@ -6,6 +6,7 @@ import { add_to_index, get_repo_status, remove_from_index, run_commit } from "@/
 
 export interface ChangeFileListProps {
     repo: LocalRepoInfo;
+    filterList: string[];
     onCommit: () => void;
 }
 
@@ -77,7 +78,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                                     } else {
                                         removeFromIndex(item.path);
                                     }
-                                }} />
+                                }} disabled={props.filterList.length > 0} />
                             {item.path}
                         </div>
                         <div style={{ flex: 1 }}>
