@@ -4,10 +4,11 @@ import { observer } from 'mobx-react';
 import { Button, Card, Space, Tree } from "antd";
 import type { DataNode } from "antd/lib/tree";
 import { useStores } from "@/hooks";
-import { TeamOutlined, UserAddOutlined } from "@ant-design/icons";
+import { SettingOutlined, TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import type { MemberInfo } from "@/api/org_mebmer";
 import s from "./OrgTree.module.less";
+import UpdateOrgModal from "./UpdateOrgModal";
 
 export interface OrgTreeProps {
     curItem: DepartMentOrMember,
@@ -19,6 +20,7 @@ const OrgTree = (props: OrgTreeProps) => {
     const orgStore = useStores('orgStore');
 
     const [treeNodeList, setTreeNodeList] = useState([] as DataNode[]);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     const checkSelectAble = (myMember: MemberInfo | undefined, targetMember: MemberInfo): boolean => {
         if (myMember == undefined) {
@@ -99,11 +101,18 @@ const OrgTree = (props: OrgTreeProps) => {
             extra={
                 <>
                     {userStore.userInfo.userId == orgStore.curOrg?.owner_user_id && (
-                        <Button type="primary" icon={<UserAddOutlined />} onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            orgStore.showInviteMember = true;
-                        }}>邀请</Button>
+                        <Space>
+                            <Button type="primary" icon={<UserAddOutlined />} onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                orgStore.showInviteMember = true;
+                            }}>邀请</Button>
+                            <Button type="text" icon={<SettingOutlined />} title="设置" onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowUpdateModal(true);
+                            }} />
+                        </Space>
                     )}
                 </>
             }
@@ -141,6 +150,9 @@ const OrgTree = (props: OrgTreeProps) => {
                         }
                     }
                 }} />
+            {orgStore.curOrg != undefined && showUpdateModal == true && (
+                <UpdateOrgModal orgInfo={orgStore.curOrg} onClose={() => setShowUpdateModal(false)} />
+            )}
         </Card>
     );
 };

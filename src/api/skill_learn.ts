@@ -84,6 +84,20 @@ export type ListLearnRecordResponse = {
     record_list: LearnRecordInfo[];
 };
 
+export type ListLearnRecordInOrgRequest = {
+    session_id: string;
+    org_id: string;
+    member_user_id: string;
+    offset: number;
+    limit: number;
+};
+
+export type ListLearnRecordInOrgResponse = {
+    code: number;
+    err_msg: string;
+    total_count: number;
+    record_list: LearnRecordInfo[];
+};
 
 export type GetMySkillStateRequest = {
     session_id: string;
@@ -178,6 +192,15 @@ export async function list_learn_record(request: ListLearnRecordRequest): Promis
     const cmd = 'plugin:skill_learn_api|list_learn_record';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListLearnRecordResponse>(cmd, {
+        request,
+    });
+}
+
+//列出组织成员的学习记录
+export async function list_learn_record_in_org(request: ListLearnRecordInOrgRequest): Promise<ListLearnRecordInOrgResponse> {
+    const cmd = 'plugin:skill_learn_api|list_learn_record_in_org';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListLearnRecordInOrgResponse>(cmd, {
         request,
     });
 }

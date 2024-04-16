@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Tabs } from "antd";
+import { Checkbox, Form, Input, Modal, Space, Tabs } from "antd";
 import React, { useState } from "react";
 import { useCommonEditor } from '@/components/Editor';
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
@@ -26,6 +26,10 @@ const CreatedOrJoinOrg = (props: CreatedOrJoinOrgProps) => {
     const [orgName, setOrgName] = useState("");
     const [activeKey, setActiveKey] = useState("create");
     const [linkText, setLinkText] = useState('');
+
+    const [enableDayReport, setEnableDayReport] = useState(true);
+    const [enableWeekReport, setEnableWeekReport] = useState(true);
+    const [enableOkr, setEnableOkr] = useState(true);
 
     const { editor, editorRef } = useCommonEditor({
         placeholder: "请输入团队介绍",
@@ -57,6 +61,11 @@ const CreatedOrJoinOrg = (props: CreatedOrJoinOrgProps) => {
             basic_info: {
                 org_name: orgName,
                 org_desc: JSON.stringify(content),
+            },
+            setting: {
+                enable_day_report: enableDayReport,
+                enble_week_report: enableWeekReport,
+                enable_okr: enableOkr,
             },
         }));
         await orgStore.onJoin(res.org_id, userStore.userInfo.userId);
@@ -98,6 +107,25 @@ const CreatedOrJoinOrg = (props: CreatedOrJoinOrgProps) => {
                                         e.preventDefault();
                                         setOrgName(e.target.value.trim());
                                     }} />
+                                </Form.Item>
+                                <Form.Item label="团队功能">
+                                    <Space>
+                                        <Checkbox checked={enableDayReport} style={{ backgroundColor: "#eee", padding: "2px 4px" }}
+                                            onChange={e => {
+                                                e.stopPropagation();
+                                                setEnableDayReport(e.target.checked);
+                                            }}>日报</Checkbox>
+                                        <Checkbox checked={enableWeekReport} style={{ backgroundColor: "#eee", padding: "2px 4px" }}
+                                            onChange={e => {
+                                                e.stopPropagation();
+                                                setEnableWeekReport(e.target.checked);
+                                            }}>周报</Checkbox>
+                                        <Checkbox checked={enableOkr} style={{ backgroundColor: "#eee", padding: "2px 4px" }}
+                                            onChange={e => {
+                                                e.stopPropagation();
+                                                setEnableOkr(e.target.checked);
+                                            }}>个人目标</Checkbox>
+                                    </Space>
                                 </Form.Item>
                                 <Form.Item label="团队介绍">
                                     <div className="_projectEditContext" style={{ marginTop: '-12px' }}>

@@ -6,7 +6,6 @@ import SkillTree from "./components/SkillTree";
 import { useStores } from "@/hooks";
 import { MoreOutlined } from "@ant-design/icons";
 import EditLearnRecordModal from "./components/EditLearnRecordModal";
-import moment from "moment";
 import { request } from "@/utils/request";
 import { remove_learn_record } from "@/api/skill_learn";
 import PointLearnRecordList from "./components/PointLearnRecordList";
@@ -60,8 +59,7 @@ const SkillCenter = () => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     setShowAddModal(true);
-                                }} disabled={moment().valueOf() - userStore.userInfo.learnStateInfo.last_learn_time < (2 * 3600 * 1000)}
-                                    title={moment().valueOf() - userStore.userInfo.learnStateInfo.last_learn_time < (2 * 3600 * 1000) ? "需要间隔2个小时才能学习新技能" : ""}>增加学习记录</Button>
+                                }} >我已学会</Button>
                             )}
 
                             {(skillCenterStore.curPoint?.has_learn ?? false) == true && (
@@ -86,7 +84,7 @@ const SkillCenter = () => {
                             )}
                         </div>
                     }>
-                    <PointLearnRecordList cateId={skillCenterStore.curCateId} pointId={skillCenterStore.curPointId} dataVersion={learnDataVersion}/>
+                    <PointLearnRecordList cateId={skillCenterStore.curCateId} pointId={skillCenterStore.curPointId} dataVersion={learnDataVersion} />
                 </Card>
             )}
 

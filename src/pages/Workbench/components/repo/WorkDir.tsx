@@ -172,13 +172,13 @@ const PullModal = observer((props: ModalProps) => {
                 )}
                 {recvRatio != 0 && (
                     <Form.Item label="下载进度">
-                        <Progress percent={recvRatio} showInfo={false}/>
+                        <Progress percent={recvRatio} showInfo={false} />
                     </Form.Item>
                 )}
                 {indexRatio != 0 && (
                     <Form.Item label="索引进度">
-                    <Progress percent={indexRatio} showInfo={false}/>
-                </Form.Item>
+                        <Progress percent={indexRatio} showInfo={false} />
+                    </Form.Item>
                 )}
             </Form>
         </Modal>
@@ -335,6 +335,7 @@ interface WorkDirProps {
     basePath: string;
     headBranch: string;
     widgetList: WidgetInfo[];
+    filterList: string[];
 }
 
 const WorkDir = (props: WorkDirProps) => {
@@ -383,18 +384,18 @@ const WorkDir = (props: WorkDirProps) => {
             } extra={
                 <Space>
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="pull" onClick={e => {
+                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title={props.filterList.length > 0 ? "请使用命令行工具" : "pull"} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowPullModal(true);
-                        }} />
+                        }} disabled={props.filterList.length > 0} />
                     )}
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title="push" onClick={e => {
+                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title={props.filterList.length > 0 ? "请使用命令行工具" : "push"} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowPushModal(true);
-                        }} />
+                        }} disabled={props.filterList.length > 0}/>
                     )}
                     <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
                         onClick={e => {

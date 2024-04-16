@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { Command } from '@tauri-apps/api/shell';
 import { message } from 'antd';
 import { resolve, homeDir } from '@tauri-apps/api/path';
-import { exists as exist_path, readDir } from '@tauri-apps/api/fs';
+import { exists as exist_path, readDir, readTextFile } from '@tauri-apps/api/fs';
 
 export type SshKeyPairInfo = {
     pub_key: string;
@@ -541,3 +541,25 @@ export async function list_ssh_key_name(): Promise<string[]> {
     return retList;
 }
 
+export async function list_git_filter(path: string): Promise<string[]> {
+    const attrPath = await resolve(path, ".gitattributes");
+    const exist = await exist_path(attrPath);
+    if (!exist) {
+        return [];
+    }
+    const filterSet = new Set<string>();
+    const lines = await readTextFile(attrPath);
+    const p = /\s+filter=([^\s]*)/;
+    for (const line of lines.split("\n")) {
+        const match = line.match(p);
+        if (match == null) {
+            continue
+        }
+        filterSet.add(match[1]);
+    }
+    const retList: string[] = [];
+    for (const filter of filterSet.keys()) {
+        retList.push(filter);
+    }
+    return retList;
+}
