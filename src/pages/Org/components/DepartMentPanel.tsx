@@ -13,6 +13,7 @@ import { request } from "@/utils/request";
 import { MoreOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import type { DataNode } from "antd/lib/tree";
+import s from "./OrgTree.module.less";
 
 interface SelectDepartMentModalProps {
     skipDepartMentIdList: string[];
@@ -65,6 +66,7 @@ const SelectDepartMentModal = observer((props: SelectDepartMentModalProps) => {
 
     return (
         <Modal open title="选择部门"
+            className={s.treeWrap}
             okText="选择" okButtonProps={{ disabled: props.skipDepartMentIdList.includes(selectKey) }}
             onCancel={e => {
                 e.stopPropagation();

@@ -16,6 +16,7 @@ mod project_content_api;
 mod project_mgr_api;
 mod project_misc_api;
 mod pubres_api;
+mod skill_api;
 
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
@@ -477,6 +478,9 @@ fn main() {
         .plugin(org_api::org_member_api_plugin::OrgMemberApiPlugin::new())
         .plugin(org_api::org_okr_api_plugin::OrgOkrApiPlugin::new())
         .plugin(org_api::org_report_api_plugin::OrgReportApiPlugin::new())
+        .plugin(skill_api::skill_center_admin_api_plugin::SkillCenterAdminApiPlugin::new())
+        .plugin(skill_api::skill_center_api_plugin::SkillCenterApiPlugin::new())
+        .plugin(skill_api::skill_learn_api_plugin::SkillLearnApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {

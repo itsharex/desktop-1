@@ -21,6 +21,7 @@ const joinOrg = async (inviteCode: string, userStore: UserStore, projectStore: P
         const feature = {
             enable_project: userStore.userInfo.featureInfo.enable_project,
             enable_org: true,
+            enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
         };
         await request(update_feature({
             session_id: userStore.sessionId,
@@ -43,6 +44,7 @@ const joinProject = async (inviteCode: string, userStore: UserStore, projectStor
         const feature = {
             enable_project: true,
             enable_org: userStore.userInfo.featureInfo.enable_org,
+            enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
         };
         await request(update_feature({
             session_id: userStore.sessionId,

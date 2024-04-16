@@ -7,6 +7,7 @@ import { useStores } from "@/hooks";
 import { TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import type { MemberInfo } from "@/api/org_mebmer";
+import s from "./OrgTree.module.less";
 
 export interface OrgTreeProps {
     curItem: DepartMentOrMember,
@@ -47,6 +48,7 @@ const OrgTree = (props: OrgTreeProps) => {
                 key: departMent.depart_ment_id,
                 title: departMent.depart_ment_name,
                 children: [],
+                switcherIcon: () => "",
                 icon: <TeamOutlined />,
                 selectable: true,
             }
@@ -81,6 +83,7 @@ const OrgTree = (props: OrgTreeProps) => {
             children: tmpNodeList,
             checkable: false,
             selectable: true,
+            switcherIcon: () => "",
             icon: <TeamOutlined />,
         }]);
     };
@@ -91,7 +94,8 @@ const OrgTree = (props: OrgTreeProps) => {
 
     return (
         <Card bordered={false} title={`团队:${orgStore.curOrg?.basic_info.org_name}`}
-            headStyle={{fontWeight: 600, backgroundColor: "#eee" }}
+            headStyle={{ fontWeight: 600, backgroundColor: "#eee" }}
+            className={s.treeWrap}
             extra={
                 <>
                     {userStore.userInfo.userId == orgStore.curOrg?.owner_user_id && (

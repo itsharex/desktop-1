@@ -2,6 +2,7 @@ import * as issueApi from '@/api/project_issue';
 
 export const WORKBENCH_PATH = '/app/workbench';
 export const PUB_RES_PATH = '/app/pubres';
+export const SKILL_CENTER_PATH = "/app/skillcenter"
 
 export const RESET_TEXT = 'resetPassword';
 
@@ -33,6 +34,10 @@ export const ADMIN_PATH_APPSTORE_APP_SUFFIX = '/admin/appstore/app';
 export const ADMIN_PATH_IDEA_STORE_CATE_SUFFIX = "/admin/ideastore/cate";
 export const ADMIN_PATH_IDEA_STORE_SUFFIX = "/admin/ideastore/store";
 export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
+
+
+export const ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX = "/admin/skillcenter/cate";
+export const ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX = "/admin/skillcenter/point";
 
 export const ADMIN_PATH_WIDGET_SUFFIX = "/admin/widgetstore/widget"
 

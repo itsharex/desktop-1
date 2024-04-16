@@ -6,6 +6,8 @@ import { showMyShortNote } from '@/utils/short_note';
 import { WebviewWindow } from '@tauri-apps/api/window';
 import { sleep } from '@/utils/time';
 import { get_status } from "@/api/user_notice";
+import type { MyLearnStateInfo } from "@/api/skill_learn";
+import { get_my_skill_state } from "@/api/skill_learn";
 
 type UserInfo = {
   userId: string;
@@ -19,6 +21,7 @@ type UserInfo = {
   unReadNotice: number;
   totalNotice: number;
   featureInfo: FeatureInfo;
+  learnStateInfo: MyLearnStateInfo;
 };
 
 class UserStore {
@@ -48,6 +51,11 @@ class UserStore {
     featureInfo: {
       enable_project: false,
       enable_org: false,
+      enable_skill_center: false,
+    },
+    learnStateInfo: {
+      learn_point_count: 0,
+      last_learn_time: 0,
     },
   };
 
@@ -100,6 +108,11 @@ class UserStore {
         featureInfo: {
           enable_project: false,
           enable_org: false,
+          enable_skill_center: false,
+        },
+        learnStateInfo: {
+          learn_point_count: 0,
+          last_learn_time: 0,
         },
       };
     });
@@ -133,33 +146,38 @@ class UserStore {
   async callLogin(username: string, password: string, userType: USER_TYPE) {
     const res = await request(login(username, password, userType));
 
-    if (res) {
-      runInAction(() => {
-        this._sessionId = res.session_id;
-        sessionStorage.setItem('sessionId', res.session_id);
-        this.userInfo = {
-          userId: res.user_info.user_id,
-          userType: userType,
-          userName: res.user_info.user_name,
-          displayName: res.user_info.basic_info.display_name,
-          logoUri: res.user_info.basic_info.logo_uri,
-          userFsId: res.user_info.user_fs_id,
-          extraToken: res.extra_token,
-          testAccount: res.user_info.test_account,
-          unReadNotice: 0,
-          totalNotice: 0,
-          featureInfo: res.user_info.feature ?? {
-            enable_project: false,
-            enable_org: false,
-          },
-        };
-        this.rootStore.projectStore.initLoadProjectList();
-        this.rootStore.orgStore.initLoadOrgList();
-      });
-      await showMyShortNote(res.session_id);
-      await this.updateNoticeStatus(res.session_id);
-      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
-    }
+
+    runInAction(() => {
+      this._sessionId = res.session_id;
+      sessionStorage.setItem('sessionId', res.session_id);
+      this.userInfo = {
+        userId: res.user_info.user_id,
+        userType: userType,
+        userName: res.user_info.user_name,
+        displayName: res.user_info.basic_info.display_name,
+        logoUri: res.user_info.basic_info.logo_uri,
+        userFsId: res.user_info.user_fs_id,
+        extraToken: res.extra_token,
+        testAccount: res.user_info.test_account,
+        unReadNotice: 0,
+        totalNotice: 0,
+        featureInfo: res.user_info.feature ?? {
+          enable_project: false,
+          enable_org: false,
+        },
+        learnStateInfo: {
+          learn_point_count: 0,
+          last_learn_time: 0,
+        },
+      };
+      this.rootStore.projectStore.initLoadProjectList();
+      this.rootStore.orgStore.initLoadOrgList();
+    });
+    await showMyShortNote(res.session_id);
+    await this.updateNoticeStatus(res.session_id);
+    await this.updateLearnState(res.session_id);
+    sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+
     if (this._showUserLogin != null) {
       this._showUserLogin();
       runInAction(() => {
@@ -173,6 +191,14 @@ class UserStore {
     runInAction(() => {
       this.userInfo.unReadNotice = res.un_read_count;
       this.userInfo.totalNotice = res.total_count;
+      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+    });
+  }
+
+  async updateLearnState(sessionId: string) {
+    const res = await request(get_my_skill_state({ session_id: sessionId }));
+    runInAction(() => {
+      this.userInfo.learnStateInfo = res.state_info;
       sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
     });
   }
