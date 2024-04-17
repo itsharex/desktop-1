@@ -7,7 +7,7 @@ import { homeDir, resolve } from '@tauri-apps/api/path';
 import { type WidgetInfo } from "@/api/widget";
 import GitFile from "./GitFile";
 import type { RemoteInfo } from "@/api/local_repo";
-import { checkout_branch, fetch_remote, list_remote, list_ssh_key_name, run_pull, run_push } from "@/api/local_repo";
+import { checkout_branch, fetch_remote, get_repo_status, list_remote, list_ssh_key_name, run_pull, run_push } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
@@ -51,6 +51,12 @@ const PullModal = observer((props: ModalProps) => {
     };
 
     const runPull = async () => {
+        //检查是否有文件变更
+        const statusRes = await get_repo_status(props.repoPath);
+        if (statusRes.path_list.length > 0) {
+            message.warn("本地有文件修改未提交，请先提交文件");
+            return;
+        }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         try {
@@ -60,7 +66,6 @@ const PullModal = observer((props: ModalProps) => {
                 setIndexRatio(info.indexObjs / Math.max(info.totalObjs, 1) * 100);
             });
             await run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
-            await checkout_branch(props.repoPath, props.headBranch);
             message.info("拉取成功");
             props.onClose();
         } catch (e) {
@@ -395,7 +400,7 @@ const WorkDir = (props: WorkDirProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowPushModal(true);
-                        }} disabled={props.filterList.length > 0}/>
+                        }} disabled={props.filterList.length > 0} />
                     )}
                     <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
                         onClick={e => {
