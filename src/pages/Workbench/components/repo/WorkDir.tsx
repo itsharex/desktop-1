@@ -7,7 +7,7 @@ import { homeDir, resolve } from '@tauri-apps/api/path';
 import { type WidgetInfo } from "@/api/widget";
 import GitFile from "./GitFile";
 import type { RemoteInfo } from "@/api/local_repo";
-import { checkout_branch, fetch_remote, get_repo_status, list_remote, list_ssh_key_name, run_pull, run_push } from "@/api/local_repo";
+import { fetch_remote, get_repo_status, list_remote, list_ssh_key_name, run_pull, run_push } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
