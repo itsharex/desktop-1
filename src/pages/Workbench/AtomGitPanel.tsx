@@ -44,6 +44,14 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
         }
     };
 
+    const getRepoId = (fullName: string) => {
+        const parts = fullName.split("/");
+        if (parts.length > 1) {
+            return parts[1];
+        }
+        return "";
+    };
+
     useEffect(() => {
         findLocalRepo();
     }, [props.repoInfo?.id]);
@@ -113,7 +121,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "工单列表",
                                     children: (
                                         <>
-                                            {activeKey == "issue" && <AtomGitIssueList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
+                                            {activeKey == "issue" && <AtomGitIssueList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -122,7 +130,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "分支列表",
                                     children: (
                                         <>
-                                            {activeKey == "branch" && <AtomGitBranchList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
+                                            {activeKey == "branch" && <AtomGitBranchList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -131,7 +139,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                                     label: "标签列表",
                                     children: (
                                         <>
-                                            {activeKey == "tag" && <AtomGitTagList repoName={props.repoInfo.name ?? ""} curOrgId={props.curOrgId} />}
+                                            {activeKey == "tag" && <AtomGitTagList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
                                         </>
                                     ),
                                 },
@@ -140,7 +148,7 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
                 </>
             )}
             {cloneUrl != "" && (
-                <AddRepoModal name={props.repoInfo?.name ?? ""} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
+                <AddRepoModal name={props.repoInfo?.name ?? ""} enName={getRepoId(props.repoInfo?.full_name ?? "")} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
                     onOk={() => {
                         findLocalRepo();
                         setCloneUrl("");

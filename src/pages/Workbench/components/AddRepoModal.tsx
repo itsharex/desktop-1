@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import type { CloneProgressInfo } from "@/api/local_repo";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog, save as save_dialog } from '@tauri-apps/api/dialog';
-import { get_repo_status, add_repo, clone as clone_repo, list_ssh_key_name } from "@/api/local_repo";
+import { get_repo_status, add_repo, clone as clone_repo, list_ssh_key_name, test_ssh } from "@/api/local_repo";
 import { uniqId } from "@/utils/utils";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
@@ -13,6 +13,7 @@ import { homeDir } from '@tauri-apps/api/path';
 
 interface AddRepoModalProps {
     name?: string;
+    enName?: string;
     remoteUrl?: string;
     onCancel: () => void;
     onOk: () => void;
@@ -46,7 +47,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
             }
             setLocalPath(selected);
         } else {
-            const savePath = await resolve(home, props.name ?? "new_prj");
+            const savePath = await resolve(home, props.enName ?? "new_prj");
             const selected = await save_dialog({
                 title: "保存路径",
                 defaultPath: savePath,
@@ -94,6 +95,9 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const cloneRepo = async () => {
         setCloneProgress(null);
         try {
+            if(authType == "privkey") {
+                await test_ssh(remoteUrl);
+            }
             const homePath = await homeDir();
             const privKey = await resolve(homePath, ".ssh", curSshKey);
             await clone_repo(localPath, remoteUrl, authType, username, password, privKey, info => {
