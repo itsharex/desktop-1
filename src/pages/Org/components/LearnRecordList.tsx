@@ -43,7 +43,8 @@ const LearnRecordList = (props: LearnRecordListProps) => {
             pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), hideOnSinglePage: true, showSizeChanger: false }}
             renderItem={item => (
                 <List.Item>
-                    <Card title={`在${moment(item.create_time).format("YYYY-MM-DD HH:mm")}花费${item.learn_hour}小时学会${item.cate_name}:${item.full_point_name}`} style={{ width: "100%" }} bordered={false} headStyle={{ backgroundColor: "#eee" }}>
+                    <Card title={`在${moment(item.create_time).format("YYYY-MM-DD HH:mm")}花费${item.learn_hour}小时学会${item.cate_name}:${item.full_point_name}`}
+                        style={{ width: "100%" }} bordered={false} headStyle={{ backgroundColor: "#eee" }} bodyStyle={{ padding: (item.learn_material_len + item.my_learned_len) == 0 ? "0px 0px" : undefined }}>
                         {item.learn_material_len > 0 && (
                             <>
                                 <h1 style={{ fontSize: "16px", fontWeight: 700 }}>学习材料</h1>

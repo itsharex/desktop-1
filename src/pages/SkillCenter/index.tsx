@@ -22,7 +22,7 @@ const SkillCenterPage = () => {
                 </Tabs.TabPane>
                 <Tabs.TabPane tab={<h2>我的学习记录</h2>} key="myLearn">
                     {activeKey == "myLearn" && (
-                        <div className={s.content_wrap}>
+                        <div className={s.content_wrap} style={{ overflowY: "scroll" }}>
                             <MyLearnRecordList />
                         </div>
                     )}
