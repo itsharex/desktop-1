@@ -77,7 +77,7 @@ const MyLearnRecordList = () => {
                 pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), hideOnSinglePage: true, showSizeChanger: false }}
                 renderItem={item => (
                     <List.Item>
-                        <Card title={`${item.cate_name}:${item.full_point_name}`} style={{ width: "400px" }} bodyStyle={{ height: "200px", overflowY: "scroll" }}
+                        <Card title={`${item.cate_name}:${item.full_point_name}`} style={{ width: "400px" }} bodyStyle={{ height: "180px", overflowY: "scroll" }}
                             headStyle={{ backgroundColor: "#eee" }}
                             extra={
                                 <Space>
@@ -103,16 +103,7 @@ const MyLearnRecordList = () => {
                                 <Form.Item label="学习时间">
                                     {moment(item.create_time).format("YYYY-MM-DD HH:mm")}({item.learn_hour}小时)
                                 </Form.Item>
-                                <Form.Item label="点赞人数">
-                                    {item.vote_count}
-                                </Form.Item>
                             </Form>
-                            {item.learn_material_len > 0 && (
-                                <>
-                                    <h1 style={{ fontSize: "16px", fontWeight: 700 }}>学习材料</h1>
-                                    <ReadOnlyEditor content={item.learn_material_content} />
-                                </>
-                            )}
                             {item.my_learned_len > 0 && (
                                 <>
                                     <h1 style={{ fontSize: "16px", fontWeight: 700 }}>学习心得</h1>

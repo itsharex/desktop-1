@@ -37,7 +37,6 @@ export type SkillPointInfo = {
     cate_name: string;
     weight: number;
     full_point_name: string;
-    total_learn_count: number;
     create_time: number;
     update_time: number;
     has_learn: boolean;
