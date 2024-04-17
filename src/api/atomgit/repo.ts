@@ -13,32 +13,33 @@ export interface AtomGitRepo {
 }
 
 export async function list_user_repo(accessToken: string, username: string, per_page: number, page: number): Promise<AtomGitRepo[]> {
-    const res = await fetch<AtomGitRepo[]>(`https://api.atomgit.com/users/${encodeURIComponent(get_username(username))}/repos?per_page=${per_page}&page=${page}`,{
-        method:"GET",
-        timeout:10,
-        headers:{
-            "Authorization":`Bearer ${accessToken}`,
+    const res = await fetch<AtomGitRepo[]>(`https://api.atomgit.com/users/${encodeURIComponent(get_username(username))}/repos?per_page=${per_page}&page=${page}`, {
+        method: "GET",
+        timeout: 10,
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
         },
     });
-    if(res.ok && res.status == 200){
+    if (res.ok && res.status == 200) {
+        console.log("xxxxxxxxxx",res.data);
         return res.data;
-    }else{
+    } else {
         console.log(res);
         throw "error list repo";
     }
 }
 
 export async function list_org_repo(accessToken: string, orgname: string, per_page: number, page: number): Promise<AtomGitRepo[]> {
-    const res = await fetch<AtomGitRepo[]>(`https://api.atomgit.com/orgs/${encodeURIComponent(get_username(orgname))}/repos?per_page=${per_page}&page=${page}`,{
-        method:"GET",
-        timeout:10,
-        headers:{
-            "Authorization":`Bearer ${accessToken}`,
+    const res = await fetch<AtomGitRepo[]>(`https://api.atomgit.com/orgs/${encodeURIComponent(get_username(orgname))}/repos?per_page=${per_page}&page=${page}`, {
+        method: "GET",
+        timeout: 10,
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
         },
     });
-    if(res.ok && res.status == 200){
+    if (res.ok && res.status == 200) {
         return res.data;
-    }else{
+    } else {
         console.log(res);
         throw "error list repo";
     }
