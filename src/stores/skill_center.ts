@@ -17,6 +17,10 @@ export default class SkillCenterStore {
     private _folderList: SkillFolderInfo[] = [];
     private _pointList: SkillPointInfo[] = [];
 
+    get curCate() {
+        return this._cateList.find(item => item.cate_id == this._curCateId);
+    }
+
     get curCateId() {
         return this._curCateId;
     }
