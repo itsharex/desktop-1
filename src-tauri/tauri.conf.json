@@ -157,18 +157,19 @@
       },
       "fs": {
         "all": true,
-        "scope": [
-          "**",
-          "**/.*",
-          "**/.**/**",
-          "**/.**/.*",
-          "**/.env",
-          "**/.simple_dev.json",
-          "**/.gitattributes",
-          "$HOME/.ssh",
-          "$HOME/.linksaas/**",
-          "$HOME/.local/**"
-        ]
+        "scope": {
+          "allow": [
+            "**",
+            "**/.*",
+            "**/.env",
+            "**/.simple_dev.json",
+            "**/.gitattributes",
+            "$HOME/.ssh",
+            "$HOME/.linksaas/**",
+            "$HOME/.local/**"
+          ],
+          "requireLiteralLeadingDot": false
+        }
       },
       "path": {
         "all": true
