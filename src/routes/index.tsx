@@ -43,6 +43,7 @@ import {
   ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
   ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
   SKILL_CENTER_PATH,
+  ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -83,6 +84,7 @@ import SoftWareList from '@/pages/Admin/SoftWareAdmin/SoftWareList';
 import SkillCateList from '@/pages/Admin/SkillCenterAdmin/SkillCateList';
 import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
 import SkillCenterPage from "@/pages/SkillCenter";
+import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -360,8 +362,14 @@ const routesConfig: IRouteConfig[] = [
       },
       {
         path: ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
-        title: "技能列表管理",
+        title: "技能类别管理",
         component: SkillCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
+        title: "技能资源管理",
+        component: SkillResourceList,
         exact: true,
       },
       {

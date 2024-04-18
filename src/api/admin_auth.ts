@@ -114,6 +114,9 @@ export type SkillCenterPerm = {
     update_point: boolean;
     remove_point: boolean;
     move_point: boolean;
+    add_resource: boolean;
+    update_resource: boolean;
+    remove_resource: boolean;
 };
 
 export type AdminPermInfo = {

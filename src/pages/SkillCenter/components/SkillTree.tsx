@@ -57,40 +57,43 @@ const SkillTree = () => {
             const subNode: DataNode = {
                 key: pointInfo.point_id,
                 title: (
-                    <Button type="text" onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        skillCenterStore.curPointId = pointInfo.point_id;
-                        if (pointInfo.has_learn) {
-                            setShowUpdateModal(true);
-                        } else {
-                            setShowAddModal(true);
-                        }
-                    }} title={pointInfo.has_learn ? "查看学习记录" : "点亮技能"}>
-                        <Space>
-                            {pointInfo.point_name}
-                            {pointInfo.has_learn == true && (
-                                <>
+                    <Space>
+                        <Button type="text" style={{ minWidth: 0, padding: "0px 0px" }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                skillCenterStore.curPointId = pointInfo.point_id;
+                                if (pointInfo.has_learn) {
+                                    setShowUpdateModal(true);
+                                } else {
+                                    setShowAddModal(true);
+                                }
+                            }} title={pointInfo.has_learn ? "查看学习记录" : "点亮技能"}>
+                            <Space>
+                                {pointInfo.point_name}
+                                {pointInfo.has_learn == true && (
                                     <BulbTwoTone twoToneColor={["orange", "orange"]} />
-                                    <Popover trigger="hover" placement="bottom" content={
-                                        <div>
-                                            <Button type="link" danger onClick={e => {
-                                                e.stopPropagation();
-                                                e.preventDefault();
-                                                skillCenterStore.curPointId = pointInfo.point_id;
-                                                setShowRemoveModal(true);
-                                            }}>删除学习记录</Button>
-                                        </div>
-                                    }>
-                                        <MoreOutlined />
-                                    </Popover>
-                                </>
-                            )}
-                            {pointInfo.has_learn == false && (
-                                <BulbTwoTone twoToneColor={["gray", "white"]} />
-                            )}
-                        </Space>
-                    </Button>
+                                )}
+                                {pointInfo.has_learn == false && (
+                                    <BulbTwoTone twoToneColor={["gray", "white"]} />
+                                )}
+                            </Space>
+                        </Button>
+                        {pointInfo.has_learn == true && (
+                            <Popover trigger="click" placement="bottom" content={
+                                <div>
+                                    <Button type="link" danger onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        skillCenterStore.curPointId = pointInfo.point_id;
+                                        setShowRemoveModal(true);
+                                    }}>删除学习记录</Button>
+                                </div>
+                            }>
+                                <MoreOutlined />
+                            </Popover>
+                        )}
+                    </Space>
                 ),
                 children: [],
                 switcherIcon: () => "",
