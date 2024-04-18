@@ -7,6 +7,7 @@ export type SkillCateInfo = {
     publish: boolean;
     folder_count: number;
     point_count: number;
+    resource_count: number;
     create_time: number;
     update_time: number;
 };

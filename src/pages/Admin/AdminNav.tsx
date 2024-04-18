@@ -16,7 +16,7 @@ import {
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
     ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -98,6 +98,8 @@ const AdminNav = () => {
         setSkillcenterSelectedKeys([]);
         if (location.pathname == ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_cate"]);
+        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX) {
+            setSkillcenterSelectedKeys(["skillcenter_resource"]);
         } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_point"]);
         }
@@ -317,21 +319,29 @@ const AdminNav = () => {
                             disabled: !(permInfo?.skill_center_perm.read ?? false),
                         },
                         {
+                            label: "管理技能资源",
+                            key: "skillcenter_resource",
+                            disabled: !(permInfo?.skill_center_perm.read ?? false),
+
+                        },
+                        {
                             label: "管理技能点",
                             key: "skillcenter_point",
                             disabled: !(permInfo?.skill_center_perm.read ?? false),
                         },
-                    ]} 
-                    style={{ borderRightWidth: "0px" }}
-                    onSelect={e=>{
-                        if(e.selectedKeys.length == 1){
-                            if(e.selectedKeys[0] == "skillcenter_cate"){
-                                history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
-                            }else if(e.selectedKeys[0] == "skillcenter_point"){
-                                history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);
+                    ]}
+                        style={{ borderRightWidth: "0px" }}
+                        onSelect={e => {
+                            if (e.selectedKeys.length == 1) {
+                                if (e.selectedKeys[0] == "skillcenter_cate") {
+                                    history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
+                                } else if (e.selectedKeys[0] == "skillcenter_resource") {
+                                    history.push(ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX);
+                                } else if (e.selectedKeys[0] == "skillcenter_point") {
+                                    history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);
+                                }
                             }
-                        }
-                    }}/>
+                        }} />
                 </Collapse.Panel>
                 {permInfo?.global_server == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
