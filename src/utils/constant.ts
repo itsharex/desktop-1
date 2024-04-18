@@ -37,6 +37,7 @@ export const ADMIN_PATH_IDEA_SUFFIX = "/admin/ideastore/idea";
 
 
 export const ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX = "/admin/skillcenter/cate";
+export const ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX = "/admin/skillcenter/resource";
 export const ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX = "/admin/skillcenter/point";
 
 export const ADMIN_PATH_WIDGET_SUFFIX = "/admin/widgetstore/widget"

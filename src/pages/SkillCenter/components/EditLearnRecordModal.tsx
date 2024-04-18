@@ -21,23 +21,9 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     const userStore = useStores("userStore");
 
     const [learnHour, setLearnHour] = useState(4);
-    const [materialCount, setMaterialCount] = useState(0);
     const [learnedCount, setLearnedCount] = useState(0);
 
     const [hasLoad, setHasLoad] = useState(false);
-
-    const materialEditor = useCommonEditor({
-        content: "",
-        fsId: "",
-        ownerType: FILE_OWNER_TYPE_NONE,
-        ownerId: "",
-        projectId: "",
-        historyInToolbar: false,
-        clipboardInToolbar: false,
-        commonInToolbar: false,
-        widgetInToolbar: false,
-        showReminder: false,
-    });
 
     const learnedEditor = useCommonEditor({
         content: "",
@@ -53,10 +39,6 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     });
 
     const updateCount = () => {
-        const materialContent = materialEditor.editorRef.current?.getContent() ?? { type: "doc" };
-        const materialText = get_content_text(materialContent).replaceAll(SPACE_REG, "");
-        setMaterialCount(materialText.length);
-
         const learnedContent = learnedEditor.editorRef.current?.getContent() ?? { type: "doc" };
         const learnedText = get_content_text(learnedContent).replaceAll(SPACE_REG, "");
         setLearnedCount(learnedText.length);
@@ -73,19 +55,15 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
             point_id: props.pointId,
         }));
         setLearnHour(res.record_info.learn_hour);
-        materialEditor.editorRef.current?.setContent(res.record_info.learn_material_content);
         learnedEditor.editorRef.current?.setContent(res.record_info.my_learned_content);
     };
 
     const addLearnRecord = async () => {
-        const materialContent = materialEditor.editorRef.current?.getContent() ?? { type: "doc" };
         const learnedContent = learnedEditor.editorRef.current?.getContent() ?? { type: "doc" };
         await request(add_learn_record({
             session_id: userStore.sessionId,
             cate_id: props.cateId,
             point_id: props.pointId,
-            learn_material_content: JSON.stringify(materialContent),
-            learn_material_len: materialCount,
             my_learned_content: JSON.stringify(learnedContent),
             my_learned_len: learnedCount,
             learn_hour: learnHour,
@@ -95,14 +73,11 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     };
 
     const updateLearnRecord = async () => {
-        const materialContent = materialEditor.editorRef.current?.getContent() ?? { type: "doc" };
         const learnedContent = learnedEditor.editorRef.current?.getContent() ?? { type: "doc" };
         await request(update_learn_record({
             session_id: userStore.sessionId,
             cate_id: props.cateId,
             point_id: props.pointId,
-            learn_material_content: JSON.stringify(materialContent),
-            learn_material_len: materialCount,
             my_learned_content: JSON.stringify(learnedContent),
             my_learned_len: learnedCount,
             learn_hour: learnHour,
@@ -111,10 +86,10 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     };
 
     useEffect(() => {
-        if (props.update && materialEditor.editorRef.current != null && learnedEditor.editorRef.current != null) {
+        if (props.update && learnedEditor.editorRef.current != null) {
             loadLearnRecord();
         }
-    }, [props.update, materialEditor.editorRef.current, learnedEditor.editorRef.current, props.pointId]);
+    }, [props.update, learnedEditor.editorRef.current, props.pointId]);
 
     useEffect(() => {
         const timer = setInterval(() => updateCount(), 200);
@@ -124,7 +99,7 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
     }, []);
 
     return (
-        <Modal open title={props.update ? <div>修改学习记录(<span style={{ color: "red" }}>修改后会清空点赞数据</span>)</div> : "点亮技能"}
+        <Modal open title={props.update ? "修改学习记录" : "点亮技能"}
             width={600}
             okText={props.update ? "修改" : "点亮"}
             onCancel={e => {
@@ -150,15 +125,6 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
             </Form>
             <Divider orientation="left">可选内容(学习材料和学习心得超过100字可变点赞)</Divider>
             <Form>
-                <Form.Item label="学习材料" help={
-                    <div style={{ display: "flex", width: "100%", justifyContent: "flex-end" }}>
-                        <div>总共{materialCount}字</div>
-                    </div>
-                }>
-                    <div className="_skillLearnContext">
-                        {materialEditor.editor}
-                    </div>
-                </Form.Item>
                 <Form.Item label="学习心得" help={
                     <div style={{ display: "flex", width: "100%", justifyContent: "flex-end" }}>
                         <div>总共{learnedCount}字</div>

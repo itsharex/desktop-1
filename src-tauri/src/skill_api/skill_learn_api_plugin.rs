@@ -83,31 +83,6 @@ async fn remove_learn_record<R: Runtime>(
 }
 
 #[tauri::command]
-async fn list_learn_record<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: ListLearnRecordRequest,
-) -> Result<ListLearnRecordResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = SkillLearnApiClient::new(chan.unwrap());
-    match client.list_learn_record(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == list_learn_record_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_learn_record".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn list_learn_record_in_org<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -208,56 +183,6 @@ async fn get_my_learn_record<R: Runtime>(
     }
 }
 
-#[tauri::command]
-async fn vote<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: VoteRequest,
-) -> Result<VoteResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = SkillLearnApiClient::new(chan.unwrap());
-    match client.vote(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == vote_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("vote".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn cancel_vote<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: CancelVoteRequest,
-) -> Result<CancelVoteResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = SkillLearnApiClient::new(chan.unwrap());
-    match client.cancel_vote(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == cancel_vote_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("cancel_vote".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
 pub struct SkillLearnApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -269,13 +194,10 @@ impl<R: Runtime> SkillLearnApiPlugin<R> {
                 add_learn_record,
                 update_learn_record,
                 remove_learn_record,
-                list_learn_record,
                 list_learn_record_in_org,
                 get_my_skill_state,
                 list_my_learn_record,
                 get_my_learn_record,
-                vote,
-                cancel_vote,
             ]),
         }
     }

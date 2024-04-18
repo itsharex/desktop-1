@@ -64,13 +64,17 @@ const PullModal = observer((props: ModalProps) => {
             await fetch_remote(props.repoPath, curRemote?.name ?? "", authType, username, password, privKeyPath, info => {
                 setRecvRatio(info.recvObjs / Math.max(info.totalObjs, 1) * 100);
                 setIndexRatio(info.indexObjs / Math.max(info.totalObjs, 1) * 100);
+                if (info.indexObjs >= info.totalObjs) {
+                    setInPull(false);
+                    setRecvRatio(0);
+                    setIndexRatio(0);
+                    run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
+                    message.info("拉取成功");
+                    props.onClose();
+                }
             });
-            await run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
-            message.info("拉取成功");
-            props.onClose();
         } catch (e) {
             message.error(`${e}`);
-        } finally {
             setInPull(false);
             setRecvRatio(0);
             setIndexRatio(0);

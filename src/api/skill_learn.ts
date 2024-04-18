@@ -3,8 +3,6 @@ import { invoke } from '@tauri-apps/api/tauri';
 export type LearnRecordInfo = {
     user_id: string;
     point_id: string;
-    learn_material_content: string;
-    learn_material_len: number;
     my_learned_content: string;
     my_learned_len: number;
     learn_hour: number;
@@ -16,8 +14,6 @@ export type LearnRecordInfo = {
     cate_name: string;
     create_time: number;
     update_time: number;
-    vote_count: number;
-    my_vote: boolean;
 };
 
 export type MyLearnStateInfo = {
@@ -29,8 +25,6 @@ export type AddLearnRecordRequest = {
     session_id: string;
     cate_id: string;
     point_id: string;
-    learn_material_content: string;
-    learn_material_len: number;
     my_learned_content: string;
     my_learned_len: number;
     learn_hour: number;
@@ -45,8 +39,6 @@ export type UpdateLearnRecordRequest = {
     session_id: string;
     cate_id: string;
     point_id: string;
-    learn_material_content: string;
-    learn_material_len: number;
     my_learned_content: string;
     my_learned_len: number;
     learn_hour: number;
@@ -66,22 +58,6 @@ export type RemoveLearnRecordRequest = {
 export type RemoveLearnRecordResponse = {
     code: number;
     err_msg: string;
-};
-
-
-export type ListLearnRecordRequest = {
-    session_id: string;
-    cate_id: string;
-    point_id: string;
-    offset: number;
-    limit: number;
-};
-
-export type ListLearnRecordResponse = {
-    code: number;
-    err_msg: string;
-    total_count: number;
-    record_list: LearnRecordInfo[];
 };
 
 export type ListLearnRecordInOrgRequest = {
@@ -135,31 +111,6 @@ export type GetMyLearnRecordResponse = {
     record_info: LearnRecordInfo;
 };
 
-export type VoteRequest = {
-    session_id: string;
-    cate_id: string;
-    point_id: string;
-    learn_user_id: string;
-};
-
-export type VoteResponse = {
-    code: number;
-    err_msg: string;
-};
-
-
-export type CancelVoteRequest = {
-    session_id: string;
-    cate_id: string;
-    point_id: string;
-    learn_user_id: string;
-};
-
-export type CancelVoteResponse = {
-    code: number;
-    err_msg: string;
-};
-
 //增加学习记录
 export async function add_learn_record(request: AddLearnRecordRequest): Promise<AddLearnRecordResponse> {
     const cmd = 'plugin:skill_learn_api|add_learn_record';
@@ -183,15 +134,6 @@ export async function remove_learn_record(request: RemoveLearnRecordRequest): Pr
     const cmd = 'plugin:skill_learn_api|remove_learn_record';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<RemoveLearnRecordResponse>(cmd, {
-        request,
-    });
-}
-
-//列出学习记录
-export async function list_learn_record(request: ListLearnRecordRequest): Promise<ListLearnRecordResponse> {
-    const cmd = 'plugin:skill_learn_api|list_learn_record';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<ListLearnRecordResponse>(cmd, {
         request,
     });
 }
@@ -228,24 +170,6 @@ export async function get_my_learn_record(request: GetMyLearnRecordRequest): Pro
     const cmd = 'plugin:skill_learn_api|get_my_learn_record';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<GetMyLearnRecordResponse>(cmd, {
-        request,
-    });
-}
-
-//投票
-export async function vote(request: VoteRequest): Promise<VoteResponse> {
-    const cmd = 'plugin:skill_learn_api|vote';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<VoteResponse>(cmd, {
-        request,
-    });
-}
-
-//取消投票
-export async function cancel_vote(request: CancelVoteRequest): Promise<CancelVoteResponse> {
-    const cmd = 'plugin:skill_learn_api|cancel_vote';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<CancelVoteResponse>(cmd, {
         request,
     });
 }
