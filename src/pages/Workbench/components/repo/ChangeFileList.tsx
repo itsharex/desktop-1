@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Checkbox, Input, List, message, Modal } from "antd";
+import { Button, Card, Checkbox, Input, List, message, Modal, Space } from "antd";
 import type { LocalRepoInfo, LocalRepoStatusInfo } from "@/api/local_repo";
 import { add_to_index, get_repo_status, remove_from_index, run_commit } from "@/api/local_repo";
 
@@ -14,6 +14,9 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     const [status, setStatus] = useState<LocalRepoStatusInfo | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [commitMsg, setCommitMsg] = useState("");
+
+    const [indeterminate, setIndeterminate] = useState(false);
+    const [allCommit, setAllCommit] = useState(false);
 
     const loadStatus = async () => {
         const statusRes = await get_repo_status(props.repo.path);
@@ -37,8 +40,24 @@ const ChangeFileList = (props: ChangeFileListProps) => {
         await loadStatus();
     };
 
+    const addAllToIndex = async () => {
+        if (status == null) {
+            return;
+        }
+        await add_to_index(props.repo.path, status.path_list.map(item => item.path));
+        await loadStatus();
+    };
+
     const removeFromIndex = async (filePath: string) => {
         await remove_from_index(props.repo.path, [filePath]);
+        await loadStatus();
+    };
+
+    const removeAllToIndex = async () => {
+        if (status == null) {
+            return;
+        }
+        await remove_from_index(props.repo.path, status.path_list.map(item => item.path));
         await loadStatus();
     };
 
@@ -54,8 +73,57 @@ const ChangeFileList = (props: ChangeFileListProps) => {
         loadStatus();
     }, []);
 
+    useEffect(() => {
+        if (status == null) {
+            setAllCommit(false);
+            setIndeterminate(false);
+            return;
+        }
+        if (status.path_list.length == 0) {
+            setAllCommit(false);
+            setIndeterminate(false);
+            return;
+        }
+        let dirtyCount = 0;
+        for (const pathStatus of status.path_list) {
+            let isDirty = false;
+            for (const st of pathStatus.status) {
+                if (st.startsWith("WT_")) {
+                    isDirty = true;
+                }
+            }
+            if (isDirty) {
+                dirtyCount += 1;
+            }
+        }
+        console.log(dirtyCount, status.path_list.length);
+        if (dirtyCount == 0) {
+            setAllCommit(true);
+            setIndeterminate(false);
+        } else if (dirtyCount < status.path_list.length) {
+            setIndeterminate(true);
+        } else if (dirtyCount == status.path_list.length) {
+            setAllCommit(false);
+            setIndeterminate(false);
+        }
+    }, [status?.path_list]);
+
     return (
-        <Card title="未提交文件"
+        <Card title={
+            <Space>
+                {(status?.path_list ?? []).length > 0 && (
+                    <Checkbox checked={allCommit} indeterminate={indeterminate} onChange={e => {
+                        e.stopPropagation();
+                        if (e.target.checked) {
+                            addAllToIndex();
+                        } else {
+                            removeAllToIndex();
+                        }
+                    }} />
+                )}
+                未提交文件
+            </Space>
+        }
             bodyStyle={{ height: "calc(100vh - 460px)", overflowY: "scroll" }}
             extra={
                 <Button type="primary" disabled={calcIndexCount() == 0}
@@ -70,7 +138,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                 <List.Item >
                     <div style={{ display: "flex", width: "100%" }}>
                         <div style={{ flex: 1 }}>
-                            <Checkbox style={{ marginRight: "10px" }} checked={item.status.findIndex(st => st.startsWith("INDEX_")) != -1}
+                            <Checkbox style={{ marginRight: "10px" }} checked={item.status.findIndex(st => st.startsWith("WT_")) == -1}
                                 onChange={e => {
                                     e.stopPropagation();
                                     if (e.target.checked) {
