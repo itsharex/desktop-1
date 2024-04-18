@@ -2,7 +2,7 @@ import workbench_icon from '@/assets/allIcon/workbench_icon.png';
 import { useStores } from '@/hooks';
 import { Layout } from 'antd';
 import { observer } from 'mobx-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import cls from './index.module.less';
 const { Sider } = Layout;
 import ProjectList from './ProjectList';
@@ -10,6 +10,8 @@ import { GlobalOutlined, RocketOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import OrgList from './OrgList';
+import { getVersion } from '@tauri-apps/api/app';
+
 
 const LeftMenu: React.FC = () => {
   const location = useLocation();
@@ -19,6 +21,12 @@ const LeftMenu: React.FC = () => {
   const appStore = useStores('appStore');
   const projectStore = useStores('projectStore');
   const orgStore = useStores('orgStore');
+
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    getVersion().then(res => setVersion(res));
+  }, []);
 
   return (
     <Sider className={cls.sider}>
@@ -100,6 +108,9 @@ const LeftMenu: React.FC = () => {
             <RocketOutlined />&nbsp;技能中心
           </div>
         )}
+      </div>
+      <div style={{ position: "absolute", bottom: "2px", right: "10px" }}>
+        软件版本:{version}
       </div>
     </Sider>
   );
