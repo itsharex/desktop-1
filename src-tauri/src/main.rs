@@ -478,6 +478,7 @@ fn main() {
         .plugin(org_api::org_member_api_plugin::OrgMemberApiPlugin::new())
         .plugin(org_api::org_okr_api_plugin::OrgOkrApiPlugin::new())
         .plugin(org_api::org_report_api_plugin::OrgReportApiPlugin::new())
+        .plugin(org_api::org_forum_api_plugin::OrgForumApiPlugin::new())
         .plugin(skill_api::skill_center_admin_api_plugin::SkillCenterAdminApiPlugin::new())
         .plugin(skill_api::skill_center_api_plugin::SkillCenterApiPlugin::new())
         .plugin(skill_api::skill_learn_api_plugin::SkillLearnApiPlugin::new())
