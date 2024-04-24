@@ -143,8 +143,10 @@ const UpdateWeightModal = observer((props: UpdateWeightModalProps) => {
 
 export interface ForumThreadListProps {
     forumInfo: OrgForumInfo;
+    curPage: number;
     onChange: (newThreadId: string) => void;
     onClickMember: (memberUserId: string) => void;
+    onChangePage: (newPage: number) => void;
 }
 
 const ForumThreadList = (props: ForumThreadListProps) => {
@@ -155,7 +157,6 @@ const ForumThreadList = (props: ForumThreadListProps) => {
 
     const [threadList, setThreadList] = useState<ForumThreadWithContentInfo[]>([]);
     const [totalCount, setTotalCount] = useState(0);
-    const [curPage, setCurPage] = useState(0);
 
     const [updateWeightInfo, setUpdateWeightInfo] = useState<ForumThreadWithContentInfo | null>(null);
     const [removeInfo, setRemoveInfo] = useState<ForumThreadWithContentInfo | null>(null);
@@ -165,7 +166,7 @@ const ForumThreadList = (props: ForumThreadListProps) => {
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
             forum_id: props.forumInfo.forum_id,
-            offset: curPage * PAGE_SIZE,
+            offset: props.curPage * PAGE_SIZE,
             limit: PAGE_SIZE,
         }));
         const contentRes = await request(list_content_by_id({
@@ -220,19 +221,9 @@ const ForumThreadList = (props: ForumThreadListProps) => {
 
     useEffect(() => {
         if (orgStore.curOrgId != "") {
-            if (curPage != 0) {
-                setCurPage(0);
-            } else {
-                loadThreadList();
-            }
-        }
-    }, [props.forumInfo.forum_id, orgStore.curOrgId]);
-
-    useEffect(() => {
-        if (orgStore.curOrgId != "") {
             loadThreadList();
         }
-    }, [curPage]);
+    }, [props.curPage, orgStore.curOrgId, props.forumInfo.forum_id]);
 
     return (
         <Card title={`讨论组: ${props.forumInfo.forum_name}`} bordered={false}
@@ -246,7 +237,7 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                 }}>发布帖子</Button>
             }>
             <List rowKey="thread_id" dataSource={threadList}
-                pagination={{ total: totalCount, current: curPage + 1, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}
+                pagination={{ total: totalCount, current: props.curPage + 1, pageSize: PAGE_SIZE, onChange: page => props.onChangePage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}
                 renderItem={item => (
                     <List.Item>
                         <Card title={
@@ -316,8 +307,8 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                 <CreateModal forumInfo={props.forumInfo} onCancel={() => setShowCreateModal(false)}
                     onOk={() => {
                         setShowCreateModal(false);
-                        if (curPage != 0) {
-                            setCurPage(0);
+                        if (props.curPage != 0) {
+                            props.onChangePage(0);
                         } else {
                             loadThreadList();
                         }

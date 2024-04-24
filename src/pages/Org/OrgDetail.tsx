@@ -22,6 +22,7 @@ const OrgDetail = () => {
     });
     const [curOrgForumInfo, setCurOrgForumInfo] = useState<OrgForumInfo | null>(null);
     const [curForumThreadId, setCurForumThreadId] = useState("");
+    const [curThreadPage, setCurThreadPage] = useState(0);
 
     return (
         <div className={s.detail_wrap}>
@@ -36,6 +37,7 @@ const OrgDetail = () => {
                     <OrgForumList curOrgForumId={curOrgForumInfo?.forum_id ?? ""} onChange={newForumInfo => {
                         setCurOrgForumInfo(newForumInfo);
                         setCurForumThreadId("");
+                        setCurThreadPage(0);
                         if (newForumInfo != null) {
                             setCurDepartMentOrMember({
                                 type: "member",
@@ -65,7 +67,8 @@ const OrgDetail = () => {
                     </>
                 )}
                 {curOrgForumInfo != null && curForumThreadId == "" && (
-                    <ForumThreadList forumInfo={curOrgForumInfo} onChange={newThreadId => setCurForumThreadId(newThreadId)}
+                    <ForumThreadList curPage={curThreadPage} onChangePage={newPage => setCurThreadPage(newPage)}
+                        forumInfo={curOrgForumInfo} onChange={newThreadId => setCurForumThreadId(newThreadId)}
                         onClickMember={memberUserId => {
                             setCurOrgForumInfo(null);
                             setCurForumThreadId("");
