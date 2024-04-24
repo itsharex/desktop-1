@@ -52,6 +52,8 @@ export const FILE_OWNER_TYPE_PROJECT: FILE_OWNER_TYPE = 99; //项目范围
 // export const FILE_OWNER_TYPE_GROUP: FILE_OWNER_TYPE = 200; //兴趣组
 // export const FILE_OWNER_TYPE_GROUP_POST: FILE_OWNER_TYPE = 201; //兴趣组帖子 
 
+export const FILE_OWNER_TYPE_ORG_FORUM_CONTENT: FILE_OWNER_TYPE = 300; //团队论坛帖子
+
 export type DownloadResult = {
     exist_in_local: boolean;
     local_path: string;

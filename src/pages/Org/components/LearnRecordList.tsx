@@ -35,8 +35,13 @@ const LearnRecordList = (props: LearnRecordListProps) => {
     };
 
     useEffect(() => {
-        loadRecordList();
-    }, [curPage, props.memberUserId]);
+        if (orgStore.curOrgId == "") {
+            setRecordList([]);
+            setTotalCount(0);
+        } else {
+            loadRecordList();
+        }
+    }, [curPage, props.memberUserId, orgStore.curOrgId]);
 
     return (
         <List rowKey="point_id" dataSource={recordList}

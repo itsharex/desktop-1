@@ -20,6 +20,7 @@ export type ForumThreadInfo = {
     user_logo_uri: string;
     create_time: number;
     update_time: number;
+    content_count: number;
 };
 
 export type ThreadContentInfo = {
@@ -97,6 +98,7 @@ export type CreateThreadResponse = {
     code: number;
     err_msg: string;
     thread_id: string;
+    content_id: string;
 };
 
 
@@ -217,6 +219,17 @@ export type ListContentResponse = {
     content_list: ThreadContentInfo[];
 };
 
+export type ListContentByIdRequest = {
+    session_id: string;
+    org_id: string;
+    content_id_list: string[];
+};
+
+export type ListContentByIdResponse = {
+    code: number;
+    err_msg: string;
+    content_list: ThreadContentInfo[];
+};
 
 export type GetContentRequest = {
     session_id: string;
@@ -359,6 +372,15 @@ export async function list_content(request: ListContentRequest): Promise<ListCon
     const cmd = 'plugin:org_forum_api|list_content';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListContentResponse>(cmd, {
+        request,
+    });
+}
+
+//按ID列出内容
+export async function list_content_by_id(request: ListContentByIdRequest): Promise<ListContentByIdResponse> {
+    const cmd = 'plugin:org_forum_api|list_content_by_id';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListContentByIdResponse>(cmd, {
         request,
     });
 }

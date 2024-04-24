@@ -4,7 +4,7 @@ import type { NodeViewComponentProps } from '@remirror/react';
 import { Progress, Space, Switch } from 'antd';
 import { listen } from '@tauri-apps/api/event';
 import type { FsProgressEvent, FILE_OWNER_TYPE } from '@/api/fs';
-import { save_tmp_file_base64, write_thumb_image_file, set_file_owner, write_file } from '@/api/fs';
+import { save_tmp_file_base64, write_thumb_image_file, set_file_owner, write_file, FILE_OWNER_TYPE_NONE } from '@/api/fs';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
 import style from './common.module.less';
@@ -67,28 +67,32 @@ export const EditImage: React.FC<EditImageProps> = observer((props) => {
         props.thumbHeight ?? 150,
       ),
     );
-    await request(
-      set_file_owner({
-        session_id: userStore.sessionId,
-        fs_id: props.fsId,
-        file_id: thumbRes.file_id,
-        owner_type: props.ownerType ?? 0,
-        owner_id: props.ownerId ?? "",
-      }),
-    );
+    if ((props.ownerType ?? 0) != FILE_OWNER_TYPE_NONE) {
+      await request(
+        set_file_owner({
+          session_id: userStore.sessionId,
+          fs_id: props.fsId,
+          file_id: thumbRes.file_id,
+          owner_type: props.ownerType ?? 0,
+          owner_id: props.ownerId ?? "",
+        }),
+      );
+    }
     //上传正式图片
     const res = await request(
       write_file(userStore.sessionId, props.fsId, filePath, props.trackId),
     );
-    await request(
-      set_file_owner({
-        session_id: userStore.sessionId,
-        fs_id: props.fsId,
-        file_id: res.file_id,
-        owner_type: props.ownerType ?? 0,
-        owner_id: props.ownerId ?? "",
-      }),
-    );
+    if ((props.ownerType ?? 0) != FILE_OWNER_TYPE_NONE) {
+      await request(
+        set_file_owner({
+          session_id: userStore.sessionId,
+          fs_id: props.fsId,
+          file_id: res.file_id,
+          owner_type: props.ownerType ?? 0,
+          owner_id: props.ownerId ?? "",
+        }),
+      );
+    }
   };
 
   useEffect(() => {

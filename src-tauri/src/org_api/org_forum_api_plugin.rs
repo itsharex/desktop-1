@@ -332,6 +332,31 @@ async fn list_content<R: Runtime>(
 }
 
 #[tauri::command]
+async fn list_content_by_id<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListContentByIdRequest,
+) -> Result<ListContentByIdResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = OrgForumApiClient::new(chan.unwrap());
+    match client.list_content_by_id(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_content_by_id_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_content_by_id".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn get_content<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -402,6 +427,7 @@ impl<R: Runtime> OrgForumApiPlugin<R> {
                 create_content,
                 update_content,
                 list_content,
+                list_content_by_id,
                 get_content,
                 remove_content,
             ]),
