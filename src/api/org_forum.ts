@@ -88,6 +88,17 @@ export type ListForumResponse = {
     forum_list: OrgForumInfo[];
 };
 
+export type GetForumRequest = {
+    session_id: string;
+    org_id: string;
+    forum_id: string;
+};
+
+export type GetForumResponse = {
+    code: number;
+    err_msg: string;
+    forum_info: OrgForumInfo;
+}
 
 export type RemoveForumRequest = {
     session_id: string;
@@ -311,6 +322,15 @@ export async function list_forum(request: ListForumRequest): Promise<ListForumRe
     const cmd = 'plugin:org_forum_api|list_forum';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListForumResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个论坛信息
+export async function get_forum(request: GetForumRequest): Promise<GetForumResponse> {
+    const cmd = 'plugin:org_forum_api|get_forum';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetForumResponse>(cmd, {
         request,
     });
 }

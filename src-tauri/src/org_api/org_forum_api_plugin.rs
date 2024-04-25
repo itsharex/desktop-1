@@ -82,6 +82,31 @@ async fn list_forum<R: Runtime>(
 }
 
 #[tauri::command]
+async fn get_forum<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: GetForumRequest,
+) -> Result<GetForumResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = OrgForumApiClient::new(chan.unwrap());
+    match client.get_forum(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == get_forum_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("get_forum".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn remove_forum<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -442,6 +467,7 @@ impl<R: Runtime> OrgForumApiPlugin<R> {
                 create_forum,
                 update_forum,
                 list_forum,
+                get_forum,
                 remove_forum,
                 create_thread,
                 update_thread,

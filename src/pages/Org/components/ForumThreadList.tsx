@@ -162,26 +162,30 @@ const ForumThreadList = (props: ForumThreadListProps) => {
     const [removeInfo, setRemoveInfo] = useState<ForumThreadWithContentInfo | null>(null);
 
     const loadThreadList = async () => {
-        const threadRes = await request(list_thread({
-            session_id: userStore.sessionId,
-            org_id: orgStore.curOrgId,
-            forum_id: props.forumInfo.forum_id,
-            offset: props.curPage * PAGE_SIZE,
-            limit: PAGE_SIZE,
-        }));
-        const contentRes = await request(list_content_by_id({
-            session_id: userStore.sessionId,
-            org_id: orgStore.curOrgId,
-            content_id_list: threadRes.thread_list.map(item => item.first_content_id),
-        }));
-        setTotalCount(threadRes.total_count);
-        setThreadList(threadRes.thread_list.map(threadItem => {
-            const content = contentRes.content_list.find(contentItem => contentItem.content_id == threadItem.first_content_id)?.content ?? "";
-            return {
-                ...threadItem,
-                content: content,
-            };
-        }));
+        try {
+            const threadRes = await request(list_thread({
+                session_id: userStore.sessionId,
+                org_id: orgStore.curOrgId,
+                forum_id: props.forumInfo.forum_id,
+                offset: props.curPage * PAGE_SIZE,
+                limit: PAGE_SIZE,
+            }));
+            const contentRes = await request(list_content_by_id({
+                session_id: userStore.sessionId,
+                org_id: orgStore.curOrgId,
+                content_id_list: threadRes.thread_list.map(item => item.first_content_id),
+            }));
+            setTotalCount(threadRes.total_count);
+            setThreadList(threadRes.thread_list.map(threadItem => {
+                const content = contentRes.content_list.find(contentItem => contentItem.content_id == threadItem.first_content_id)?.content ?? "";
+                return {
+                    ...threadItem,
+                    content: content,
+                };
+            }));
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     const onUpdateThread = async (threadId: string) => {
