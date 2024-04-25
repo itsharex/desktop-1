@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import type { DepartMentOrMember } from "@/api/org";
 import { observer } from 'mobx-react';
-import { Button, Card, Space, Tree } from "antd";
+import { Button, Card, Popover, Space, Tree } from "antd";
 import type { DataNode } from "antd/lib/tree";
 import { useStores } from "@/hooks";
-import { SettingOutlined, TeamOutlined, UserAddOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, SettingOutlined, TeamOutlined, UserAddOutlined } from "@ant-design/icons";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import type { MemberInfo } from "@/api/org_mebmer";
 import s from "./OrgTree.module.less";
 import UpdateOrgModal from "./UpdateOrgModal";
+import { ReadOnlyEditor } from "@/components/Editor";
 
 export interface OrgTreeProps {
     curItem: DepartMentOrMember,
@@ -95,7 +96,19 @@ const OrgTree = (props: OrgTreeProps) => {
     }, [orgStore.departMentList, orgStore.memberList]);
 
     return (
-        <Card bordered={false} title={`团队:${orgStore.curOrg?.basic_info.org_name}`}
+        <Card bordered={false} title={
+            <>
+                团队:{orgStore.curOrg?.basic_info.org_name}&nbsp;
+                <Popover trigger="click" placement="bottom" content={
+                    <div className="_commentContext" style={{ width: "300px" }}>
+                        <h1 style={{ fontSize: "20px", fontWeight: 700 }}>团队简介</h1>
+                        <ReadOnlyEditor content={orgStore.curOrg?.basic_info.org_desc ?? ""} />
+                    </div>
+                } destroyTooltipOnHide>
+                    <InfoCircleOutlined style={{ color: "blue",fontSize:"14px" }} />
+                </Popover>
+            </>
+        }
             headStyle={{ fontWeight: 600, backgroundColor: "#eee" }}
             className={s.treeWrap}
             extra={

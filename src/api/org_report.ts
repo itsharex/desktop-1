@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
-
 export type BasicDayReportInfo = {
     day_time: number;
     content: string;

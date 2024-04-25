@@ -7,7 +7,7 @@ license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.8.8"
+version = "0.8.9"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -29,13 +29,12 @@ libaes = "0.6.5"
 local_api_rust = {git = "https://atomgit.com/openlinksaas/local-api-rust.git", tag = "0.1.21"}
 mktemp = "0.5.0"
 prost = "0.9.0"
-proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.27"}
+proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.28"}
 rand = "0.8.5"
 regex = "1.8.4"
 reqwest = {version = "0.11.12", features = ["blocking"] }
 rsa = "0.8.1"
 rumqttc = "0.11.0"
-rust-string-random = "0.1.0"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.19"
@@ -69,6 +68,7 @@ url = "2.2.2"
 uuid = {version = "0.8", features = ["serde", "v4"] }
 walkdir = "2.3.2"
 base64ct = "1.6.0"
+random-string = "1.1.0"
 
 [features]
 # by default Tauri runs in production mode

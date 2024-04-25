@@ -464,28 +464,32 @@ const AddUploadImage: React.FC<UploadImageProps> = observer((props) => {
           props.thumbHeight,
         ),
       );
-      await request(
-        fsApi.set_file_owner({
-          session_id: userStore.sessionId,
-          fs_id: props.fsId,
-          file_id: thumbRes.file_id,
-          owner_type: props.ownerType,
-          owner_id: props.ownerId,
-        }),
-      );
+      if (props.ownerType != fsApi.FILE_OWNER_TYPE_NONE) {
+        await request(
+          fsApi.set_file_owner({
+            session_id: userStore.sessionId,
+            fs_id: props.fsId,
+            file_id: thumbRes.file_id,
+            owner_type: props.ownerType,
+            owner_id: props.ownerId,
+          }),
+        );
+      }
       //上传正式图片
       const res = await request(
         fsApi.write_file(userStore.sessionId, props.fsId, uploadInfo.filePath, uploadInfo.trackId),
       );
-      await request(
-        fsApi.set_file_owner({
-          session_id: userStore.sessionId,
-          fs_id: props.fsId,
-          file_id: res.file_id,
-          owner_type: props.ownerType,
-          owner_id: props.ownerId,
-        }),
-      );
+      if (props.ownerType != fsApi.FILE_OWNER_TYPE_NONE) {
+        await request(
+          fsApi.set_file_owner({
+            session_id: userStore.sessionId,
+            fs_id: props.fsId,
+            file_id: res.file_id,
+            owner_type: props.ownerType,
+            owner_id: props.ownerId,
+          }),
+        );
+      }
     }
   };
   return (
@@ -545,15 +549,17 @@ const AddUploadFile: React.FC<UploadFileProps> = observer((props) => {
       const res = await request(
         fsApi.write_file(userStore.sessionId, props.fsId, uploadInfo.filePath, uploadInfo.trackId),
       );
-      await request(
-        fsApi.set_file_owner({
-          session_id: userStore.sessionId,
-          fs_id: props.fsId,
-          file_id: res.file_id,
-          owner_type: props.ownerType,
-          owner_id: props.ownerId,
-        }),
-      );
+      if (props.ownerType != fsApi.FILE_OWNER_TYPE_NONE) {
+        await request(
+          fsApi.set_file_owner({
+            session_id: userStore.sessionId,
+            fs_id: props.fsId,
+            file_id: res.file_id,
+            owner_type: props.ownerType,
+            owner_id: props.ownerId,
+          }),
+        );
+      }
     }
   };
 
