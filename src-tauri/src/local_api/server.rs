@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use local_api_rust::server::MakeService;
 use proto_gen_rust::events_api::{EventRefType, EventType};
 use proto_gen_rust::project_issue_api::IssueType;
-use rust_string_random::{random, Options, RandWay};
+use random_string::generate;
 use serde_json::json;
 use std::marker::PhantomData;
 use std::net::TcpListener;
@@ -19,13 +19,11 @@ use tokio::io::AsyncWriteExt;
 pub async fn run(app: AppHandle) {
     println!("start local api server");
     //设置token
-    let options = Options {
-        rand: RandWay::LETTER,
-        numbers: None,
-        letters: None,
-        specials: None,
-    };
-    let rand_str = random(32, options).unwrap_or(String::from(""));
+
+    let rand_str = generate(
+        32,
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    );
     {
         let serv_token = app.state::<ServToken>().inner();
         *serv_token.0.lock().await = Some(rand_str.clone());
