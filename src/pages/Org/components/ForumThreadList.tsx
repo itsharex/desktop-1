@@ -279,26 +279,28 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                                         style={{ minWidth: 0, padding: "0px 0px" }}>{item.user_display_name}</Button>
                                     <span>推荐值:{item.weight}</span>
                                     <span><CommentOutlined />&nbsp;{item.content_count}</span>
-                                    <Popover trigger="click" placement="bottom" content={
-                                        <Space direction="vertical">
-                                            {orgStore.curOrg?.owner_user_id == userStore.userInfo.userId && (
-                                                <Button type="link" onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    setUpdateWeightInfo(item);
-                                                }}>调整推荐值</Button>
-                                            )}
-                                            {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
-                                                <Button type="link" danger onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    setRemoveInfo(item);
-                                                }}>删除</Button>
-                                            )}
-                                        </Space>
-                                    }>
-                                        <MoreOutlined />
-                                    </Popover>
+                                    {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
+                                        <Popover trigger="click" placement="bottom" content={
+                                            <Space direction="vertical">
+                                                {orgStore.curOrg?.owner_user_id == userStore.userInfo.userId && (
+                                                    <Button type="link" onClick={e => {
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
+                                                        setUpdateWeightInfo(item);
+                                                    }}>调整推荐值</Button>
+                                                )}
+                                                {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
+                                                    <Button type="link" danger onClick={e => {
+                                                        e.stopPropagation();
+                                                        e.preventDefault();
+                                                        setRemoveInfo(item);
+                                                    }}>删除</Button>
+                                                )}
+                                            </Space>
+                                        }>
+                                            <MoreOutlined />
+                                        </Popover>
+                                    )}
                                 </Space>
                             }>
                             <div className="_commentContext">

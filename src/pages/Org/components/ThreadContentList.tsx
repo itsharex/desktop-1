@@ -302,7 +302,7 @@ const ThreadContentList = (props: ThreadContentListProps) => {
                                                 setShowEditModal(true);
                                             }}>修改</Button>
                                         <Button type="link" danger
-                                            disabled={!(item.content_id != threadInfo?.first_content_id && (item.user_id == userStore.userInfo.userId || item.user_id == orgStore.curOrg?.owner_user_id))}
+                                            disabled={!((item.content_id != threadInfo?.first_content_id) && (item.user_id == userStore.userInfo.userId || orgStore.curOrg?.owner_user_id == userStore.userInfo.userId))}
                                             onClick={e => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
