@@ -10,6 +10,7 @@ import type { MemberInfo } from "@/api/org_mebmer";
 import OrgForumList from "./components/OrgForumList";
 import type { OrgForumInfo } from "@/api/org_forum";
 import ForumThreadList from "./components/ForumThreadList";
+import ThreadContentList from "./components/ThreadContentList";
 
 const OrgDetail = () => {
     const userStore = useStores('userStore');
@@ -78,6 +79,9 @@ const OrgDetail = () => {
                                 value: orgStore.memberList.find(item => item.member_user_id == memberUserId),
                             });
                         }} />
+                )}
+                {curOrgForumInfo != null && curForumThreadId != "" && (
+                    <ThreadContentList forumInfo={curOrgForumInfo} threadId={curForumThreadId} onBack={() => setCurForumThreadId("")} />
                 )}
             </div>
         </div>

@@ -406,6 +406,31 @@ async fn remove_content<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn list_user_content<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: ListUserContentRequest,
+) -> Result<ListUserContentResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = OrgForumApiClient::new(chan.unwrap());
+    match client.list_user_content(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == list_user_content_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("list_user_content".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 pub struct OrgForumApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -430,6 +455,7 @@ impl<R: Runtime> OrgForumApiPlugin<R> {
                 list_content_by_id,
                 get_content,
                 remove_content,
+                list_user_content,
             ]),
         }
     }

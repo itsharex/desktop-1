@@ -34,6 +34,21 @@ export type ThreadContentInfo = {
     update_time: number;
 };
 
+export type UserContentInfo = {
+    content_id: string;
+    forum_id: string;
+    forum_name: string;
+    thread_id: string;
+    thread_title: string;
+    thread_content_id: string;
+    content: string;
+    user_id: string;
+    user_display_name: string;
+    user_logo_uri: string;
+    create_time: number;
+    update_time: number;
+};
+
 export type CreateForumRequest = {
     session_id: string;
     org_id: string;
@@ -245,7 +260,6 @@ export type GetContentResponse = {
     content_info: ThreadContentInfo;
 };
 
-
 export type RemoveContentRequest = {
     session_id: string;
     org_id: string;
@@ -258,6 +272,21 @@ export type RemoveContentResponse = {
     code: number;
     err_msg: string;
 };
+
+export type ListUserContentRequest = {
+    session_id: string;
+    org_id: string;
+    member_user_id: string;
+    offset: number;
+    limit: number;
+};
+
+export type ListUserContentResponse = {
+    code: number;
+    err_msg: string;
+    total_count: number;
+    content_list: UserContentInfo[];
+}
 
 //创建论坛
 export async function create_forum(request: CreateForumRequest): Promise<CreateForumResponse> {
@@ -399,6 +428,15 @@ export async function remove_content(request: RemoveContentRequest): Promise<Rem
     const cmd = 'plugin:org_forum_api|remove_content';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<RemoveContentResponse>(cmd, {
+        request,
+    });
+}
+
+//列出用户内容
+export async function list_user_content(request: ListUserContentRequest): Promise<ListUserContentResponse> {
+    const cmd = 'plugin:org_forum_api|list_user_content';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<ListUserContentResponse>(cmd, {
         request,
     });
 }
