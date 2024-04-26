@@ -183,6 +183,81 @@ async fn get_my_learn_record<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn get_my_learn_summary<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: GetMyLearnSummaryRequest,
+) -> Result<GetMyLearnSummaryResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = SkillLearnApiClient::new(chan.unwrap());
+    match client.get_my_learn_summary(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == get_my_learn_summary_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("get_my_learn_summary".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn get_learn_summary_in_project<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: GetLearnSummaryInProjectRequest,
+) -> Result<GetLearnSummaryInProjectResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = SkillLearnApiClient::new(chan.unwrap());
+    match client.get_learn_summary_in_project(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == get_learn_summary_in_project_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("get_learn_summary_in_project".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
+async fn get_learn_summary_in_org<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: GetLearnSummaryInOrgRequest,
+) -> Result<GetLearnSummaryInOrgResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = SkillLearnApiClient::new(chan.unwrap());
+    match client.get_learn_summary_in_org(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == get_learn_summary_in_org_response::Code::WrongSession as i32 {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("get_learn_summary_in_org".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
 pub struct SkillLearnApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -198,6 +273,9 @@ impl<R: Runtime> SkillLearnApiPlugin<R> {
                 get_my_skill_state,
                 list_my_learn_record,
                 get_my_learn_record,
+                get_my_learn_summary,
+                get_learn_summary_in_project,
+                get_learn_summary_in_org,
             ]),
         }
     }

@@ -21,6 +21,20 @@ export type MyLearnStateInfo = {
     last_learn_time: number;
 };
 
+export type LearnSummaryItem = {
+    cate_id: string;
+    cate_name: string;
+    learn_point_count: number;
+    total_point_count: number;
+};
+
+export type LearnSummaryInfo = {
+    user_id: string;
+    user_display_name: string;
+    user_logo_uri: string;
+    item_list: LearnSummaryItem[];
+};
+
 export type AddLearnRecordRequest = {
     session_id: string;
     cate_id: string;
@@ -111,6 +125,39 @@ export type GetMyLearnRecordResponse = {
     record_info: LearnRecordInfo;
 };
 
+export type GetMyLearnSummaryRequest = {
+    session_id: string;
+};
+
+export type GetMyLearnSummaryResponse = {
+    code: number;
+    err_msg: string;
+    summary_info: LearnSummaryInfo;
+};
+
+export type GetLearnSummaryInProjectRequest = {
+    session_id: string;
+    project_id: string;
+    member_user_id: string;
+};
+
+export type GetLearnSummaryInProjectResponse = {
+    code: number;
+    err_msg: string;
+    summary_info: LearnSummaryInfo;
+}
+
+export type GetLearnSummaryInOrgRequest = {
+    session_id: string;
+    org_id: string;
+    member_user_id: string;
+}
+export type GetLearnSummaryInOrgResponse = {
+    code: number;
+    err_msg: string;
+    summary_info: LearnSummaryInfo;
+};
+
 //增加学习记录
 export async function add_learn_record(request: AddLearnRecordRequest): Promise<AddLearnRecordResponse> {
     const cmd = 'plugin:skill_learn_api|add_learn_record';
@@ -170,6 +217,33 @@ export async function get_my_learn_record(request: GetMyLearnRecordRequest): Pro
     const cmd = 'plugin:skill_learn_api|get_my_learn_record';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<GetMyLearnRecordResponse>(cmd, {
+        request,
+    });
+}
+
+//获取我的技能总结
+export async function get_my_learn_summary(request: GetMyLearnSummaryRequest): Promise<GetMyLearnSummaryResponse> {
+    const cmd = 'plugin:skill_learn_api|get_my_learn_summary';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetMyLearnSummaryResponse>(cmd, {
+        request,
+    });
+}
+
+//在项目中获取技能总结
+export async function get_learn_summary_in_project(request: GetLearnSummaryInProjectRequest): Promise<GetLearnSummaryInProjectResponse> {
+    const cmd = 'plugin:skill_learn_api|get_learn_summary_in_project';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetLearnSummaryInProjectResponse>(cmd, {
+        request,
+    });
+}
+
+//在组织中获取技能总结
+export async function get_learn_summary_in_org(request: GetLearnSummaryInOrgRequest): Promise<GetLearnSummaryInOrgResponse> {
+    const cmd = 'plugin:skill_learn_api|get_learn_summary_in_org';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<GetLearnSummaryInOrgResponse>(cmd, {
         request,
     });
 }
