@@ -70,17 +70,19 @@ const MemberPanel = (props: MemberPanelProps) => {
                 ),
             });
         }
-        tmpList.push({
-            key: "learnRecord",
-            label: "学习记录",
-            children: (
-                <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
-                    {activeKey == "learnRecord" && (
-                        <LearnRecordList memberUserId={props.curMember.member_user_id} />
-                    )}
-                </div>
-            ),
-        });
+        if (userStore.userInfo.featureInfo.enable_skill_center) {
+            tmpList.push({
+                key: "learnRecord",
+                label: "学习记录",
+                children: (
+                    <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                        {activeKey == "learnRecord" && (
+                            <LearnRecordList memberUserId={props.curMember.member_user_id} />
+                        )}
+                    </div>
+                ),
+            });
+        }
         tmpList.push({
             key: "contentList",
             label: "讨论记录",
@@ -103,7 +105,7 @@ const MemberPanel = (props: MemberPanelProps) => {
 
     useEffect(() => {
         calcTabList();
-    }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report, orgStore.curOrg?.setting.enable_okr, activeKey]);
+    }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report, orgStore.curOrg?.setting.enable_okr, userStore.userInfo.featureInfo.enable_skill_center, activeKey]);
 
     return (
         <>

@@ -9,7 +9,7 @@ import Card from './components/Card';
 import InfoCount from './components/InfoCount';
 import { Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
-import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, RocketOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
@@ -21,6 +21,7 @@ import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import { list_config } from '@/api/local_repo';
 import GitConfigModal from './components/GitConfigModal';
+import MyLearnRecordList from './components/MyLearnRecordList';
 
 
 const Workbench: React.FC = () => {
@@ -175,6 +176,15 @@ const Workbench: React.FC = () => {
           )}
         </Tabs.TabPane>
 
+        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_skill_center && (
+          <Tabs.TabPane tab={<h2><RocketOutlined />学习记录</h2>} key="learnRecord">
+            {tab == "learnRecord" && (
+              <div className={s.content_wrap}>
+                <MyLearnRecordList />
+              </div>
+            )}
+          </Tabs.TabPane>
+        )}
       </Tabs>
       {passwordModal && (
         <PasswordModal

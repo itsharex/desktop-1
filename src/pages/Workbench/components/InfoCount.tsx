@@ -9,7 +9,7 @@ import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
-import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
 import { FeatureInfo, update_feature, USER_TYPE_INTERNAL, update as update_user } from '@/api/user';
@@ -221,6 +221,22 @@ const InfoCount = () => {
 
         {userStore.sessionId != "" && (
           <div className={s.item}>
+            <div>当前待办</div>
+            <div>
+              <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowMyTodoModal(true);
+                }} disabled={!userStore.userInfo.featureInfo.enable_project}>
+                {myTodoCount}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {userStore.sessionId != "" && (
+          <div className={s.item}>
             <div>我的技能点</div>
             <div>
               <Space>
@@ -228,7 +244,9 @@ const InfoCount = () => {
                   onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    //TODO
+                    history.push(SKILL_CENTER_PATH);
+                    projectStore.setCurProjectId("");
+                    orgStore.setCurOrgId("");
                   }} disabled={!userStore.userInfo.featureInfo.enable_skill_center}>
                   {userStore.userInfo.learnStateInfo.learn_point_count}
                 </Button>
@@ -244,22 +262,6 @@ const InfoCount = () => {
                   })).then(() => userStore.updateFeature(feature));
                 }} />
               </Space>
-            </div>
-          </div>
-        )}
-
-        {userStore.sessionId != "" && (
-          <div className={s.item}>
-            <div>当前待办</div>
-            <div>
-              <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setShowMyTodoModal(true);
-                }} disabled={!userStore.userInfo.featureInfo.enable_project}>
-                {myTodoCount}
-              </Button>
             </div>
           </div>
         )}
