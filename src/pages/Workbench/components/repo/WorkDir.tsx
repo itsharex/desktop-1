@@ -59,15 +59,21 @@ const PullModal = observer((props: ModalProps) => {
         }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
+        setInPull(true);
+        let hasPull = false;
         try {
-            setInPull(true);
             await fetch_remote(props.repoPath, curRemote?.name ?? "", authType, username, password, privKeyPath, info => {
-                setRecvRatio(info.recvObjs / Math.max(info.totalObjs, 1) * 100);
-                setIndexRatio(info.indexObjs / Math.max(info.totalObjs, 1) * 100);
-                if (info.indexObjs >= info.totalObjs) {
+                if (info.totalObjs > 0) {
+                    setRecvRatio(info.recvObjs * 100 / info.totalObjs);
+                    setIndexRatio(info.indexObjs * 100 / info.totalObjs);
+                }
+                if (info.indexObjs >= info.totalObjs && hasPull == false) {
+                    hasPull = true;
                     setInPull(false);
-                    setRecvRatio(0);
-                    setIndexRatio(0);
+                    setTimeout(() => {
+                        setRecvRatio(0);
+                        setIndexRatio(0);
+                    }, 1000);
                     run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
                     message.info("拉取成功");
                     props.onClose();
@@ -208,6 +214,7 @@ const PushModal = observer((props: ModalProps) => {
     const [curSshKey, setCurSshKey] = useState("");
 
     const [inPush, setInPush] = useState(false);
+    const [pushRatio, setPushRatio] = useState(0);
 
     const loadRemoteList = async () => {
         const res = await list_remote(props.repoPath);
@@ -226,14 +233,26 @@ const PushModal = observer((props: ModalProps) => {
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPush(true);
+        let hasPush = false;
         try {
-            await run_push(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath);
-            message.info("推送成功");
-            props.onClose();
+            await run_push(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath,
+                (current: number, total: number, _bytes: number) => {
+                    if (total > 0) {
+                        setPushRatio(current * 100 / total);
+                    }
+                    if (current >= total && hasPush == false) {
+                        hasPush = true;
+                        setInPush(false);
+                        setTimeout(() => setPushRatio(0), 1000);
+                        message.info("推送成功");
+                        props.onClose();
+                    }
+                }
+            );
         } catch (e) {
             message.error(`${e}`);
-        } finally {
             setInPush(false);
+            setPushRatio(0);
         }
     };
 
@@ -333,6 +352,11 @@ const PushModal = observer((props: ModalProps) => {
                                 <Select.Option key={sshName} value={sshName}>{sshName}</Select.Option>
                             ))}
                         </Select>
+                    </Form.Item>
+                )}
+                {pushRatio != 0 && (
+                    <Form.Item label="推送进度">
+                        <Progress percent={pushRatio} showInfo={false} />
                     </Form.Item>
                 )}
             </Form>
