@@ -24,6 +24,9 @@ const UserContentList = (props: UserContentListProps) => {
     const [curPage, setCurPage] = useState(0);
 
     const loadContentList = async () => {
+        if (orgStore.curOrgId == "") {
+            return;
+        }
         const res = await request(list_user_content({
             session_id: userStore._sessionId,
             org_id: orgStore.curOrgId,
