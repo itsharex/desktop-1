@@ -15,8 +15,28 @@ const ChangeBranchModal = (props: ChangeBranchModalProps) => {
     const [branchList, setBranchList] = useState<LocalRepoBranchInfo[]>([]);
 
     const loadBranchList = async () => {
-        const res = await list_repo_branch(props.repo.path);
-        setBranchList(res);
+        const localList = await list_repo_branch(props.repo.path);
+        const remoteList = await list_repo_branch(props.repo.path, true);
+        for (const branch of remoteList) {
+            if (branch.name.startsWith("origin/") == false) {
+                continue;
+            }
+            const name = branch.name.substring("origin/".length);
+            if (name == "HEAD") {
+                continue;
+            }
+            if (localList.map(item => item.name).includes(name)) {
+                continue;
+            }
+            localList.push({
+                name: name,
+                upstream: branch.name,
+                commit_id: branch.commit_id,
+                commit_summary: branch.commit_summary,
+                commit_time: branch.commit_time,
+            });
+        }
+        setBranchList(localList);
     };
 
     const checkOutBranch = async () => {
