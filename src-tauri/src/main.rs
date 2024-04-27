@@ -3,6 +3,7 @@
     windows_subsystem = "windows"
 )]
 
+use std::time::SystemTime;
 use tauri::api::ipc::{format_callback, format_callback_result, CallbackFn};
 use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
@@ -538,6 +539,8 @@ fn main() {
         })
         .build(tauri::generate_context!())
         .expect("error while building  tauri application");
+    let mut last_ts = 0 as u128;
+    let mut total_download = 0 as f32;
     app.run(move |app_handle, event| match event {
         tauri::RunEvent::Updater(updater_event) => {
             let win = app_handle.get_window("main");
@@ -546,14 +549,24 @@ fn main() {
                     chunk_length,
                     content_length,
                 } => {
+                    total_download += chunk_length as f32;
                     if win.is_some() && content_length.is_some() {
                         let content_length: u64 = content_length.unwrap();
                         if content_length > 0 {
-                            if let Err(err) = win.unwrap().emit(
-                                "updateProgress",
-                                (chunk_length as f32) / (content_length as f32),
-                            ) {
-                                println!("{}", err);
+                            let ts = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH);
+                            if ts.is_ok() {
+                                let ts = ts.unwrap().as_millis();
+                                if ts - last_ts > 200
+                                    || (total_download as usize) == (content_length as usize)
+                                {
+                                    last_ts = ts;
+                                    if let Err(err) = win.unwrap().emit(
+                                        "updateProgress",
+                                        total_download / (content_length as f32),
+                                    ) {
+                                        println!("{}", err);
+                                    }
+                                }
                             }
                         }
                     }
