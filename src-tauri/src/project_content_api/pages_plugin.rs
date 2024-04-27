@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::helper::http::start_http_serv;
 use std::collections::HashMap;
 use std::time::Duration;

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use proto_gen_rust::dev_container_api::dev_container_api_client::DevContainerApiClient;
 use proto_gen_rust::dev_container_api::*;
 use substring::Substring;

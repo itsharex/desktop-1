@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::events_decode::{decode_event, EventMessage};
 use proto_gen_rust::events_api::events_api_client::EventsApiClient;
 use proto_gen_rust::events_api::*;

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { type HTTP_BODY_TYPE, type Body, HTTP_BODY_NONE, HTTP_BODY_TEXT, HTTP_BODY_URL_ENCODE, HTTP_BODY_MULTI_PART } from "@/api/http_custom";
 import { Button, Card, Checkbox, Form, Input, List, Select, Space } from "antd";
 import React from "react";

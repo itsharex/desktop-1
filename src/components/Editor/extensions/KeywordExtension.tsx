@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { CreateExtensionPlugin, ProsemirrorNode } from "remirror";
 import { PlainExtension, extension } from "remirror";
 import { Decoration, DecorationSet } from '@remirror/pm/view';
@@ -13,7 +16,12 @@ interface Range {
     keyword: string;
 }
 
-@extension<KeywordOptions>({ defaultOptions: { keywordList: [], kwListCb: () => { } } })
+@extension<KeywordOptions>({
+    defaultOptions: { keywordList: [], kwListCb: () => { } },
+    staticKeys: [],
+    handlerKeys: [],
+    customHandlerKeys: []
+})
 export class KeywordExtension extends PlainExtension<KeywordOptions> {
     get name() {
         return 'keyword' as const;

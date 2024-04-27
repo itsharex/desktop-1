@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { type WidgetProps } from './common';
 import { observer, useLocalObservable } from 'mobx-react';

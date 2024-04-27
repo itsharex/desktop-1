@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Form, Segmented, Select, Table } from "antd";
 import type { LocalRepoInfo, LocalRepoCommitInfo, LocalRepoBranchInfo, CommitGraphInfo } from "@/api/local_repo";

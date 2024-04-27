@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useState } from "react";
 import { HTTP_BODY_NONE, type ApiItemInfo, remove_api_item, update_api_item, HTTP_BODY_TEXT, HTTP_BODY_URL_ENCODE, HTTP_BODY_MULTI_PART } from "@/api/http_custom";
 import { Card, Form, Input, Modal, Popover, Select, Space, Tabs } from "antd";

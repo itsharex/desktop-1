@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo, HeadInfo } from "@/api/local_repo";

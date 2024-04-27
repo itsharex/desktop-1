@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::project_comm_api::events_api_plugin::{convert_event, PluginEvent};
 use crate::notice_decode::new_wrong_session_notice;
 use proto_gen_rust::events_api::events_admin_api_client::EventsAdminApiClient;

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use proto_gen_rust::idea_store_api::idea_store_api_client::IdeaStoreApiClient;
 use proto_gen_rust::idea_store_api::*;
 use tauri::{

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { ISSUE_TYPE, IssueInfo } from "@/api/project_issue";
 import { get as get_issue } from "@/api/project_issue";
 import { makeAutoObservable, runInAction } from "mobx";

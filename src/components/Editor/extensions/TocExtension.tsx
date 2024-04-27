@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { CreateExtensionPlugin, ProsemirrorNode } from "remirror";
 import { PlainExtension, extension } from "remirror";
 import { DecorationSet } from '@remirror/pm/view';
@@ -12,7 +15,12 @@ export interface TocOptions {
     tocCb?: (tocList: TocInfo[]) => void;
 }
 
-@extension<TocOptions>({ defaultOptions: { tocCb: () => { } } })
+@extension<TocOptions>({
+    defaultOptions: { tocCb: () => { } },
+    staticKeys: [],
+    handlerKeys: [],
+    customHandlerKeys: []
+})
 export class TocExtension extends PlainExtension<TocOptions> {
     get name() {
         return 'toc' as const;

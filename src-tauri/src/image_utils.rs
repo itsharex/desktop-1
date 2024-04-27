@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use image::codecs::png::PngEncoder;
 use image::imageops::resize;
 use image::io::Reader as ImageReader;

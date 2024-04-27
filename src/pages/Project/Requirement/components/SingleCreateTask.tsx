@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { FILE_OWNER_TYPE_ISSUE, FILE_OWNER_TYPE_PROJECT } from '@/api/fs';
 import { change_file_fs, change_file_owner, useCommonEditor } from '@/components/Editor';
 import { useStores } from '@/hooks';

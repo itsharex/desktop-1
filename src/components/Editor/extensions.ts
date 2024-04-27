@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { BlockquoteExtension } from '@remirror/extension-blockquote';
 import { BoldExtension } from '@remirror/extension-bold';
 import { HardBreakExtension } from '@remirror/extension-hard-break';
@@ -51,7 +54,7 @@ export const getExtensions = (param?: {
   tocCallback?: (tocList: TocInfo[]) => void;
   eventsOption?: EventsOptions;
 }) => {
-  const evExtension = new EventsExtension();
+  const evExtension = new EventsExtension({});
   evExtension.addHandler("keydown", e => {
     if (param?.eventsOption?.keydown !== undefined) {
       return param.eventsOption.keydown(e);
@@ -71,10 +74,10 @@ export const getExtensions = (param?: {
       ownerId: param?.ownerId ?? ""
     }),
     new FileUploadExtension(),
-    new HorizontalRuleExtension(),
+    new HorizontalRuleExtension({}),
     new BlockquoteExtension(),
     new BoldExtension({ weight: 20 }),
-    new BulletListExtension(),
+    new BulletListExtension({}),
     new OrderedListExtension(),
     new TaskListExtension(),
     new WidgetExtension(),
@@ -93,15 +96,15 @@ export const getExtensions = (param?: {
     new SubExtension(),
     new SupExtension(),
     new FontSizeExtension({ defaultSize: '12', unit: 'px' }),
-    new TextColorExtension(),
-    new TextHighlightExtension(),
-    new CalloutExtension(),
+    new TextColorExtension({}),
+    new TextHighlightExtension({}),
+    new CalloutExtension({}),
 
     new KeywordExtension({ keywordList: param?.keywordList ?? [], kwListCb: param?.keywordCallback }),
     new TocExtension({ tocCb: param?.tocCallback }),
 
-    new ReactComponentExtension(),
-    new TableExtension(),
+    new ReactComponentExtension({}),
+    new TableExtension({}),
   ];
 
   return () => retList;
