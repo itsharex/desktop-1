@@ -146,14 +146,8 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
 
   useEffect(() => {
     const unlisten = listen<number>("updateProgress", ev => {
-      console.log(ev);
       if (ev.payload >= 0) {
-        setUpdateProgress(oldValue => {
-          if (oldValue > 0.98) {
-            return 1.0;
-          }
-          return oldValue + ev.payload
-        });
+        setUpdateProgress(ev.payload);
       } else {
         message.error("更新出错");
         setUpdateProgress(0);
