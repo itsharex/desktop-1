@@ -391,7 +391,7 @@ export async function fetch_remote(path: string, remoteName: string, authType: s
     await command.spawn();
 }
 
-export async function run_push(path: string, remoteName: string, branch: string, authType: string, username: string, password: string, privKey: string): Promise<void> {
+export async function run_push(path: string, remoteName: string, branch: string, authType: string, username: string, password: string, privKey: string, callback: (current: number, total: number, bytes: number) => void): Promise<void> {
     const args = ["--git-path", path, "push", "--auth-type", authType];
     if (authType == "privkey") {
         args.push(...["--priv-key", privKey]);
@@ -402,11 +402,18 @@ export async function run_push(path: string, remoteName: string, branch: string,
     args.push(branch);
 
     const command = Command.sidecar('bin/gitspy', args);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
+    command.stdout.on("data", (line: string) => {
+        const parts = line.split(":");
+        if (parts.length == 3) {
+            callback(
+                parseInt(parts[0]),
+                parseInt(parts[1]),
+                parseInt(parts[2]),
+            );
+        }
+    });
+    command.stderr.on("data", line => message.error(line));
+    await command.spawn();
 }
 
 export async function run_pull(path: string, remoteName: string, branch: string): Promise<void> {
