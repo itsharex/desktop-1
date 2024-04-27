@@ -7,7 +7,7 @@ license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.8.11"
+version = "0.8.12"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -43,7 +43,7 @@ sled = "0.34.7"
 ssh-key = {version = "0.6.5", features = ["alloc", "rsa", "dsa", "p256", "p384"] }
 substring = "1.4.5"
 swagger = {version = "6.1", features = ["serdejson", "server", "client", "tls", "tcp"] }
-tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v3", features = [ "updater", "path-all", "fs-all",
+tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v4", features = [ "updater", "path-all", "fs-all",
   "clipboard-all",
   "devtools",
   "dialog-all",
