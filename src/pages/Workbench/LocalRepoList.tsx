@@ -588,6 +588,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                     onCancel={() => setSelRepoBranchInfo(null)}
                     onOk={() => {
                         updateRepoHeadInfo(selRepoBranchInfo.id);
+                        props.onChange();
                         setSelRepoBranchInfo(null);
                     }} />
             )}
