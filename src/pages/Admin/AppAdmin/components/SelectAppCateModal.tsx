@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useState } from "react";
 import type { DataNode } from "antd/lib/tree";
 import { list_major_cate, list_minor_cate, list_sub_minor_cate, get_cate_path } from "@/api/appstore";

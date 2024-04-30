@@ -1,7 +1,10 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Form, Segmented, Select, Table } from "antd";
 import type { LocalRepoInfo, LocalRepoCommitInfo, LocalRepoBranchInfo, CommitGraphInfo } from "@/api/local_repo";
-import { list_commit_graph, list_repo_commit } from "@/api/local_repo";
+import { get_head_info, list_commit_graph, list_repo_commit } from "@/api/local_repo";
 import type { ColumnsType } from 'antd/lib/table';
 import moment from "moment";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
@@ -53,12 +56,17 @@ const CommitList = (props: CommitListProps) => {
         })
     };
 
+    const loadHeadInfo = async () => {
+        const res = await get_head_info(props.repo.path);
+        setFilterBranch(res.branch_name);
+    };
+
     const initGraph = async () => {
-        const branch = props.branchList.find(item=>item.name == filterBranch);
-        if(branch == undefined){
+        const branch = props.branchList.find(item => item.name == filterBranch);
+        if (branch == undefined) {
             return;
         }
-        if(graphRef == null || graphRef.current == null){
+        if (graphRef == null || graphRef.current == null) {
             return;
         }
         graphRef.current.innerText = "";
@@ -145,12 +153,7 @@ const CommitList = (props: CommitListProps) => {
 
 
     useEffect(() => {
-        if (props.branchList.map(item => item.name).includes(filterBranch)) {
-            return;
-        }
-        if (props.branchList.length > 0) {
-            setFilterBranch(props.branchList[0].name);
-        }
+        loadHeadInfo();
     }, [props.branchList]);
 
     useEffect(() => {

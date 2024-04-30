@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useState } from "react";
 import { Button, Card, Checkbox, Descriptions, Form, List, message, Select, Space } from "antd";
 import { get_admin_perm } from '@/api/admin_auth';

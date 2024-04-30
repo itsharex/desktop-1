@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { Form, Modal, Checkbox, Select, Input, message } from "antd";
 import React, { useState } from "react";
 import { observer } from 'mobx-react';

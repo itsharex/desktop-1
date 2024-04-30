@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use std::collections::HashMap;
 use tauri::async_runtime::Mutex;
 use tauri::Manager;

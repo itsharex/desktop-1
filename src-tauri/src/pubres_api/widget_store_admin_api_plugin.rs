@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::notice_decode::new_wrong_session_notice;
 use proto_gen_rust::widget_store_api::widget_store_admin_api_client::WidgetStoreAdminApiClient;
 use proto_gen_rust::widget_store_api::*;

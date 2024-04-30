@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::helper::http::start_http_serv;
 use crate::minapp_api::min_app_store_plugin::{close_store, start_store};
 use async_zip::read::seek::ZipFileReader;

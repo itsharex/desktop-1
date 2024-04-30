@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { list_all_keyword } from '@/api/project_idea';
 import type { RootStore } from './index';
 import { makeAutoObservable, runInAction } from 'mobx';

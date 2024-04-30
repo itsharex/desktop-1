@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 export interface WidgetProps {
   editMode: boolean; //true表示编辑模式，false表示阅读模式
   initData: unknown; //初始化数据

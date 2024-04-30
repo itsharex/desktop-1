@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use proto_gen_rust::client_cfg_api::client_cfg_api_client::ClientCfgApiClient;
 use proto_gen_rust::client_cfg_api::*;
 use tauri::async_runtime::Mutex;

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { MAIN_CONTENT_TYPE } from '@/api/project';
 import { MAIN_CONTENT_CONTENT_LIST } from '@/api/project';
 import { type ENTRY_TYPE, ENTRY_TYPE_NULL } from '@/api/project_entry';

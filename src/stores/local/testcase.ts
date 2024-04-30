@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { CaseInfo, FolderOrCaseInfo } from "@/api/project_testcase";
 import { get_folder, get_case } from "@/api/project_testcase";
 import { makeAutoObservable, runInAction } from "mobx";

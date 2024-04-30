@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useState } from "react";
 import style from '@/components/Editor/extensions/common.module.less';
 import { getFileType, FILE_TYPE } from '@/utils/file_type';

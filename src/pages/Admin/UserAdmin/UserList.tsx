@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { Card, Form, Input, Select, Space, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import type { USER_STATE, UserInfo } from '@/api/user';

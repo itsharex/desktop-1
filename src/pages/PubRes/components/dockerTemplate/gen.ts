@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { FileSchema, VariableSchema } from "./schema";
 import ejs from "ejs";
 import { exists, readTextFile, createDir, writeTextFile } from '@tauri-apps/api/fs';

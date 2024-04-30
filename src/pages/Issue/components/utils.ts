@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { MemberInfo } from "@/api/project_member";
 import type { EditSelectItem } from "@/components/EditCell/EditSelect";
 import * as issueApi from '@/api/project_issue';

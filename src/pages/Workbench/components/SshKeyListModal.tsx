@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { gen_ssh_key, list_ssh_key_name } from "@/api/local_repo";
 import { resolve } from "@tauri-apps/api/path";
 import { Button, Divider, Form, Input, List, message, Modal, Space } from "antd";

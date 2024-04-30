@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::notice_decode::new_wrong_session_notice;
 use proto_gen_rust::skill_center_api::skill_center_api_client::SkillCenterApiClient;
 use proto_gen_rust::skill_center_api::*;

@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import Button from "@/components/Button";
 import { FolderAddOutlined } from "@ant-design/icons";
 import { Card, Form, Input, List, Modal, message } from "antd";

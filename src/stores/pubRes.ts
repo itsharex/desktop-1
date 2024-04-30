@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import type { SORT_KEY } from '@/api/appstore';
 import { SORT_KEY_UPDATE_TIME } from '@/api/appstore';
 import { makeAutoObservable, runInAction } from 'mobx';

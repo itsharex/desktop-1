@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use proto_gen_rust::k8s_proxy_api::k8s_proxy_api_client::K8sProxyApiClient;
 use proto_gen_rust::k8s_proxy_api::*;
 use tauri::{

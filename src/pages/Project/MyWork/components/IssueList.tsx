@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { Table, Tooltip } from "antd";
 import React from "react";
 import type { IssueInfo, ISSUE_TYPE } from "@/api/project_issue";

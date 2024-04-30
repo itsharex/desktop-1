@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useState } from "react";
 import type { IIoK8sApiAppsV1Deployment } from "kubernetes-models/apps/v1";
 import { RESOURCE_TYPE_DEPLOYMENT, update_scale } from "@/api/k8s_proxy";

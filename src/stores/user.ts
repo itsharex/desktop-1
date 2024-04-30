@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import { makeAutoObservable, runInAction } from 'mobx';
 import { type FeatureInfo, type USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, get_session, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';

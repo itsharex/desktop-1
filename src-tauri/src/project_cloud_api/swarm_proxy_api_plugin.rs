@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use proto_gen_rust::swarm_proxy_api::swarm_proxy_api_client::SwarmProxyApiClient;
 use proto_gen_rust::swarm_proxy_api::*;
 use tauri::{

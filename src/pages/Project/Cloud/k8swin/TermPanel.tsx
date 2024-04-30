@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 import React, { useEffect, useRef, useState } from "react";
 import { type RESOURCE_TYPE, open_term, read_term, write_term, set_term_size } from "@/api/k8s_proxy";
 import { request } from "@/utils/request";

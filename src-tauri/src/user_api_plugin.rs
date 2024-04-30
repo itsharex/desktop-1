@@ -1,3 +1,6 @@
+//SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
+//SPDX-License-Identifier: GPL-3.0-only
+
 use crate::notice_decode::{decode_notice, new_extra_token_notice, new_wrong_session_notice};
 use crate::project_cloud_api::net_proxy_api_plugin::stop_all_listen;
 use image::EncodableLayout;
