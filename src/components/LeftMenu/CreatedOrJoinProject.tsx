@@ -1,10 +1,10 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Form, Input, message, Modal, Select, Tabs } from 'antd';
+import { Checkbox, Form, Input, message, Modal, Space, Tabs } from 'antd';
 import React, { useState } from 'react';
 import type { BasicProjectInfo } from '@/api/project';
-import { add_tag, create, MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_tip_list } from '@/api/project';
+import { add_tag, create, MAIN_CONTENT_CONTENT_LIST, update_tip_list } from '@/api/project';
 import { useStores } from '@/hooks';
 import { request } from '@/utils/request';
 import { useCommonEditor } from '@/components/Editor';
@@ -31,9 +31,15 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
   const orgStore = useStores('orgStore');
 
   const [prjName, setPrjName] = useState("");
-  const [mainContent, setMainContent] = useState(MAIN_CONTENT_CONTENT_LIST);
   const [activeKey, setActiveKey] = useState("create");
   const [linkText, setLinkText] = useState('');
+  const [enableEntryDoc, setEnableEntryDoc] = useState(false);
+  const [enableEntryPages, setEnableEntryPages] = useState(false);
+  const [enableEntryBoard, setEnableEntryBoard] = useState(false);
+  const [enableEntryFile, setEnableEntryFile] = useState(false);
+  const [enableEntryApiColl, setEnableEntryApiColl] = useState(false);
+  const [enableEntryDataAnno, setEnableEntryDataAnno] = useState(false);
+
 
   const { editor, editorRef } = useCommonEditor({
     placeholder: "请输入项目介绍",
@@ -57,7 +63,7 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
       project_desc: JSON.stringify(content),
     };
     try {
-      const res = await request(create(userStore.sessionId, data, mainContent));
+      const res = await request(create(userStore.sessionId, data, enableEntryDoc, enableEntryPages, enableEntryBoard, enableEntryFile, enableEntryApiColl, enableEntryDataAnno));
       message.success('创建项目成功');
       //设置经验集锦
       const tipList = unixTipList.split("\n").map(tip => tip.trim()).filter(tip => tip != "");
@@ -147,19 +153,33 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
                     setPrjName(e.target.value.trim());
                   }} />
                 </Form.Item>
-                <Form.Item label="默认内容入口">
-                  <Select value={mainContent} onChange={value => {
-                    setMainContent(value);
-                  }}>
-                    <Select.Option value={MAIN_CONTENT_CONTENT_LIST}>内容面板</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_SPRIT_LIST}>工作计划</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_DOC_LIST}>项目文档</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_BOARD_LIST}>信息面板</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_PAGES_LIST}>静态网页</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_FILE_LIST}>项目文件</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_API_COLL_LIST}>接口集合</Select.Option>
-                    <Select.Option value={MAIN_CONTENT_MY_WORK}>我的工作</Select.Option>
-                  </Select>
+                <Form.Item label="项目功能">
+                  <Space>
+                    <Checkbox checked={enableEntryDoc} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryDoc(e.target.checked);
+                    }}>项目文档</Checkbox>
+                    <Checkbox checked={enableEntryBoard} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryBoard(e.target.checked);
+                    }}>信息面板</Checkbox>
+                    <Checkbox checked={enableEntryPages} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryPages(e.target.checked);
+                    }}>静态网页</Checkbox>
+                    <Checkbox checked={enableEntryFile} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryFile(e.target.checked);
+                    }}>项目文件</Checkbox>
+                    <Checkbox checked={enableEntryApiColl} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryApiColl(e.target.checked);
+                    }}>接口集合</Checkbox>
+                    <Checkbox checked={enableEntryDataAnno} onChange={e => {
+                      e.stopPropagation();
+                      setEnableEntryDataAnno(e.target.checked);
+                    }}>数据标注</Checkbox>
+                  </Space>
                 </Form.Item>
                 <Form.Item label="项目介绍">
                   <div className="_projectEditContext" style={{ marginTop: '-12px' }}>

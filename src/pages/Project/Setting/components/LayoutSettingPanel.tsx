@@ -4,20 +4,32 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { PanelProps } from "./common";
-import { Button, Card, Form, Select, Space, message } from "antd";
+import { Button, Card, Checkbox, Form, Space, message } from "antd";
 import { useStores } from "@/hooks";
-import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_MY_WORK, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST, update_setting } from "@/api/project";
+import { update_setting } from "@/api/project";
 import { request } from "@/utils/request";
 
 const LayoutSettingPanel = (props: PanelProps) => {
     const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
 
-    const [mainContent, setMainContent] = useState(projectStore.curProject?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST);
+    const [enableEntryDoc, setEnableEntryDoc] = useState(projectStore.curProject?.setting.enable_entry_doc ?? false);
+    const [enableEntryPages, setEnableEntryPages] = useState(projectStore.curProject?.setting.enable_entry_pages ?? false);
+    const [enableEntryBoard, setEnableEntryBoard] = useState(projectStore.curProject?.setting.enable_entry_board ?? false);
+    const [enableEntryFile, setEnableEntryFile] = useState(projectStore.curProject?.setting.enable_entry_file ?? false);
+    const [enableEntryApiColl, setEnableEntryApiColl] = useState(projectStore.curProject?.setting.enable_entry_api_coll ?? false);
+    const [enableEntryDataAnno, setEnableEntryDataAnno] = useState(projectStore.curProject?.setting.enable_entry_data_anno ?? false);
     const [hasChange, setHasChange] = useState(false);
 
+
     const resetConfig = () => {
-        setMainContent(projectStore.curProject?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST);
+        setEnableEntryDoc(projectStore.curProject?.setting.enable_entry_doc ?? false);
+        setEnableEntryPages(projectStore.curProject?.setting.enable_entry_pages ?? false);
+        setEnableEntryBoard(projectStore.curProject?.setting.enable_entry_board ?? false);
+        setEnableEntryFile(projectStore.curProject?.setting.enable_entry_file ?? false);
+        setEnableEntryApiColl(projectStore.curProject?.setting.enable_entry_api_coll ?? false);
+        setEnableEntryDataAnno(projectStore.curProject?.setting.enable_entry_data_anno ?? false);
+        setHasChange(false);
     };
 
     const updateConfig = async () => {
@@ -29,7 +41,12 @@ const LayoutSettingPanel = (props: PanelProps) => {
             project_id: projectStore.curProjectId,
             setting: {
                 ...projectStore.curProject.setting,
-                main_content: mainContent,
+                enable_entry_doc: enableEntryDoc,
+                enable_entry_pages: enableEntryPages,
+                enable_entry_board: enableEntryBoard,
+                enable_entry_file: enableEntryFile,
+                enable_entry_api_coll: enableEntryApiColl,
+                enable_entry_data_anno: enableEntryDataAnno,
             },
         }));
         message.info("保存成功");
@@ -57,21 +74,40 @@ const LayoutSettingPanel = (props: PanelProps) => {
                     }}>保存</Button>
                 </Space>
             }>
-            <Form labelCol={{ span: 5 }} >
-                <Form.Item label="默认内容入口">
-                    <Select value={mainContent} onChange={value => {
-                        setMainContent(value);
-                        setHasChange(true);
-                    }}>
-                        <Select.Option value={MAIN_CONTENT_CONTENT_LIST}>内容面板</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_SPRIT_LIST}>工作计划</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_DOC_LIST}>项目文档</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_BOARD_LIST}>信息面板</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_PAGES_LIST}>静态网页</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_FILE_LIST}>项目文件</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_API_COLL_LIST}>接口集合</Select.Option>
-                        <Select.Option value={MAIN_CONTENT_MY_WORK}>我的工作</Select.Option>
-                    </Select>
+            <Form labelCol={{ span: 3 }} >
+                <Form.Item label="内容类型">
+                    <Space direction="vertical">
+                        <Checkbox checked={enableEntryDoc} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryDoc(e.target.checked);
+                            setHasChange(true);
+                        }}>项目文档</Checkbox>
+                        <Checkbox checked={enableEntryBoard} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryBoard(e.target.checked);
+                            setHasChange(true);
+                        }}>信息面板</Checkbox>
+                        <Checkbox checked={enableEntryPages} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryPages(e.target.checked);
+                            setHasChange(true);
+                        }}>静态网页</Checkbox>
+                        <Checkbox checked={enableEntryFile} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryFile(e.target.checked);
+                            setHasChange(true);
+                        }}>项目文件</Checkbox>
+                        <Checkbox checked={enableEntryApiColl} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryApiColl(e.target.checked);
+                            setHasChange(true);
+                        }}>接口集合</Checkbox>
+                        <Checkbox checked={enableEntryDataAnno} onChange={e => {
+                            e.stopPropagation();
+                            setEnableEntryDataAnno(e.target.checked);
+                            setHasChange(true);
+                        }}>数据标注</Checkbox>
+                    </Space>
                 </Form.Item>
             </Form>
         </Card>
