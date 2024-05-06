@@ -126,7 +126,7 @@ export type ProjectInfo = {
   require_ment_fs_id: string;
   idea_fs_id: string;
   bulletin_fs_id: string;
-  // data_anno_fs_id: string;
+  data_anno_fs_id: string;
   api_coll_fs_id: string;
   // ci_cd_fs_id: string;
   pages_fs_id: string;

@@ -11,6 +11,20 @@ import {
     ENTRY_TYPE_SPRIT, ISSUE_LIST_ALL, ISSUE_LIST_KANBAN, ISSUE_LIST_LIST,
     API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM,
     create as create_entry,
+    ENTRY_TYPE_DATA_ANNO,
+    ANNO_PROJECT_AUDIO_CLASSIFI,
+    ANNO_PROJECT_AUDIO_SEG,
+    ANNO_PROJECT_AUDIO_TRANS,
+    ANNO_PROJECT_AUDIO_SEG_TRANS,
+    ANNO_PROJECT_IMAGE_CLASSIFI,
+    ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT,
+    ANNO_PROJECT_IMAGE_BRUSH_SEG,
+    ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT,
+    ANNO_PROJECT_IMAGE_KEYPOINT,
+    ANNO_PROJECT_IMAGE_POLYGON_SEG,
+    ANNO_PROJECT_TEXT_CLASSIFI,
+    ANNO_PROJECT_TEXT_NER,
+    ANNO_PROJECT_TEXT_SUMMARY,
 } from "@/api/project_entry";
 import { useStores } from "@/hooks";
 import type { EntryPerm, ExtraSpritInfo, CreateRequest, ExtraFileInfo } from "@/api/project_entry";
@@ -32,7 +46,8 @@ import { create_rpc, create_open_api } from "@/api/api_collection";
 import { create_custom } from "@/api/http_custom";
 import { Command } from "@tauri-apps/api/shell";
 import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
-
+import { create as create_data_anno } from "@/api/data_anno_project";
+import { getDefaultConfig } from "@/pages/DataAnno/components/defaultConfig";
 
 interface PathWrap {
     id: string;
@@ -88,6 +103,10 @@ const CreateEntryModal = () => {
     const [openApiProtocol, setOpenApiProtocol] = useState("http");
 
     const [customProtocol, setCustomProtocol] = useState("https");
+
+    //数据标注相关字段
+    const [annoType, setAnnoType] = useState(ANNO_PROJECT_AUDIO_CLASSIFI);
+    const [annoDesc, setAnnoDesc] = useState("");
 
     const checkDayValid = (day: Moment): boolean => {
         const startTime = spritExtraInfo.start_time;
@@ -310,6 +329,16 @@ const CreateEntryModal = () => {
                 }));
                 entryId = res.api_coll_id;
             }
+        } else if (entryStore.createEntryType == ENTRY_TYPE_DATA_ANNO) {
+            const res = await request(create_data_anno({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                base_info: {
+                    desc: annoDesc,
+                    config: getDefaultConfig(annoType),
+                },
+            }));
+            entryId = res.anno_project_id;
         }
         if (entryId == "" || entryStore.createEntryType == null) {
             return;
@@ -348,7 +377,13 @@ const CreateEntryModal = () => {
                     default_addr: defaultAddr,
                 },
             };
-        } 
+        }else if (entryStore.createEntryType == ENTRY_TYPE_DATA_ANNO) {
+            createReq.extra_info = {
+                ExtraDataAnnoInfo: {
+                    anno_type: annoType,
+                },
+            }
+        }
         await request(create_entry(createReq));
 
         await entryStore.loadEntry(entryId);
@@ -466,6 +501,7 @@ const CreateEntryModal = () => {
                             <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>
                             <Radio value={ENTRY_TYPE_FILE}>文件</Radio>
                             <Radio value={ENTRY_TYPE_API_COLL}>接口集合</Radio>
+                            <Radio value={ENTRY_TYPE_DATA_ANNO}>数据标注</Radio>
                         </Radio.Group>
                     </Form.Item>
                 )}
@@ -741,6 +777,35 @@ const CreateEntryModal = () => {
                                 </Select>
                             </Form.Item>
                         )}
+                    </>
+                )}
+
+                {entryStore.createEntryType == ENTRY_TYPE_DATA_ANNO && (
+                    <>
+                        <Form.Item label="标注类型">
+                            <Select value={annoType} onChange={value => setAnnoType(value)}>
+                                <Select.Option value={ANNO_PROJECT_AUDIO_CLASSIFI}>音频分类</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_AUDIO_SEG}>音频分割</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_AUDIO_TRANS}>音频翻译</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_AUDIO_SEG_TRANS}>音频分段翻译</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_CLASSIFI}>图像分类</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT}>矩形对象检测</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_BRUSH_SEG}>画笔分割</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT}>圆形对象检测</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_KEYPOINT}>图像关键点</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_IMAGE_POLYGON_SEG}>多边形分割</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_TEXT_CLASSIFI}>文本分类</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_TEXT_NER}>文本命名实体识别</Select.Option>
+                                <Select.Option value={ANNO_PROJECT_TEXT_SUMMARY}>文本摘要</Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="标注描述">
+                            <Input.TextArea rows={3} value={annoDesc} onChange={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setAnnoDesc(e.target.value);
+                            }} />
+                        </Form.Item>
                     </>
                 )}
             </Form>

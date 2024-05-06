@@ -10,6 +10,7 @@ import {
     atomgitEvOptionList,
     calcAtomgitEvCfg,
     calcCodeEvCfg,
+    calcDataAnnoEvCfg,
     calcEntryEvCfg,
     calcExtEvCfg,
     calcGiteeEvCfg,
@@ -21,10 +22,12 @@ import {
     calcRequirementEvCfg,
     calcTestcaseEvCfg,
     codeEvOptionList,
+    dataAnnoEvOptionList,
     entryEvOptionList,
     extEvOptionList,
     genAtomgitEvCfgValues,
     genCodeEvCfgValues,
+    genDataAnnoEvCfgValues,
     genEntryEvCfgValues,
     genExtEvCfgValues,
     genGiteeEvCfgValues,
@@ -66,6 +69,7 @@ interface FormValue {
     requirementEvCfg: string[] | undefined;
     codeEvCfg: string[] | undefined;
     ideaEvCfg: string[] | undefined;
+    dataAnnoEvCfg: string[] | undefined;
     apiCollectionEvCfg: string[] | undefined;
     entryEvCfg: string[] | undefined;
     harborEvCfg: string[] | undefined;
@@ -121,6 +125,10 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
     const [ideaEvCfgCheckAll, setIdeaEvCfgCheckAll] = useState(ideaEvCfgValues.length == ideaEvOptionList.length);
     const [ideaEvCfgIndeterminate, setIdeaEvCfgIndeterminate] = useState(ideaEvCfgValues.length > 0 && ideaEvCfgValues.length < ideaEvOptionList.length);
 
+    const dataAnnoEvCfgValues = genDataAnnoEvCfgValues(props.subscribe.event_cfg.data_anno_ev_cfg);
+    const [dataAnnoEvCfgCheckAll, setDataAnnoEvCfgCheckAll] = useState(dataAnnoEvCfgValues.length == dataAnnoEvOptionList.length);
+    const [dataAnnoEvCfgIndeterminate, setDataAnnoEvCfgIndeterminate] = useState(dataAnnoEvCfgValues.length > 0 && dataAnnoEvCfgValues.length < dataAnnoEvOptionList.length);
+    
     const entryEvCfgValues = genEntryEvCfgValues(props.subscribe.event_cfg.entry_ev_cfg);
     const [entryEvCfgCheckAll, setEntryEvCfgCheckAll] = useState(entryEvCfgValues.length == entryEvOptionList.length);
     const [entryEvCfgIndeterminate, setEntryEvCfgIndeterminate] = useState(entryEvCfgValues.length > 0 && entryEvCfgValues.length < entryEvOptionList.length);
@@ -146,6 +154,7 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                 requirement_ev_cfg: calcRequirementEvCfg(formValue.requirementEvCfg),
                 code_ev_cfg: calcCodeEvCfg(formValue.codeEvCfg),
                 idea_ev_cfg: calcIdeaEvCfg(formValue.ideaEvCfg),
+                data_anno_ev_cfg: calcDataAnnoEvCfg(formValue.dataAnnoEvCfg),
                 entry_ev_cfg: calcEntryEvCfg(formValue.entryEvCfg),
                 harbor_ev_cfg: calcHarborEvCfg(formValue.harborEvCfg),
                 testcase_ev_cfg: calcTestcaseEvCfg(formValue.testcaseEvCfg),
@@ -175,6 +184,7 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                     "requirementEvCfg": requirementEvCfgValues,
                     "codeEvCfg": codeEvCfgValues,
                     "ideaEvCfg": ideaEvCfgValues,
+                    "dataAnnoEvCfg": dataAnnoEvCfgValues,
                     "entryEvCfg": entryEvCfgValues,
                     "harborEvCfg": harborEvCfgValues,
                     "testcaseEvCfg": testcaseEvCfgValues,
@@ -487,6 +497,33 @@ const UpdateSubscribeModal: React.FC<UpdateSubscribeModalProps> = (props) => {
                             }
                         }} />
                     </Form.Item>
+
+                    <Form.Item label={<Checkbox indeterminate={dataAnnoEvCfgIndeterminate} checked={dataAnnoEvCfgCheckAll} onChange={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setDataAnnoEvCfgIndeterminate(false);
+                        if (dataAnnoEvCfgCheckAll) {
+                            setDataAnnoEvCfgCheckAll(false);
+                            form.setFieldValue("dataAnnoEvCfg", []);
+                        } else {
+                            setDataAnnoEvCfgCheckAll(true);
+                            form.setFieldValue("dataAnnoEvCfg", dataAnnoEvOptionList.map(item => item.value));
+                        }
+                    }}>数据标注事件</Checkbox>} name="dataAnnoEvCfg">
+                        <Checkbox.Group options={dataAnnoEvOptionList} onChange={values => {
+                            if (values.length == 0) {
+                                setDataAnnoEvCfgCheckAll(false);
+                                setDataAnnoEvCfgIndeterminate(false);
+                            } else if (values.length == dataAnnoEvOptionList.length) {
+                                setDataAnnoEvCfgCheckAll(true);
+                                setDataAnnoEvCfgIndeterminate(false);
+                            } else {
+                                setDataAnnoEvCfgCheckAll(false);
+                                setDataAnnoEvCfgIndeterminate(true);
+                            }
+                        }} />
+                    </Form.Item>
+
                 </Form>
             </div>
         </Modal>

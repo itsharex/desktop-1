@@ -19,6 +19,7 @@ import { type AllAtomgitEvent, get_atomgit_simple_content } from './events/atomg
 import { type AllEntryEvent, get_entry_simple_content } from './events/entry';
 import { type AllHarborEvent, get_harbor_simple_content } from './events/harbor';
 import { type AllTestCaseEvent, get_testcase_simple_content } from './events/testcase';
+import { type AllDataAnnoEvent, get_data_anno_simple_content } from './events/data_anno';
 
 export function get_issue_type_str(issue_type: number): string {
   if (issue_type == pi.ISSUE_TYPE_BUG) {
@@ -40,6 +41,7 @@ export class AllEvent {
   RequirementEvent?: AllRequirementEvent;
   CodeEvent?: AllCodeEvent;
   IdeaEvent?: AllIdeaEvent;
+  DataAnnoEvent?: AllDataAnnoEvent;
   AtomgitEvent?: AllAtomgitEvent;
   EntryEvent?: AllEntryEvent;
   HarborEvent?: AllHarborEvent;
@@ -73,6 +75,8 @@ export function get_simple_content(ev: PluginEvent, skip_prj_name: boolean): Lin
     return get_harbor_simple_content(ev, skip_prj_name, ev.event_data.HarborEvent);
   } else if (ev.event_data.TestCaseEvent !== undefined) {
     return get_testcase_simple_content(ev, skip_prj_name, ev.event_data.TestCaseEvent);
+  } else if (ev.event_data.DataAnnoEvent !== undefined) {
+    return get_data_anno_simple_content(ev, skip_prj_name, ev.event_data.DataAnnoEvent);
   }
   return [new LinkNoneInfo('未知事件')];
 }
