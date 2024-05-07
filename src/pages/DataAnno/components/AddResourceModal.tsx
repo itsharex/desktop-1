@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Card, Checkbox, List, Modal, Space } from "antd";
+import { Card, Checkbox, List, Modal, Progress, Space } from "antd";
 import React, { useState } from "react";
 import * as dataAnnoPrjApi from "@/api/data_anno_project";
 import Button from "@/components/Button";
@@ -35,6 +35,7 @@ const AddResourceModal = (props: AddResourceModalProps) => {
     const [resourceList, setResourceList] = useState<AddResource[]>([]);
     const [inUpload, setInUpload] = useState(false);
     const [splitText, setSplitText] = useState(true);
+    const [uploadRatio, setUploadRatio] = useState(0);
 
     const choiceFile = async () => {
         let filter: DialogFilter = {
@@ -85,9 +86,13 @@ const AddResourceModal = (props: AddResourceModalProps) => {
         setInUpload(true);
         const tmpList = resourceList.slice();
         const sessionId = await get_session();
+        const reqList = [] as dataAnnoPrjApi.AddResourceRequest[];
+        let doneFileCount = 0;
+        let doneReqCount = 0;
         try {
             for (const resource of tmpList) {
                 if (resource.done) {
+                    doneFileCount += 1;
                     continue;
                 }
                 if (dataAnnoPrjApi.isAnnoText(props.annoType)) {
@@ -96,23 +101,23 @@ const AddResourceModal = (props: AddResourceModalProps) => {
                         for (const line of content.split("\n")) {
                             const value = line.trim();
                             if (value != "") {
-                                await request(dataAnnoPrjApi.add_resource({
+                                reqList.push({
                                     session_id: sessionId,
                                     project_id: props.projectId,
                                     anno_project_id: props.annoProjectId,
                                     content: value,
                                     store_as_file: false,
-                                }));
+                                });
                             }
                         }
                     } else {
-                        await request(dataAnnoPrjApi.add_resource({
+                        reqList.push({
                             session_id: sessionId,
                             project_id: props.projectId,
                             anno_project_id: props.annoProjectId,
                             content: content,
                             store_as_file: false,
-                        }));
+                        });
                     }
                 } else {
                     const uploadRes = await write_file(sessionId, props.fsId, resource.value, "");
@@ -130,9 +135,16 @@ const AddResourceModal = (props: AddResourceModalProps) => {
                         owner_type: FILE_OWNER_TYPE_DATA_ANNO,
                         owner_id: addRes.resource_id,
                     }));
+                    doneFileCount += 1;
+                    setUploadRatio(doneFileCount * 100 / resourceList.length);
                 }
                 resource.done = true;
                 setResourceList(tmpList);
+            }
+            for (const req of reqList) {
+                await request(dataAnnoPrjApi.add_resource(req));
+                doneReqCount += 1;
+                setUploadRatio(doneReqCount * 100 / reqList.length);
             }
         } catch (e) {
             console.log(e);
@@ -188,6 +200,9 @@ const AddResourceModal = (props: AddResourceModalProps) => {
                         </>
                     }>{item.value}</List.Item>
                 )} />
+                {inUpload == true && (
+                    <Progress percent={uploadRatio} showInfo={false} />
+                )}
             </Card>
         </Modal>
     );
