@@ -45,7 +45,6 @@ import { nanoid } from 'nanoid';
 import { create_rpc, create_open_api } from "@/api/api_collection";
 import { create_custom } from "@/api/http_custom";
 import { Command } from "@tauri-apps/api/shell";
-import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
 import { create as create_data_anno } from "@/api/data_anno_project";
 import { getDefaultConfig } from "@/pages/DataAnno/components/defaultConfig";
 
