@@ -184,7 +184,7 @@ const AddResourceModal = (props: AddResourceModalProps) => {
                         choiceFile();
                     }}>添加资源</Button>
                 </Space>
-            } bodyStyle={{ maxHeight: "calc(100vh - 400px)", overflowY: "auto" }}>
+            } >
                 <List rowKey="id" dataSource={resourceList} renderItem={item => (
                     <List.Item extra={
                         <>
@@ -199,7 +199,7 @@ const AddResourceModal = (props: AddResourceModalProps) => {
                             )}
                         </>
                     }>{item.value}</List.Item>
-                )} />
+                )} style={{maxHeight: "calc(100vh - 500px)", overflowY: "auto"}}/>
                 {inUpload == true && (
                     <Progress percent={uploadRatio} showInfo={false} />
                 )}
