@@ -11,6 +11,7 @@ import { isAnnoText, isAnnoAudio, isAnnoImage } from "@/api/data_anno_project";
 import { MoreOutlined } from "@ant-design/icons";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { useSize } from "ahooks";
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface AnnoPanelProps {
     projectId: string;
@@ -210,6 +211,37 @@ const AnnoPanel = (props: AnnoPanelProps) => {
         }
     }
 
+    useHotkeys("ctrl+p", () => {
+        if ((taskIndex <= 0) || hasChange) {
+            return;
+        }
+        setTaskResult("");
+        setTaskIndex(oldValue => {
+            if (oldValue > 0) {
+                return oldValue - 1;
+            }
+            return 0;
+        });
+    });
+    useHotkeys("ctrl+n", () => {
+        if ((taskIndex >= (taskList.length - 1)) || hasChange) {
+            return;
+        }
+        setTaskResult("");
+        setTaskIndex(oldValue => {
+            return (oldValue + 1) % taskList.length;
+        });
+    });
+
+    useHotkeys("ctrl+s", () => {
+        if (!hasChange) {
+            return;
+        }
+        if (instance !== null) {
+            instance.store.submitAnnotation();
+        }
+    });
+
     useEffect(() => {
         loadTaskList();
     }, [])
@@ -260,15 +292,16 @@ const AnnoPanel = (props: AnnoPanelProps) => {
                             }
                             return 0;
                         });
-                    }}>上一个</Button>
+                    }}>上一个(ctrl+p)</Button>
                 <Button type="link" disabled={(taskIndex >= (taskList.length - 1)) || hasChange} style={{ minWidth: 0, padding: "0px 0px" }}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
+                        setTaskResult("");
                         setTaskIndex(oldValue => {
                             return (oldValue + 1) % taskList.length;
                         });
-                    }}>下一个</Button>
+                    }}>下一个(ctrl+n)</Button>
                 {props.done == false && (
                     <>
                         <Button disabled={!hasChange} onClick={e => {
@@ -295,7 +328,7 @@ const AnnoPanel = (props: AnnoPanelProps) => {
                             if (instance !== null) {
                                 instance.store.submitAnnotation();
                             }
-                        }}>保存</Button>
+                        }}>保存(ctrl+s)</Button>
                     </>
                 )}
 
