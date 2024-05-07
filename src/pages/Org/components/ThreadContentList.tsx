@@ -40,6 +40,7 @@ const EditContentModal = observer((props: EditContentModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createContent = async () => {

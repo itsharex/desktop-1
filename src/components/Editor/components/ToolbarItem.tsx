@@ -11,7 +11,7 @@ import {
 } from '@remirror/react';
 
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Select, Menu, Tooltip, Button, Modal, Form, InputNumber, Checkbox } from 'antd';
+import { Dropdown, Select, Tooltip, Button, Modal, Form, InputNumber, Checkbox } from 'antd';
 import { DownOutlined, ExclamationOutlined } from '@ant-design/icons';
 import { open as open_dialog } from '@tauri-apps/api/dialog';
 import { uniqId } from '@/utils/utils';
@@ -33,6 +33,7 @@ import {
 import type { HeadingExtensionAttributes } from '@remirror/extension-heading';
 import { redoDepth, undoDepth } from '@remirror/pm/history';
 import ToolbarGroup from './ToolbarGroup';
+import { MinAppSelectModal } from './PubResModal';
 
 const UndoBtn = () => {
   const commands = useCommands();
@@ -361,20 +362,16 @@ const ContentWidget = observer((props: ContentWidgetProps) => {
     key: WIDGET_TYPE_TLDRAW,
     label: "白板",
   });
-  const menu = (
-    <Menu
-      subMenuCloseDelay={0.05}
-      onClick={(value) => {
+
+  return (
+    <Dropdown menu={{
+      items: items, subMenuCloseDelay: 0.05, onClick: value => {
         const index = WidgetTypeList.findIndex((item) => item == value.key);
         if (index != -1) {
           commands.insertWidget(value.key);
         }
-      }}
-      items={items}
-    />
-  );
-  return (
-    <Dropdown overlay={menu}>
+      }
+    }}>
       <Tooltip title="内容组件">
         <div className="widget-btn">
           <DownOutlined />
@@ -389,7 +386,7 @@ export const contentWidgetItem = (projectId: string) => {
     <ToolbarGroup
       key="widget"
       items={[<ContentWidget key="widget" projectId={projectId} />]}
-      separator={false} />
+      separator={true} />
   );
 };
 
@@ -756,6 +753,72 @@ export const newCommItem = (param: NewCommItemParam) => {
         <AddKatex key="katex" />,
         <AddCallout key="callout" />,
       ]}
+      separator={true} />
+  );
+};
+
+
+const PubresWidget = () => {
+  // const commands = useCommands();
+
+  const [menuKey, setMenuKey] = useState("");
+
+  const items = [
+    {
+      key: 'refMinApp',
+      label: '引用应用',
+    },
+    {
+      key: "refSoftware",
+      label: "引用软件",
+    },
+    {
+      key: "refPubIdea",
+      label: "引用公共知识点",
+    },
+    {
+      key: "refDockerTpl",
+      label: "引用Docker模板",
+    }
+  ];
+
+  return (
+    <>
+      <Dropdown menu={{
+        items: items, subMenuCloseDelay: 0.05, onClick: value => {
+          setMenuKey(value.key);
+        }
+      }}>
+        <Tooltip title="公共资源">
+          <div className="pubres-btn">
+            <DownOutlined />
+          </div>
+        </Tooltip>
+      </Dropdown>
+      {menuKey == "refMinApp" && (
+        <MinAppSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
+          //TODO
+          setMenuKey("");
+        }} />
+      )}
+      {menuKey == "refSoftware" && (
+        ""
+      )}
+      {menuKey == "refPubIdea" && (
+        ""
+      )}
+      {menuKey == "refDockerTpl" && (
+        ""
+      )}
+    </>
+  );
+};
+
+export const pubresWidgetItem = () => {
+  return (
+    <ToolbarGroup
+      key="pubres"
+      items={[<PubresWidget key="pubres" />]}
       separator={true} />
   );
 };

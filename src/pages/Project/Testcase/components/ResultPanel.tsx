@@ -41,6 +41,7 @@ const ResultCard = observer((props: ResultCardProps) => {
         enableLink: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         placeholder: "请输入测试结果...",
     });
 
@@ -195,6 +196,7 @@ const ResultPanle = () => {
         enableLink: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         placeholder: "请输入测试结果...",
     });
 

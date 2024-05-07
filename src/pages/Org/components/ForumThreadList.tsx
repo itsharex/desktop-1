@@ -44,6 +44,7 @@ const CreateModal = observer((props: CreateModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createThread = async () => {

@@ -15,6 +15,7 @@ import {
   listItem,
   newCommItem,
   contentWidgetItem,
+  pubresWidgetItem,
 } from './components/ToolbarItem';
 import { Reminder } from './components/index';
 
@@ -41,6 +42,7 @@ export interface UseCommonEditorAttrs {
   commonInToolbar: boolean;
   enableLink?: boolean;
   widgetInToolbar: boolean;
+  pubResInToolbar: boolean;
   showReminder: boolean;
   tocCallback?: (tocList: TocInfo[]) => void;
   eventsOption?: EventsOptions;
@@ -106,6 +108,9 @@ export const useCommonEditor = (attrs: UseCommonEditorAttrs) => {
   }
   if (attrs.widgetInToolbar) {
     toolbarItems.push(contentWidgetItem(attrs.projectId));
+  }
+  if (attrs.pubResInToolbar) {
+    toolbarItems.push(pubresWidgetItem());
   }
   const editor = (
     <ThemeProvider>

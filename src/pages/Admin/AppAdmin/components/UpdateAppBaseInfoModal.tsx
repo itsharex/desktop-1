@@ -42,6 +42,7 @@ const UpdateAppBaseInfoModal: React.FC<UpdateAppBaseInfoModalProps> = (props) =>
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const changeIcon = async () => {

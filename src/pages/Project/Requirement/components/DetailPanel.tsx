@@ -35,6 +35,7 @@ const DetailPanel = () => {
         enableLink: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         placeholder: "请输入需求...",
     });
 

@@ -37,6 +37,7 @@ const UpdateOrgModal = (props: UpdateOrgModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateOrg = async () => {

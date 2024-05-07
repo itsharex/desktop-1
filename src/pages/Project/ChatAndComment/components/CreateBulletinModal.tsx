@@ -28,6 +28,7 @@ const CreateBulletinModal = () => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createBulletin = async () => {

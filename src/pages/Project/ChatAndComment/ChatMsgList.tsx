@@ -37,6 +37,7 @@ const ChatMsgList = () => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         placeholder: "请输入...",
     });
 

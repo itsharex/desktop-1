@@ -34,6 +34,7 @@ const CreateModal = () => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const [title, setTitle] = useState(ideaStore.createTitle);
@@ -129,10 +130,10 @@ const CreateModal = () => {
                                 extra_update_user_id_list: value,
                             })
                         }} mode="multiple">
-                            {memberStore.memberList.filter(member=>member.member.can_admin == false).map(member=>(
+                            {memberStore.memberList.filter(member => member.member.can_admin == false).map(member => (
                                 <Select.Option key={member.member.member_user_id} value={member.member.member_user_id}>
                                     <Space>
-                                        <UserPhoto logoUri={member.member.logo_uri} style={{ width: "16px", borderRadius: "10px" }}/>
+                                        <UserPhoto logoUri={member.member.logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
                                         {member.member.display_name}
                                     </Space>
                                 </Select.Option>

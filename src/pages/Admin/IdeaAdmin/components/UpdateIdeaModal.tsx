@@ -32,6 +32,7 @@ const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateIdea = async () => {
