@@ -21,6 +21,7 @@ export interface AnnoPanelProps {
     memberUserId?: string;
     done: boolean;
     onChange: () => void;
+    setInstance: (value: any) => void;
 }
 
 const AnnoPanel = (props: AnnoPanelProps) => {
@@ -157,7 +158,7 @@ const AnnoPanel = (props: AnnoPanelProps) => {
                 return oldValue;
             }
             // @ts-ignore
-            return new LabelStudio(editorRef.current, {
+            const newInstance = new LabelStudio(editorRef.current, {
                 config: props.config,
                 interfaces: [
                     "panel",
@@ -195,6 +196,8 @@ const AnnoPanel = (props: AnnoPanelProps) => {
                     setHasChange(true);
                 }
             });
+            props.setInstance(newInstance);
+            return newInstance;
         });
     };
 
