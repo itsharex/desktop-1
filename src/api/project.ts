@@ -68,12 +68,6 @@ export type Setting = {
   swarm_proxy_addr: string;
   trace_proxy_addr: string;
   net_proxy_addr: string;
-  enable_entry_doc: boolean;
-  enable_entry_pages: boolean;
-  enable_entry_board: boolean;
-  enable_entry_file: boolean;
-  enable_entry_api_coll: boolean;
-  enable_entry_data_anno: boolean;
 };
 
 export type CreateResponse = {
@@ -281,22 +275,10 @@ export type SetWeightResponse = {
 export async function create(
   session_id: string,
   basic_info: BasicProjectInfo,
-  enable_entry_doc: boolean,
-  enable_entry_pages: boolean,
-  enable_entry_board: boolean,
-  enable_entry_file: boolean,
-  enable_entry_api_coll: boolean,
-  enable_entry_data_anno: boolean,
 ): Promise<CreateResponse> {
   const request = {
     session_id,
     basic_info,
-    enable_entry_doc,
-    enable_entry_pages,
-    enable_entry_board,
-    enable_entry_file,
-    enable_entry_api_coll,
-    enable_entry_data_anno,
   };
   const cmd = 'plugin:project_api|create';
   console.log(`%c${cmd}`, 'color:#0f0;', request);

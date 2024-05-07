@@ -14,6 +14,7 @@ const HotkeyHelpInfo = () => {
             <Descriptions.Item label="alt+4">跳转到 静态网页</Descriptions.Item>
             <Descriptions.Item label="alt+5">跳转到 项目文件</Descriptions.Item>
             <Descriptions.Item label="alt+6">跳转到 接口集合</Descriptions.Item>
+            <Descriptions.Item label="alt+7">跳转到 数据标注</Descriptions.Item>
             <Descriptions.Item label="alt+9">跳转到 我的工作</Descriptions.Item>
             <Descriptions.Item label="alt+c">打开/关闭 项目沟通</Descriptions.Item>
             <Descriptions.Item label="alt+i">查看 项目知识点</Descriptions.Item>
@@ -28,6 +29,8 @@ const HotkeyHelpInfo = () => {
             <Descriptions.Item label="ctrl+n o">创建 信息面板</Descriptions.Item>
             <Descriptions.Item label="ctrl+n p">创建 静态网页</Descriptions.Item>
             <Descriptions.Item label="ctrl+n f">创建 文件</Descriptions.Item>
+            <Descriptions.Item label="ctrl+n a">创建 接口集合</Descriptions.Item>
+            <Descriptions.Item label="ctrl+n n">创建 数据标注</Descriptions.Item>
             <Descriptions.Item label="ctrl+n r">创建 需求</Descriptions.Item>
             <Descriptions.Item label="ctrl+n t">创建 任务</Descriptions.Item>
             <Descriptions.Item label="ctrl+n b">创建 缺陷</Descriptions.Item>

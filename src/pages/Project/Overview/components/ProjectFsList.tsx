@@ -65,6 +65,8 @@ const ProjectFsList = () => {
             return "测试用例存储";
         } else if (projectStore.curProject?.test_result_fs_id == fsId) {
             return "测试结果存储";
+        } else if (projectStore.curProject?.data_anno_fs_id == fsId) {
+            return "数据标注";
         }
         return "";
     };
