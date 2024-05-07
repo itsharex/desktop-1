@@ -17,7 +17,7 @@ import {
 import { open } from '@tauri-apps/api/shell';
 import { uniqId } from '@/utils/utils';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
-import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL } from "@/api/project_entry";
+import { get as get_entry, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_BOARD, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_API_COLL, ENTRY_TYPE_DATA_ANNO } from "@/api/project_entry";
 import type { API_COLL_TYPE } from "@/api/project_entry";
 
 /*
@@ -49,7 +49,7 @@ export enum LINK_TARGET_TYPE {
   // LINK_TARGET_PIPE_LINE = 21,
   LINK_TARGET_ENTRY = 22,
   LINK_TARGET_API_COLL = 23,
-  // LINK_TARGET_DATA_ANNO = 24,
+  LINK_TARGET_DATA_ANNO = 24,
   LINK_TARGET_BOARD = 25,
   LINK_TARGET_TEST_CASE = 26,
 
@@ -257,6 +257,22 @@ export class LinkApiCollInfo {
   showComment: boolean;
 }
 
+export class LinkDataAnnoInfo {
+  constructor(content: string, projectId: string, annoProjectId: string, showComment: boolean = false) {
+    this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_DATA_ANNO;
+    this.linkContent = content;
+    this.projectId = projectId;
+    this.annoProjectId = annoProjectId;
+    this.showComment = showComment;
+  }
+
+  linkTargeType: LINK_TARGET_TYPE;
+  linkContent: string;
+  projectId: string;
+  annoProjectId: string;
+  showComment: boolean;
+}
+
 export class LinkTestCaseInfo {
   constructor(content: string, projectId: string, testCaseId: string, spritId: string = "", showTab: "detail" | "result" | "comment" = "detail") {
     this.linkTargeType = LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE;
@@ -451,6 +467,8 @@ class LinkAuxStore {
         await this.goToLink(new LinkBoardInfo("", entryLink.projectId, entryLink.entryId), history);
       } else if (res.entry.entry_type == ENTRY_TYPE_API_COLL) {
         await this.goToLink(new LinkApiCollInfo("", entryLink.projectId, entryLink.entryId), history);
+      } else if (res.entry.entry_type == ENTRY_TYPE_DATA_ANNO) {
+        await this.goToLink(new LinkDataAnnoInfo("", entryLink.projectId, entryLink.entryId), history);
       }
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_API_COLL) {
       const apiCollLink = link as LinkApiCollInfo;
@@ -465,6 +483,12 @@ class LinkAuxStore {
       }));
       await this.openApiCollPage(res.entry.entry_id, res.entry.entry_title + "(只读模式)", res.entry.extra_info.ExtraApiCollInfo?.api_coll_type ?? 0,
         res.entry.extra_info.ExtraApiCollInfo?.default_addr ?? "", false, this.rootStore.projectStore.isAdmin, apiCollLink.showComment);
+    } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_DATA_ANNO) {
+      const dataAnnoLink = link as LinkDataAnnoInfo;
+      if (this.rootStore.projectStore.curProjectId != dataAnnoLink.projectId) {
+        await this.rootStore.projectStore.setCurProjectId(dataAnnoLink.projectId);
+      }
+      await this.openAnnoProjectPage(dataAnnoLink.annoProjectId, dataAnnoLink.linkContent, dataAnnoLink.showComment);
     } else if (link.linkTargeType == LINK_TARGET_TYPE.LINK_TARGET_TEST_CASE) {
       const testCaseLink = link as LinkTestCaseInfo;
       if (this.rootStore.projectStore.curProjectId != testCaseLink.projectId) {
@@ -641,6 +665,40 @@ class LinkAuxStore {
       });
     }
   }
+
+  async openAnnoProjectPage(annoProjectId: string, annoName: string, showComment: boolean = false) {
+    const label = `dataAnno:${annoProjectId}`
+    const view = WebviewWindow.getByLabel(label);
+    if (view != null) {
+      await view.setAlwaysOnTop(true);
+      await view.show();
+      await view.unminimize();
+      setTimeout(() => {
+        view.setAlwaysOnTop(false);
+      }, 200);
+      return;
+    }
+    const pos = await appWindow.innerPosition();
+
+    const projectStore = this.rootStore.projectStore;
+
+    const newView = new WebviewWindow(label, {
+      title: `标注项目(${annoName})`,
+      url: `data_anno.html?projectId=${projectStore.curProjectId}&annoProjectId=${annoProjectId}&fsId=${projectStore.curProject?.data_anno_fs_id ?? ""}&showComment=${showComment}`,
+      width: 1000,
+      minWidth: 800,
+      height: 800,
+      minHeight: 600,
+      resizable: true,
+      center: true,
+      x: pos.x + Math.floor(Math.random() * 200),
+      y: pos.y + Math.floor(Math.random() * 200),
+    });
+    newView.once('tauri://created', function () {
+      newView.setAlwaysOnTop(true);
+      setTimeout(() => { newView.setAlwaysOnTop(false) }, 200);
+    });
+  };
 
   //跳转到项目需求列表页面
   goToRequirementList(history: History) {

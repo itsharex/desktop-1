@@ -10,9 +10,9 @@ import { list_notice, mark_has_read, remove_notice } from "@/api/user_notice";
 import { request } from "@/utils/request";
 import moment from "moment";
 import { ack_join as ack_join_project } from "@/api/project_member";
-import { MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_MY_WORK } from "@/api/project";
+import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
 import { useHistory } from "react-router-dom";
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constant";
+import { APP_PROJECT_HOME_PATH } from "@/utils/constant";
 import { MoreOutlined } from "@ant-design/icons";
 import UserPhoto from "../Portrait/UserPhoto";
 import { update_feature } from "@/api/user";
@@ -133,12 +133,8 @@ const UserNoticeList = () => {
             appStore.showCheckLeave(() => {
                 projectStore.setCurProjectId(projectId).then(() => {
                     entryStore.reset();
-                    projectStore.projectHome.homeType = projectStore.curProject?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST;
-                    if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_MY_WORK) {
-                        history.push(APP_PROJECT_MY_WORK_PATH);
-                    } else {
-                        history.push(APP_PROJECT_HOME_PATH);
-                    }
+                    projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
+                    history.push(APP_PROJECT_HOME_PATH);
                 });
                 orgStore.setCurOrgId("");
             });
@@ -146,12 +142,8 @@ const UserNoticeList = () => {
         }
         projectStore.setCurProjectId(projectId).then(() => {
             entryStore.reset();
-            projectStore.projectHome.homeType = projectStore.curProject?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST;
-            if (projectStore.curProject?.setting.main_content == MAIN_CONTENT_MY_WORK) {
-                history.push(APP_PROJECT_MY_WORK_PATH);
-            } else {
-                history.push(APP_PROJECT_HOME_PATH);
-            }
+            projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
+            history.push(APP_PROJECT_HOME_PATH);
         });
         orgStore.setCurOrgId("");
     };

@@ -60,6 +60,7 @@ export default ({ command, mode }: ConfigEnv) => {
           shortNote: "short_note.html",
           localApi: "local_api.html",
           gitDiff: "git_diff.html",
+          dataAnno: "data_anno.html",
           apiGrpc: "api_grpc.html",
           apiSwagger: "api_swagger.html",
           apiCustom: "api_custom.html",

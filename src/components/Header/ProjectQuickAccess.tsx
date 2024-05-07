@@ -12,10 +12,10 @@ import { useHistory } from "react-router-dom";
 import { ISSUE_TAB_LIST_TYPE, LinkIdeaPageInfo } from "@/stores/linkAux";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
 import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from "@/utils/constant";
-import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
+import { ENTRY_TYPE_API_COLL, ENTRY_TYPE_BOARD, ENTRY_TYPE_DATA_ANNO, ENTRY_TYPE_DOC, ENTRY_TYPE_FILE, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_SPRIT } from "@/api/project_entry";
 import { useHotkeys } from 'react-hotkeys-hook';
 import HotkeyHelpInfo from "@/pages/Project/Overview/components/HotkeyHelpInfo";
-import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
+import { MAIN_CONTENT_API_COLL_LIST, MAIN_CONTENT_BOARD_LIST, MAIN_CONTENT_CONTENT_LIST, MAIN_CONTENT_DATA_ANNO_LIST, MAIN_CONTENT_DOC_LIST, MAIN_CONTENT_FILE_LIST, MAIN_CONTENT_PAGES_LIST, MAIN_CONTENT_SPRIT_LIST } from "@/api/project";
 
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
@@ -52,6 +52,7 @@ const MENU_KEY_ENTRY_CREATE_PAGES = "project.entry.pages.create";
 const MENU_KEY_ENTRY_CREATE_BOARD = "project.entry.board.create";
 const MENU_KEY_ENTRY_CREATE_FILE = "project.entry.file.create";
 const MENU_KEY_ENTRY_CREATE_API_COLL = "project.entry.apicoll.create";
+const MENU_KEY_ENTRY_CREATE_DATA_ANNO = "project.entry.dataanno.create";
 
 const MENU_KEY_HOME_PREFIX = "project.home."
 const MENU_KEY_HOME_CONTENT = MENU_KEY_HOME_PREFIX + "content";
@@ -61,6 +62,8 @@ const MENU_KEY_HOME_BOARD = MENU_KEY_HOME_PREFIX + "board";
 const MENU_KEY_HOME_PAGES = MENU_KEY_HOME_PREFIX + "pages";
 const MENU_KEY_HOME_FILE = MENU_KEY_HOME_PREFIX + "file";
 const MENU_KEY_HOME_APICOLL = MENU_KEY_HOME_PREFIX + "apicoll";
+const MENU_KEY_HOME_DATAANNO = MENU_KEY_HOME_PREFIX + "dataanno";
+
 
 const MENU_KEY_HOME_MYWORK = MENU_KEY_HOME_PREFIX + "mywork";
 
@@ -167,8 +170,12 @@ const ProjectQuickAccess = () => {
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_API_COLL,
-                    label: "创建接口集合"
+                    label: "创建接口集合(ctrl+n a)"
                 },
+                {
+                    key: MENU_KEY_ENTRY_CREATE_DATA_ANNO,
+                    label: "创建数据标注(ctrl+n n)"
+                }
             ],
         });
 
@@ -281,20 +288,35 @@ const ProjectQuickAccess = () => {
     };
 
     const gotoHomePage = async (key: string) => {
+        if (key != MENU_KEY_HOME_MYWORK) {
+            projectStore.projectHome.contentActiveKey = (key == MENU_KEY_HOME_CONTENT ? "folder" : "list");
+        }
+
         let homeType = MAIN_CONTENT_CONTENT_LIST;
+        projectStore.projectHome.contentEntryType = ENTRY_TYPE_NULL;
         if (key == MENU_KEY_HOME_WORK_PLAN) {
             homeType = MAIN_CONTENT_SPRIT_LIST;
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_SPRIT;
         } else if (key == MENU_KEY_HOME_DOC) {
             homeType = MAIN_CONTENT_DOC_LIST;
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_DOC;
         } else if (key == MENU_KEY_HOME_BOARD) {
             homeType = MAIN_CONTENT_BOARD_LIST;
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_BOARD;
         } else if (key == MENU_KEY_HOME_PAGES) {
             homeType = MAIN_CONTENT_PAGES_LIST;
-        } else if (key == MENU_KEY_HOME_FILE){
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_PAGES;
+        } else if (key == MENU_KEY_HOME_FILE) {
             homeType = MAIN_CONTENT_FILE_LIST;
-        }else if(key == MENU_KEY_HOME_APICOLL){
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_FILE;
+        } else if (key == MENU_KEY_HOME_APICOLL) {
             homeType = MAIN_CONTENT_API_COLL_LIST;
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_API_COLL;
+        } else if (key == MENU_KEY_HOME_DATAANNO) {
+            homeType = MAIN_CONTENT_DATA_ANNO_LIST;
+            projectStore.projectHome.contentEntryType = ENTRY_TYPE_DATA_ANNO;
         }
+
         if (appStore.inEdit) {
             appStore.showCheckLeave(() => {
                 entryStore.reset();
@@ -403,6 +425,9 @@ const ProjectQuickAccess = () => {
             case MENU_KEY_ENTRY_CREATE_API_COLL:
                 entryStore.createEntryType = ENTRY_TYPE_API_COLL;
                 break;
+            case MENU_KEY_ENTRY_CREATE_DATA_ANNO:
+                entryStore.createEntryType = ENTRY_TYPE_DATA_ANNO;
+                break;
             case MENU_KEY_SHOW_TOOL_BAR_OVERVIEW:
                 linkAuxStore.gotoOverview(history);
                 break;
@@ -442,6 +467,7 @@ const ProjectQuickAccess = () => {
     useHotkeys("alt+4", () => processMenuKey(MENU_KEY_HOME_PAGES));
     useHotkeys("alt+5", () => processMenuKey(MENU_KEY_HOME_FILE));
     useHotkeys("alt+6", () => processMenuKey(MENU_KEY_HOME_APICOLL));
+    useHotkeys("alt+7", () => processMenuKey(MENU_KEY_HOME_DATAANNO));
     useHotkeys("alt+9", () => processMenuKey(MENU_KEY_HOME_MYWORK));
     useHotkeys("alt+c", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_CHAT_AND_COMMENT));
     useHotkeys("alt+i", () => processMenuKey(MENU_KEY_SHOW_TOOL_BAR_IDEA));
@@ -530,6 +556,24 @@ const ProjectQuickAccess = () => {
         setCreateFlag(oldValue => {
             if (oldValue) {
                 processMenuKey(MENU_KEY_CREATE_BUG);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("a", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_API_COLL);
+            }
+            return false;
+        });
+    });
+
+    useHotkeys("n", () => {
+        setCreateFlag(oldValue => {
+            if (oldValue) {
+                processMenuKey(MENU_KEY_ENTRY_CREATE_DATA_ANNO);
             }
             return false;
         });

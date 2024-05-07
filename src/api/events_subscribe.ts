@@ -123,6 +123,11 @@ export type IdeaEvCfg = {
     clear_group: boolean;
 };
 
+export type DataAnnoEvCfg = {
+    add_anno_member: boolean;
+    remove_anno_member: boolean;
+};
+
 export type AtomgitEvCfg = {
     push: boolean;
     issue: boolean;
@@ -157,6 +162,7 @@ export type EventCfg = {
     requirement_ev_cfg: RequirementEvCfg;
     code_ev_cfg: CodeEvCfg;
     idea_ev_cfg: IdeaEvCfg;
+    data_anno_ev_cfg: DataAnnoEvCfg;
     atomgit_ev_cfg: AtomgitEvCfg;
     entry_ev_cfg: EntryEvCfg;
     harbor_ev_cfg: HarborEvCfg;

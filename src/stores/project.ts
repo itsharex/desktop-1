@@ -87,7 +87,7 @@ export default class ProjectStore {
       this.showProjectSetting = null;
       this.setShowChatAndComment(false, "chat");
       this.projectHome.contentActiveKey = "folder";
-      this.projectHome.homeType = this.getProject(val)?.setting.main_content ?? MAIN_CONTENT_CONTENT_LIST;
+      this.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
     }
   }
 

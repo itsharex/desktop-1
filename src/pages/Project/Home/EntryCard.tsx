@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Button, Card, Popover, Space, Tag, message } from "antd";
 import { observer } from 'mobx-react';
 import type { EntryInfo } from "@/api/project_entry";
-import { update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM } from "@/api/project_entry";
+import { update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_DATA_ANNO, ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY } from "@/api/project_entry";
 import s from "./Card.module.less";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
@@ -23,6 +23,7 @@ import docIcon from '@/assets/channel/doc@2x.png';
 import PagesModal from "./components/PagesModal";
 import FileModal from "./components/FileModal";
 import MoveToFolderModal from "./components/MoveToFolderModal";
+import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
 
 export interface EntryCardPorps {
     entryInfo: EntryInfo;
@@ -66,6 +67,8 @@ const EntryCard = (props: EntryCardPorps) => {
         } else if (props.entryInfo.entry_type == ENTRY_TYPE_API_COLL) {
             linkAuxStore.openApiCollPage(props.entryInfo.entry_id, props.entryInfo.entry_title, props.entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type ?? 0,
                 props.entryInfo.extra_info.ExtraApiCollInfo?.default_addr ?? "", props.entryInfo.can_update, projectStore.isAdmin, false);
+        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
+            linkAuxStore.openAnnoProjectPage(props.entryInfo.entry_id, props.entryInfo.entry_title);
         }
     };
 
@@ -82,6 +85,10 @@ const EntryCard = (props: EntryCardPorps) => {
             return "honeydew";
         } else if (props.entryInfo.entry_type == ENTRY_TYPE_API_COLL) {
             return "cornsilk";
+        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
+            return "ivory";
+        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
+            return dataAnnoIcon;
         }
         return "white";
     };
@@ -134,6 +141,34 @@ const EntryCard = (props: EntryCardPorps) => {
                 return retTitle + "(OPENAPI/SWAGGER)";
             } else if (props.entryInfo.extra_info.ExtraApiCollInfo?.api_coll_type == API_COLL_CUSTOM) {
                 return retTitle + "(自定义接口)";
+            }
+        } else if (props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO) {
+            if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_CLASSIFI) {
+                return retTitle + "(音频分类)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG) {
+                return retTitle + "(音频分割)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_TRANS) {
+                return retTitle + "(音频翻译)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_AUDIO_SEG_TRANS) {
+                return retTitle + "(音频分段翻译)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CLASSIFI) {
+                return retTitle + "(图像分类)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT) {
+                return retTitle + "(矩形对象检测)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_BRUSH_SEG) {
+                return retTitle + "(画笔分割)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT) {
+                return retTitle + "(圆形对象检测)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_KEYPOINT) {
+                return retTitle + "(图像关键点)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_IMAGE_POLYGON_SEG) {
+                return retTitle + "(多边形分割)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_CLASSIFI) {
+                return retTitle + "(文本分类)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_NER) {
+                return retTitle + "(文本命名实体识别)";
+            } else if (props.entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type == ANNO_PROJECT_TEXT_SUMMARY) {
+                return retTitle + "(文本摘要)";
             }
         }
         return retTitle;

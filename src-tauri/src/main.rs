@@ -424,6 +424,8 @@ fn main() {
         .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
         .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())
         .plugin(project_content_api::project_doc_api_plugin::ProjectDocApiPlugin::new())
+        .plugin(project_content_api::data_anno_project_api_plugin::DataAnnoProjectApiPlugin::new())
+        .plugin(project_content_api::data_anno_task_api_plugin::DataAnnoTaskApiPlugin::new())
         .plugin(fs_api_plugin::FsApiPlugin::new())
         .plugin(project_misc_api::short_note_api_plugin::ShortNoteApiPlugin::new())
         .plugin(local_api::LocalApiPlugin::new())

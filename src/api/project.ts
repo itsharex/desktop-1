@@ -21,6 +21,8 @@ export const MAIN_CONTENT_BOARD_LIST: MAIN_CONTENT_TYPE = 3;    //信息面板
 export const MAIN_CONTENT_PAGES_LIST: MAIN_CONTENT_TYPE = 4;    //静态网页
 export const MAIN_CONTENT_FILE_LIST: MAIN_CONTENT_TYPE = 5;          //项目文件
 export const MAIN_CONTENT_API_COLL_LIST: MAIN_CONTENT_TYPE = 6;      //接口集合
+export const MAIN_CONTENT_DATA_ANNO_LIST: MAIN_CONTENT_TYPE = 7;      //数据标注
+
 
 export const MAIN_CONTENT_MY_WORK: MAIN_CONTENT_TYPE = 99;  //我的工作
 
@@ -39,7 +41,7 @@ export type Setting = {
   // disable_api_collection: boolean;
   // disable_code_comment: boolean;
   // disable_ci_cd: boolean;
-  main_content: MAIN_CONTENT_TYPE,
+  // main_content: MAIN_CONTENT_TYPE,
 
   // disable_chat: boolean;
   // disable_kb: boolean;
@@ -126,7 +128,7 @@ export type ProjectInfo = {
   require_ment_fs_id: string;
   idea_fs_id: string;
   bulletin_fs_id: string;
-  // data_anno_fs_id: string;
+  data_anno_fs_id: string;
   api_coll_fs_id: string;
   // ci_cd_fs_id: string;
   pages_fs_id: string;
@@ -273,12 +275,10 @@ export type SetWeightResponse = {
 export async function create(
   session_id: string,
   basic_info: BasicProjectInfo,
-  main_content: MAIN_CONTENT_TYPE,
 ): Promise<CreateResponse> {
   const request = {
     session_id,
     basic_info,
-    main_content,
   };
   const cmd = 'plugin:project_api|create';
   console.log(`%c${cmd}`, 'color:#0f0;', request);
