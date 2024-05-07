@@ -377,7 +377,7 @@ const CreateEntryModal = () => {
                     default_addr: defaultAddr,
                 },
             };
-        }else if (entryStore.createEntryType == ENTRY_TYPE_DATA_ANNO) {
+        } else if (entryStore.createEntryType == ENTRY_TYPE_DATA_ANNO) {
             createReq.extra_info = {
                 ExtraDataAnnoInfo: {
                     anno_type: annoType,
@@ -489,22 +489,22 @@ const CreateEntryModal = () => {
                         setTitle(e.target.value.trim());
                     }} />
                 </Form.Item>
-                {projectStore.projectHome.homeType == MAIN_CONTENT_CONTENT_LIST && (
-                    <Form.Item label="类型">
-                        <Radio.Group value={entryStore.createEntryType} onChange={e => {
-                            e.stopPropagation();
-                            entryStore.createEntryType = e.target.value;
-                        }}>
-                            <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
-                            <Radio value={ENTRY_TYPE_DOC}>文档</Radio>
-                            <Radio value={ENTRY_TYPE_PAGES}>静态网页</Radio>
-                            <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>
-                            <Radio value={ENTRY_TYPE_FILE}>文件</Radio>
-                            <Radio value={ENTRY_TYPE_API_COLL}>接口集合</Radio>
-                            <Radio value={ENTRY_TYPE_DATA_ANNO}>数据标注</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                )}
+
+                <Form.Item label="类型">
+                    <Radio.Group value={entryStore.createEntryType} onChange={e => {
+                        e.stopPropagation();
+                        entryStore.createEntryType = e.target.value;
+                    }}>
+                        <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
+                        <Radio value={ENTRY_TYPE_DOC}>文档</Radio>
+                        <Radio value={ENTRY_TYPE_PAGES}>静态网页</Radio>
+                        <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>
+                        <Radio value={ENTRY_TYPE_FILE}>文件</Radio>
+                        <Radio value={ENTRY_TYPE_API_COLL}>接口集合</Radio>
+                        <Radio value={ENTRY_TYPE_DATA_ANNO}>数据标注</Radio>
+                    </Radio.Group>
+                </Form.Item>
+
                 <Form.Item label="所有成员可修改">
                     <Checkbox checked={entryPerm.update_for_all} onChange={e => {
                         e.stopPropagation();
