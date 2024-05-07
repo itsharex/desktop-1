@@ -33,7 +33,7 @@ import {
 import type { HeadingExtensionAttributes } from '@remirror/extension-heading';
 import { redoDepth, undoDepth } from '@remirror/pm/history';
 import ToolbarGroup from './ToolbarGroup';
-import { MinAppSelectModal } from './PubResModal';
+import { DockerTplSelectModal, MinAppSelectModal, PubIdeaSelectModal, SoftWareSelectModal } from './PubResModal';
 
 const UndoBtn = () => {
   const commands = useCommands();
@@ -802,13 +802,22 @@ const PubresWidget = () => {
         }} />
       )}
       {menuKey == "refSoftware" && (
-        ""
+        <SoftWareSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
+          //TODO
+          setMenuKey("");
+        }} />
       )}
       {menuKey == "refPubIdea" && (
-        ""
+        <PubIdeaSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
+          //TODO
+          setMenuKey("");
+        }} />
       )}
       {menuKey == "refDockerTpl" && (
-        ""
+        <DockerTplSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
+          //TODO
+          setMenuKey("");
+        }} />
       )}
     </>
   );
