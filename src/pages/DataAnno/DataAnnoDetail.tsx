@@ -38,6 +38,8 @@ const DataAnnoDetail = () => {
     const [auditMemberUserId, setAuditMemberUserId] = useState("");
     const [memberInfoList, setMemberInfoList] = useState<dataAnnoTaskApi.MemberInfo[]>([]);
 
+    const [instance, setInstance] = useState<any>(null);
+
     const [userId, setUserId] = useState("");
 
     const loadAnnoProjectInfo = async () => {
@@ -111,6 +113,13 @@ const DataAnnoDetail = () => {
         <div style={{ backgroundColor: "white" }}>
             {entryInfo != null && annoProjectInfo != null && (
                 <Tabs type="card" activeKey={activeKey} onChange={key => {
+                    if (instance != null) {
+                        try {
+                            instance.destroy();
+                        } finally {
+                            setInstance(null);
+                        }
+                    }
                     setActiveKey(key);
                     setMemberInfoList([]);
                     setAuditMemberUserId("");
@@ -167,7 +176,7 @@ const DataAnnoDetail = () => {
                                             <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
                                                 annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0}
                                                 config={annoProjectInfo.base_info.config} done={false}
-                                                onChange={() => loadAnnoProjectInfo()} />
+                                                onChange={() => loadAnnoProjectInfo()} setInstance={value => setInstance(value)} />
                                         )}
 
                                         {(annoProjectInfo.my_task_count - annoProjectInfo.my_done_count) <= 0 && (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无标注任务" />)}
@@ -181,9 +190,9 @@ const DataAnnoDetail = () => {
                             <div className={s.panel_wrap}>
                                 {activeKey == "myDone" && (
                                     <AnnoPanel projectId={projectId} annoProjectId={annoProjectId} fsId={fsId}
-                                        annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0} 
+                                        annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0}
                                         config={annoProjectInfo.base_info.config} done={true}
-                                        onChange={() => loadAnnoProjectInfo()} />
+                                        onChange={() => loadAnnoProjectInfo()} setInstance={value => setInstance(value)} />
                                 )}
                             </div>
                         </Tabs.TabPane>
@@ -197,7 +206,7 @@ const DataAnnoDetail = () => {
                                             annoType={entryInfo.extra_info.ExtraDataAnnoInfo?.anno_type ?? 0}
                                             config={annoProjectInfo.base_info.config} done={true}
                                             memberUserId={auditMemberUserId}
-                                            onChange={() => loadAnnoProjectInfo()} />
+                                            onChange={() => loadAnnoProjectInfo()} setInstance={value => setInstance(value)} />
                                     )}
                                 </div>
                             </Tabs.TabPane>)}

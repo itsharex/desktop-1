@@ -24,6 +24,7 @@ import PagesModal from "./components/PagesModal";
 import FileModal from "./components/FileModal";
 import MoveToFolderModal from "./components/MoveToFolderModal";
 import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
+import ExportModal from "@/pages/DataAnno/components/ExportModal";
 
 export interface EntryCardPorps {
     entryInfo: EntryInfo;
@@ -46,6 +47,7 @@ const EntryCard = (props: EntryCardPorps) => {
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showFileModal, setShowFileModal] = useState(false);
     const [showMoveModal, setShowMoveModal] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
 
     const openEntry = async () => {
         entryStore.reset();
@@ -211,6 +213,14 @@ const EntryCard = (props: EntryCardPorps) => {
                     )}
                     <Popover trigger="click" placement="bottom" content={
                         <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                            {props.entryInfo.entry_type == ENTRY_TYPE_DATA_ANNO && (
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} disabled={!projectStore.isAdmin}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowExportModal(true);
+                                    }}>导出数据</Button>
+                            )}
                             {props.canMove && (
                                 <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
                                     e.stopPropagation();
@@ -282,6 +292,9 @@ const EntryCard = (props: EntryCardPorps) => {
             )}
             {showMoveModal == true && (
                 <MoveToFolderModal onCancel={() => setShowMoveModal(false)} onOk={folderId => moveToFolder(folderId)} />
+            )}
+            {showExportModal == true && (
+                <ExportModal annoProjectId={props.entryInfo.entry_id} onCancel={() => setShowExportModal(false)} />
             )}
         </Card>
 
