@@ -38,6 +38,7 @@ const CommentItem = (props: CommentItemProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateComment = async () => {

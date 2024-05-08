@@ -39,6 +39,7 @@ const EditLearnRecordModal = (props: EditLearnRecordModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateCount = () => {

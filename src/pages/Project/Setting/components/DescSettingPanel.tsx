@@ -31,6 +31,7 @@ const DescSettingPanel = (props: PanelProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateProject = async () => {

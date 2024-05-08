@@ -34,6 +34,7 @@ const SingleCreateTask: React.FC<SingleCreateTaskProps> = (props) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createIssue = async () => {

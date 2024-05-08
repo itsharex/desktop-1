@@ -172,6 +172,7 @@ const WriteDoc = () => {
     commonInToolbar: true,
     widgetInToolbar: true,
     showReminder: false,
+    pubResInToolbar: true,
     tocCallback: (result) => editorStore.tocList = result,
   });
 

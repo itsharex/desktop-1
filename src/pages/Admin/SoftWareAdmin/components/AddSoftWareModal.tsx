@@ -39,6 +39,7 @@ const AddSoftWareModal = (props: AddSoftWareModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
 

@@ -44,6 +44,7 @@ const CreateModal = observer((props: CreateModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: true,
     });
 
     const createThread = async () => {
@@ -66,7 +67,7 @@ const CreateModal = observer((props: CreateModalProps) => {
     };
 
     return (
-        <Modal open title="发布帖子" width={800}
+        <Modal open title="发布帖子" width="calc(100vw - 200px)"
             okText="发布" okButtonProps={{ disabled: title == "" }}
             onCancel={e => {
                 e.stopPropagation();
@@ -87,7 +88,7 @@ const CreateModal = observer((props: CreateModalProps) => {
                     }} />
                 </Form.Item>
                 <Form.Item label="内容">
-                    <div className="_commentContext">
+                    <div className="_orgPostContext">
                         {editor}
                     </div>
                 </Form.Item>

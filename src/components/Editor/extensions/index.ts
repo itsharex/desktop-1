@@ -11,3 +11,7 @@ export * from './LinkExtension';
 export * from './KeywordExtension';
 export * from "./TocExtension";
 export * from "./KatexExtension";
+export * from "./MinAppRefExtension";
+export * from "./SoftWareRefExtension";
+export * from "./PubIdeaRefExtension";
+export * from "./DockerTplRefExtension";

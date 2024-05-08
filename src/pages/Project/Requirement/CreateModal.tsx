@@ -27,6 +27,7 @@ const CreateModal = () => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createRequirement = async () => {

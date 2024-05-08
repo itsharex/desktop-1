@@ -30,6 +30,7 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createIdea = async () => {

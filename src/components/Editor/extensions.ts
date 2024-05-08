@@ -20,6 +20,10 @@ import {
   KeywordExtension,
   TocExtension,
   KatexExtension,
+  MinAppRefExtension,
+  SoftWareRefExtension,
+  PubIdeaRefExtension,
+  DockerTplRefExtension,
 } from './extensions/index';
 import {
   BulletListExtension,
@@ -105,6 +109,12 @@ export const getExtensions = (param?: {
 
     new ReactComponentExtension({}),
     new TableExtension({}),
+
+    // PubRes
+    new MinAppRefExtension({}),
+    new SoftWareRefExtension({}),
+    new PubIdeaRefExtension({}),
+    new DockerTplRefExtension({}),
   ];
 
   return () => retList;
