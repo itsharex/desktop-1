@@ -35,6 +35,7 @@ const EditTextModal = (props: EditTextModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const saveContent = async () => {

@@ -33,6 +33,7 @@ const ViewBulletinModal = () => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const loadBulletin = async () => {

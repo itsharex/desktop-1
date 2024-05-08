@@ -84,6 +84,7 @@ export const EditModal = (props: EditModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createReport = async () => {

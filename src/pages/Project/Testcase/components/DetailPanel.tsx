@@ -51,6 +51,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         enableLink: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         placeholder: "请输入测试方案...",
     });
 

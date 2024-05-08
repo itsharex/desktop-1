@@ -111,6 +111,7 @@ export const EditModal = observer((props: EditModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const createReport = async () => {

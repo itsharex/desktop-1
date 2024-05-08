@@ -56,6 +56,7 @@ const IdeaContent: React.FC<IdeaContentProps> = (props) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const setAgree = async (appraiseType: APPRAISE_TYPE) => {

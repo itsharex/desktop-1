@@ -47,6 +47,7 @@ const SoftWareItem = (props: SoftWareItemProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const updateOsList = async (osList: OS_TYPE[]) => {

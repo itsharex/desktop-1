@@ -47,6 +47,7 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
     commonInToolbar: false,
     widgetInToolbar: false,
     showReminder: false,
+    pubResInToolbar: false,
   });
 
   const createProject = async () => {

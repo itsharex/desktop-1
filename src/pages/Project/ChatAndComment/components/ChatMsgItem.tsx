@@ -40,6 +40,7 @@ const EditMsgModal = observer((props: EditMsgModalProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
         eventsOption: {
             keydown: () => setHasChange(true),
         },

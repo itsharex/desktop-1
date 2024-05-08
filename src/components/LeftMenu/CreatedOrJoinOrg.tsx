@@ -46,6 +46,7 @@ const CreatedOrJoinOrg = (props: CreatedOrJoinOrgProps) => {
         commonInToolbar: false,
         widgetInToolbar: false,
         showReminder: false,
+        pubResInToolbar: false,
     });
 
     const checkValid = () => {
