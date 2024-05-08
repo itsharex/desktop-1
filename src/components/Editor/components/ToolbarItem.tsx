@@ -759,7 +759,7 @@ export const newCommItem = (param: NewCommItemParam) => {
 
 
 const PubresWidget = () => {
-  // const commands = useCommands();
+  const commands = useCommands();
 
   const [menuKey, setMenuKey] = useState("");
 
@@ -797,25 +797,25 @@ const PubresWidget = () => {
       </Dropdown>
       {menuKey == "refMinApp" && (
         <MinAppSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
-          //TODO
+          commands.insertMinAppRef(refId);
           setMenuKey("");
         }} />
       )}
       {menuKey == "refSoftware" && (
         <SoftWareSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
-          //TODO
+          commands.insertSoftWareRef(refId);
           setMenuKey("");
         }} />
       )}
       {menuKey == "refPubIdea" && (
         <PubIdeaSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
-          //TODO
+          commands.insertPubIdeaRef(refId);
           setMenuKey("");
         }} />
       )}
       {menuKey == "refDockerTpl" && (
         <DockerTplSelectModal onCancel={() => setMenuKey("")} onOk={refId => {
-          //TODO
+          commands.insertDockerTplRef(refId);
           setMenuKey("");
         }} />
       )}

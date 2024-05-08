@@ -40,7 +40,7 @@ const EditContentModal = observer((props: EditContentModalProps) => {
         commonInToolbar: true,
         widgetInToolbar: false,
         showReminder: false,
-        pubResInToolbar: false,
+        pubResInToolbar: true,
     });
 
     const createContent = async () => {
@@ -82,7 +82,7 @@ const EditContentModal = observer((props: EditContentModalProps) => {
 
     return (
         <Modal open title={props.contentInfo == undefined ? "回复帖子" : "修改内容"}
-            width={700}
+            width="calc(100vw - 200px)"
             okText={props.contentInfo == undefined ? "回复" : "修改"}
             onCancel={e => {
                 e.stopPropagation();
@@ -98,7 +98,7 @@ const EditContentModal = observer((props: EditContentModalProps) => {
                     updateContent();
                 }
             }}>
-            <div className="_commentContext">
+            <div className="_orgPostContext">
                 {editor}
             </div>
         </Modal>
