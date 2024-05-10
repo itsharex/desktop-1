@@ -39,34 +39,6 @@ async fn list_extra_menu<R: Runtime>(
 }
 
 #[tauri::command]
-async fn set_extra_menu_weight<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: AdminSetExtraMenuWeightRequest,
-) -> Result<AdminSetExtraMenuWeightResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = ClientCfgAdminApiClient::new(chan.unwrap());
-    match client.set_extra_menu_weight(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == admin_set_extra_menu_weight_response::Code::WrongSession as i32
-                || inner_resp.code == admin_set_extra_menu_weight_response::Code::NotAuth as i32
-            {
-                crate::admin_auth_api_plugin::logout(app_handle).await;
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("set_extra_menu_weight".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn add_extra_menu<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -122,6 +94,33 @@ async fn remove_extra_menu<R: Runtime>(
     }
 }
 
+#[tauri::command]
+async fn update_extra_menu<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AdminUpdateExtraMenuRequest,
+) -> Result<AdminUpdateExtraMenuResponse, String> {
+    let chan = super::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = ClientCfgAdminApiClient::new(chan.unwrap());
+    match client.update_extra_menu(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == admin_update_extra_menu_response::Code::WrongSession as i32
+                || inner_resp.code == admin_update_extra_menu_response::Code::NotAuth as i32
+            {
+                crate::admin_auth_api_plugin::logout(app_handle).await;
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("update_extra_menu".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
 pub struct ClientCfgAdminApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -131,9 +130,9 @@ impl<R: Runtime> ClientCfgAdminApiPlugin<R> {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
                 list_extra_menu,
-                set_extra_menu_weight,
                 add_extra_menu,
                 remove_extra_menu,
+                update_extra_menu,
             ]),
         }
     }
