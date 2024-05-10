@@ -12,6 +12,8 @@ import { EditNumber } from "@/components/EditCell/EditNumber";
 import { Card, Modal, Table, Form, Input, InputNumber, message, Checkbox } from "antd";
 import Button from "@/components/Button";
 import { PlusOutlined } from "@ant-design/icons";
+import { EditText } from "@/components/EditCell/EditText";
+import { open as shell_open } from '@tauri-apps/api/shell';
 
 const URL_REGEX = /^https*:\/\/.+/;
 
@@ -104,13 +106,50 @@ const MenuAdmin = () => {
     const columns: ColumnsType<ExtraMenuItem> = [
         {
             title: "菜单标题",
-            width: 150,
-            dataIndex: "name",
+            render: (_, row: ExtraMenuItem) => (
+                <EditText editable={permInfo?.menu_perm.update ?? false} content={row.name}
+                    onChange={async value => {
+                        if (value.trim() == "") {
+                            return false;
+                        }
+                        try {
+                            const sessionId = await get_admin_session();
+                            await request(update_extra_menu({
+                                ...row,
+                                admin_session_id: sessionId,
+                                name: value.trim(),
+                            }));
+                            loadMenuList();
+                            return true;
+                        } catch (e) {
+                            console.log(e)
+                        }
+                        return false;
+                    }} showEditIcon />
+            ),
         },
         {
             title: "目标地址",
             render: (_, row: ExtraMenuItem) => (
-                <a href={row.url} target="_blank" rel="noreferrer">{row.url}</a>
+                <EditText editable={permInfo?.menu_perm.update ?? false} content={row.url}
+                    onChange={async value => {
+                        if (value.startsWith("https://") == false) {
+                            return false;
+                        }
+                        try {
+                            const sessionId = await get_admin_session();
+                            await request(update_extra_menu({
+                                ...row,
+                                admin_session_id: sessionId,
+                                url: value.trim(),
+                            }));
+                            loadMenuList();
+                            return true;
+                        } catch (e) {
+                            console.log(e)
+                        }
+                        return false;
+                    }} showEditIcon onClick={() => shell_open(row.url)} />
             ),
         },
         {

@@ -21,6 +21,8 @@ export const APP_PROJECT_MY_WORK_PATH = '/app/project/my_work';
 export const APP_ORG_MANAGER_PATH = '/app/org_mgr';
 export const APP_ORG_PATH = '/app/org';
 
+export const APP_EXTERN_PAGE_PATH = "/app/extern";
+
 export const ADMIN_PATH = "/admin";
 
 export const ADMIN_PATH_USER_LIST_SUFFIX = '/admin/user/list';

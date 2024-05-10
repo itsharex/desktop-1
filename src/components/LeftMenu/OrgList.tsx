@@ -30,11 +30,13 @@ const OrgList = () => {
                         appStore.showCheckLeave(() => {
                             projectStore.setCurProjectId("");
                             orgStore.setCurOrgId("");
+                            appStore.curExtraMenu = null;
                             history.push(APP_ORG_MANAGER_PATH);
                         });
                     } else {
                         projectStore.setCurProjectId("");
                         orgStore.setCurOrgId("");
+                        appStore.curExtraMenu = null;
                         history.push(APP_ORG_MANAGER_PATH);
                     }
                 }}>
@@ -42,7 +44,7 @@ const OrgList = () => {
                 </div>
             </div>
 
-            <div style={{ maxHeight: "calc(50vh - 150px)", overflowY: "scroll" }}>
+            <div style={{ maxHeight: "calc(50vh - 250px)", overflowY: "scroll" }}>
                 {orgStore.orgList.map(item => (
                     <div key={item.org_id} className={cls.project_child_menu}>
                         <div className={cls.project_child_wrap}>
@@ -56,6 +58,7 @@ const OrgList = () => {
                                                 history.push(APP_ORG_PATH);
                                             });
                                             projectStore.setCurProjectId("");
+                                            appStore.curExtraMenu = null;
                                         });
                                         return;
                                     }
@@ -63,6 +66,7 @@ const OrgList = () => {
                                         history.push(APP_ORG_PATH);
                                     });
                                     projectStore.setCurProjectId("");
+                                    appStore.curExtraMenu = null;
                                 }}>
                                     {item.basic_info.org_name}
                                 </span>
