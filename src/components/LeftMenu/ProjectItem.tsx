@@ -54,6 +54,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 history.push(APP_PROJECT_HOME_PATH);
                             });
                             orgStore.setCurOrgId("");
+                            appStore.curExtraMenu = null;
                         });
                         return;
                     }
@@ -63,6 +64,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                         history.push(APP_PROJECT_HOME_PATH);
                     });
                     orgStore.setCurOrgId("");
+                    appStore.curExtraMenu = null;
                 }}><FolderFilled style={{ color: item.project_id == projectStore.curProjectId ? "white" : "inherit" }} />
                     &nbsp;{item.basic_info.project_name}
                 </span>
@@ -81,6 +83,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                         history.push(APP_PROJECT_MY_WORK_PATH);
                                     });
                                     orgStore.setCurOrgId("");
+                                    appStore.curExtraMenu = null;
                                 });
                                 return;
                             }
@@ -90,6 +93,7 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                                 history.push(APP_PROJECT_MY_WORK_PATH);
                             });
                             orgStore.setCurOrgId("");
+                            appStore.curExtraMenu = null;
                         }}><CaretRightFilled /><HotkeyWrap title="我的工作" hotkey="alt+9" /></div>
 
                 </div>

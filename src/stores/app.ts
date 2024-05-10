@@ -31,6 +31,18 @@ class AppStore {
     return this._clientCfg;
   }
 
+  private _curExtraMenu : clientCfgApi.ExtraMenuItem | null= null;
+
+  get curExtraMenu() {
+    return this._curExtraMenu;
+  }
+
+  set curExtraMenu(val: clientCfgApi.ExtraMenuItem | null) {
+    runInAction(() => {
+      this._curExtraMenu = val;
+    });
+  }
+
   async loadClientCfg() {
     const res = await clientCfgApi.get_cfg();
     runInAction(() => {

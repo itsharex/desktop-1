@@ -9,8 +9,9 @@ export type ExtraMenuItem = {
   url: string;
   menu_id: string;
   weight: number;
+  main_menu: boolean;
+  open_in_browser: boolean;
 };
-
 
 export type ServerCap = {
   project_doc: boolean;

@@ -36,7 +36,7 @@ export type MenuPerm = {
     read: boolean;
     add: boolean;
     remove: boolean;
-    set_weight: boolean;
+    update: boolean;
 };
 
 

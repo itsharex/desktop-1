@@ -34,11 +34,13 @@ const ProjectList = () => {
                         appStore.showCheckLeave(() => {
                             projectStore.setCurProjectId("");
                             orgStore.setCurOrgId("");
+                            appStore.curExtraMenu = null;
                             history.push(APP_PROJECT_MANAGER_PATH);
                         });
                     } else {
                         projectStore.setCurProjectId("");
                         orgStore.setCurOrgId("");
+                        appStore.curExtraMenu = null;
                         history.push(APP_PROJECT_MANAGER_PATH);
                     }
                 }}>

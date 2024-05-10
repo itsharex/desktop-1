@@ -92,7 +92,7 @@ const PubRes = () => {
                     )}
                 </Tabs.TabPane>
 
-                {appStore.clientCfg?.item_list.map(item => (
+                {appStore.clientCfg?.item_list.filter(item=>item.main_menu == false).map(item => (
                     <Tabs.TabPane tab={<h2><GlobalOutlined />&nbsp;{item.name}</h2>} key={item.menu_id}>
                         {activeKey == item.menu_id && (
                             <div className={s.content_wrap}>

@@ -14,22 +14,13 @@ export type AdminListExtraMenuResponse = {
     menu_list: ExtraMenuItem[];
 };
 
-export type AdminSetExtraMenuWeightRequest = {
-    admin_session_id: string;
-    menu_id: string;
-    weight: number;
-};
-
-export type AdminSetExtraMenuWeightResponse = {
-    code: number;
-    err_msg: string;
-};
-
 export type AdminAddExtraMenuRequest = {
     admin_session_id: string;
     name: string;
     url: string;
     weight: number;
+    main_menu: boolean;
+    open_in_browser: boolean;
 };
 
 export type AdminAddExtraMenuResponse = {
@@ -48,6 +39,21 @@ export type AdminRemoveExtraMenuResponse = {
     err_msg: string;
 };
 
+export type AdminUpdateExtraMenuRequest = {
+    admin_session_id: string;
+    menu_id: string;
+    name: string;
+    url: string;
+    weight: number;
+    main_menu: boolean;
+    open_in_browser: boolean;
+};
+
+export type AdminUpdateExtraMenuResponse = {
+    code: number;
+    err_msg: string;
+};
+
 //列出额外菜单
 export async function list_extra_menu(request: AdminListExtraMenuRequest): Promise<AdminListExtraMenuResponse> {
     const cmd = 'plugin:client_cfg_admin_api|list_extra_menu';
@@ -57,14 +63,6 @@ export async function list_extra_menu(request: AdminListExtraMenuRequest): Promi
     });
 }
 
-//设置菜单权重
-export async function set_extra_menu_weight(request: AdminSetExtraMenuWeightRequest): Promise<AdminSetExtraMenuWeightResponse> {
-    const cmd = 'plugin:client_cfg_admin_api|set_extra_menu_weight';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<AdminSetExtraMenuWeightResponse>(cmd, {
-        request,
-    });
-}
 
 //增加额外菜单
 export async function add_extra_menu(request: AdminAddExtraMenuRequest): Promise<AdminAddExtraMenuResponse> {
@@ -80,6 +78,15 @@ export async function remove_extra_menu(request: AdminRemoveExtraMenuRequest): P
     const cmd = 'plugin:client_cfg_admin_api|remove_extra_menu';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminRemoveExtraMenuResponse>(cmd, {
+        request,
+    });
+}
+
+//更新额外菜单
+export async function update_extra_menu(request: AdminUpdateExtraMenuRequest): Promise<AdminUpdateExtraMenuResponse> {
+    const cmd = 'plugin:client_cfg_admin_api|update_extra_menu';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<AdminUpdateExtraMenuResponse>(cmd, {
         request,
     });
 }

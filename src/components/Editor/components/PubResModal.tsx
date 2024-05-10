@@ -308,11 +308,11 @@ export const SoftWareSelectModal = observer((props: PubResModalProps) => {
                                                 </div>
                                             </div>
                                         </Card>
-                                    )} style={{ height: "calc(100vh - 130px)", overflowY: "scroll", paddingRight: "10px" }} />
+                                    )} style={{ height: "calc(100vh - 230px)", overflowY: "scroll", paddingRight: "10px" }} />
                             )}
                         </>
                     ),
-                }))} tabPosition="left" style={{ height: "calc(100vh - 130px)" }} type="card" tabBarStyle={{ width: "100px", overflow: "hidden" }} />
+                }))} tabPosition="left" style={{ height: "calc(100vh - 230px)" }} type="card" tabBarStyle={{ width: "100px", overflow: "hidden" }} />
         </Modal>
     );
 });
