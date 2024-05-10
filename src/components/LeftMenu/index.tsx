@@ -139,7 +139,11 @@ const LeftMenu: React.FC = () => {
           </div>
         ))}
       </div>
-      <div style={{ position: "absolute", bottom: "2px", right: "10px" }}>
+      <div style={{ position: "absolute", bottom: "2px", right: "10px", cursor: "pointer" }} onClick={e=>{
+        e.stopPropagation();
+        e.preventDefault();
+        shell_open("https://atomgit.com/openlinksaas/desktop/tags?tab=release");
+      }}>
         软件版本:{version}
       </div>
     </Sider>
