@@ -47,6 +47,7 @@ import {
   ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
   SKILL_CENTER_PATH,
   ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
+  APP_EXTERN_PAGE_PATH,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -88,6 +89,7 @@ import SkillCateList from '@/pages/Admin/SkillCenterAdmin/SkillCateList';
 import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
 import SkillCenterPage from "@/pages/SkillCenter";
 import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
+import ExternPage from '@/pages/ExternPage';
 
 export interface IRouteConfig {
   // 路由路径
@@ -278,6 +280,12 @@ const routesConfig: IRouteConfig[] = [
           }
         ],
       },
+      {
+        path: APP_EXTERN_PAGE_PATH,
+        title: "外部页面",
+        component: ExternPage,
+        exact: true,
+      }
     ],
   },
   {

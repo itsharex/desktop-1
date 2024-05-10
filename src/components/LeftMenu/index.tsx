@@ -11,9 +11,10 @@ const { Sider } = Layout;
 import ProjectList from './ProjectList';
 import { GlobalOutlined, RocketOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
-import { PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { APP_EXTERN_PAGE_PATH, PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import OrgList from './OrgList';
 import { getVersion } from '@tauri-apps/api/app';
+import { open as shell_open } from '@tauri-apps/api/shell';
 
 
 const LeftMenu: React.FC = () => {
@@ -45,11 +46,13 @@ const LeftMenu: React.FC = () => {
                 history.push(WORKBENCH_PATH);
                 projectStore.setCurProjectId("");
                 orgStore.setCurOrgId("");
+                appStore.curExtraMenu = null;
               });
             } else {
               history.push(WORKBENCH_PATH);
               projectStore.setCurProjectId("");
               orgStore.setCurOrgId("");
+              appStore.curExtraMenu = null;
             }
           }}>
           <img src={workbench_icon} alt="" className={cls.workbench_icon} />
@@ -81,12 +84,14 @@ const LeftMenu: React.FC = () => {
                 history.push(PUB_RES_PATH);
                 projectStore.setCurProjectId("");
                 orgStore.setCurOrgId("");
+                appStore.curExtraMenu = null;
               });
               return;
             }
             history.push(PUB_RES_PATH);
             projectStore.setCurProjectId("");
             orgStore.setCurOrgId("");
+            appStore.curExtraMenu = null;
           }}>
           <GlobalOutlined />&nbsp;公共资源
         </div>
@@ -101,16 +106,38 @@ const LeftMenu: React.FC = () => {
                   history.push(SKILL_CENTER_PATH);
                   projectStore.setCurProjectId("");
                   orgStore.setCurOrgId("");
+                  appStore.curExtraMenu = null;
                 });
                 return;
               }
               history.push(SKILL_CENTER_PATH);
               projectStore.setCurProjectId("");
               orgStore.setCurOrgId("");
+              appStore.curExtraMenu = null;
             }}>
             <RocketOutlined />&nbsp;技能中心
           </div>
         )}
+
+        {appStore.clientCfg?.item_list.filter(item => item.main_menu).map(item => (
+          <div className={`${cls.workbench_menu} ${appStore.curExtraMenu?.menu_id == item.menu_id ? cls.active_menu : ""}`}
+            style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (item.open_in_browser) {
+                shell_open(item.url);
+              } else {
+                projectStore.setCurProjectId("");
+                orgStore.setCurOrgId("");
+                appStore.curExtraMenu = item;
+                history.push(APP_EXTERN_PAGE_PATH);
+              }
+            }}
+          >
+            <GlobalOutlined />&nbsp;{item.name}
+          </div>
+        ))}
       </div>
       <div style={{ position: "absolute", bottom: "2px", right: "10px" }}>
         软件版本:{version}

@@ -5,13 +5,15 @@ import React, { useEffect, useState } from "react";
 import type { AdminPermInfo } from '@/api/admin_auth';
 import type { ExtraMenuItem } from '@/api/client_cfg';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
-import { list_extra_menu, set_extra_menu_weight, add_extra_menu, remove_extra_menu } from '@/api/client_cfg_admin';
+import { list_extra_menu, add_extra_menu, remove_extra_menu, update_extra_menu } from '@/api/client_cfg_admin';
 import { request } from "@/utils/request";
 import type { ColumnsType } from 'antd/es/table';
 import { EditNumber } from "@/components/EditCell/EditNumber";
-import { Card, Modal, Table, Form, Input, InputNumber, message } from "antd";
+import { Card, Modal, Table, Form, Input, InputNumber, message, Checkbox } from "antd";
 import Button from "@/components/Button";
 import { PlusOutlined } from "@ant-design/icons";
+import { EditText } from "@/components/EditCell/EditText";
+import { open as shell_open } from '@tauri-apps/api/shell';
 
 const URL_REGEX = /^https*:\/\/.+/;
 
@@ -19,6 +21,8 @@ interface AddFormValue {
     title?: string;
     url?: string;
     weight?: number;
+    mainMenu?: boolean;
+    openInBrowser?: boolean;
 }
 
 const MenuAdmin = () => {
@@ -57,6 +61,8 @@ const MenuAdmin = () => {
             name: values.title,
             url: values.url,
             weight: values.weight ?? 0,
+            main_menu: values.mainMenu ?? false,
+            open_in_browser: values.openInBrowser ?? false,
         }));
         setShowAddModal(false);
         await loadMenuList();
@@ -75,28 +81,87 @@ const MenuAdmin = () => {
 
     };
 
+    const updateMainMenu = async (item: ExtraMenuItem, value: boolean) => {
+        const sessionId = await get_admin_session();
+        await request(update_extra_menu({
+            ...item,
+            admin_session_id: sessionId,
+            main_menu: value,
+        }));
+        loadMenuList();
+        return true;
+    };
+
+    const updateOpenInBrowser = async (item: ExtraMenuItem, value: boolean) => {
+        const sessionId = await get_admin_session();
+        await request(update_extra_menu({
+            ...item,
+            admin_session_id: sessionId,
+            open_in_browser: value,
+        }));
+        loadMenuList();
+        return true;
+    };
+
     const columns: ColumnsType<ExtraMenuItem> = [
         {
             title: "菜单标题",
-            width: 150,
-            dataIndex: "name",
+            render: (_, row: ExtraMenuItem) => (
+                <EditText editable={permInfo?.menu_perm.update ?? false} content={row.name}
+                    onChange={async value => {
+                        if (value.trim() == "") {
+                            return false;
+                        }
+                        try {
+                            const sessionId = await get_admin_session();
+                            await request(update_extra_menu({
+                                ...row,
+                                admin_session_id: sessionId,
+                                name: value.trim(),
+                            }));
+                            loadMenuList();
+                            return true;
+                        } catch (e) {
+                            console.log(e)
+                        }
+                        return false;
+                    }} showEditIcon />
+            ),
         },
         {
             title: "目标地址",
             render: (_, row: ExtraMenuItem) => (
-                <a href={row.url} target="_blank" rel="noreferrer">{row.url}</a>
+                <EditText editable={permInfo?.menu_perm.update ?? false} content={row.url}
+                    onChange={async value => {
+                        if (value.startsWith("https://") == false) {
+                            return false;
+                        }
+                        try {
+                            const sessionId = await get_admin_session();
+                            await request(update_extra_menu({
+                                ...row,
+                                admin_session_id: sessionId,
+                                url: value.trim(),
+                            }));
+                            loadMenuList();
+                            return true;
+                        } catch (e) {
+                            console.log(e)
+                        }
+                        return false;
+                    }} showEditIcon onClick={() => shell_open(row.url)} />
             ),
         },
         {
             title: "权重",
             width: 150,
             render: (_, row: ExtraMenuItem) => (
-                <EditNumber editable={permInfo?.menu_perm.set_weight ?? false} value={row.weight} fixedLen={0} onChange={async (value: number) => {
+                <EditNumber editable={permInfo?.menu_perm.update ?? false} value={row.weight} fixedLen={0} onChange={async (value: number) => {
                     try {
                         const sessionId = await get_admin_session();
-                        await request(set_extra_menu_weight({
+                        await request(update_extra_menu({
+                            ...row,
                             admin_session_id: sessionId,
-                            menu_id: row.menu_id,
                             weight: value,
                         }));
                         loadMenuList();
@@ -106,6 +171,26 @@ const MenuAdmin = () => {
                     }
                     return false;
                 }} showEditIcon={true} />
+            ),
+        },
+        {
+            title: "主菜单",
+            width: 100,
+            render: (_, row: ExtraMenuItem) => (
+                <Checkbox checked={row.main_menu} disabled={!(permInfo?.menu_perm.update ?? false)} onChange={e => {
+                    e.stopPropagation();
+                    updateMainMenu(row, e.target.checked);
+                }} />
+            ),
+        },
+        {
+            title: "打开浏览器",
+            width: 100,
+            render: (_, row: ExtraMenuItem) => (
+                <Checkbox checked={row.open_in_browser} disabled={!(permInfo?.menu_perm.update ?? false)} onChange={e => {
+                    e.stopPropagation();
+                    updateOpenInBrowser(row, e.target.checked);
+                }} />
             ),
         },
         {
@@ -133,7 +218,7 @@ const MenuAdmin = () => {
     }, []);
 
     return (
-        <Card title="公共资源扩展菜单"
+        <Card title="扩展菜单"
             style={{ height: "calc(100vh - 40px)", overflowY: "scroll" }}
             extra={
                 <Button
@@ -170,6 +255,12 @@ const MenuAdmin = () => {
                         </Form.Item>
                         <Form.Item label="权重" name="weight" rules={[{ required: true }]}>
                             <InputNumber controls={false} />
+                        </Form.Item>
+                        <Form.Item label="主菜单" name="mainMenu" rules={[{ required: true }]} valuePropName="checked">
+                            <Checkbox />
+                        </Form.Item>
+                        <Form.Item label="打开浏览器" name="openInBrowser" rules={[{ required: true }]} valuePropName="checked">
+                            <Checkbox />
                         </Form.Item>
                     </Form>
                 </Modal>
