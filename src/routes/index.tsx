@@ -48,6 +48,7 @@ import {
   SKILL_CENTER_PATH,
   ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
   APP_EXTERN_PAGE_PATH,
+  ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -90,6 +91,7 @@ import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
 import SkillCenterPage from "@/pages/SkillCenter";
 import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 import ExternPage from '@/pages/ExternPage';
+import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -381,6 +383,12 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
         title: "技能资源管理",
         component: SkillResourceList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
+        title: "技能问答管理",
+        component: SkillQuestionList,
         exact: true,
       },
       {
