@@ -11,6 +11,7 @@ export type SkillCateInfo = {
     folder_count: number;
     point_count: number;
     resource_count: number;
+    question_count: number;
     create_time: number;
     update_time: number;
 };
