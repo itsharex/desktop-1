@@ -195,6 +195,11 @@ const SkillCateList = () => {
             dataIndex: "point_count",
         },
         {
+            title: "问题数量",
+            width: 180,
+            dataIndex: "question_count",
+        },
+        {
             title: "资源数量",
             width: 180,
             dataIndex: "resource_count",
@@ -204,7 +209,7 @@ const SkillCateList = () => {
             width: 100,
             render: (_, row: SkillCateInfo) => (
                 <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }}
-                    disabled={!((permInfo?.skill_center_perm.remove_cate ?? false) && row.folder_count == 0 && row.point_count == 0 && row.resource_count == 0)}
+                    disabled={!((permInfo?.skill_center_perm.remove_cate ?? false) && row.folder_count == 0 && row.point_count == 0 && row.resource_count == 0 && row.question_count == 0)}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();

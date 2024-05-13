@@ -19,7 +19,7 @@ import {
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
     ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -103,6 +103,8 @@ const AdminNav = () => {
             setSkillcenterSelectedKeys(["skillcenter_cate"]);
         } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_resource"]);
+        }else if(location.pathname == ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX) {
+            setSkillcenterSelectedKeys(["skillcenter_question"]);
         } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_point"]);
         }
@@ -325,7 +327,11 @@ const AdminNav = () => {
                             label: "管理技能资源",
                             key: "skillcenter_resource",
                             disabled: !(permInfo?.skill_center_perm.read ?? false),
-
+                        },
+                        {
+                            label: "管理技能问答",
+                            key: "skillcenter_question",
+                            disabled: !(permInfo?.skill_center_perm.read ?? false),
                         },
                         {
                             label: "管理技能点",
@@ -340,6 +346,8 @@ const AdminNav = () => {
                                     history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
                                 } else if (e.selectedKeys[0] == "skillcenter_resource") {
                                     history.push(ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX);
+                                }else if (e.selectedKeys[0] == "skillcenter_question"){
+                                    history.push(ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX);
                                 } else if (e.selectedKeys[0] == "skillcenter_point") {
                                     history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);
                                 }

@@ -490,6 +490,8 @@ fn main() {
         .plugin(skill_api::skill_learn_api_plugin::SkillLearnApiPlugin::new())
         .plugin(skill_api::skill_resource_api_plugin::SkillResourceApiPlugin::new())
         .plugin(skill_api::skill_resource_admin_api_plugin::SkillResourceAdminApiPlugin::new())
+        .plugin(skill_api::skill_test_api_plugin::SkillTestApiPlugin::new())
+        .plugin(skill_api::skill_test_admin_api_plugin::SkillTestAdminApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {

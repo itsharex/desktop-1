@@ -7,7 +7,7 @@ license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.8.17"
+version = "0.8.18"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -29,7 +29,7 @@ libaes = "0.6.5"
 local_api_rust = {git = "https://atomgit.com/openlinksaas/local-api-rust.git", tag = "0.1.21"}
 mktemp = "0.5.0"
 prost = "0.9.0"
-proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.31"}
+proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.32"}
 rand = "0.8.5"
 regex = "1.8.4"
 reqwest = {version = "0.11.12", features = ["blocking"] }
@@ -43,7 +43,7 @@ sled = "0.34.7"
 ssh-key = {version = "0.6.5", features = ["alloc", "rsa", "dsa", "p256", "p384"] }
 substring = "1.4.5"
 swagger = {version = "6.1", features = ["serdejson", "server", "client", "tls", "tcp"] }
-tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v4", features = [ "updater", "path-all", "fs-all",
+tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc_v5", features = [ "updater", "path-all", "fs-all",
   "clipboard-all",
   "devtools",
   "dialog-all",
