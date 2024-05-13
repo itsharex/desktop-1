@@ -260,11 +260,11 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
         <div className={style.l} />
         <div className={style.r}>
           {hasNewVersion == true && (
-            <a style={{ marginRight: "20px" }} onClick={e => {
+            <Button type="link" style={{ marginRight: "20px" }} onClick={e => {
               e.stopPropagation();
               e.preventDefault();
               check_update();
-            }}>
+            }} disabled={updateProgress > 0}>
               <Space size="small">
                 <InfoCircleOutlined />
                 {updateProgress == 0 && "有新版本"}
@@ -272,7 +272,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                   <Progress type="line" percent={Math.ceil(updateProgress * 100)} showInfo={false} style={{ width: 50, paddingBottom: "16px" }} />
                 )}
               </Space>
-            </a>
+            </Button>
           )}
 
           {location.pathname.startsWith("/app/") && <ServerConnInfo />}

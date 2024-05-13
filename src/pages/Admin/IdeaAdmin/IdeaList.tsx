@@ -15,7 +15,6 @@ import CreateIdeaModal from "./components/CreateIdeaModal";
 import IdeaCard from "./components/IdeaCard";
 import { get_idea } from "@/api/idea_store_admin";
 
-
 const PAGE_SIZE = 10;
 
 const IdeaList = () => {
@@ -57,8 +56,8 @@ const IdeaList = () => {
             list_param: {
                 filter_by_store_id: true,
                 store_id: curStoreId,
-                filter_by_title_keyword: titleKeyword != "", 
-                title_keyword: titleKeyword, 
+                filter_by_title_keyword: titleKeyword != "",
+                title_keyword: titleKeyword,
             },
             offset: curPage * PAGE_SIZE,
             limit: PAGE_SIZE,
@@ -117,11 +116,13 @@ const IdeaList = () => {
                                 <Select value={curStoreId} onChange={value => {
                                     setCurCateId(value);
                                     setCurPage(0);
-                                }} style={{ width: "120px" }}>
-                                    {storeList.map(item => (
-                                        <Select.Option key={item.idea_store_id} value={item.idea_store_id}>{item.name}</Select.Option>
-                                    ))}
-                                </Select>
+                                }} style={{ width: "120px" }}
+                                    showSearch
+                                    filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
+                                    options={storeList.map(item => ({
+                                        value: item.idea_store_id,
+                                        label: item.name,
+                                    }))} />
                             </Form.Item>
                             <Form.Item label="过滤标题">
                                 <Input value={titleKeyword} onChange={e => {

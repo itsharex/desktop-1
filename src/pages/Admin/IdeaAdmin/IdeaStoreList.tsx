@@ -176,13 +176,16 @@ const IdeaStoreList = () => {
                     {curStoreCateId != "" && (
                         <Form layout="inline">
                             <Form.Item label="类别">
-                                <Select value={curStoreCateId} onChange={value => setCurStoreCateId(value)} style={{ width: "120px" }}>
-                                    {storeCateList.map(item => (
-                                        <Select.Option key={item.store_cate_id} value={item.store_cate_id}>
-                                            {item.name}
-                                        </Select.Option>
+                                <Select value={curStoreCateId} onChange={value => setCurStoreCateId(value)}
+                                    style={{ width: "120px" }} showSearch
+                                    filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
+                                    options={storeCateList.map(item => (
+                                        {
+                                            value: item.store_cate_id,
+                                            label: item.name,
+                                        }
                                     ))}
-                                </Select>
+                                />
                             </Form.Item>
                             <Form.Item>
                                 <Button
