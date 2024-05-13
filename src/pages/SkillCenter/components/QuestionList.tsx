@@ -20,7 +20,7 @@ const QuestionList = () => {
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
-    const loadResourceList = async () => {
+    const loadQuestionList = async () => {
         if (skillCenterStore.curCateId == "") {
             setQuestionList([]);
             return;
@@ -36,23 +36,23 @@ const QuestionList = () => {
     };
 
     useEffect(() => {
-        loadResourceList();
+        loadQuestionList();
     }, [curPage]);
 
     useEffect(() => {
         if (curPage != 0) {
             setCurPage(0);
         } else {
-            loadResourceList();
+            loadQuestionList();
         }
     }, [skillCenterStore.curCateId]);
 
     return (
         <List rowKey="question_id" dataSource={questionList}
             style={{ padding: "10px 10px" }}
-            pagination={{ current: curPage + 1, total: totalCount, pageSize: totalCount, onChange: page => setCurPage(page - 1), hideOnSinglePage: true, showSizeChanger: false }}
+            pagination={{ current: curPage + 1, total: totalCount, pageSize: PAGE_SIZE, onChange: page => setCurPage(page - 1), hideOnSinglePage: true, showSizeChanger: false }}
             renderItem={item => (
-                <List.Item style={{ backgroundColor: "#f0f0f0", padding: "10px" }}>
+                <List.Item style={{ backgroundColor: "#f0f0f0", padding: "10px",marginBottom:"10px" }}>
                     <ReadOnlyEditor content={item.content} />
                 </List.Item>
             )} />
