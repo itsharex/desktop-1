@@ -14,8 +14,6 @@ import { PlusOutlined } from "@ant-design/icons";
 import CreateIdeaModal from "./components/CreateIdeaModal";
 import IdeaCard from "./components/IdeaCard";
 import { get_idea } from "@/api/idea_store_admin";
-import { Label } from "recharts";
-
 
 const PAGE_SIZE = 10;
 
