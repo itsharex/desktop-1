@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import { Button, message, Modal, Popover, Space, Tree } from "antd";
 import { useStores } from "@/hooks";
 import type { DataNode } from "antd/lib/tree";
-import { BulbTwoTone, FileOutlined, FolderOutlined, MoreOutlined } from "@ant-design/icons";
+import { BulbTwoTone, MoreOutlined } from "@ant-design/icons";
 import s from "./SkillTree.module.less";
 import EditLearnRecordModal from "./EditLearnRecordModal";
 import { request } from "@/utils/request";
@@ -45,7 +45,6 @@ const SkillTree = () => {
                 title: folderInfo.folder_name,
                 children: [],
                 switcherIcon: () => "",
-                icon: <FolderOutlined />,
                 selectable: false,
                 checkable: false,
                 disabled: true,
@@ -53,59 +52,57 @@ const SkillTree = () => {
             nodeList.push(subNode);
             setupTreeNode(subNode.children!, folderInfo.folder_id);
         }
-        for (const pointInfo of skillCenterStore.pointList) {
-            if (pointInfo.parent_folder_id != parentFolderId) {
-                continue;
-            }
-            const subNode: DataNode = {
-                key: pointInfo.point_id,
-                title: (
-                    <Space>
-                        <Button type="text" style={{ minWidth: 0, padding: "0px 0px" }}
-                            onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                skillCenterStore.curPointId = pointInfo.point_id;
-                                if (pointInfo.has_learn) {
-                                    setShowUpdateModal(true);
-                                } else {
-                                    setShowAddModal(true);
-                                }
-                            }} title={pointInfo.has_learn ? "查看学习记录" : "点亮技能"}>
-                            <Space>
-                                {pointInfo.point_name}
-                                {pointInfo.has_learn == true && (
-                                    <BulbTwoTone twoToneColor={["orange", "orange"]} />
-                                )}
-                                {pointInfo.has_learn == false && (
-                                    <BulbTwoTone twoToneColor={["gray", "white"]} />
-                                )}
-                            </Space>
-                        </Button>
-                        {pointInfo.has_learn == true && (
-                            <Popover trigger="click" placement="bottom" content={
-                                <div>
-                                    <Button type="link" danger onClick={e => {
+        const pointInfoList = skillCenterStore.pointList.filter(item => item.parent_folder_id == parentFolderId);
+        if (pointInfoList.length == 0) {
+            return;
+        }
+        nodeList.push({
+            key: "pointOf:" + parentFolderId,
+            title: (
+                <span style={{ display: "inline-block" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                        {pointInfoList.map(pointInfo => (
+                            <Space key={pointInfo.point_id} style={{ backgroundColor: "#eee", padding: "0px 10px", margin: "0px 4px 4px 4px",borderRadius:"10px" }}>
+                                <Button type="text" style={{ minWidth: 0, padding: "0px 0px" }}
+                                    onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         skillCenterStore.curPointId = pointInfo.point_id;
-                                        setShowRemoveModal(true);
-                                    }}>删除学习记录</Button>
-                                </div>
-                            }>
-                                <MoreOutlined />
-                            </Popover>
-                        )}
-                    </Space>
-                ),
-                children: [],
-                switcherIcon: () => "",
-                icon: <FileOutlined />,
-                selectable: false,
-                checkable: false,
-            }
-            nodeList.push(subNode);
-        }
+                                        if (pointInfo.has_learn) {
+                                            setShowUpdateModal(true);
+                                        } else {
+                                            setShowAddModal(true);
+                                        }
+                                    }} title={pointInfo.has_learn ? "查看学习记录" : "点亮技能"}>
+                                    <Space>
+                                        {pointInfo.point_name}
+                                        {pointInfo.has_learn == true && (
+                                            <BulbTwoTone twoToneColor={["orange", "orange"]} />
+                                        )}
+                                        {pointInfo.has_learn == false && (
+                                            <BulbTwoTone twoToneColor={["gray", "white"]} />
+                                        )}
+                                    </Space>
+                                </Button>
+                                {pointInfo.has_learn == true && (
+                                    <Popover trigger="click" placement="bottom" content={
+                                        <div>
+                                            <Button type="link" danger onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                skillCenterStore.curPointId = pointInfo.point_id;
+                                                setShowRemoveModal(true);
+                                            }}>删除学习记录</Button>
+                                        </div>
+                                    }>
+                                        <MoreOutlined />
+                                    </Popover>
+                                )}
+                            </Space>
+                        ))}
+                    </div>
+                </span>),
+        });
     }
 
     const initTree = async () => {
@@ -128,7 +125,7 @@ const SkillTree = () => {
 
     return (
         <div className={s.treeWrap}>
-            <Tree expandedKeys={expandedKeys} treeData={treeNodeList} showIcon
+            <Tree.DirectoryTree expandedKeys={expandedKeys} treeData={treeNodeList} showIcon={false}
                 style={{ fontSize: "16px" }}
                 selectedKeys={[]}
             />
