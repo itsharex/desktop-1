@@ -308,7 +308,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交记录" key="commitList">
                 {activeKey == "commitList" && (
-                    <CommitList repo={props.repo.repoInfo} branchList={branchList} />
+                    <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name}/>
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>

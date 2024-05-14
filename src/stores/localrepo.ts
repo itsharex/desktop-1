@@ -101,7 +101,6 @@ export default class LocalRepoStore {
     async init() {
         await this.checkGitConfig();
         await this.loadRepoList();
-        //TODO
     }
 }
 
