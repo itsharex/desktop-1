@@ -4,7 +4,9 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Checkbox, Input, List, message, Modal, Space } from "antd";
 import type { LocalRepoInfo, LocalRepoStatusInfo } from "@/api/local_repo";
-import { add_to_index, get_repo_status, remove_from_index, run_commit } from "@/api/local_repo";
+import { add_to_index, get_repo_status,  remove_from_index, run_commit } from "@/api/local_repo";
+import { useStores } from "@/hooks";
+import { observer } from "mobx-react";
 
 
 export interface ChangeFileListProps {
@@ -14,6 +16,8 @@ export interface ChangeFileListProps {
 }
 
 const ChangeFileList = (props: ChangeFileListProps) => {
+    const localRepoStore = useStores("localRepoStore");
+
     const [status, setStatus] = useState<LocalRepoStatusInfo | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [commitMsg, setCommitMsg] = useState("");
@@ -122,14 +126,14 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                         } else {
                             removeAllToIndex();
                         }
-                    }} />
+                    }} disabled={props.filterList.length > 0 || !localRepoStore.hasGitConfig} />
                 )}
                 未提交文件
             </Space>
         }
             bodyStyle={{ height: "calc(100vh - 460px)", overflowY: "scroll" }}
             extra={
-                <Button type="primary" disabled={calcIndexCount() == 0}
+                <Button type="primary" disabled={calcIndexCount() == 0 || !localRepoStore.hasGitConfig}
                     onClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -149,7 +153,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                                     } else {
                                         removeFromIndex(item.path);
                                     }
-                                }} disabled={props.filterList.length > 0} />
+                                }} disabled={props.filterList.length > 0 || !localRepoStore.hasGitConfig} />
                             {item.path}
                         </div>
                         <div style={{ flex: 1 }}>
@@ -182,4 +186,4 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     );
 };
 
-export default ChangeFileList;
+export default observer(ChangeFileList);

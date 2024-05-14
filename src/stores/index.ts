@@ -16,6 +16,7 @@ import EditorStore from './editor';
 import CloudStore from './cloud';
 import OrgStore from "./org";
 import SkillCenterStore from './skill_center';
+import LocalRepoStore from './localrepo';
 
 export class RootStore {
   userStore: UserStore;
@@ -33,6 +34,7 @@ export class RootStore {
   cloudStore: CloudStore;
   orgStore: OrgStore;
   skillCenterStore: SkillCenterStore;
+  localRepoStore: LocalRepoStore;
 
   constructor() {
     this.userStore = new UserStore(this);
@@ -50,6 +52,7 @@ export class RootStore {
     this.cloudStore = new CloudStore(this);
     this.orgStore = new OrgStore(this);
     this.skillCenterStore = new SkillCenterStore(this);
+    this.localRepoStore = new LocalRepoStore();
   }
 }
 
@@ -70,6 +73,7 @@ const _store = {
   cloudStore: rootStore.cloudStore,
   orgStore: rootStore.orgStore,
   skillCenterStore: rootStore.skillCenterStore,
+  localRepoStore: rootStore.localRepoStore,
 };
 
 export type StoreType = typeof _store;
