@@ -12,7 +12,7 @@ import Card from './components/Card';
 import InfoCount from './components/InfoCount';
 import { Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
-import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, RocketOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, RocketOutlined, WarningOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
@@ -22,7 +22,6 @@ import { USER_TYPE_ATOM_GIT } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
-import { list_config } from '@/api/local_repo';
 import GitConfigModal from './components/GitConfigModal';
 import MyLearnRecordList from './components/MyLearnRecordList';
 
@@ -33,31 +32,18 @@ const Workbench: React.FC = () => {
   const urlParams = new URLSearchParams(location.search);
   const type = urlParams.get('type');
   const [passwordModal, setPasswordModal] = useState(type === 'resetPassword');
+
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
   const orgStore = useStores('orgStore');
+  const localRepoStore = useStores("localRepoStore");
 
   const tab = urlParams.get('tab') ?? "localRepo";
 
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
-  const [repoDataVersion, setRepoDataVersion] = useState(0);
   const [showResetDevModal, setShowResetDevModal] = useState(false);
-  const [hasGitConfig, setHasGitConfig] = useState(false); //是否配置了user.name和user.email
   const [showGitConfigModal, setShowGitConfigModal] = useState(false);
 
-  const checkGitConfig = async () => {
-    let name = "";
-    let email = "";
-    const cfgItemList = await list_config();
-    for (const cfgItem of cfgItemList) {
-      if (cfgItem.name == "user.name") {
-        name = cfgItem.value;
-      } else if (cfgItem.name == "user.email") {
-        email = cfgItem.value;
-      }
-    }
-    setHasGitConfig(name != "" && email != "");
-  };
 
   useMemo(() => {
     projectStore.setCurProjectId('');
@@ -71,7 +57,7 @@ const Workbench: React.FC = () => {
   }, [userStore.sessionId]);
 
   useEffect(() => {
-    checkGitConfig();
+    localRepoStore.init();
   }, []);
 
   return (
@@ -96,12 +82,13 @@ const Workbench: React.FC = () => {
             )}
             {tab == "localRepo" && (
               <Space>
-                {hasGitConfig == false && (
-                  <Button type="text" onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setShowGitConfigModal(true);
-                  }}>未配置git用户</Button>
+                {localRepoStore.hasGitConfig == false && (
+                  <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setShowGitConfigModal(true);
+                    }}><WarningOutlined />未配置git用户</Button>
                 )}
                 <Button style={{ marginRight: "20px" }} onClick={e => {
                   e.stopPropagation();
@@ -166,7 +153,7 @@ const Workbench: React.FC = () => {
         <Tabs.TabPane tab={<h2><FolderOutlined />本地仓库</h2>} key="localRepo">
           {tab == "localRepo" && (
             <div className={s.content_wrap}>
-              <LocalRepoList repoVersion={repoDataVersion} onChange={() => setRepoDataVersion(repoDataVersion + 1)} />
+              <LocalRepoList />
             </div>
           )}
         </Tabs.TabPane>
@@ -208,7 +195,7 @@ const Workbench: React.FC = () => {
       )}
       {showAddRepoModal == true && (
         <AddRepoModal onCancel={() => setShowAddRepoModal(false)} onOk={() => {
-          setRepoDataVersion(oldValue => oldValue + 1);
+          localRepoStore.loadRepoList();
           setShowAddRepoModal(false);
         }} />
       )}
@@ -218,7 +205,7 @@ const Workbench: React.FC = () => {
       {showGitConfigModal == true && (
         <GitConfigModal onCancel={() => setShowGitConfigModal(false)} onOk={() => {
           setShowGitConfigModal(false);
-          checkGitConfig();
+          localRepoStore.checkGitConfig();
         }} />
       )}
     </div>
