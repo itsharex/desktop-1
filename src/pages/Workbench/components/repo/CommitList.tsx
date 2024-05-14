@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Form, Segmented, Select, Table } from "antd";
 import type { LocalRepoInfo, LocalRepoCommitInfo, LocalRepoBranchInfo, CommitGraphInfo } from "@/api/local_repo";
-import { get_head_info, list_commit_graph, list_repo_commit } from "@/api/local_repo";
+import { list_commit_graph, list_repo_commit } from "@/api/local_repo";
 import type { ColumnsType } from 'antd/lib/table';
 import moment from "moment";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
@@ -13,6 +13,7 @@ import { createGitgraph, type CommitOptions, MergeStyle } from "@gitgraph/js";
 export interface CommitListProps {
     repo: LocalRepoInfo;
     branchList: LocalRepoBranchInfo[];
+    headBranch: string;
 }
 
 const CommitList = (props: CommitListProps) => {
@@ -54,11 +55,6 @@ const CommitList = (props: CommitListProps) => {
             x: pos.x + Math.floor(Math.random() * 200),
             y: pos.y + Math.floor(Math.random() * 200),
         })
-    };
-
-    const loadHeadInfo = async () => {
-        const res = await get_head_info(props.repo.path);
-        setFilterBranch(res.branch_name);
     };
 
     const initGraph = async () => {
@@ -153,8 +149,8 @@ const CommitList = (props: CommitListProps) => {
 
 
     useEffect(() => {
-        loadHeadInfo();
-    }, [props.branchList]);
+        setFilterBranch(props.headBranch);
+    }, [props.headBranch]);
 
     useEffect(() => {
         if (filterBranch != "") {

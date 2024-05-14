@@ -3,8 +3,8 @@
 
 import { Button, Card, Collapse, Empty, Form, List, Modal, Popover, Select, Space, Tabs, DatePicker, message, Spin, Descriptions, Checkbox, Tooltip as AntTooltip, Divider, Tag } from "antd";
 import React, { useEffect, useState } from "react";
-import type { LocalRepoInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo, HeadInfo } from "@/api/local_repo";
-import { list_repo, remove_repo, list_repo_branch, list_repo_tag, analyse, list_remote, get_http_url, get_head_info, list_git_filter } from "@/api/local_repo";
+import type { LocalRepoInfo, LocalRepoBranchInfo, LocalRepoTagInfo, LocalRepoAnalyseInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
+import { list_repo_branch, list_repo_tag, analyse, list_remote, get_http_url } from "@/api/local_repo";
 import { BranchesOutlined, MoreOutlined, NodeIndexOutlined, QuestionCircleOutlined, TagOutlined } from "@ant-design/icons";
 import SetLocalRepoModal from "./components/SetLocalRepoModal";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
@@ -23,6 +23,7 @@ import ChangeFileList from "./components/repo/ChangeFileList";
 import WorkDir from "./components/repo/WorkDir";
 import ChangeBranchModal from "./components/repo/ChangeBranchModal";
 import CreateBranchModal from "./components/repo/CreateBranchModal";
+import { LocalRepoExtInfo } from "@/stores/localrepo";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -236,10 +237,7 @@ const AnalyseRepoModal: React.FC<AnalyseRepoModalProps> = (props) => {
 
 
 interface LocalRepoPanelProps {
-    repoVersion: number;
-    headBranch: string;
-    repo: LocalRepoInfo;
-    filterList: string[];
+    repo: LocalRepoExtInfo;
 }
 
 const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
@@ -253,14 +251,14 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
 
     const loadRepoInfo = async () => {
         try {
-            const branchRes = await list_repo_branch(props.repo.path);
+            const branchRes = await list_repo_branch(props.repo.repoInfo.path);
             setBranchList(branchRes);
-            const tagRes = await list_repo_tag(props.repo.path);
+            const tagRes = await list_repo_tag(props.repo.repoInfo.path);
             setTagList(tagRes);
             if (branchRes.length == 0) {
                 return;
             }
-            const remoteRes = await list_remote(props.repo.path);
+            const remoteRes = await list_remote(props.repo.repoInfo.path);
             setRemoteList(remoteRes);
         } catch (e) {
             console.log(e);
@@ -273,13 +271,11 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
         setWidgetList(res.widget_list.sort((a, b) => b.weight - a.weight));
     };
 
-
-
     const openBranchDiff = async (item: LocalRepoBranchInfo) => {
         const pos = await appWindow.innerPosition();
         new WebviewWindow(`commit:${item.commit_id}`, {
-            url: `git_diff.html?path=${encodeURIComponent(props.repo.path)}&commitId=${item.commit_id}&summary=${encodeURIComponent(item.commit_summary)}&commiter=`,
-            title: `${props.repo.name}(commit:${item.commit_id.substring(0, 8)})`,
+            url: `git_diff.html?path=${encodeURIComponent(props.repo.repoInfo.path)}&commitId=${item.commit_id}&summary=${encodeURIComponent(item.commit_summary)}&commiter=`,
+            title: `${props.repo.repoInfo.name}(commit:${item.commit_id.substring(0, 8)})`,
             x: pos.x + Math.floor(Math.random() * 200),
             y: pos.y + Math.floor(Math.random() * 200),
         });
@@ -288,8 +284,8 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const openTagDiff = async (item: LocalRepoTagInfo) => {
         const pos = await appWindow.innerPosition();
         new WebviewWindow(`commit:${item.commit_id}`, {
-            url: `git_diff.html?path=${encodeURIComponent(props.repo.path)}&commitId=${item.commit_id}&summary=${encodeURIComponent(item.commit_summary)}&commiter=`,
-            title: `${props.repo.name}(commit:${item.commit_id.substring(0, 8)})`,
+            url: `git_diff.html?path=${encodeURIComponent(props.repo.repoInfo.path)}&commitId=${item.commit_id}&summary=${encodeURIComponent(item.commit_summary)}&commiter=`,
+            title: `${props.repo.repoInfo.name}(commit:${item.commit_id.substring(0, 8)})`,
             x: pos.x + Math.floor(Math.random() * 200),
             y: pos.y + Math.floor(Math.random() * 200),
         });
@@ -297,7 +293,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
 
     useEffect(() => {
         loadRepoInfo();
-    }, [props.repo.path, props.repoVersion]);
+    }, [props.repo.repoInfo.path, props.repo.headInfo.commit_id]);
 
     useEffect(() => {
         loadWidgetList();
@@ -308,11 +304,11 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             setActiveKey(key);
         }}>
             <Tabs.TabPane tab="工作目录" key="workDir">
-                <WorkDir basePath={props.repo.path} widgetList={widgetList} headBranch={props.headBranch} filterList={props.filterList} />
+                <WorkDir basePath={props.repo.repoInfo.path} widgetList={widgetList} headBranch={props.repo.headInfo.branch_name} filterList={props.repo.filterList} />
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交记录" key="commitList">
                 {activeKey == "commitList" && (
-                    <CommitList repo={props.repo} branchList={branchList} />
+                    <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name}/>
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -342,7 +338,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
                             </List.Item>
                         )} />
                         {createBranchFrom != "" && (
-                            <CreateBranchModal repo={props.repo} fromBranch={createBranchFrom}
+                            <CreateBranchModal repo={props.repo.repoInfo} fromBranch={createBranchFrom}
                                 onCancel={() => setCreateBranchFrom("")} onOk={() => {
                                     setCreateBranchFrom("");
                                     loadRepoInfo();
@@ -372,7 +368,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
                 {activeKey == "status" && (
-                    <ChangeFileList repo={props.repo} onCommit={() => loadRepoInfo()} filterList={props.filterList} />
+                    <ChangeFileList repo={props.repo.repoInfo} onCommit={() => loadRepoInfo()} filterList={props.repo.filterList} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -399,92 +395,34 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     );
 };
 
-interface LocalRepoListProps {
-    repoVersion: number;
-    onChange: () => void;
-}
 
-interface LocalRepoInfoWithHead {
-    id: string;
-    repoInfo: LocalRepoInfo;
-    headInfo: HeadInfo;
-    filterList: string[];
-}
 
-const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
+const LocalRepoList = () => {
     const location = useLocation();
     const urlParams = new URLSearchParams(location.search);
     const repoId = urlParams.get('repoId') ?? "";
 
-    const [repoList, setRepoList] = useState<LocalRepoInfoWithHead[]>([]);
+    const localRepoStore = useStores("localRepoStore");
+
     const [activeKey, setActiveKey] = useState(repoId);
     const [editRepo, setEditRepo] = useState<LocalRepoInfo | null>(null);
     const [analyseRepo, setAnalyseRepo] = useState<LocalRepoInfo | null>(null);
     const [linkProjectRepo, setLinkProjectRepo] = useState<LocalRepoInfo | null>(null);
     const [launchRepo, setLaunchRepo] = useState<LocalRepoInfo | null>(null);
-    const [selRepoBranchInfo, setSelRepoBranchInfo] = useState<LocalRepoInfoWithHead | null>(null);
+    const [selRepoBranchInfo, setSelRepoBranchInfo] = useState<LocalRepoExtInfo | null>(null);
 
-    const loadRepoList = async () => {
-        try {
-            const res = await list_repo();
-            const tmpList = [] as LocalRepoInfoWithHead[];
-            for (const repo of res) {
-                try {
-                    const headInfo = await get_head_info(repo.path);
-                    const filterList = await list_git_filter(repo.path);
-                    tmpList.push({
-                        id: repo.id,
-                        repoInfo: repo,
-                        headInfo: headInfo,
-                        filterList: filterList,
-                    });
-                } catch (e) {
-                    console.log(e);
-                }
-            }
-            setRepoList(tmpList);
-        } catch (e) {
-            console.log(e);
-            message.error(`${e}`);
-        }
-    };
-
-    const removeRepo = async (id: string) => {
-        try {
-            await remove_repo(id);
-            props.onChange();
-        } catch (e) {
-            console.log(e);
-            message.error(`${e}`);
-        }
-    };
-
-    const updateRepoHeadInfo = async (repoId: string) => {
-        const tmpList = repoList.slice();
-        const index = tmpList.findIndex(item => item.id == repoId);
-        if (index == -1) {
-            return;
-        }
-        const headInfo = await get_head_info(tmpList[index].repoInfo.path);
-        tmpList[index].headInfo = headInfo;
-        setRepoList(tmpList);
-    };
-
-    useEffect(() => {
-        loadRepoList();
-    }, [props.repoVersion]);
     return (
         <>
-            {repoList.length == 0 && (
+            {localRepoStore.repoExtList.length == 0 && (
                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             )}
-            {repoList.length > 0 && (
+            {localRepoStore.repoExtList.length > 0 && (
                 <Collapse accordion activeKey={activeKey} onChange={key => {
                     if (!Array.isArray(key)) {
                         setActiveKey(key);
                     }
                 }}>
-                    {repoList.map(repo => (
+                    {localRepoStore.repoExtList.map(repo => (
                         <Collapse.Panel key={repo.id} header={<span>{repo.repoInfo.name}({repo.repoInfo.path})
                         </span>}
                             extra={
@@ -527,7 +465,8 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                                         <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
                                                             e.stopPropagation();
                                                             e.preventDefault();
-                                                            props.onChange();
+                                                            localRepoStore.onUpdateRepo(repo.id);
+                                                            message.info("刷新成功");
                                                         }}>
                                                             刷新
                                                         </Button>
@@ -551,7 +490,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                                             onClick={e => {
                                                                 e.stopPropagation();
                                                                 e.preventDefault();
-                                                                removeRepo(repo.id);
+                                                                localRepoStore.removeRepo(repo.id);
                                                             }}>删除</Button>
                                                     </Space>
                                                 </div>
@@ -562,7 +501,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                                 </Space>
                             }>
                             {activeKey == repo.id && (
-                                <LocalRepoPanel repoVersion={props.repoVersion} repo={repo.repoInfo} key={repo.id} headBranch={repo.headInfo.branch_name} filterList={repo.filterList} />
+                                <LocalRepoPanel repo={repo} key={repo.id} />
                             )}
                         </Collapse.Panel>
                     ))}
@@ -571,7 +510,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
             {editRepo != null && (
                 <SetLocalRepoModal repo={editRepo} onCancel={() => setEditRepo(null)} onOk={() => {
                     setEditRepo(null);
-                    props.onChange();
+                    localRepoStore.loadRepoList();
                 }} />
             )}
             {analyseRepo != null && (
@@ -587,8 +526,7 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
                 <ChangeBranchModal repo={selRepoBranchInfo.repoInfo} headBranch={selRepoBranchInfo.headInfo.branch_name}
                     onCancel={() => setSelRepoBranchInfo(null)}
                     onOk={() => {
-                        updateRepoHeadInfo(selRepoBranchInfo.id);
-                        props.onChange();
+                        localRepoStore.onUpdateRepo(selRepoBranchInfo.id);
                         setSelRepoBranchInfo(null);
                     }} />
             )}
@@ -596,4 +534,4 @@ const LocalRepoList: React.FC<LocalRepoListProps> = (props) => {
     );
 };
 
-export default LocalRepoList;
+export default observer(LocalRepoList);
