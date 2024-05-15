@@ -1,6 +1,6 @@
 {
   "name": "desktop",
-  "version": "0.8.20",
+  "version": "0.8.21",
   "repository": "https://jihulab.com/linksaas/desktop.git",
   "license": "GPL-3.0",
   "author": "panleiming <panleiming@linksaas.pro>",
@@ -109,7 +109,7 @@
     "terser": "^5.14.2",
     "typescript": "5.2.2",
     "typescript-plugin-css-modules": "^4.2.2",
-    "vite": "5.0.12",
+    "vite": "5.2.11",
     "vite-plugin-imp": "^2.4.0",
     "vite-plugin-svgr": "^4.2.0",
     "vite-plugin-top-level-await": "^1.4.1",

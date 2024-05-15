@@ -18,6 +18,6 @@ export const getEntryTypeStr = (entryType: ENTRY_TYPE): string => {
         return "接口集合";
     } else if (entryType == ENTRY_TYPE_DATA_ANNO) {
         return "数据标注";
-    }
+    } 
     return "";
 };

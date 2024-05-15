@@ -5,14 +5,14 @@ import React, { useState } from "react";
 import { Button, Card, Popover, Space, Tag, message } from "antd";
 import { observer } from 'mobx-react';
 import type { EntryInfo } from "@/api/project_entry";
-import { update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_DATA_ANNO, ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY } from "@/api/project_entry";
+import { update_mark_sys, ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE, set_parent_folder, ENTRY_TYPE_API_COLL, API_COLL_GRPC, API_COLL_OPENAPI, API_COLL_CUSTOM, ENTRY_TYPE_DATA_ANNO, ANNO_PROJECT_AUDIO_CLASSIFI, ANNO_PROJECT_AUDIO_SEG, ANNO_PROJECT_AUDIO_TRANS, ANNO_PROJECT_AUDIO_SEG_TRANS, ANNO_PROJECT_IMAGE_CLASSIFI, ANNO_PROJECT_IMAGE_BBOX_OBJ_DETECT, ANNO_PROJECT_IMAGE_BRUSH_SEG, ANNO_PROJECT_IMAGE_CIRCULAR_OBJ_DETECT, ANNO_PROJECT_IMAGE_KEYPOINT, ANNO_PROJECT_IMAGE_POLYGON_SEG, ANNO_PROJECT_TEXT_CLASSIFI, ANNO_PROJECT_TEXT_NER, ANNO_PROJECT_TEXT_SUMMARY, ENTRY_TYPE_MY_WORK } from "@/api/project_entry";
 import s from "./Card.module.less";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import { EditOutlined, InfoCircleOutlined, MoreOutlined } from "@ant-design/icons";
 import EntryPopover from "./components/EntryPopover";
 import { useHistory } from "react-router-dom";
-import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
+import { APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PATH, APP_PROJECT_MY_WORK_PATH, APP_PROJECT_WORK_PLAN_PATH } from "@/utils/constant";
 import { getEntryTypeStr } from "./components/common";
 import RemoveEntryModal from "./components/RemoveEntryModal";
 import spritIcon from '@/assets/allIcon/icon-sprit.png';
@@ -25,6 +25,7 @@ import FileModal from "./components/FileModal";
 import MoveToFolderModal from "./components/MoveToFolderModal";
 import dataAnnoIcon from '@/assets/allIcon/icon-dataanno.png';
 import ExportModal from "@/pages/DataAnno/components/ExportModal";
+import { MAIN_CONTENT_CONTENT_LIST } from "@/api/project";
 
 export interface EntryCardPorps {
     entryInfo: EntryInfo;
@@ -175,6 +176,23 @@ const EntryCard = (props: EntryCardPorps) => {
         }
         return retTitle;
     };
+
+    if (props.entryInfo.entry_type == ENTRY_TYPE_MY_WORK) {
+        return (
+            <Card className={s.card} style={{ backgroundColor: "skyblue", position: "relative", cursor: "pointer" }}
+                onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    entryStore.reset();
+                    projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
+                    history.push(APP_PROJECT_MY_WORK_PATH);
+                }}>
+                <div style={{ position: "absolute", bottom: "20px", right: "20px", fontSize: "30px", fontWeight: 600 }}>
+                    我的工作
+                </div>
+            </Card>
+        );
+    }
 
     return (
         <Card title={
