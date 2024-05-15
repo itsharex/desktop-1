@@ -266,7 +266,6 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               check_update();
             }} disabled={updateProgress > 0}>
               <Space size="small">
-
                 {updateProgress == 0 && (
                   <>
                     <InfoCircleOutlined />

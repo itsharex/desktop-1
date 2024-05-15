@@ -96,7 +96,7 @@ const PubRes = () => {
                     <Tabs.TabPane tab={<h2><GlobalOutlined />&nbsp;{item.name}</h2>} key={item.menu_id}>
                         {activeKey == item.menu_id && (
                             <div className={s.content_wrap}>
-                                <iframe src={item.url} width="100%" height="100%" />
+                                <iframe src={item.url} width="100%" height="100%" allow='*'/>
                             </div>
                         )}
                     </Tabs.TabPane>
