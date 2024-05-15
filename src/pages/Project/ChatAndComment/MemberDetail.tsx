@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
-import { Button, Card, Descriptions, Select, Space, Table, Tooltip } from "antd";
+import { Button, Card, Descriptions, Empty, Select, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import type { WebMemberInfo } from "@/stores/member";
 import UserPhoto from "@/components/Portrait/UserPhoto";
@@ -271,7 +271,8 @@ const MemberDetail = () => {
         } headStyle={{ paddingLeft: 0 }} bodyStyle={{ height: "calc(100vh - 150px)", overflowY: "scroll" }} style={{ width: "100%" }} bordered={false}>
             {memberInfo != undefined && (
                 <>
-                    <Card title="成员状态" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }} bodyStyle={{ padding: "0px 0px" }}>
+                    <Card title="成员状态" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}
+                        bodyStyle={{ padding: "0px 0px" }}>
                         <Descriptions column={2} bordered labelStyle={{ width: "100px" }}>
                             <Descriptions.Item label="用户昵称">
                                 {memberInfo.member.display_name}
@@ -336,31 +337,34 @@ const MemberDetail = () => {
                         </Descriptions>
                     </Card>
                     {(memberInfo.issue_member_state?.task_un_exec_count ?? 0) > 0 && (
-                        <Card title="未完成任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                        <Card title="未完成任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                             <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.task_un_check_count ?? 0) > 0 && (
-                        <Card title="未检查任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                        <Card title="未检查任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                             <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.bug_un_exec_count ?? 0) > 0 && (
-                        <Card title="未处理缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }} >
+                        <Card title="未处理缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }} >
                             <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.task_un_check_count ?? 0) > 0 && (
-                        <Card title="未检查缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                        <Card title="未检查缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                             <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
-                    <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                    <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                         <MemberEventList lastEventTime={memberInfo.last_event?.event_time ?? 0} memberUserId={memberInfo.member.member_user_id} />
                     </Card>
                     {userStore.userInfo.featureInfo.enable_skill_center && (
-                        <Card title="技能概览" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>
+                        <Card title="技能概览" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                             <div style={{ width: "100%" }}>
+                                {summaryItemList.length == 0 && (
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                )}
                                 {summaryItemList.map(item => (
                                     <SkillSummaryTag key={item.cate_id} summaryItem={item} width="330px" />
                                 ))}
