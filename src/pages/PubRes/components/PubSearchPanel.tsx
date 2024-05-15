@@ -125,7 +125,7 @@ const AddModal = (props: AddModalProps) => {
                             <List.Item style={{ width: 150 }}>
                                 <Checkbox disabled={props.siteIdList.includes(innerItem.siteId)} checked={newSiteIdList.includes(innerItem.siteId)}
                                     onChange={e => {
-                                        e.preventDefault();
+                                        e.stopPropagation();
                                         if (e.target.checked) {
                                             setNewSiteIdList([...newSiteIdList, innerItem.siteId]);
                                         } else {
