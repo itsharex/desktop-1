@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import { Button, message, Modal, Popover, Space, Tree } from "antd";
 import { useStores } from "@/hooks";
 import type { DataNode } from "antd/lib/tree";
-import { BulbTwoTone, MoreOutlined } from "@ant-design/icons";
+import { MoreOutlined } from "@ant-design/icons";
 import s from "./SkillTree.module.less";
 import EditLearnRecordModal from "./EditLearnRecordModal";
 import { request } from "@/utils/request";
@@ -42,7 +42,7 @@ const SkillTree = () => {
             }
             const subNode: DataNode = {
                 key: folderInfo.folder_id,
-                title: folderInfo.folder_name,
+                title: <span style={{ color: "grey", fontWeight: 800 }}>{folderInfo.folder_name}</span>,
                 children: [],
                 switcherIcon: () => "",
                 selectable: false,
@@ -62,8 +62,8 @@ const SkillTree = () => {
                 <span style={{ display: "inline-block" }}>
                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                         {pointInfoList.map(pointInfo => (
-                            <Space key={pointInfo.point_id} style={{ backgroundColor: "#eee", padding: "0px 10px", margin: "0px 4px 4px 4px",borderRadius:"10px" }}>
-                                <Button type="text" style={{ minWidth: 0, padding: "0px 0px" }}
+                            <Space key={pointInfo.point_id} className={pointInfo.has_learn ? s.skillLearnItem : s.skillItem}>
+                                <Button type="text" style={{ minWidth: 0, padding: "0px 0px", color: pointInfo.has_learn ? "orange" : "whitesmoke", fontSize: "14px", fontWeight: 700 }}
                                     onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
@@ -74,15 +74,7 @@ const SkillTree = () => {
                                             setShowAddModal(true);
                                         }
                                     }} title={pointInfo.has_learn ? "查看学习记录" : "点亮技能"}>
-                                    <Space>
-                                        {pointInfo.point_name}
-                                        {pointInfo.has_learn == true && (
-                                            <BulbTwoTone twoToneColor={["orange", "orange"]} />
-                                        )}
-                                        {pointInfo.has_learn == false && (
-                                            <BulbTwoTone twoToneColor={["gray", "white"]} />
-                                        )}
-                                    </Space>
+                                    {pointInfo.point_name}
                                 </Button>
                                 {pointInfo.has_learn == true && (
                                     <Popover trigger="click" placement="bottom" content={
