@@ -20,7 +20,7 @@ const MoveToFolderModal = (props: MoveToFolderModalProps) => {
     const projectStore = useStores('projectStore');
 
     const [treeNodeList, setTreeNodeList] = useState([] as DataNode[]);
-    const [selectKey, setSelectkey] = useState<string | null>(null);
+    const [folderList, setFolderList] = useState<FolderPathItem[]>([]);
 
     const setupTreeNode = (pathItemList: FolderPathItem[], nodeList: DataNode[], parentFolderId: string) => {
         for (const pathItem of pathItemList) {
@@ -45,6 +45,7 @@ const MoveToFolderModal = (props: MoveToFolderModalProps) => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
         }));
+        setFolderList(res.item_list);
         const tmpNodeList = [] as DataNode[];
         setupTreeNode(res.item_list, tmpNodeList, "");
         setTreeNodeList([{
@@ -61,24 +62,20 @@ const MoveToFolderModal = (props: MoveToFolderModalProps) => {
     return (
         <Modal open title="移动到目录"
             bodyStyle={{ height: "calc(100vh - 400px)", overflowY: "scroll" }}
-            okText="移动" okButtonProps={{ disabled: selectKey == null }}
+            footer={null}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
                 props.onCancel();
             }}
-            onOk={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (selectKey != null) {
-                    props.onOk(selectKey);
-                }
-            }}>
-            <Tree treeData={treeNodeList} defaultExpandAll={true} onSelect={keys => {
-                if (keys.length == 1) {
-                    setSelectkey(keys[0] as string);
-                }
-            }} />
+            >
+            {treeNodeList.length > 0 && (
+                <Tree.DirectoryTree treeData={treeNodeList} expandedKeys={["", ...(folderList.map(item => item.folder_id))]} onSelect={keys => {
+                    if (keys.length == 1) {
+                        props.onOk(keys[0] as string);
+                    }
+                }} style={{fontSize:"16px"}}/>
+            )}
         </Modal>
     );
 };

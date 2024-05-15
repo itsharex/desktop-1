@@ -11,6 +11,8 @@ export const ENTRY_TYPE_BOARD: ENTRY_TYPE = 3;
 export const ENTRY_TYPE_FILE: ENTRY_TYPE = 4;
 export const ENTRY_TYPE_API_COLL: ENTRY_TYPE = 5;
 export const ENTRY_TYPE_DATA_ANNO: ENTRY_TYPE = 6;
+
+export const ENTRY_TYPE_MY_WORK: ENTRY_TYPE = 998;
 export const ENTRY_TYPE_NULL: ENTRY_TYPE = 999;
 
 export type ISSUE_LIST_TYPE = number;

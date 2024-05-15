@@ -88,7 +88,7 @@ import SoftWareCateList from '@/pages/Admin/SoftWareAdmin/SoftWareCateList';
 import SoftWareList from '@/pages/Admin/SoftWareAdmin/SoftWareList';
 import SkillCateList from '@/pages/Admin/SkillCenterAdmin/SkillCateList';
 import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
-import SkillCenterPage from "@/pages/SkillCenter";
+import SkillCenter from "@/pages/SkillCenter/SkillCenter";
 import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 import ExternPage from '@/pages/ExternPage';
 import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList';
@@ -229,7 +229,7 @@ const routesConfig: IRouteConfig[] = [
       {
         path: SKILL_CENTER_PATH,
         title: "技能中心",
-        component: SkillCenterPage,
+        component: SkillCenter,
         exact: true,
       },
       {

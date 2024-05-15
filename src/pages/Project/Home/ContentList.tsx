@@ -12,7 +12,8 @@ import {
     list as list_entry, list_sys as list_sys_entry, list_sub_entry, list_sub_folder, get_folder_path,
     ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE,
     ENTRY_TYPE_API_COLL,
-    ENTRY_TYPE_DATA_ANNO
+    ENTRY_TYPE_DATA_ANNO,
+    ENTRY_TYPE_MY_WORK
 } from "@/api/project_entry";
 import { request } from "@/utils/request";
 import { CreditCardFilled, FilterTwoTone, FolderAddOutlined } from "@ant-design/icons";
@@ -56,7 +57,7 @@ const ProjectHome = () => {
     };
 
     const loadEntryList = async () => {
-        if(projectStore.curProjectId == ""){
+        if (projectStore.curProjectId == "") {
             entryStore.entryOrFolderList = [];
             return;
         }
@@ -149,7 +150,34 @@ const ProjectHome = () => {
             session_id: userStore.sessionId,
             project_id: projectStore.curProjectId,
         }));
-        entryStore.sysEntryList = res.entry_list;
+        entryStore.sysEntryList = [
+            {
+                entry_id: "",
+                entry_type: ENTRY_TYPE_MY_WORK,
+                entry_title: "",
+                my_watch: false,
+                watch_user_list: [],
+                tag_list: [],
+                entry_perm: {
+                    update_for_all: false,
+                    extra_update_user_id_list: [],
+                },
+                mark_sys: true,
+                parent_folder_id: "",
+                create_user_id: "",
+                create_display_name: "",
+                create_logo_uri: "",
+                create_time: 0,
+                update_user_id: "",
+                update_display_name: "",
+                update_logo_uri: "",
+                update_time: 0,
+                can_update: false,
+                can_remove: false,
+                extra_info: {},
+            },
+            ...res.entry_list,
+        ];
     };
 
     const calcFolderInfoWidth = () => {
@@ -222,24 +250,20 @@ const ProjectHome = () => {
 
     return (
         <div className={s.home_wrap}>
-            {entryStore.sysEntryList.length > 0 && (
-                <>
-                    <h1 className={s.header}><CreditCardFilled />&nbsp;&nbsp;系统面板</h1>
-                    <List rowKey="entry_id"
-                        grid={{ gutter: 16 }}
-                        dataSource={entryStore.sysEntryList}
-                        renderItem={item => (
-                            <List.Item>
-                                <EntryCard entryInfo={item} onMove={() => loadEntryList()}
-                                    onMarkSys={() => {
-                                        loadSysEntryList();
-                                        loadEntryList();
-                                    }} canMove={false} />
-                            </List.Item>
-                        )} />
-                    <Divider style={{ margin: "4px 0px" }} />
-                </>
-            )}
+            <h1 className={s.header}><CreditCardFilled />&nbsp;&nbsp;系统面板</h1>
+            <List rowKey="entry_id"
+                grid={{ gutter: 16 }}
+                dataSource={entryStore.sysEntryList}
+                renderItem={item => (
+                    <List.Item>
+                        <EntryCard entryInfo={item} onMove={() => loadEntryList()}
+                            onMarkSys={() => {
+                                loadSysEntryList();
+                                loadEntryList();
+                            }} canMove={false} />
+                    </List.Item>
+                )} />
+            <Divider style={{ margin: "4px 0px" }} />
             <Card title={<h1 className={s.header}><CreditCardFilled />&nbsp;&nbsp;内容面板</h1>}
                 headStyle={{ paddingLeft: "0px" }} bodyStyle={{ padding: "4px 0px" }}
                 bordered={false} extra={
