@@ -266,8 +266,13 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               check_update();
             }} disabled={updateProgress > 0}>
               <Space size="small">
-                <InfoCircleOutlined />
-                {updateProgress == 0 && "有新版本"}
+
+                {updateProgress == 0 && (
+                  <>
+                    <InfoCircleOutlined />
+                    <span>有新版本</span>
+                  </>
+                )}
                 {updateProgress > 0 && (
                   <Progress type="line" percent={Math.ceil(updateProgress * 100)} showInfo={false} style={{ width: 50, paddingBottom: "16px" }} />
                 )}
