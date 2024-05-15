@@ -118,7 +118,9 @@ const LeftMenu: React.FC = () => {
             <RocketOutlined />&nbsp;技能中心
           </div>
         )}
-
+        {(appStore.clientCfg?.item_list.filter(item => item.main_menu) ?? []).length > 0 && (
+          <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
+        )}
         {appStore.clientCfg?.item_list.filter(item => item.main_menu).map(item => (
           <div className={`${cls.workbench_menu} ${appStore.curExtraMenu?.menu_id == item.menu_id ? cls.active_menu : ""}`}
             style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
@@ -139,7 +141,7 @@ const LeftMenu: React.FC = () => {
           </div>
         ))}
       </div>
-      <div style={{ position: "absolute", bottom: "2px", right: "10px", cursor: "pointer" }} onClick={e=>{
+      <div style={{ position: "absolute", bottom: "2px", right: "10px", cursor: "pointer" }} onClick={e => {
         e.stopPropagation();
         e.preventDefault();
         shell_open("https://atomgit.com/openlinksaas/desktop/tags?tab=release");
