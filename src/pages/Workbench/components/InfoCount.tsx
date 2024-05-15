@@ -146,10 +146,13 @@ const InfoCount = () => {
   return (
     <div className={s.infoCount_wrap}>
       <div className={s.left_wrap}>
-        <div style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL) ? "default" : "pointer" }}
+        <div style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL || userStore.sessionId == "") ? "default" : "pointer" }}
           onClick={e => {
             e.stopPropagation();
             e.preventDefault();
+            if (userStore.sessionId == "") {
+              return;
+            }
             if (userStore.userInfo.testAccount) {
               return;
             }
