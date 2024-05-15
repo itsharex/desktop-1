@@ -125,7 +125,7 @@ const AddModal = (props: AddModalProps) => {
                             <List.Item style={{ width: 150 }}>
                                 <Checkbox disabled={props.siteIdList.includes(innerItem.siteId)} checked={newSiteIdList.includes(innerItem.siteId)}
                                     onChange={e => {
-                                        e.preventDefault();
+                                        e.stopPropagation();
                                         if (e.target.checked) {
                                             setNewSiteIdList([...newSiteIdList, innerItem.siteId]);
                                         } else {
@@ -258,7 +258,7 @@ const PubSearchPanel = () => {
                                             {item.useProxy == false && (
                                                 <iframe style={{ width: "calc(100vw - 250px)", height: "calc(100vh - 300px)", overflow: "scroll" }}
                                                     referrerPolicy="no-referrer"
-                                                    src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
+                                                    src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} allow="*"/>
                                             )}
                                         </Card>
                                     )}

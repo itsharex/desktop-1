@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Button, Divider, Form, Popover, Select, Space, message } from "antd";
+import { Button, Divider, Form, Modal, Popover, Select, Space, message } from "antd";
 import { useStores } from "@/hooks";
 import type { ServerInfo } from '@/api/client_cfg';
 import { list_server } from '@/api/client_cfg';
@@ -13,6 +13,8 @@ import { get_port, get_token } from '@/api/local_api';
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { AdminLoginModal } from "@/pages/User/AdminLoginModal";
 import ServerMgrModal from "@/pages/User/ServerMgrModal";
+import { remove_info_file } from '@/api/local_api';
+import { exit } from '@tauri-apps/api/process';
 
 const ServerConnInfo = () => {
     const appStore = useStores('appStore');
@@ -22,6 +24,7 @@ const ServerConnInfo = () => {
     const [serverList, setServerList] = useState<ServerInfo[]>([]);
     const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
     const [showServerMgrModal, setShowServerMgrModal] = useState(false);
+    const [showExitModal, setShowExitModal] = useState(false);
 
     const loadServerList = async () => {
         const res = await list_server(false);
@@ -135,6 +138,13 @@ const ServerConnInfo = () => {
                                 e.preventDefault();
                                 openLocalApi();
                             }}>调试本地接口</Button>
+                            <Divider style={{ margin: "0px 0px" }} />
+                            <Button type="link" danger
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowExitModal(true);
+                                }}>关闭应用</Button>
                         </Space>
                     }>
                         <MoreOutlined />
@@ -146,6 +156,22 @@ const ServerConnInfo = () => {
             )}
             {showServerMgrModal == true && (
                 <ServerMgrModal onChange={() => loadServerList()} onClose={() => setShowServerMgrModal(false)} />
+            )}
+            {showExitModal == true && (
+                <Modal open title="关闭应用"
+                    okText="关闭" okButtonProps={{ danger: true }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowExitModal(false);
+                    }}
+                    onOk={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        remove_info_file().then(() => exit(0));
+                    }}>
+                    是否关闭应用?
+                </Modal>
             )}
         </>
     );
