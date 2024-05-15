@@ -258,7 +258,7 @@ const PubSearchPanel = () => {
                                             {item.useProxy == false && (
                                                 <iframe style={{ width: "calc(100vw - 250px)", height: "calc(100vh - 300px)", overflow: "scroll" }}
                                                     referrerPolicy="no-referrer"
-                                                    src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} />
+                                                    src={item.searchTpl.replace("KEYWORD", encodeURIComponent(keyword))} allow="*"/>
                                             )}
                                         </Card>
                                     )}
