@@ -8,7 +8,7 @@ import style from './index.module.less';
 import { Badge, Button, Layout, Popover, Progress, Space, Table, message } from 'antd';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
-import { BugOutlined, CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
@@ -297,25 +297,9 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Badge>
             </Popover>
           )}
-          <a href="https://atomgit.com/openlinksaas/desktop/issues" target="_blank" rel="noreferrer" style={{ marginRight: "20px" }} title="报告缺陷"><BugOutlined /></a>
           <div className={style.btnMinimize} onClick={() => handleClick('minimize')} title="最小化" />
           <div className={style.btnMaximize} onClick={() => handleClick('maximize')} title="最大化/恢复" />
-          <Popover trigger="hover" placement="bottom" content={
-            <Space direction="vertical" style={{ padding: "10px 0px" }}>
-              <Button type="link" onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleClick('hide');
-              }}>隐藏应用</Button>
-              <Button type="link" danger onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleClick('exit');
-              }}>关闭应用</Button>
-            </Space>
-          }>
-            <div className={style.btnClose} title="隐藏/关闭窗口" onClick={() => handleClick('hide')} />
-          </Popover>
+          <div className={style.btnClose} title="隐藏窗口" onClick={() => handleClick('hide')} />
         </div>
       </Header >
       {showRemoveModal == true && entryStore.curEntry != null && (
