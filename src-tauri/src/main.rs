@@ -35,6 +35,7 @@ mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
 mod user_notice_api_plugin;
+mod keyword_admin_api_plugin;
 
 mod my_updater;
 
@@ -494,6 +495,7 @@ fn main() {
         .plugin(skill_api::skill_resource_admin_api_plugin::SkillResourceAdminApiPlugin::new())
         .plugin(skill_api::skill_test_api_plugin::SkillTestApiPlugin::new())
         .plugin(skill_api::skill_test_admin_api_plugin::SkillTestAdminApiPlugin::new())
+        .plugin(keyword_admin_api_plugin::KeywordAdminApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {
