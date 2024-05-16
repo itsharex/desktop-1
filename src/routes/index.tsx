@@ -48,6 +48,8 @@ import {
   ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
   APP_EXTERN_PAGE_PATH,
   ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
+  ADMIN_PATH_ORG_LIST_SUFFIX,
+  ADMIN_PATH_ORG_DETAIL_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -90,6 +92,8 @@ import SkillCenter from "@/pages/SkillCenter/SkillCenter";
 import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 import ExternPage from '@/pages/ExternPage';
 import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList';
+import OrgList from '@/pages/Admin/OrgAdmin/OrgList';
+import AdminOrgDetail from "@/pages/Admin/OrgAdmin/OrgDetail";
 
 export interface IRouteConfig {
   // 路由路径
@@ -321,6 +325,18 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
         title: "项目详情",
         component: ProjectDetail,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_ORG_LIST_SUFFIX,
+        title: "团队列表",
+        component: OrgList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_ORG_DETAIL_SUFFIX,
+        title: "团队详情",
+        component: AdminOrgDetail,
         exact: true,
       },
       {

@@ -32,6 +32,9 @@ export const ADMIN_PATH_USER_CREATE_SUFFIX = '/admin/user/create';
 export const ADMIN_PATH_PROJECT_LIST_SUFFIX = '/admin/project/list';
 export const ADMIN_PATH_PROJECT_DETAIL_SUFFIX = '/admin/project/detail';
 
+export const ADMIN_PATH_ORG_LIST_SUFFIX = '/admin/org/list';
+export const ADMIN_PATH_ORG_DETAIL_SUFFIX = '/admin/org/detail';
+
 export const ADMIN_PATH_APPSTORE_CATE_SUFFIX = '/admin/appstore/cate';
 export const ADMIN_PATH_APPSTORE_APP_SUFFIX = '/admin/appstore/app';
 

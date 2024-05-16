@@ -18,6 +18,8 @@ import {
     ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
+    ADMIN_PATH_ORG_DETAIL_SUFFIX,
+    ADMIN_PATH_ORG_LIST_SUFFIX,
     ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
     ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
@@ -35,6 +37,7 @@ const AdminNav = () => {
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
     const [userSelectedKeys, setUserSelectedKeys] = useState<string[]>([]);
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
+    const [orgSelectedKeys, setOrgSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
     const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
@@ -57,6 +60,14 @@ const AdminNav = () => {
         setProjectSelectedKeys([]);
         if (location.pathname == ADMIN_PATH_PROJECT_LIST_SUFFIX || location.pathname == ADMIN_PATH_PROJECT_DETAIL_SUFFIX) {
             setProjectSelectedKeys(["prj_list"]);
+        }
+    }, [location.pathname]);
+
+
+    useEffect(() => {
+        setOrgSelectedKeys([]);
+        if (location.pathname == ADMIN_PATH_ORG_LIST_SUFFIX || location.pathname == ADMIN_PATH_ORG_DETAIL_SUFFIX) {
+            setOrgSelectedKeys(["org_list"]);
         }
     }, [location.pathname]);
 
@@ -194,6 +205,24 @@ const AdminNav = () => {
                             if (e.selectedKeys.length == 1) {
                                 if (e.selectedKeys[0] == "prj_list") {
                                     history.push(ADMIN_PATH_PROJECT_LIST_SUFFIX);
+                                }
+                            }
+                        }}
+                    />
+                </Collapse.Panel>
+                <Collapse.Panel header="团队管理" key="org">
+                    <Menu selectedKeys={orgSelectedKeys} items={[
+                        {
+                            label: "查看团队",
+                            key: "org_list",
+                            disabled: !(permInfo?.org_perm.read ?? false),
+                        }
+                    ]}
+                        style={{ borderRightWidth: "0px" }}
+                        onSelect={e => {
+                            if (e.selectedKeys.length == 1) {
+                                if (e.selectedKeys[0] == "org_list") {
+                                    history.push(ADMIN_PATH_ORG_LIST_SUFFIX);
                                 }
                             }
                         }}

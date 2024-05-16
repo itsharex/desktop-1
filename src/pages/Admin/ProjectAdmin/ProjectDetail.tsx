@@ -1,8 +1,8 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Descriptions, Space, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { Descriptions, Space, Table } from 'antd';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
 import s from './ProjectDetail.module.less';
@@ -52,8 +52,6 @@ const ProjectDetail = () => {
         }));
         setProjectInfo(res.project_info);
     };
-
-
 
     const loadMemberList = async () => {
         const sessionId = await get_admin_session();
@@ -116,7 +114,7 @@ const ProjectDetail = () => {
     useEffect(() => {
         loadProjectInfo();
         loadMemberList();
-    }, [])
+    }, []);
 
     return (
         <div className={s.content_wrap}>
@@ -150,6 +148,7 @@ const ProjectDetail = () => {
                                 },
                                 owner_user_id: projectInfo.owner_user_id,
                             }));
+                            await loadProjectInfo();
                             return true;
                         } catch (e) {
                             console.log(e);

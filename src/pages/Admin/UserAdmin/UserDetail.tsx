@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Descriptions, Table, Form, Modal, Input, message, Space } from 'antd';
+import { Descriptions, Table, Form, Modal, Input, message, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
@@ -19,7 +19,10 @@ import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, LinkOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import type { ProjectDetailState } from '../ProjectAdmin/ProjectDetail';
-import { ADMIN_PATH_PROJECT_DETAIL_SUFFIX } from '@/utils/constant';
+import { ADMIN_PATH_ORG_DETAIL_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX } from '@/utils/constant';
+import type { OrgInfo } from '@/api/org';
+import { list as list_org } from '@/api/org_admin';
+import type { OrgDetailState } from '../OrgAdmin/OrgDetail';
 
 
 export interface UserDetailState {
@@ -41,6 +44,7 @@ const UserDetail = () => {
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [projectList, setProjectList] = useState<ProjectInfo[]>([]);
+    const [orgList, setOrgList] = useState<OrgInfo[]>([]);
     const [showResetModal, setShowResetModal] = useState(false);
 
     const loadUserInfo = async () => {
@@ -68,6 +72,20 @@ const UserDetail = () => {
             limit: 99,
         }));
         setProjectList(res.project_info_list);
+    };
+
+    const loadOrgList = async () => {
+        const sessionId = await get_admin_session();
+        const res = await request(list_org({
+            admin_session_id: sessionId,
+            filter_by_user_id: true,
+            user_id: state.userId,
+            filter_by_keyword: false,
+            keyword: "",
+            offset: 0,
+            limit: 99,
+        }));
+        setOrgList(res.org_list);
     };
 
     const prjColumns: ColumnsType<ProjectInfo> = [
@@ -98,6 +116,52 @@ const UserDetail = () => {
         },
     ];
 
+    const orgColumns: ColumnsType<OrgInfo> = [
+        {
+            title: "团队名称",
+            width: 150,
+            render: (_, row: OrgInfo) => (
+                <Button type="link" disabled={!(permInfo?.org_perm.read ?? false)}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const orgState:OrgDetailState = {
+                            orgId:row.org_id,
+                        }
+                        history.push(ADMIN_PATH_ORG_DETAIL_SUFFIX, orgState);
+                    }}>
+                    {row.basic_info.org_name}&nbsp;&nbsp;<LinkOutlined />
+                </Button>
+            )
+        },
+        {
+            title: "管理员",
+            width: 100,
+            dataIndex: "owner_display_name",
+        },
+        {
+            title: "部门数量",
+            width: 100,
+            dataIndex: "depart_ment_count",
+        },
+        {
+            title: "成员数量",
+            width: 100,
+            dataIndex: "member_count",
+        },
+        {
+            title: "功能",
+            width: 200,
+            render: (_, row: OrgInfo) => (
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                    {row.setting.enable_day_report && <Tag>日报</Tag>}
+                    {row.setting.enble_week_report && <Tag>周报</Tag>}
+                    {row.setting.enable_okr && <Tag>个人目标</Tag>}
+                </div>
+            )
+        }
+    ];
+
     const resetPassword = async () => {
         const values = resetForm.getFieldsValue() as ResetPasswordValues;
         const password = (values.password ?? "").trim();
@@ -126,6 +190,7 @@ const UserDetail = () => {
     useEffect(() => {
         loadUserInfo();
         loadProjectList();
+        loadOrgList();
     }, [state.userId]);
 
     return (
@@ -210,6 +275,9 @@ const UserDetail = () => {
                     <Descriptions.Item label="更新时间">{userInfo != null && moment(userInfo.update_time).format("YYYY-MM-DD HH:mm:ss")}</Descriptions.Item>
                     <Descriptions.Item label="所在项目" span={3}>
                         <Table rowKey="project_id" columns={prjColumns} dataSource={projectList} pagination={false} />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="所在团队" span={3}>
+                        <Table rowKey="org_id" columns={orgColumns} dataSource={orgList} pagination={false} />
                     </Descriptions.Item>
                 </Descriptions>
             )}
