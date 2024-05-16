@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Card, Descriptions, Modal, Space, Table } from 'antd';
+import { Descriptions, Space, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
@@ -10,16 +10,15 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { get as get_project, update as update_project } from '@/api/project_admin';
 import type { ProjectInfo } from '@/api/project';
 import { request } from '@/utils/request';
-import { list as list_member, remove as remove_member, add as add_member } from '@/api/project_member_admin';
+import { list as list_member } from '@/api/project_member_admin';
 import type { MemberInfo } from '@/api/project_member';
 import type { ColumnsType } from 'antd/es/table';
 import Button from '@/components/Button';
 import type { UserDetailState } from "../UserAdmin/UserDetail";
 import { ADMIN_PATH_USER_DETAIL_SUFFIX } from '@/utils/constant';
-import { LeftOutlined, LinkOutlined, PlusOutlined } from '@ant-design/icons';
+import { LeftOutlined, LinkOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { EditText } from '@/components/EditCell/EditText';
-import SelectUserModal from '../components/SelectUserModal';
 import { useLocalObservable, observer } from 'mobx-react';
 import { runInAction } from 'mobx';
 import ProjectEvList from './components/ProjectEvList';
@@ -35,9 +34,6 @@ const ProjectDetail = () => {
 
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
     const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
-
-    const [showSelectUserModal, setShowSelectUserModal] = useState(false);
-    const [removeMemberInfo, setRemoveMemberInfo] = useState<MemberInfo | null>(null);
 
     const localStore = useLocalObservable(() => ({
         memberInfoList: [] as MemberInfo[],
@@ -68,40 +64,6 @@ const ProjectDetail = () => {
         localStore.setMemberInfoList(res.member_info_list);
     };
 
-    const removeMember = async (memberUserId: string) => {
-        const sessionId = await get_admin_session();
-        await request(remove_member({
-            admin_session_id: sessionId,
-            project_id: state.projectId,
-            user_id: memberUserId,
-        }));
-        await loadMemberList();
-        setRemoveMemberInfo(null);
-    };
-
-    const addMember = async (userIdList: string[]) => {
-        if (projectInfo == null) {
-            return;
-        }
-        const sessionId = await get_admin_session();
-        for (const userId of userIdList) {
-            if (localStore.memberInfoList.map(item => item.member_user_id).includes(userId)) {
-                continue;
-            }
-            try {
-                await request(add_member({
-                    admin_session_id: sessionId,
-                    project_id: state.projectId,
-                    user_id: userId,
-                    role_id: projectInfo.default_role_id,
-                }));
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        await loadMemberList();
-        setShowSelectUserModal(false);
-    }
     const memberColumns: ColumnsType<MemberInfo> = [
         {
             title: "成员昵称",
@@ -143,19 +105,6 @@ const ProjectDetail = () => {
             width: 150,
             render: (_, row: MemberInfo) => (
                 moment(row.update_time).format("YYYY-MM-DD HH:mm:ss")
-            ),
-        },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: MemberInfo) => (
-                <Button type="link" danger style={{ minWidth: 0, paddingLeft: 0 }}
-                    disabled={!((permInfo?.project_member_perm.remove ?? false) && row.is_project_owner == false)}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveMemberInfo(row);
-                    }}>移除成员</Button>
             ),
         }
     ];
@@ -211,17 +160,7 @@ const ProjectDetail = () => {
                 <Descriptions.Item label="项目状态">{projectInfo != null && (projectInfo.closed ? "关闭" : "打开")}</Descriptions.Item>
                 <Descriptions.Item label="超级管理员">{projectInfo?.owner_display_name ?? ""}</Descriptions.Item>
                 <Descriptions.Item label="项目成员" span={3}>
-                    <Card extra={
-                        <Button disabled={!((permInfo?.project_member_perm.add ?? false) && (projectInfo?.closed ?? true) == false)}
-                            onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setShowSelectUserModal(true);
-                            }}>
-                            <PlusOutlined />&nbsp;&nbsp;添加成员</Button>
-                    }>
-                        <Table rowKey="member_user_id" columns={memberColumns} dataSource={localStore.memberInfoList} pagination={false} />
-                    </Card>
+                    <Table rowKey="member_user_id" columns={memberColumns} dataSource={localStore.memberInfoList} pagination={false} />
                 </Descriptions.Item>
                 {permInfo?.project_perm.access_event == true && (
                     <Descriptions.Item label="项目事件" span={3}>
@@ -229,31 +168,6 @@ const ProjectDetail = () => {
                     </Descriptions.Item>
                 )}
             </Descriptions>
-            {showSelectUserModal == true && (
-                <SelectUserModal title='添加成员' showUser={permInfo?.user_perm.read ?? false}
-                    selectUserIdList={localStore.memberInfoList.map(item => item.member_user_id)}
-                    onCancel={() => setShowSelectUserModal(false)}
-                    onOk={(userIdList) => {
-                        addMember(userIdList);
-                    }} />
-            )}
-            {removeMemberInfo != null && (
-                <Modal open title="移除成员"
-                    okText="移除成员"
-                    okButtonProps={{ danger: true }}
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveMemberInfo(null);
-                    }}
-                    onOk={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        removeMember(removeMemberInfo.member_user_id);
-                    }}>
-                    是否移除成员&nbsp;{removeMemberInfo.display_name}&nbsp;?
-                </Modal>
-            )}
         </div>
     );
 };

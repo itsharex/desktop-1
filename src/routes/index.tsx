@@ -14,7 +14,6 @@ import Workbench from '@/pages/Workbench';
 import {
   ADMIN_PATH,
   ADMIN_PATH_CLIENT_MENU_SUFFIX,
-  ADMIN_PATH_PROJECT_CREATE_SUFFIX,
   ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
   ADMIN_PATH_PROJECT_LIST_SUFFIX,
   ADMIN_PATH_USER_CREATE_SUFFIX,
@@ -59,7 +58,6 @@ import UserDetail from '@/pages/Admin/UserAdmin/UserDetail';
 import CreateUser from '@/pages/Admin/UserAdmin/CreateUser';
 import ProjectList from '@/pages/Admin/ProjectAdmin/ProjectList';
 import ProjectDetail from '@/pages/Admin/ProjectAdmin/ProjectDetail';
-import CreateProject from '@/pages/Admin/ProjectAdmin/CrateProject';
 import MenuAdmin from '@/pages/Admin/ClientAdmin/MenuAdmin';
 import RequirementList from '@/pages/Project/Requirement/RequirementList';
 import AppCateList from '@/pages/Admin/AppAdmin/AppCateList';
@@ -323,12 +321,6 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
         title: "项目详情",
         component: ProjectDetail,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_PROJECT_CREATE_SUFFIX,
-        title: "创建项目",
-        component: CreateProject,
         exact: true,
       },
       {

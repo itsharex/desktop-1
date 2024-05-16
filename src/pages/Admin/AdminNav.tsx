@@ -18,7 +18,7 @@ import {
     ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
-    ADMIN_PATH_PROJECT_CREATE_SUFFIX, ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
     ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
@@ -57,8 +57,6 @@ const AdminNav = () => {
         setProjectSelectedKeys([]);
         if (location.pathname == ADMIN_PATH_PROJECT_LIST_SUFFIX || location.pathname == ADMIN_PATH_PROJECT_DETAIL_SUFFIX) {
             setProjectSelectedKeys(["prj_list"]);
-        } else if (location.pathname == ADMIN_PATH_PROJECT_CREATE_SUFFIX) {
-            setProjectSelectedKeys(["prj_create"]);
         }
     }, [location.pathname]);
 
@@ -103,7 +101,7 @@ const AdminNav = () => {
             setSkillcenterSelectedKeys(["skillcenter_cate"]);
         } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_resource"]);
-        }else if(location.pathname == ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX) {
+        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_question"]);
         } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX) {
             setSkillcenterSelectedKeys(["skillcenter_point"]);
@@ -189,11 +187,6 @@ const AdminNav = () => {
                             label: "查看项目",
                             key: "prj_list",
                             disabled: !(permInfo?.project_perm.read ?? false),
-                        },
-                        {
-                            label: "新增项目",
-                            key: "prj_create",
-                            disabled: !(permInfo?.project_perm ?? false),
                         }
                     ]}
                         style={{ borderRightWidth: "0px" }}
@@ -201,8 +194,6 @@ const AdminNav = () => {
                             if (e.selectedKeys.length == 1) {
                                 if (e.selectedKeys[0] == "prj_list") {
                                     history.push(ADMIN_PATH_PROJECT_LIST_SUFFIX);
-                                } else if (e.selectedKeys[0] == "prj_create") {
-                                    history.push(ADMIN_PATH_PROJECT_CREATE_SUFFIX);
                                 }
                             }
                         }}
@@ -346,7 +337,7 @@ const AdminNav = () => {
                                     history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
                                 } else if (e.selectedKeys[0] == "skillcenter_resource") {
                                     history.push(ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX);
-                                }else if (e.selectedKeys[0] == "skillcenter_question"){
+                                } else if (e.selectedKeys[0] == "skillcenter_question") {
                                     history.push(ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX);
                                 } else if (e.selectedKeys[0] == "skillcenter_point") {
                                     history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);

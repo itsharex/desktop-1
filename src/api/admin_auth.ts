@@ -21,15 +21,12 @@ export type UserPerm = {
 
 export type ProjectPerm = {
     read: boolean;
-    create: boolean;
     update: boolean;
     access_event: boolean;
 };
 
 export type ProjectMemberPerm = {
     read: boolean;
-    add: boolean;
-    remove: boolean;
 };
 
 export type MenuPerm = {
@@ -125,6 +122,15 @@ export type SkillCenterPerm = {
     remove_question: boolean;
 };
 
+export type OrgPerm = {
+    read: boolean;
+    update: boolean;
+};
+
+export type OrgMemberPerm = {
+    read: boolean;
+}
+
 export type AdminPermInfo = {
     user_perm: UserPerm;
     project_perm: ProjectPerm;
@@ -137,6 +143,8 @@ export type AdminPermInfo = {
     widget_store_perm: WidgetStorePerm;
     sw_store_perm: SwStorePerm;
     skill_center_perm: SkillCenterPerm;
+    org_perm: OrgPerm;
+    org_member_perm: OrgMemberPerm;
     global_server: boolean;
 };
 

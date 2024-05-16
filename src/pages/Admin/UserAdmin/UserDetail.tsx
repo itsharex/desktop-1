@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { Card, Descriptions, Table, Form, Modal, Input, message, Space } from 'antd';
+import { Descriptions, Table, Form, Modal, Input, message, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { get_admin_session, get_admin_perm } from '@/api/admin_auth';
 import type { AdminPermInfo } from '@/api/admin_auth';
@@ -16,12 +16,11 @@ import moment from 'moment';
 import { list as list_project } from '@/api/project_admin';
 import type { ProjectInfo } from '@/api/project';
 import type { ColumnsType } from 'antd/es/table';
-import { LeftOutlined, LinkOutlined, PlusOutlined } from '@ant-design/icons';
+import { LeftOutlined, LinkOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
-import { remove as remove_member, add as add_member } from '@/api/project_member_admin';
 import type { ProjectDetailState } from '../ProjectAdmin/ProjectDetail';
 import { ADMIN_PATH_PROJECT_DETAIL_SUFFIX } from '@/utils/constant';
-import SelectProjectModal from '../components/SelectProjectModal';
+
 
 export interface UserDetailState {
     userId: string;
@@ -43,8 +42,6 @@ const UserDetail = () => {
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [projectList, setProjectList] = useState<ProjectInfo[]>([]);
     const [showResetModal, setShowResetModal] = useState(false);
-    const [showSelectPrjModal, setShowSelectPrjModal] = useState(false);
-    const [removeProjectInfo, setRemoveProjectInfo] = useState<ProjectInfo | null>(null);
 
     const loadUserInfo = async () => {
         const sessionId = await get_admin_session();
@@ -73,17 +70,6 @@ const UserDetail = () => {
         setProjectList(res.project_info_list);
     };
 
-    const removeMember = async (projectId: string) => {
-        const sessionId = await get_admin_session();
-        await request(remove_member({
-            admin_session_id: sessionId,
-            project_id: projectId,
-            user_id: state.userId,
-        }));
-        loadProjectList();
-        setRemoveProjectInfo(null);
-    };
-
     const prjColumns: ColumnsType<ProjectInfo> = [
         {
             title: "项目名称",
@@ -110,19 +96,6 @@ const UserDetail = () => {
             width: 100,
             dataIndex: "owner_display_name",
         },
-        {
-            title: "操作",
-            width: 100,
-            render: (_, row: ProjectInfo) => (
-                <Button type="link" danger style={{ minWidth: 0, paddingLeft: 0 }}
-                    disabled={!((permInfo?.project_member_perm.remove ?? false) && row.owner_user_id != state.userId)}
-                    onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveProjectInfo(row);
-                    }}>退出项目</Button>
-            ),
-        }
     ];
 
     const resetPassword = async () => {
@@ -144,27 +117,6 @@ const UserDetail = () => {
         }));
         setShowResetModal(false);
         message.info("重设密码成功");
-    };
-
-    const joinProject = async (projectIdList: string[]) => {
-        const sessionId = await get_admin_session();
-        for (const projectId of projectIdList) {
-            if (projectList.map(item => item.project_id).includes(projectId)) {
-                continue;
-            }
-            try {
-                await request(add_member({
-                    admin_session_id: sessionId,
-                    project_id: projectId,
-                    user_id: state.userId,
-                    role_id: "",
-                }));
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        await loadProjectList();
-        setShowSelectPrjModal(false);
     };
 
     useEffect(() => {
@@ -257,17 +209,7 @@ const UserDetail = () => {
                     <Descriptions.Item label="创建时间">{userInfo != null && moment(userInfo.create_time).format("YYYY-MM-DD HH:mm:ss")}</Descriptions.Item>
                     <Descriptions.Item label="更新时间">{userInfo != null && moment(userInfo.update_time).format("YYYY-MM-DD HH:mm:ss")}</Descriptions.Item>
                     <Descriptions.Item label="所在项目" span={3}>
-                        <Card extra={
-                            <Button disabled={!(permInfo.project_member_perm.add)}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowSelectPrjModal(true);
-                                }}>
-                                <PlusOutlined />&nbsp;&nbsp;加入项目
-                            </Button>}>
-                            <Table rowKey="project_id" columns={prjColumns} dataSource={projectList} pagination={false} />
-                        </Card>
+                        <Table rowKey="project_id" columns={prjColumns} dataSource={projectList} pagination={false} />
                     </Descriptions.Item>
                 </Descriptions>
             )}
@@ -290,31 +232,6 @@ const UserDetail = () => {
                             <Input.Password />
                         </Form.Item>
                     </Form>
-                </Modal>
-            )}
-            {showSelectPrjModal == true && (
-                <SelectProjectModal title="加入项目"
-                    projectIdList={projectList.map(item => item.project_id)}
-                    onCancel={() => setShowSelectPrjModal(false)}
-                    onOk={(projectIdList) => {
-                        joinProject(projectIdList);
-                    }} />
-            )}
-            {removeProjectInfo != null && (
-                <Modal open title="退出项目"
-                    okText="退出项目"
-                    okButtonProps={{ danger: true }}
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveProjectInfo(null);
-                    }}
-                    onOk={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        removeMember(removeProjectInfo.project_id);
-                    }}>
-                    是否退出项目&nbsp;{removeProjectInfo.basic_info.project_name}&nbsp;?
                 </Modal>
             )}
         </div>
