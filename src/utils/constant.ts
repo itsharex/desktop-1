@@ -31,7 +31,9 @@ export const ADMIN_PATH_USER_CREATE_SUFFIX = '/admin/user/create';
 
 export const ADMIN_PATH_PROJECT_LIST_SUFFIX = '/admin/project/list';
 export const ADMIN_PATH_PROJECT_DETAIL_SUFFIX = '/admin/project/detail';
-export const ADMIN_PATH_PROJECT_CREATE_SUFFIX = '/admin/project/create';
+
+export const ADMIN_PATH_ORG_LIST_SUFFIX = '/admin/org/list';
+export const ADMIN_PATH_ORG_DETAIL_SUFFIX = '/admin/org/detail';
 
 export const ADMIN_PATH_APPSTORE_CATE_SUFFIX = '/admin/appstore/cate';
 export const ADMIN_PATH_APPSTORE_APP_SUFFIX = '/admin/appstore/app';
@@ -53,6 +55,8 @@ export const ADMIN_PATH_SOFTWARE_SUFFIX = '/admin/swstore/software';
 
 
 export const ADMIN_PATH_CLIENT_MENU_SUFFIX = '/admin/client/menu';
+export const ADMIN_PATH_SECURITY_KEYWORD_SUFFIX = '/admin/security/keyword';
+
 
 export const ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX = '/admin/dockertemplate/cate';
 export const ADMIN_PATH_DOCKER_TEMPLATE_APP_SUFFIX = '/admin/dockertemplate/app';

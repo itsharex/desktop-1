@@ -14,7 +14,6 @@ import Workbench from '@/pages/Workbench';
 import {
   ADMIN_PATH,
   ADMIN_PATH_CLIENT_MENU_SUFFIX,
-  ADMIN_PATH_PROJECT_CREATE_SUFFIX,
   ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
   ADMIN_PATH_PROJECT_LIST_SUFFIX,
   ADMIN_PATH_USER_CREATE_SUFFIX,
@@ -49,6 +48,9 @@ import {
   ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
   APP_EXTERN_PAGE_PATH,
   ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
+  ADMIN_PATH_ORG_LIST_SUFFIX,
+  ADMIN_PATH_ORG_DETAIL_SUFFIX,
+  ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -59,7 +61,6 @@ import UserDetail from '@/pages/Admin/UserAdmin/UserDetail';
 import CreateUser from '@/pages/Admin/UserAdmin/CreateUser';
 import ProjectList from '@/pages/Admin/ProjectAdmin/ProjectList';
 import ProjectDetail from '@/pages/Admin/ProjectAdmin/ProjectDetail';
-import CreateProject from '@/pages/Admin/ProjectAdmin/CrateProject';
 import MenuAdmin from '@/pages/Admin/ClientAdmin/MenuAdmin';
 import RequirementList from '@/pages/Project/Requirement/RequirementList';
 import AppCateList from '@/pages/Admin/AppAdmin/AppCateList';
@@ -92,6 +93,9 @@ import SkillCenter from "@/pages/SkillCenter/SkillCenter";
 import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 import ExternPage from '@/pages/ExternPage';
 import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList';
+import OrgList from '@/pages/Admin/OrgAdmin/OrgList';
+import AdminOrgDetail from "@/pages/Admin/OrgAdmin/OrgDetail";
+import KeywordList from '@/pages/Admin/SecurityAdmin/KeywordList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -326,15 +330,27 @@ const routesConfig: IRouteConfig[] = [
         exact: true,
       },
       {
-        path: ADMIN_PATH_PROJECT_CREATE_SUFFIX,
-        title: "创建项目",
-        component: CreateProject,
+        path: ADMIN_PATH_ORG_LIST_SUFFIX,
+        title: "团队列表",
+        component: OrgList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_ORG_DETAIL_SUFFIX,
+        title: "团队详情",
+        component: AdminOrgDetail,
         exact: true,
       },
       {
         path: ADMIN_PATH_CLIENT_MENU_SUFFIX,
         title: "额外菜单管理",
         component: MenuAdmin,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
+        title: "关键词管理",
+        component: KeywordList,
         exact: true,
       },
       {

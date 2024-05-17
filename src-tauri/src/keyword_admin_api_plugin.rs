@@ -2,12 +2,41 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 use crate::notice_decode::new_wrong_session_notice;
-use proto_gen_rust::project_api::project_admin_api_client::ProjectAdminApiClient;
-use proto_gen_rust::project_api::*;
+use proto_gen_rust::keyword_api::keyword_admin_api_client::KeywordAdminApiClient;
+use proto_gen_rust::keyword_api::*;
+
 use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
 };
+
+#[tauri::command]
+async fn add<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AdminAddRequest,
+) -> Result<AdminAddResponse, String> {
+    let chan = crate::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = KeywordAdminApiClient::new(chan.unwrap());
+    match client.add(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == admin_add_response::Code::WrongSession as i32
+                || inner_resp.code == admin_add_response::Code::NotAuth as i32
+            {
+                crate::admin_auth_api_plugin::logout(app_handle).await;
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("add".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
 
 #[tauri::command]
 async fn list<R: Runtime>(
@@ -19,7 +48,7 @@ async fn list<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
+    let mut client = KeywordAdminApiClient::new(chan.unwrap());
     match client.list(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -38,24 +67,24 @@ async fn list<R: Runtime>(
 }
 
 #[tauri::command]
-async fn get<R: Runtime>(
+async fn remove<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    request: AdminGetRequest,
-) -> Result<AdminGetResponse, String> {
+    request: AdminRemoveRequest,
+) -> Result<AdminRemoveResponse, String> {
     let chan = crate::get_grpc_chan(&app_handle).await;
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
-    match client.get(request).await {
+    let mut client = KeywordAdminApiClient::new(chan.unwrap());
+    match client.remove(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
-            if inner_resp.code == admin_get_response::Code::WrongSession as i32
-                || inner_resp.code == admin_get_response::Code::NotAuth as i32
+            if inner_resp.code == admin_remove_response::Code::WrongSession as i32
+                || inner_resp.code == admin_remove_response::Code::NotAuth as i32
             {
                 crate::admin_auth_api_plugin::logout(app_handle).await;
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("get".into())) {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("remove".into())) {
                     println!("{:?}", err);
                 }
             }
@@ -66,24 +95,24 @@ async fn get<R: Runtime>(
 }
 
 #[tauri::command]
-async fn update<R: Runtime>(
+async fn test<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    request: AdminUpdateRequest,
-) -> Result<AdminUpdateResponse, String> {
+    request: AdminTestRequest,
+) -> Result<AdminTestResponse, String> {
     let chan = crate::get_grpc_chan(&app_handle).await;
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
-    match client.update(request).await {
+    let mut client = KeywordAdminApiClient::new(chan.unwrap());
+    match client.test(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
-            if inner_resp.code == admin_update_response::Code::WrongSession as i32
-                || inner_resp.code == admin_update_response::Code::NotAuth as i32
+            if inner_resp.code == admin_test_response::Code::WrongSession as i32
+                || inner_resp.code == admin_test_response::Code::NotAuth as i32
             {
                 crate::admin_auth_api_plugin::logout(app_handle).await;
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("update".into())) {
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("test".into())) {
                     println!("{:?}", err);
                 }
             }
@@ -93,21 +122,21 @@ async fn update<R: Runtime>(
     }
 }
 
-pub struct ProjectAdminApiPlugin<R: Runtime> {
+pub struct KeywordAdminApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> ProjectAdminApiPlugin<R> {
+impl<R: Runtime> KeywordAdminApiPlugin<R> {
     pub fn new() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![list, get, update]),
+            invoke_handler: Box::new(tauri::generate_handler![add, remove, list, test,]),
         }
     }
 }
 
-impl<R: Runtime> Plugin<R> for ProjectAdminApiPlugin<R> {
+impl<R: Runtime> Plugin<R> for KeywordAdminApiPlugin<R> {
     fn name(&self) -> &'static str {
-        "project_admin_api"
+        "keyword_admin_api"
     }
     fn initialization_script(&self) -> Option<String> {
         None

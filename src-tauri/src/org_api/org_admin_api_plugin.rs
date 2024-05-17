@@ -2,8 +2,9 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 use crate::notice_decode::new_wrong_session_notice;
-use proto_gen_rust::project_api::project_admin_api_client::ProjectAdminApiClient;
-use proto_gen_rust::project_api::*;
+use proto_gen_rust::org_api::org_admin_api_client::OrgAdminApiClient;
+use proto_gen_rust::org_api::*;
+
 use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
@@ -19,7 +20,7 @@ async fn list<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
+    let mut client = OrgAdminApiClient::new(chan.unwrap());
     match client.list(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -47,7 +48,7 @@ async fn get<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
+    let mut client = OrgAdminApiClient::new(chan.unwrap());
     match client.get(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -75,7 +76,7 @@ async fn update<R: Runtime>(
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = ProjectAdminApiClient::new(chan.unwrap());
+    let mut client = OrgAdminApiClient::new(chan.unwrap());
     match client.update(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
@@ -93,11 +94,11 @@ async fn update<R: Runtime>(
     }
 }
 
-pub struct ProjectAdminApiPlugin<R: Runtime> {
+pub struct OrgAdminApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> ProjectAdminApiPlugin<R> {
+impl<R: Runtime> OrgAdminApiPlugin<R> {
     pub fn new() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![list, get, update]),
@@ -105,9 +106,9 @@ impl<R: Runtime> ProjectAdminApiPlugin<R> {
     }
 }
 
-impl<R: Runtime> Plugin<R> for ProjectAdminApiPlugin<R> {
+impl<R: Runtime> Plugin<R> for OrgAdminApiPlugin<R> {
     fn name(&self) -> &'static str {
-        "project_admin_api"
+        "org_admin_api"
     }
     fn initialization_script(&self) -> Option<String> {
         None
