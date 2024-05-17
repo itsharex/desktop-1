@@ -46,7 +46,7 @@ const ProjectList = () => {
             filter_by_keyword: keyword.trim() != "",
             filter_by_remove: !includeRemove,
             remove: includeRemove,
-            keyword: keyword,
+            keyword: keyword.trim(),
             offset: PAGE_SIZE * curPage,
             limit: PAGE_SIZE,
         }));
