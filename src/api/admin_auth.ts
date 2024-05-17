@@ -131,6 +131,12 @@ export type OrgMemberPerm = {
     read: boolean;
 }
 
+export type KeywordPerm = {
+    read: boolean;
+    add: boolean;
+    remove: boolean;
+};
+
 export type AdminPermInfo = {
     user_perm: UserPerm;
     project_perm: ProjectPerm;
@@ -145,6 +151,7 @@ export type AdminPermInfo = {
     skill_center_perm: SkillCenterPerm;
     org_perm: OrgPerm;
     org_member_perm: OrgMemberPerm;
+    keyword_perm: KeywordPerm;
     global_server: boolean;
 };
 

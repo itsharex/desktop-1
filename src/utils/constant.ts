@@ -55,6 +55,8 @@ export const ADMIN_PATH_SOFTWARE_SUFFIX = '/admin/swstore/software';
 
 
 export const ADMIN_PATH_CLIENT_MENU_SUFFIX = '/admin/client/menu';
+export const ADMIN_PATH_SECURITY_KEYWORD_SUFFIX = '/admin/security/keyword';
+
 
 export const ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX = '/admin/dockertemplate/cate';
 export const ADMIN_PATH_DOCKER_TEMPLATE_APP_SUFFIX = '/admin/dockertemplate/app';

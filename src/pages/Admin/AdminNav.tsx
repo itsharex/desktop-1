@@ -21,7 +21,7 @@ import {
     ADMIN_PATH_ORG_DETAIL_SUFFIX,
     ADMIN_PATH_ORG_LIST_SUFFIX,
     ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SECURITY_KEYWORD_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -39,6 +39,7 @@ const AdminNav = () => {
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
     const [orgSelectedKeys, setOrgSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
+    const [securitySelectedKeys, setSecuritySelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
     const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
     const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
@@ -78,6 +79,13 @@ const AdminNav = () => {
             setClientCfgSelectedKeys(["menu_admin"]);
         }
     }, [location.pathname]);
+
+    useEffect(()=>{
+        setSecuritySelectedKeys([]);
+        if(location.pathname == ADMIN_PATH_SECURITY_KEYWORD_SUFFIX) {
+            setSecuritySelectedKeys(["security_keyword"]);
+        }
+    },[location.pathname]);
 
     useEffect(() => {
         setAppstoreSelectedKeys([]);
@@ -166,7 +174,7 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore", "skillcenter"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore", "skillcenter", "security"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -436,6 +444,24 @@ const AdminNav = () => {
                             }
                         }} />
                 </Collapse.Panel>
+                <Collapse.Panel header="安全管理" key="security">
+                    <Menu selectedKeys={securitySelectedKeys} items={[
+                        {
+                            label: "关键词管理",
+                            key: "security_keyword",
+                            disabled: !(permInfo?.keyword_perm.read ?? false),
+                        },
+                    ]}
+                        style={{ borderRightWidth: "0px" }}
+                        onSelect={e => {
+                            if (e.selectedKeys.length == 1) {
+                                if (e.selectedKeys[0] == "security_keyword") {
+                                    history.push(ADMIN_PATH_SECURITY_KEYWORD_SUFFIX);
+                                }
+                            }
+                        }} />
+                </Collapse.Panel>
+                
             </Collapse>
         </Layout.Sider>
     );
