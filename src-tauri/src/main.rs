@@ -362,6 +362,10 @@ fn main() {
                     git_widget_plugin::clear_by_close(app_handle.clone(), label.clone()).await;
                 });
             }
+            tauri::WindowEvent::Resized(_) =>{
+                //https://github.com/tauri-apps/tauri/issues/6322
+                std::thread::sleep(std::time::Duration::from_nanos(1));
+            }
             _ => {}
         })
         .on_system_tray_event(move |app, event| match event {
