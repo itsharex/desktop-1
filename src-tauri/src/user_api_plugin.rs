@@ -181,12 +181,6 @@ async fn login<R: Runtime>(
                 *user_secret.0.lock().await = Some(ret.user_secret.clone());
             }
 
-            let mq_client = (&app_handle).state::<CurNoticeClient>().inner();
-            if let Some(c) = mq_client.0.lock().await.clone() {
-                if let Err(err) = c.disconnect().await {
-                    println!("{:?}", err);
-                }
-            }
             let notice_key = ret.notice_key.clone();
             if let Ok(url) = Url::parse(ret.notice_url.clone().as_str()) {
                 tauri::async_runtime::spawn(async move {

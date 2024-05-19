@@ -61,8 +61,8 @@ tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc
   "window-all",
   "windows7-compat",
 ] }
-tokio = {version = "1.17.0", feature = ["time", "macros"] }
-tokio-stream = "0.1.6"
+tokio = {version = "1.37.0", feature = ["time", "macros"] }
+tokio-stream = "0.1.15"
 tonic = "0.6.2"
 url = "2.2.2"
 uuid = {version = "0.8", features = ["serde", "v4"] }
