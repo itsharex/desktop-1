@@ -225,7 +225,7 @@ const InfoCount = () => {
           </div>
         </div>
 
-        {userStore.sessionId != "" && (
+        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_project && (
           <div className={s.item}>
             <div>当前待办</div>
             <div>
@@ -234,7 +234,7 @@ const InfoCount = () => {
                   e.stopPropagation();
                   e.preventDefault();
                   setShowMyTodoModal(true);
-                }} disabled={!userStore.userInfo.featureInfo.enable_project}>
+                }} disabled={myTodoCount == 0}>
                 {myTodoCount}
               </Button>
             </div>
