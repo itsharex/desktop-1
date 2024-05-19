@@ -69,16 +69,13 @@ export default class ProjectStore {
     }
     runInAction(() => {
       this._curProjectId = val;
-
     });
     if (val !== '' && val != oldProjectId) {
       this.rootStore.entryStore.reset();
       this.rootStore.entryStore.curFolderId = "";
       this.rootStore.memberStore.showDetailMemberId = "";
-      await Promise.all([
-        this.rootStore.memberStore.loadMemberList(val),
-        this.rootStore.ideaStore.loadKeyword(val),
-      ]);
+      await this.rootStore.memberStore.loadMemberList(val);
+      await this.rootStore.ideaStore.loadKeyword(val);
       this.rootStore.ideaStore.searchKeywords = [];
       this.rootStore.ideaStore.curIdeaGroupId = "";
       this.rootStore.ideaStore.curIdeaId = "";
