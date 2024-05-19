@@ -229,66 +229,6 @@ async fn cancel_agree_app<R: Runtime>(
     }
 }
 
-#[tauri::command]
-async fn add_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: AddCommentRequest,
-) -> Result<AddCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = AppstoreApiClient::new(chan.unwrap());
-    match client.add_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn remove_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: RemoveCommentRequest,
-) -> Result<RemoveCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = AppstoreApiClient::new(chan.unwrap());
-    match client.remove_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn list_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: ListCommentRequest,
-) -> Result<ListCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = AppstoreApiClient::new(chan.unwrap());
-    match client.list_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
 pub struct AppstoreApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
@@ -308,9 +248,6 @@ impl<R: Runtime> AppstoreApiPlugin<R> {
                 get_cate_path,
                 agree_app,
                 cancel_agree_app,
-                add_comment,
-                remove_comment,
-                list_comment,
             ]),
         }
     }
