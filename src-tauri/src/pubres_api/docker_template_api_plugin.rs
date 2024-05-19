@@ -56,66 +56,6 @@ async fn list_app_with_template<R: Runtime>(
 }
 
 #[tauri::command]
-async fn add_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: AddCommentRequest,
-) -> Result<AddCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = DockerTemplateApiClient::new(chan.unwrap());
-    match client.add_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn remove_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: RemoveCommentRequest,
-) -> Result<RemoveCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = DockerTemplateApiClient::new(chan.unwrap());
-    match client.remove_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn list_comment<R: Runtime>(
-    app_handle: AppHandle<R>,
-    request: ListCommentRequest,
-) -> Result<ListCommentResponse, String> {
-    let serv_addr = get_global_server_addr(app_handle).await;
-    let chan = crate::conn_extern_server(serv_addr).await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap());
-    }
-    let mut client = DockerTemplateApiClient::new(chan.unwrap());
-    match client.list_comment(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn get_app_with_template<R: Runtime>(
     app_handle: AppHandle<R>,
     request: GetAppWithTemplateRequest,
@@ -319,9 +259,6 @@ impl<R: Runtime> DockerTemplateApiPlugin<R> {
                 list_cate,
                 list_app_with_template,
                 get_app_with_template,
-                add_comment,
-                remove_comment,
-                list_comment,
                 pack_template,
                 check_unpark,
                 unpack_template,

@@ -102,7 +102,6 @@ export default class PubResStore {
     private _dockerKeyword = "";
     private _dockerCateId = "";
     private _dockerCurPage = 0;
-    private _dockerAppId = "";
 
     get dockerKeyword(): string {
         return this._dockerKeyword;
@@ -131,16 +130,6 @@ export default class PubResStore {
     set dockerCurPage(val: number) {
         runInAction(() => {
             this._dockerCurPage = val;
-        });
-    }
-
-    get dockerAppId(): string {
-        return this._dockerAppId;
-    }
-
-    set dockerAppId(val: string) {
-        runInAction(() => {
-            this._dockerAppId = val;
         });
     }
 }

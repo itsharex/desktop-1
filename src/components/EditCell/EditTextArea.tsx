@@ -33,7 +33,8 @@ export const EditTextArea: React.FC<EditTextAreaProps> = (props) => {
             }
         }}>
             {!inEdit && (
-                <pre title={content} style={{ cursor: props.editable ? "pointer" : "default" }}><code>{content == "" ? "-" : content}</code>
+                <pre title={content} style={{ cursor: props.editable ? "pointer" : "default", whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                    <code>{content == "" ? "-" : content}</code>
                     {props.editable && props.showEditIcon &&
                         <a><EditOutlined /></a>
                     }

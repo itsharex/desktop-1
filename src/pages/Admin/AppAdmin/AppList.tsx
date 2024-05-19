@@ -25,7 +25,6 @@ import { remove_app } from "@/api/appstore_admin";
 import SelectAppCateModal from "./components/SelectAppCateModal";
 import UpdateAppPermModal from "./components/UpdateAppPermModal";
 import AsyncImage from "@/components/AsyncImage";
-import CommentListModal from "./components/CommentListModal";
 import { GLOBAL_APPSTORE_FS_ID } from "@/api/fs";
 
 const PAGE_SIZE = 10;
@@ -50,7 +49,6 @@ const AppList = () => {
     const [showUpdateAppOs, setShowUpdateAppOs] = useState<AppInfo | null>(null);
     const [showRemoveApp, setShowRemoveApp] = useState<AppInfo | null>(null);
     const [showUpdatePerm, setShowUpdatePerm] = useState<AppInfo | null>(null);
-    const [showCommentAppInfo, setShowCommentAppInfo] = useState<AppInfo | null>(null);
 
     const loadAppList = async () => {
         const res = await request(list_app({
@@ -201,14 +199,6 @@ const AppList = () => {
                             setShowUpdatePerm(row);
                         }}>更新权限</Button>
 
-                    <Button type="link" style={{ minWidth: "0px", paddingLeft: "20px" }}
-                        disabled={row.comment_count == 0}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setShowCommentAppInfo(row);
-                        }}>查看评论</Button>
-
                     <Button type="link" style={{ minWidth: "0px" }} danger
                         disabled={!(permInfo?.app_store_perm.remove_app ?? false)}
                         onClick={e => {
@@ -226,10 +216,6 @@ const AppList = () => {
         {
             title: "点赞次数",
             dataIndex: "agree_count",
-        },
-        {
-            title: "评论次数",
-            dataIndex: "comment_count",
         },
         {
             title: "创建时间",
@@ -364,9 +350,6 @@ const AppList = () => {
                         }
                         setShowUpdatePerm(null);
                     }} />
-            )}
-            {showCommentAppInfo != null && (
-                <CommentListModal appInfo={showCommentAppInfo} onClose={() => setShowCommentAppInfo(null)} />
             )}
         </Card>
     );
