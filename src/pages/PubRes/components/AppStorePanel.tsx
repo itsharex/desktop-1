@@ -15,7 +15,7 @@ import { useStores } from "@/hooks";
 import defaultIcon from '@/assets/allIcon/app-default-icon.png';
 import AsyncImage from "@/components/AsyncImage";
 import { ReadOnlyEditor } from "@/components/Editor";
-import { CommentOutlined, DownloadOutlined, HeartTwoTone, MoreOutlined } from "@ant-design/icons";
+import { DownloadOutlined, HeartTwoTone, MoreOutlined } from "@ant-design/icons";
 import { observer } from 'mobx-react';
 import StoreStatusModal from "@/components/MinApp/StoreStatusModal";
 import DebugMinAppModal from "@/components/MinApp/DebugMinAppModal";
@@ -240,8 +240,6 @@ const AppStorePanel = () => {
                             bodyStyle={{ display: "flex" }} extra={
                                 <Space style={{ fontSize: "18px" }} size="middle">
                                     <div><DownloadOutlined />&nbsp;{app.install_count}</div>
-                                    <div><CommentOutlined />&nbsp;{app.comment_count}</div>
-                                    <div style={{ width: "20px" }} />
                                     <div onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();

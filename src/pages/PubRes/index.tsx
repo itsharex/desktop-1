@@ -13,8 +13,7 @@ import DockerSvg from '@/assets/svg/docker.svg?react';
 import DockerTemplatePanel from './components/DockerTemplatePanel';
 import PubSearchPanel from './components/PubSearchPanel';
 import { observer } from 'mobx-react';
-import AppStoreDetail from './components/AppStoreDetail';
-import DockerTemplateDetail from './components/DockerTemplateDetail';
+import AppStoreDetailModal from './components/AppStoreDetailModal';
 import IdeaListPanel from './components/IdeaListPanel';
 import SoftWareListPanel from './components/SoftWareListPanel';
 
@@ -53,8 +52,8 @@ const PubRes = () => {
                 <Tabs.TabPane tab={<h2><AppstoreOutlined />&nbsp;应用市场</h2>} key="appStore">
                     {activeKey == "appStore" && (
                         <div className={s.content_wrap}>
-                            {pubResStore.showAppId == "" && <AppStorePanel />}
-                            {pubResStore.showAppId != "" && <AppStoreDetail />}
+                            <AppStorePanel />
+                            {pubResStore.showAppId != "" && <AppStoreDetailModal />}
                         </div>
                     )}
                 </Tabs.TabPane>
@@ -78,8 +77,7 @@ const PubRes = () => {
                 <Tabs.TabPane tab={<h2><span style={{ display: "inline-block", verticalAlign: "-3px" }}><DockerSvg style={{ width: "16px", height: "16px" }} /></span>&nbsp;Docker模板</h2>} key="dockerTemplate">
                     {activeKey == "dockerTemplate" && (
                         <div className={s.content_wrap}>
-                            {pubResStore.dockerAppId == "" && <DockerTemplatePanel />}
-                            {pubResStore.dockerAppId != "" && <DockerTemplateDetail />}
+                            <DockerTemplatePanel />
                         </div>
                     )}
                 </Tabs.TabPane>
@@ -92,11 +90,11 @@ const PubRes = () => {
                     )}
                 </Tabs.TabPane>
 
-                {appStore.clientCfg?.item_list.filter(item=>item.main_menu == false).map(item => (
+                {appStore.clientCfg?.item_list.filter(item => item.main_menu == false).map(item => (
                     <Tabs.TabPane tab={<h2><GlobalOutlined />&nbsp;{item.name}</h2>} key={item.menu_id}>
                         {activeKey == item.menu_id && (
                             <div className={s.content_wrap}>
-                                <iframe src={item.url} width="100%" height="100%" allow='*'/>
+                                <iframe src={item.url} width="100%" height="100%" allow='*' />
                             </div>
                         )}
                     </Tabs.TabPane>
