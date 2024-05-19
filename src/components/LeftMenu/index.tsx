@@ -123,6 +123,7 @@ const LeftMenu: React.FC = () => {
         )}
         {appStore.clientCfg?.item_list.filter(item => item.main_menu).map(item => (
           <div className={`${cls.workbench_menu} ${appStore.curExtraMenu?.menu_id == item.menu_id ? cls.active_menu : ""}`}
+            key={item.menu_id}
             style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
             onClick={e => {
               e.stopPropagation();

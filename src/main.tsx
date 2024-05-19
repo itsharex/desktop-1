@@ -28,14 +28,14 @@ const App = () => {
   }
   return (
     <Provider stores={stores}>
-      <ErrorBoundary>
+      <BrowserRouter>
         <ConfigProvider locale={zhCN}>
-          <BrowserRouter>
+          <ErrorBoundary>
             {renderRoutes(routes)}
-          </BrowserRouter>
+          </ErrorBoundary>
         </ConfigProvider>
-      </ErrorBoundary>
-    </Provider>
+      </BrowserRouter>
+    </Provider >
   );
 };
 
