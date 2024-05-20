@@ -63,23 +63,20 @@ const PullModal = observer((props: ModalProps) => {
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPull(true);
-        let hasPull = false;
         try {
             await fetch_remote(props.repoPath, curRemote?.name ?? "", authType, username, password, privKeyPath, info => {
-                if (info.totalObjs > 0) {
-                    setRecvRatio(info.recvObjs * 100 / info.totalObjs);
-                    setIndexRatio(info.indexObjs * 100 / info.totalObjs);
-                }
-                if (info.indexObjs >= info.totalObjs && hasPull == false) {
-                    hasPull = true;
+                if (info == null) {
                     setInPull(false);
-                    setTimeout(() => {
-                        setRecvRatio(0);
-                        setIndexRatio(0);
-                    }, 1000);
+                    setRecvRatio(0);
+                    setIndexRatio(0);
                     run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
                     message.info("拉取成功");
                     props.onClose();
+                } else {
+                    if (info.totalObjs > 0) {
+                        setRecvRatio(info.recvObjs * 100 / info.totalObjs);
+                        setIndexRatio(info.indexObjs * 100 / info.totalObjs);
+                    }
                 }
             });
         } catch (e) {

@@ -98,21 +98,20 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const cloneRepo = async () => {
         setCloneProgress(null);
         try {
-            if(authType == "privkey") {
+            if (authType == "privkey") {
                 await test_ssh(remoteUrl);
             }
             const homePath = await homeDir();
             const privKey = await resolve(homePath, ".ssh", curSshKey);
             await clone_repo(localPath, remoteUrl, authType, username, password, privKey, info => {
                 setCloneProgress(info);
-                if (info.totalObjs == info.indexObjs) {
+                if (info == null) {
                     add_repo(uniqId(), name.trim(), localPath.trim()).then(() => {
                         props.onOk();
                     }).catch(e => {
                         console.log(e);
                         message.error(`${e}`);
                     });
-                    setCloneProgress(null);
                 }
             });
         } catch (e) {
