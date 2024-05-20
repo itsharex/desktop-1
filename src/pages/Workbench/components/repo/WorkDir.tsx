@@ -248,10 +248,11 @@ const PushModal = observer((props: ModalProps) => {
                     }
                     if (current >= total && hasPush == false) {
                         hasPush = true;
-                        setInPush(false);
-                        setTimeout(() => setPushRatio(0), 1000);
-                        message.info("推送成功");
-                        props.onClose();
+                        setTimeout(() => {
+                            setInPush(false);
+                            message.info("推送成功");
+                            props.onClose();
+                        }, 500);
                     }
                 }
             );
