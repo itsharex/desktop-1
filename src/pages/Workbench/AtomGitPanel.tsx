@@ -34,7 +34,6 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
     const [activeKey, setActiveKey] = useState("issue");
 
     const findLocalRepo = async () => {
-        await localRepoStore.loadRepoList();
         setLocalRepo(null);
         if (props.repoInfo == undefined) {
             return;
@@ -156,8 +155,10 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
             {cloneUrl != "" && (
                 <AddRepoModal name={props.repoInfo?.name ?? ""} enName={getRepoId(props.repoInfo?.full_name ?? "")} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
                     onOk={() => {
-                        findLocalRepo();
-                        setCloneUrl("");
+                        localRepoStore.loadRepoList().then(() => {
+                            findLocalRepo();
+                            setCloneUrl("");
+                        });
                     }} />
             )}
             {showLaunchRepo == true && localRepo != null && (
