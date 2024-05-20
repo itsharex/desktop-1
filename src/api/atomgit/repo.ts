@@ -24,7 +24,6 @@ export async function list_user_repo(accessToken: string, username: string, per_
         },
     });
     if (res.ok && res.status == 200) {
-        console.log("xxxxxxxxxx",res.data);
         return res.data;
     } else {
         console.log(res);

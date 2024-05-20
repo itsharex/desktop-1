@@ -348,7 +348,7 @@ export async function create_tag(path: string, tag: string, commitId: string, ms
 }
 
 
-export async function clone(path: string, url: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo) => void): Promise<void> {
+export async function clone(path: string, url: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo | null) => void): Promise<void> {
     const args = ["--git-path", path, "clone", "--auth-type", authType];
     if (authType == "privkey") {
         args.push(...["--priv-key", privKey]);
@@ -367,11 +367,14 @@ export async function clone(path: string, url: string, authType: string, usernam
             });
         }
     });
+    command.on("close", () => {
+        callback(null);
+    });
     command.stderr.on("data", line => message.error(line));
     await command.spawn();
 }
 
-export async function fetch_remote(path: string, remoteName: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo) => void): Promise<void> {
+export async function fetch_remote(path: string, remoteName: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo | null) => void): Promise<void> {
     const args = ["--git-path", path, "fetch-remote", "--auth-type", authType];
     if (authType == "privkey") {
         args.push(...["--priv-key", privKey]);
@@ -389,6 +392,9 @@ export async function fetch_remote(path: string, remoteName: string, authType: s
                 indexObjs: parseInt(parts[2]),
             });
         }
+    });
+    command.on("close", () => {
+        callback(null);
     });
     command.stderr.on("data", line => message.error(line));
     await command.spawn();

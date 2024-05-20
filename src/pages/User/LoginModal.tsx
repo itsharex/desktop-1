@@ -46,6 +46,8 @@ const LoginModal = () => {
             url: `https://atomgit.com/login/oauth/authorize?client_id=${appStore.clientCfg?.atom_git_client_id ?? ""}&state=state_test`,
             title: "AtomGit授权登录",
             alwaysOnTop: true,
+            width: 1200,
+            height: 760,
         });
     }
 
