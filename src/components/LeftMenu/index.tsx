@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import cls from './index.module.less';
 const { Sider } = Layout;
 import ProjectList from './ProjectList';
-import { GlobalOutlined, RocketOutlined } from '@ant-design/icons';
+import { ExportOutlined, GlobalOutlined, LinkOutlined, RocketOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import { APP_EXTERN_PAGE_PATH, PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import OrgList from './OrgList';
@@ -138,7 +138,9 @@ const LeftMenu: React.FC = () => {
               }
             }}
           >
-            <GlobalOutlined />&nbsp;{item.name}
+            {item.open_in_browser && <ExportOutlined />}
+            {!item.open_in_browser && <LinkOutlined />}
+            &nbsp;{item.name}
           </div>
         ))}
       </div>
