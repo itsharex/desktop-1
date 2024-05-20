@@ -20,6 +20,7 @@ import GlobalServerModal from '@/components/GlobalSetting/GlobalServerModal';
 import StartMinApp from '@/components/MinApp/StartMinApp';
 import { HotkeysProvider } from 'react-hotkeys-hook';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { get_session } from '@/api/user';
 
 
 const { Content } = Layout;
@@ -43,6 +44,21 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
   useEffect(() => {
     userStore.isResetPassword = (type === 'resetPassword');
   });
+
+  useEffect(() => {
+    if (userStore.sessionId == "") {
+      return;
+    }
+    const t = setInterval(() => {
+      get_session().then(sessInRust => {
+        if (sessInRust == "") {
+          userStore.logout();
+        }
+      });
+    }, 2000);
+    
+    return () => clearInterval(t);
+  }, [userStore.sessionId]);
 
   return (
     <HotkeysProvider>
