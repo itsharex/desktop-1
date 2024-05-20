@@ -236,19 +236,23 @@ const PushModal = observer((props: ModalProps) => {
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPush(true);
+        setPushRatio(0);
         let hasPush = false;
         try {
             await run_push(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath,
                 (current: number, total: number, _bytes: number) => {
                     if (total > 0) {
                         setPushRatio(current * 100 / total);
+                    } else {
+                        setPushRatio(100);
                     }
                     if (current >= total && hasPush == false) {
                         hasPush = true;
-                        setInPush(false);
-                        setTimeout(() => setPushRatio(0), 1000);
-                        message.info("推送成功");
-                        props.onClose();
+                        setTimeout(() => {
+                            setInPush(false);
+                            message.info("推送成功");
+                            props.onClose();
+                        }, 500);
                     }
                 }
             );
@@ -357,7 +361,7 @@ const PushModal = observer((props: ModalProps) => {
                         </Select>
                     </Form.Item>
                 )}
-                {pushRatio != 0 && (
+                {inPush && (
                     <Form.Item label="推送进度">
                         <Progress percent={pushRatio} showInfo={false} />
                     </Form.Item>
@@ -390,13 +394,13 @@ const WorkDir = (props: WorkDirProps) => {
         loadFileEntryList();
     }, [curDirList]);
 
-    useEffect(()=>{
-        if(curDirList.length != 0){
+    useEffect(() => {
+        if (curDirList.length != 0) {
             setCurDirList([]);
-        }else{
+        } else {
             loadFileEntryList();
         }
-    },[props.headBranch]);
+    }, [props.headBranch]);
     return (
         <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
             headStyle={{ backgroundColor: "#eee" }}

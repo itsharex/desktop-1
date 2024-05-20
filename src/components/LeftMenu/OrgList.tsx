@@ -55,18 +55,18 @@ const OrgList = () => {
                                     if (appStore.inEdit) {
                                         appStore.showCheckLeave(() => {
                                             orgStore.setCurOrgId(item.org_id).then(() => {
+                                                projectStore.setCurProjectId("");
+                                                appStore.curExtraMenu = null;
                                                 history.push(APP_ORG_PATH);
                                             });
-                                            projectStore.setCurProjectId("");
-                                            appStore.curExtraMenu = null;
                                         });
                                         return;
                                     }
                                     orgStore.setCurOrgId(item.org_id).then(() => {
+                                        projectStore.setCurProjectId("");
+                                        appStore.curExtraMenu = null;
                                         history.push(APP_ORG_PATH);
                                     });
-                                    projectStore.setCurProjectId("");
-                                    appStore.curExtraMenu = null;
                                 }}>
                                     {item.basic_info.org_name}
                                 </span>
