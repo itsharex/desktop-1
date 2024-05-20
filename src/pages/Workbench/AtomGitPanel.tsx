@@ -8,13 +8,14 @@ import type { AtomGitRepo } from "@/api/atomgit/repo";
 import { list_user_repo, list_org_repo } from "@/api/atomgit/repo";
 import { DownOutlined, ExportOutlined, FilterFilled, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { list_repo as list_local_repo, list_remote as list_local_remote } from "@/api/local_repo";
+import { list_remote as list_local_remote } from "@/api/local_repo";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
 import { AtomGitBranchList, AtomGitIssueList, AtomGitTagList } from "./components/AtomGitList";
 import { type AtomGitOrg, list_user_org } from "@/api/atomgit/org";
 import { useHistory } from "react-router-dom";
 import { WORKBENCH_PATH } from "@/utils/constant";
+import { observer } from "mobx-react";
 
 
 interface AtomGitRepoPanelProps {
@@ -22,8 +23,10 @@ interface AtomGitRepoPanelProps {
     repoInfo?: AtomGitRepo;
 }
 
-const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
+const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
     const history = useHistory();
+
+    const localRepoStore = useStores("localRepoStore");
 
     const [localRepo, setLocalRepo] = useState<LocalRepoInfo | null>(null);
     const [cloneUrl, setCloneUrl] = useState("");
@@ -31,16 +34,16 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
     const [activeKey, setActiveKey] = useState("issue");
 
     const findLocalRepo = async () => {
+        await localRepoStore.loadRepoList();
         setLocalRepo(null);
         if (props.repoInfo == undefined) {
             return;
         }
-        const localRepoList = await list_local_repo();
-        for (const tmpRepo of localRepoList) {
-            const remoteList = await list_local_remote(tmpRepo.path);
+        for (const tmpRepo of localRepoStore.repoExtList) {
+            const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
             for (const remoteInfo of remoteList) {
                 if (remoteInfo.url == props.repoInfo.git_url || remoteInfo.url == props.repoInfo.html_url) {
-                    setLocalRepo(tmpRepo);
+                    setLocalRepo(tmpRepo.repoInfo);
                     return;
                 }
             }
@@ -162,9 +165,9 @@ const AtomGitRepoPanel = (props: AtomGitRepoPanelProps) => {
             )}
         </div>
     );
-};
+});
 
-const AtomGitPanel = () => {
+const AtomGitPanel = observer(() => {
     const userStore = useStores('userStore');
 
     const [repoList, setRepoList] = useState([] as AtomGitRepo[]);
@@ -244,6 +247,6 @@ const AtomGitPanel = () => {
             </Layout.Content>
         </Layout>
     )
-};
+});
 
 export default AtomGitPanel;
