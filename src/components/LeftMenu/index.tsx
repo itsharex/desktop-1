@@ -103,17 +103,17 @@ const LeftMenu: React.FC = () => {
               e.preventDefault();
               if (appStore.inEdit) {
                 appStore.showCheckLeave(() => {
-                  history.push(SKILL_CENTER_PATH);
                   projectStore.setCurProjectId("");
                   orgStore.setCurOrgId("");
                   appStore.curExtraMenu = null;
+                  history.push(SKILL_CENTER_PATH);
                 });
                 return;
               }
-              history.push(SKILL_CENTER_PATH);
               projectStore.setCurProjectId("");
               orgStore.setCurOrgId("");
               appStore.curExtraMenu = null;
+              history.push(SKILL_CENTER_PATH);
             }}>
             <RocketOutlined />&nbsp;技能中心
           </div>

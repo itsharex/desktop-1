@@ -51,7 +51,7 @@ const Workbench: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (userStore.sessionId == "" && tab == "atomGit") {
+    if (userStore.sessionId == "" && ["atomGit", "learnRecord"].includes(tab)) {
       history.push(`${WORKBENCH_PATH}?tab=localRepo`);
     }
   }, [userStore.sessionId]);
