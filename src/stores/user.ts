@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import { makeAutoObservable, runInAction } from 'mobx';
-import { type FeatureInfo, type USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, get_session, login, logout as user_logout } from '@/api/user';
+import { type FeatureInfo, type USER_TYPE, USER_TYPE_ATOM_GIT, USER_TYPE_INTERNAL, login, logout as user_logout } from '@/api/user';
 import { request } from '@/utils/request';
 import type { RootStore } from './index';
 import { showMyShortNote } from '@/utils/short_note';
@@ -83,11 +83,6 @@ class UserStore {
   }
 
   get sessionId() {
-    get_session().then(sessInRust => {
-      if (this._sessionId != "" && sessInRust == "") {
-        this.logout();
-      }
-    });
     return this._sessionId;
   }
 
@@ -149,10 +144,8 @@ class UserStore {
   async callLogin(username: string, password: string, userType: USER_TYPE) {
     const res = await request(login(username, password, userType));
 
-
     runInAction(() => {
       this._sessionId = res.session_id;
-      sessionStorage.setItem('sessionId', res.session_id);
       this.userInfo = {
         userId: res.user_info.user_id,
         userType: userType,
@@ -173,12 +166,14 @@ class UserStore {
           last_learn_time: 0,
         },
       };
-      this.rootStore.projectStore.initLoadProjectList();
-      this.rootStore.orgStore.initLoadOrgList();
     });
+    await this.rootStore.projectStore.initLoadProjectList();
+    await this.rootStore.orgStore.initLoadOrgList();
     await showMyShortNote(res.session_id);
     await this.updateNoticeStatus(res.session_id);
     await this.updateLearnState(res.session_id);
+
+    sessionStorage.setItem('sessionId', res.session_id);
     sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
 
     if (this._showUserLogin != null) {

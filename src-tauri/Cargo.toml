@@ -7,7 +7,7 @@ license = "GPL3.0"
 name = "linksaas"
 repository = ""
 rust-version = "1.57"
-version = "0.8.24"
+version = "0.8.25"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -19,8 +19,8 @@ async-trait = "0.1.26"
 async_zip = {version = "0.0.11", features = ["full"] }
 base64 = "0.13.0"
 dirs = "4.0.0"
-futures = "0.3"
-futures-util = "0.3.21"
+futures = "0.3.30"
+futures-util = "0.3.30"
 html-escape = "0.2.13"
 http = "0.2.8"
 hyper = {version = "0.14", features = ["full"] }
@@ -28,13 +28,13 @@ image = "0.24.1"
 libaes = "0.6.5"
 local_api_rust = {git = "https://atomgit.com/openlinksaas/local-api-rust.git", tag = "0.1.21"}
 mktemp = "0.5.0"
-prost = "0.9.0"
-proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.34"}
+prost = "0.12.6"
+proto_gen_rust = {git = "https://atomgit.com/openlinksaas/proto-gen-rust.git", tag = "1.0.35"}
 rand = "0.8.5"
 regex = "1.8.4"
 reqwest = {version = "0.11.12", features = ["blocking"] }
 rsa = "0.8.1"
-rumqttc = "0.11.0"
+rumqttc = "0.24.0"
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.19"
@@ -61,9 +61,9 @@ tauri = {git = "https://atomgit.com/openlinksaas/tauri.git", branch = "local_ipc
   "window-all",
   "windows7-compat",
 ] }
-tokio = {version = "1.17.0", feature = ["time", "macros"] }
-tokio-stream = "0.1.6"
-tonic = "0.6.2"
+tokio = {version = "1.37.0", feature = ["time", "macros"] }
+tokio-stream = "0.1.15"
+tonic = "0.11.0"
 url = "2.2.2"
 uuid = {version = "0.8", features = ["serde", "v4"] }
 walkdir = "2.3.2"

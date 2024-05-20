@@ -29,13 +29,13 @@ mod fs_api_plugin;
 mod git_widget_plugin;
 mod helper;
 mod image_utils;
+mod keyword_admin_api_plugin;
 mod local_api;
 mod notice_decode;
 mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
 mod user_notice_api_plugin;
-mod keyword_admin_api_plugin;
 
 mod my_updater;
 
@@ -361,6 +361,10 @@ fn main() {
                     dev_container_api_plugin::clear_by_close(label.clone()).await;
                     git_widget_plugin::clear_by_close(app_handle.clone(), label.clone()).await;
                 });
+            }
+            tauri::WindowEvent::Resized(_) =>{
+                //https://github.com/tauri-apps/tauri/issues/6322
+                std::thread::sleep(std::time::Duration::from_nanos(1));
             }
             _ => {}
         })
