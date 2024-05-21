@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import type { IdeaInStore } from "@/api/idea_store";
 import { useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
-import { Form, Input, Modal, Select } from "antd";
+import { Form, Input, Modal } from "antd";
 import { update_idea } from "@/api/idea_store_admin";
 import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
@@ -19,7 +19,6 @@ export interface UpdateIdeaModalProps {
 
 const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
     const [title, setTitle] = useState(props.idea.basic_info.title);
-    const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
 
     const { editor, editorRef } = useCommonEditor({
         content: props.idea.basic_info.content,
@@ -49,7 +48,6 @@ const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
             basic_info: {
                 title: title.trim(),
                 content: JSON.stringify(content),
-                keyword_list: keywordList,
             },
         }));
         props.onOk();
@@ -57,7 +55,7 @@ const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
 
     return (
         <Modal open title="更新知识点"
-            okText="更新" okButtonProps={{ disabled: (keywordList.length == 0 || title.trim() == "") }}
+            okText="更新" okButtonProps={{ disabled: title.trim() == "" }}
             width={800}
             onCancel={e => {
                 e.stopPropagation();
@@ -81,10 +79,6 @@ const UpdateIdeaModal = (props: UpdateIdeaModalProps) => {
                     <div className="_editChatContext">
                         {editor}
                     </div>
-                </Form.Item>
-                <Form.Item label="关键词">
-                    <Select mode="tags" value={keywordList} onChange={value => setKeywordList((value as string[]).map(item => item.toLowerCase()))}
-                        placement="topLeft" placeholder="请设置知识点相关的关键词" />
                 </Form.Item>
             </Form>
         </Modal>
