@@ -49,25 +49,26 @@ const OrgList = () => {
                     <div key={item.org_id} className={cls.project_child_menu}>
                         <div className={cls.project_child_wrap}>
                             <div className={`${cls.project_child_title} ${item.org_id == orgStore.curOrgId ? cls.active_menu : ""}`}>
-                                <span className={cls.name} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    if (appStore.inEdit) {
-                                        appStore.showCheckLeave(() => {
-                                            orgStore.setCurOrgId(item.org_id).then(() => {
-                                                projectStore.setCurProjectId("");
-                                                appStore.curExtraMenu = null;
-                                                history.push(APP_ORG_PATH);
+                                <span className={cls.name} title={item.basic_info.org_name}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        if (appStore.inEdit) {
+                                            appStore.showCheckLeave(() => {
+                                                orgStore.setCurOrgId(item.org_id).then(() => {
+                                                    projectStore.setCurProjectId("");
+                                                    appStore.curExtraMenu = null;
+                                                    history.push(APP_ORG_PATH);
+                                                });
                                             });
+                                            return;
+                                        }
+                                        orgStore.setCurOrgId(item.org_id).then(() => {
+                                            projectStore.setCurProjectId("");
+                                            appStore.curExtraMenu = null;
+                                            history.push(APP_ORG_PATH);
                                         });
-                                        return;
-                                    }
-                                    orgStore.setCurOrgId(item.org_id).then(() => {
-                                        projectStore.setCurProjectId("");
-                                        appStore.curExtraMenu = null;
-                                        history.push(APP_ORG_PATH);
-                                    });
-                                }}>
+                                    }}>
                                     {item.basic_info.org_name}
                                 </span>
                             </div>
