@@ -294,7 +294,7 @@ const ThreadContentList = (props: ThreadContentListProps) => {
                                 {item.user_display_name}
                                 <span>({moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")})</span>
                             </Space>
-                        } bordered={false} style={{ width: "100%" }} headStyle={{ backgroundColor: "#eee" }}
+                        } bordered={true} style={{ width: "100%" }} headStyle={{ backgroundColor: "#eee" }}
                             extra={
                                 <Popover trigger="click" placement="bottom" content={
                                     <Space direction="vertical">
