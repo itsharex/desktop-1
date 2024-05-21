@@ -6,19 +6,12 @@ import type { ItemType, MenuItemGroupType } from "antd/lib/menu/hooks/useItems";
 import type { IdeaInStore } from "@/api/idea_store";
 import { list_store_cate, list_store, list_idea } from "@/api/idea_store";
 import { request } from "@/utils/request";
-import { Button, Card, Form, Input, Layout, List, Menu, Modal, message } from "antd";
+import { Card, Form, Input, Layout, List, Menu } from "antd";
 import { ReadOnlyEditor } from "@/components/Editor";
-import { useStores } from "@/hooks";
-import { observer } from 'mobx-react';
-import { get_global_server_addr } from "@/api/client_cfg";
-import { import_store } from "@/api/project_idea";
 
 const PAGE_SIZE = 10;
 
 const IdeaListPanel = () => {
-    const userStore = useStores('userStore');
-    const projectStore = useStores('projectStore');
-
     const [menuList, setMenuList] = useState([] as ItemType[]);
     const [curCatId, setCurCateId] = useState("");
     const [curStoreId, setCurStoreId] = useState("");
@@ -28,7 +21,6 @@ const IdeaListPanel = () => {
     const [totalCount, setTotalCount] = useState(0);
     const [curPage, setCurPage] = useState(0);
 
-    const [showImportModal, setShowImportModal] = useState(false);
 
     const loadMenuList = async () => {
         const cateRes = await request(list_store_cate({}));
@@ -84,20 +76,6 @@ const IdeaListPanel = () => {
         setIdeaList(res.idea_list);
     };
 
-    const importToProject = async (projectId: string) => {
-        if (curStoreId == "") {
-            return;
-        }
-        const servAddr = await get_global_server_addr();
-        await request(import_store({
-            session_id: userStore.sessionId,
-            project_id: projectId,
-            idea_store_id: curStoreId,
-            global_server_addr: servAddr,
-        }));
-        message.info("导入成功");
-        setShowImportModal(false);
-    };
 
     useEffect(() => {
         loadMenuList();
@@ -148,14 +126,6 @@ const IdeaListPanel = () => {
                                     setTitleKeyword(e.target.value.trim());
                                 }} allowClear />
                             </Form.Item>
-                            <Form.Item>
-                                <Button type="primary" disabled={projectStore.projectList.filter(prj => prj.user_project_perm.can_admin).length == 0}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setShowImportModal(true);
-                                    }}>导入到项目</Button>
-                            </Form.Item>
                         </Form>
                     }>
                         <List rowKey="idea_id" dataSource={ideaList}
@@ -168,30 +138,8 @@ const IdeaListPanel = () => {
                     </Card>
                 </Layout.Content>
             </Layout>
-            {showImportModal == true && (
-                <Modal open title="导入到项目" style={{ maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}
-                    footer={null}
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowImportModal(false);
-                    }}>
-                    <List rowKey="project_id" dataSource={projectStore.projectList.filter(prj => prj.user_project_perm.can_admin)}
-                        renderItem={prj => (
-                            <List.Item extra={
-                                <Button type="primary" onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    importToProject(prj.project_id);
-                                }}>导入到项目</Button>
-                            }>
-                                {prj.basic_info.project_name}
-                            </List.Item>
-                        )} />
-                </Modal>
-            )}
         </>
     );
 };
 
-export default observer(IdeaListPanel);
+export default IdeaListPanel;

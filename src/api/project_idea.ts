@@ -308,18 +308,6 @@ export type ListAppraiseResponse = {
     appraise_list: Appraise[];
 }
 
-export type ImportStoreRequest = {
-    session_id: string;
-    project_id: string;
-    idea_store_id: string;
-    global_server_addr: string;
-};
-
-export type ImportStoreResponse = {
-    code: number;
-    err_msg: string;
-};
-
 //创建点子分组
 export async function create_group(request: CreateGroupRequest): Promise<CreateGroupResponse> {
     const cmd = 'plugin:project_idea_api|create_group';
@@ -478,16 +466,6 @@ export async function list_appraise(request: ListAppraiseRequest): Promise<ListA
     const cmd = 'plugin:project_idea_api|list_appraise';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<ListAppraiseResponse>(cmd, {
-        request,
-    });
-}
-
-
-//导入点子库
-export async function import_store(request: ImportStoreRequest): Promise<ImportStoreResponse> {
-    const cmd = 'plugin:project_idea_api|import_store';
-    console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<ImportStoreResponse>(cmd, {
         request,
     });
 }
