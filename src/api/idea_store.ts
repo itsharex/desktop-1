@@ -6,7 +6,6 @@ import { invoke } from '@tauri-apps/api/tauri';
 export type BasicIdea = {
     title: string;
     content: string;
-    keyword_list: string[];
 };
 
 export type IdeaStoreCate = {

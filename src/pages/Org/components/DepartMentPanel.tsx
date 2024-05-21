@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { DepartMentInfo, DepartMentOrMember } from "@/api/org";
-import { create_depart_ment, remove_depart_ment, update_depart_ment, move_depart_ment } from "@/api/org";
+import { create_depart_ment, remove_depart_ment, update_depart_ment, move_depart_ment, change_org_owner } from "@/api/org";
 import { Button, Card, Divider, Form, Input, List, message, Modal, Popover, Space, Table, Tree } from "antd";
 import { useStores } from "@/hooks";
 import type { ColumnsType } from 'antd/lib/table';
@@ -159,6 +159,7 @@ const DepartMentPanel = (props: DepartMentPanelProps) => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [removeDepartMentInfo, setRemoveDepartMentInfo] = useState<DepartMentInfo | null>(null);
     const [removeMemberInfo, setRemoveMemberInfo] = useState<MemberInfo | null>(null);
+    const [newOwnerInfo, setNewOwnerInfo] = useState<MemberInfo | null>(null);
     const [moveDepartMentInfo, setMoveDepartMentInfo] = useState<DepartMentInfo | null>(null);
     const [moveMemberInfo, setMoveMemberInfo] = useState<MemberInfo | null>(null);
 
@@ -255,6 +256,20 @@ const DepartMentPanel = (props: DepartMentPanelProps) => {
         setMoveMemberInfo(null);
         message.info("移动成功");
     }
+
+    const changeOrgOwner = async () => {
+        if (newOwnerInfo == null) {
+            return;
+        }
+        await request(change_org_owner({
+            session_id: userStore.sessionId,
+            org_id: orgStore.curOrgId,
+            target_member_user_id: newOwnerInfo.member_user_id,
+        }));
+        await orgStore.initLoadOrgList();
+        setNewOwnerInfo(null);
+        message.info("设置成功");
+    };
 
     const departMentColumns: ColumnsType<DepartMentInfo> = [
         {
@@ -374,6 +389,16 @@ const DepartMentPanel = (props: DepartMentPanelProps) => {
                                             e.preventDefault();
                                             setRemoveMemberInfo(member);
                                         }}>删除</Button>
+                                    {orgStore.curOrg?.owner_user_id == userStore.userInfo.userId && member.member_user_id != orgStore.curOrg?.owner_user_id && (
+                                        <Button type="link" danger
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setNewOwnerInfo(member);
+                                            }}>
+                                            设为管理员
+                                        </Button>
+                                    )}
                                 </Space>
                             }>
                                 <MoreOutlined />
@@ -431,6 +456,25 @@ const DepartMentPanel = (props: DepartMentPanelProps) => {
                 <SelectDepartMentModal skipDepartMentIdList={[moveMemberInfo.parent_depart_ment_id, orgStore.curOrg?.new_member_depart_ment_id ?? ""]}
                     onCancel={() => setMoveMemberInfo(null)}
                     onOk={departMentId => moveMember(departMentId)} />
+            )}
+            {newOwnerInfo != null && (
+                <Modal open title="设为管理员"
+                    okText="设置" okButtonProps={{ danger: true }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setNewOwnerInfo(null);
+                    }}
+                    onOk={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        changeOrgOwner();
+                    }}>
+                    是否把成员&nbsp;{newOwnerInfo.display_name}&nbsp;设为管理员?
+                    <p style={{ color: "red" }}>
+                        您将失去管理员权限!!
+                    </p>
+                </Modal>
             )}
         </Card >
     );

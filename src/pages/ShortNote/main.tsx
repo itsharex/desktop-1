@@ -62,16 +62,18 @@ const Content = () => {
     };
 
     const closeWindow = async () => {
-        const sessionId = await get_session();
-        const res = await request(remove({
-            session_id: sessionId,
-            project_id: projectId ?? "",
-            short_note_type: shortNoteType,
-            target_id: id ?? "",
-        }));
-        if (res) {
-            appWindow.close();
+        try {
+            const sessionId = await get_session();
+            await request(remove({
+                session_id: sessionId,
+                project_id: projectId ?? "",
+                short_note_type: shortNoteType,
+                target_id: id ?? "",
+            }));
+        } catch (e) {
+            console.log(e);
         }
+        appWindow.close();
     };
 
     useEffect(() => {

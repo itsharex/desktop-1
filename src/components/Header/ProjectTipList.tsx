@@ -49,7 +49,7 @@ const ProjectTipList = () => {
     return (
         <Tooltip open={projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST} placement="top" trigger={[]}
             title="经验集锦" color="orange" overlayInnerStyle={{ color: 'black' }}>
-            <div style={{width: "calc(100vw - 600px)"}}>
+            <div style={{width: "calc(100vw - 700px)"}}>
                 <div style={{
                     border: projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST ? "2px solid orange" : undefined,
                     height: "30px", lineHeight: "20px", padding: "4px 4px", overflow: "hidden", color: "#aaa", fontSize: "14px", fontWeight: 600

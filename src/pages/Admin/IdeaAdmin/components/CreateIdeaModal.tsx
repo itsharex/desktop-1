@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useState } from "react";
-import { Form, Input, Modal, Select, message } from "antd";
+import { Form, Input, Modal, message } from "antd";
 import { get_admin_session } from '@/api/admin_auth';
 import { useCommonEditor } from "@/components/Editor";
 import { FILE_OWNER_TYPE_NONE } from "@/api/fs";
@@ -17,7 +17,6 @@ export interface CreateIdeaModalProps {
 
 const CreateIdeaModal = (props: CreateIdeaModalProps) => {
     const [title, setTitle] = useState("");
-    const [keywordList, setKeywordList] = useState<string[]>([]);
 
     const { editor, editorRef } = useCommonEditor({
         content: "",
@@ -47,7 +46,6 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
             basic_info: {
                 title: title.trim(),
                 content: JSON.stringify(content),
-                keyword_list: keywordList,
             },
         }));
         props.onOk();
@@ -56,7 +54,7 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
 
     return (
         <Modal open title="创建知识点"
-            okText="创建" okButtonProps={{ disabled: (keywordList.length == 0 || title.trim() == "") }}
+            okText="创建" okButtonProps={{ disabled:  title.trim() == "" }}
             width={800}
             onCancel={e => {
                 e.stopPropagation();
@@ -80,10 +78,6 @@ const CreateIdeaModal = (props: CreateIdeaModalProps) => {
                     <div className="_editChatContext">
                         {editor}
                     </div>
-                </Form.Item>
-                <Form.Item label="关键词">
-                    <Select mode="tags" value={keywordList} onChange={value => setKeywordList((value as string[]).map(item => item.toLowerCase()))}
-                        placement="topLeft" placeholder="请设置知识点相关的关键词" />
                 </Form.Item>
             </Form>
         </Modal>

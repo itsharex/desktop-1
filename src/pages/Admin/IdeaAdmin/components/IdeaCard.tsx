@@ -1,9 +1,9 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import type { IdeaInStore } from "@/api/idea_store";
-import { Card, Form, Modal, Popover, Select, Space, message } from "antd";
+import { Card, Form, Modal, Popover, Space, message } from "antd";
 import { AdminPermInfo, get_admin_session } from "@/api/admin_auth";
 import Button from "@/components/Button";
 import { ReadOnlyEditor } from "@/components/Editor";
@@ -21,8 +21,6 @@ export interface IdeaCardProps {
 }
 
 const IdeaCard = (props: IdeaCardProps) => {
-    const [keywordList, setKeywordList] = useState(props.idea.basic_info.keyword_list);
-
     const [showMoveModal, setShowMoveModal] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -49,10 +47,6 @@ const IdeaCard = (props: IdeaCardProps) => {
         props.onRemove();
         message.info("移动成功");
     };
-
-    useEffect(() => {
-        setKeywordList(props.idea.basic_info.keyword_list);
-    }, [props.idea.basic_info.keyword_list]);
 
     return (
         <Card title={
@@ -94,10 +88,6 @@ const IdeaCard = (props: IdeaCardProps) => {
                 </Space>
             }>
             <Form labelCol={{ span: 1 }}>
-                <Form.Item label="关键词">
-                    <Select mode="tags" value={keywordList} onChange={value => setKeywordList((value as string[]).map(item => item.toLowerCase()))}
-                        placement="topLeft" placeholder="请设置知识点相关的关键词" disabled />
-                </Form.Item>
                 <Form.Item label="内容">
                     <ReadOnlyEditor content={props.idea.basic_info.content} />
                 </Form.Item>

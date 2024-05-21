@@ -62,46 +62,48 @@ const TooltipContent: React.FC<{
     fontFamily: string;
 }> = observer((props) => {
     return (
+        <>
+            {props.task.type != "project" && (
 
 
-        <div style={{ backgroundColor: "white", padding: "10px 10px", border: "1px solid #e4e4e8" }}>
-            <Descriptions title={`${(props.task as ExtGanttTask).issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}:${(props.task as ExtGanttTask).issue.basic_info.title}`} bordered={true}>
-                <Descriptions.Item label="阶段">{renderState((props.task as ExtGanttTask).issue.state)}</Descriptions.Item>
-                <Descriptions.Item label="预估时间">
-                    <span style={{ color: (props.task as ExtGanttTask).issue.has_estimate_minutes ? undefined : "red" }}>
-                        {(props.task as ExtGanttTask).issue.has_estimate_minutes ? `${((props.task as ExtGanttTask).issue.estimate_minutes / 60).toFixed(1)}小时` : "未设置"}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="剩余时间">
-                    <span style={{ color: (props.task as ExtGanttTask).issue.has_remain_minutes ? undefined : "red" }}>
-                        {(props.task as ExtGanttTask).issue.has_remain_minutes ? `${((props.task as ExtGanttTask).issue.remain_minutes / 60).toFixed(1)}小时` : "未设置"}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="预估开始时间">
-                    <span style={{ color: (props.task as ExtGanttTask).issue.has_start_time ? undefined : "red" }}>
-                        {(props.task as ExtGanttTask).issue.has_start_time ? moment((props.task as ExtGanttTask).issue.start_time).format("YYYY-MM-DD") : "未设置"}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="预估结束时间">
-                    <span style={{ color: (props.task as ExtGanttTask).issue.has_end_time ? undefined : "red" }}>
-                        {(props.task as ExtGanttTask).issue.has_end_time ? moment((props.task as ExtGanttTask).issue.end_time).format("YYYY-MM-DD") : "未设置"}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="截止时间">
-                    {(props.task as ExtGanttTask).issue.has_dead_line_time == true && moment((props.task as ExtGanttTask).issue.dead_line_time).format("YYYY-MM-DD")}
-                </Descriptions.Item>
-                <Descriptions.Item label="创建者">{(props.task as ExtGanttTask).issue.create_display_name}</Descriptions.Item>
-                <Descriptions.Item label="执行者">
-                    <span style={{ color: (props.task as ExtGanttTask).issue.exec_user_id == "" ? "red" : undefined }}>
-                        {(props.task as ExtGanttTask).issue.exec_user_id == "" ? "未设置" : (props.task as ExtGanttTask).issue.exec_display_name}
-                    </span>
-                </Descriptions.Item>
-                <Descriptions.Item label="检查者">{(props.task as ExtGanttTask).issue.check_display_name}</Descriptions.Item>
-            </Descriptions>
 
-        </div>
-
-
+                <div style={{ backgroundColor: "white", padding: "10px 10px", border: "1px solid #e4e4e8" }}>
+                    <Descriptions title={`${(props.task as ExtGanttTask).issue.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}:${(props.task as ExtGanttTask).issue.basic_info.title}`} bordered={true}>
+                        <Descriptions.Item label="阶段">{renderState((props.task as ExtGanttTask).issue.state)}</Descriptions.Item>
+                        <Descriptions.Item label="预估时间">
+                            <span style={{ color: (props.task as ExtGanttTask).issue.has_estimate_minutes ? undefined : "red" }}>
+                                {(props.task as ExtGanttTask).issue.has_estimate_minutes ? `${((props.task as ExtGanttTask).issue.estimate_minutes / 60).toFixed(1)}小时` : "未设置"}
+                            </span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="剩余时间">
+                            <span style={{ color: (props.task as ExtGanttTask).issue.has_remain_minutes ? undefined : "red" }}>
+                                {(props.task as ExtGanttTask).issue.has_remain_minutes ? `${((props.task as ExtGanttTask).issue.remain_minutes / 60).toFixed(1)}小时` : "未设置"}
+                            </span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="预估开始时间">
+                            <span style={{ color: (props.task as ExtGanttTask).issue.has_start_time ? undefined : "red" }}>
+                                {(props.task as ExtGanttTask).issue.has_start_time ? moment((props.task as ExtGanttTask).issue.start_time).format("YYYY-MM-DD") : "未设置"}
+                            </span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="预估结束时间">
+                            <span style={{ color: (props.task as ExtGanttTask).issue.has_end_time ? undefined : "red" }}>
+                                {(props.task as ExtGanttTask).issue.has_end_time ? moment((props.task as ExtGanttTask).issue.end_time).format("YYYY-MM-DD") : "未设置"}
+                            </span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="截止时间">
+                            {(props.task as ExtGanttTask).issue.has_dead_line_time == true && moment((props.task as ExtGanttTask).issue.dead_line_time).format("YYYY-MM-DD")}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="创建者">{(props.task as ExtGanttTask).issue.create_display_name}</Descriptions.Item>
+                        <Descriptions.Item label="执行者">
+                            <span style={{ color: (props.task as ExtGanttTask).issue.exec_user_id == "" ? "red" : undefined }}>
+                                {(props.task as ExtGanttTask).issue.exec_user_id == "" ? "未设置" : (props.task as ExtGanttTask).issue.exec_display_name}
+                            </span>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="检查者">{(props.task as ExtGanttTask).issue.check_display_name}</Descriptions.Item>
+                    </Descriptions>
+                </div>
+            )}
+        </>
     );
 });
 
