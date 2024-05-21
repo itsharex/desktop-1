@@ -140,7 +140,7 @@ const LeftMenu: React.FC = () => {
           >
             {item.open_in_browser && <ExportOutlined />}
             {!item.open_in_browser && <LinkOutlined />}
-            &nbsp;{item.name}
+            &nbsp;<span title={item.name}>{item.name}</span>
           </div>
         ))}
       </div>

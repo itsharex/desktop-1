@@ -4,27 +4,22 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { OrgForumInfo, ForumThreadInfo } from "@/api/org_forum";
-import { list_thread, list_content_by_id, create_thread, update_thread, get_thread, set_thread_weight, remove_thread } from "@/api/org_forum";
+import { list_thread, create_thread, get_thread, set_thread_weight } from "@/api/org_forum";
 import { Button, Card, Form, Input, InputNumber, List, message, Modal, Popover, Space } from "antd";
 import { useStores } from "@/hooks";
 import { request } from "@/utils/request";
 import { FILE_OWNER_TYPE_NONE, FILE_OWNER_TYPE_ORG_FORUM_CONTENT } from "@/api/fs";
-import { change_file_owner, is_empty_doc, ReadOnlyEditor, useCommonEditor } from "@/components/Editor";
-import { EditText } from "@/components/EditCell/EditText";
+import { change_file_owner, useCommonEditor } from "@/components/Editor";
 import UserPhoto from "@/components/Portrait/UserPhoto";
 import { CommentOutlined, MoreOutlined } from "@ant-design/icons";
 import moment from "moment";
 
-const PAGE_SIZE = 10;
-
-type ForumThreadWithContentInfo = ForumThreadInfo & {
-    content: string;
-};
+const PAGE_SIZE = 20;
 
 interface CreateModalProps {
     forumInfo: OrgForumInfo;
     onCancel: () => void;
-    onOk: () => void;
+    onOk: (threadId: string) => void;
 }
 
 const CreateModal = observer((props: CreateModalProps) => {
@@ -49,10 +44,6 @@ const CreateModal = observer((props: CreateModalProps) => {
 
     const createThread = async () => {
         const content = editorRef.current?.getContent() ?? { type: "doc" };
-        if (is_empty_doc(content)) {
-            message.warn("帖子内容为空");
-            return;
-        }
         const createRes = await request(create_thread({
             session_id: userStore.sessionId,
             org_id: orgStore.curOrgId,
@@ -63,7 +54,7 @@ const CreateModal = observer((props: CreateModalProps) => {
         //设置文件owner
         await change_file_owner(content, userStore.sessionId, FILE_OWNER_TYPE_ORG_FORUM_CONTENT, createRes.content_id);
         message.info("发布成功");
-        props.onOk();
+        props.onOk(createRes.thread_id);
     };
 
     return (
@@ -99,7 +90,7 @@ const CreateModal = observer((props: CreateModalProps) => {
 
 interface UpdateWeightModalProps {
     forumId: string;
-    threadInfo: ForumThreadWithContentInfo;
+    threadInfo: ForumThreadInfo;
     onCancel: () => void;
     onOk: () => void;
 }
@@ -159,11 +150,10 @@ const ForumThreadList = (props: ForumThreadListProps) => {
 
     const [showCreateModal, setShowCreateModal] = useState(false);
 
-    const [threadList, setThreadList] = useState<ForumThreadWithContentInfo[]>([]);
+    const [threadList, setThreadList] = useState<ForumThreadInfo[]>([]);
     const [totalCount, setTotalCount] = useState(0);
 
-    const [updateWeightInfo, setUpdateWeightInfo] = useState<ForumThreadWithContentInfo | null>(null);
-    const [removeInfo, setRemoveInfo] = useState<ForumThreadWithContentInfo | null>(null);
+    const [updateWeightInfo, setUpdateWeightInfo] = useState<ForumThreadInfo | null>(null);
 
     const loadThreadList = async () => {
         try {
@@ -174,19 +164,9 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                 offset: props.curPage * PAGE_SIZE,
                 limit: PAGE_SIZE,
             }));
-            const contentRes = await request(list_content_by_id({
-                session_id: userStore.sessionId,
-                org_id: orgStore.curOrgId,
-                content_id_list: threadRes.thread_list.map(item => item.first_content_id),
-            }));
+
             setTotalCount(threadRes.total_count);
-            setThreadList(threadRes.thread_list.map(threadItem => {
-                const content = contentRes.content_list.find(contentItem => contentItem.content_id == threadItem.first_content_id)?.content ?? "";
-                return {
-                    ...threadItem,
-                    content: content,
-                };
-            }));
+            setThreadList(threadRes.thread_list);
         } catch (e) {
             console.log(e);
         }
@@ -204,27 +184,8 @@ const ForumThreadList = (props: ForumThreadListProps) => {
             forum_id: props.forumInfo.forum_id,
             thread_id: threadId,
         }));
-        const oldContent = tmpList[index].content;
-        tmpList[index] = {
-            ...res.thread_info,
-            content: oldContent,
-        };
+        tmpList[index] = res.thread_info;
         setThreadList(tmpList);
-    };
-
-    const removeThread = async () => {
-        if (removeInfo == null) {
-            return;
-        }
-        await request(remove_thread({
-            session_id: userStore.sessionId,
-            org_id: orgStore.curOrgId,
-            forum_id: props.forumInfo.forum_id,
-            thread_id: removeInfo.thread_id,
-        }));
-        setRemoveInfo(null);
-        await loadThreadList();
-        message.info("删除成功");
     };
 
     useEffect(() => {
@@ -247,81 +208,48 @@ const ForumThreadList = (props: ForumThreadListProps) => {
             <List rowKey="thread_id" dataSource={threadList}
                 pagination={{ total: totalCount, current: props.curPage + 1, pageSize: PAGE_SIZE, onChange: page => props.onChangePage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}
                 renderItem={item => (
-                    <List.Item>
-                        <Card title={
-                            <EditText editable={item.user_id == userStore.userInfo.userId}
-                                content={item.title} onChange={async value => {
-                                    if (value.trim() == "") {
-                                        return false;
-                                    }
-                                    try {
-                                        await request(update_thread({
-                                            session_id: userStore.sessionId,
-                                            org_id: orgStore.curOrgId,
-                                            forum_id: props.forumInfo.forum_id,
-                                            thread_id: item.thread_id,
-                                            title: value.trim(),
-                                        }));
-                                        await onUpdateThread(item.thread_id);
-                                        return true;
-                                    } catch (e) {
-                                        console.log(e);
-                                        return false;
-                                    }
-                                }} showEditIcon fontSize="20px" fontWeight={700}
-                                onClick={() => props.onChange(item.thread_id)} />
-                        } bordered={false} style={{ width: "100%", marginRight: "20px" }}
-                            extra={
-                                <Space size="small">
-                                    {moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")}
-                                    <UserPhoto logoUri={item.user_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
-                                    <Button type="link" onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        props.onClickMember(item.user_id);
-                                    }} disabled={orgStore.curOrg?.owner_user_id != userStore.userInfo.userId}
-                                        style={{ minWidth: 0, padding: "0px 0px" }}>{item.user_display_name}</Button>
-                                    <span>推荐值:{item.weight}</span>
-                                    <span><CommentOutlined />&nbsp;{item.content_count}</span>
-                                    {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
-                                        <Popover trigger="click" placement="bottom" content={
-                                            <Space direction="vertical">
-                                                {orgStore.curOrg?.owner_user_id == userStore.userInfo.userId && (
-                                                    <Button type="link" onClick={e => {
-                                                        e.stopPropagation();
-                                                        e.preventDefault();
-                                                        setUpdateWeightInfo(item);
-                                                    }}>调整推荐值</Button>
-                                                )}
-                                                {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
-                                                    <Button type="link" danger onClick={e => {
-                                                        e.stopPropagation();
-                                                        e.preventDefault();
-                                                        setRemoveInfo(item);
-                                                    }}>删除</Button>
-                                                )}
-                                            </Space>
-                                        }>
-                                            <MoreOutlined />
-                                        </Popover>
-                                    )}
-                                </Space>
-                            }>
-                            <div className="_commentContext">
-                                <ReadOnlyEditor content={item.content} />
-                            </div>
-                        </Card>
+                    <List.Item extra={
+                        <Space size="small">
+                            {moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")}
+                            <UserPhoto logoUri={item.user_logo_uri} style={{ width: "16px", borderRadius: "10px" }} />
+                            <Button type="link" onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                props.onClickMember(item.user_id);
+                            }} disabled={orgStore.curOrg?.owner_user_id != userStore.userInfo.userId}
+                                style={{ minWidth: 0, padding: "0px 0px" }}>{item.user_display_name}</Button>
+                            <span>推荐值:{item.weight}</span>
+                            <span><CommentOutlined />&nbsp;{item.content_count}</span>
+                            {(orgStore.curOrg?.owner_user_id == userStore.userInfo.userId || item.user_id == userStore.userInfo.userId) && (
+                                <Popover trigger="click" placement="bottom" content={
+                                    <Space direction="vertical">
+                                        {orgStore.curOrg?.owner_user_id == userStore.userInfo.userId && (
+                                            <Button type="link" onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                setUpdateWeightInfo(item);
+                                            }}>调整推荐值</Button>
+                                        )}
+                                    </Space>
+                                }>
+                                    <MoreOutlined />
+                                </Popover>
+                            )}
+                        </Space>
+                    }>
+                        <a style={{ fontSize: "20px", fontWeight: 700 }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                props.onChange(item.thread_id);
+                            }}>{item.title}</a>
                     </List.Item>
                 )} />
             {showCreateModal == true && (
                 <CreateModal forumInfo={props.forumInfo} onCancel={() => setShowCreateModal(false)}
-                    onOk={() => {
+                    onOk={newThreadId => {
                         setShowCreateModal(false);
-                        if (props.curPage != 0) {
-                            props.onChangePage(0);
-                        } else {
-                            loadThreadList();
-                        }
+                        props.onChange(newThreadId);
                     }} />
             )}
             {updateWeightInfo != null && (
@@ -331,22 +259,6 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                         onUpdateThread(updateWeightInfo.thread_id);
                         setUpdateWeightInfo(null);
                     }} />
-            )}
-            {removeInfo != null && (
-                <Modal open title="删除沟通会话"
-                    okText="删除" okButtonProps={{ danger: true }}
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setRemoveInfo(null);
-                    }}
-                    onOk={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        removeThread();
-                    }}>
-                    是否删除沟通会话&nbsp;{removeInfo.title}&nbsp;?
-                </Modal>
             )}
         </Card>
     );
