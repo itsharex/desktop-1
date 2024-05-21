@@ -128,10 +128,13 @@ async fn conn_grpc_server(app_handle: AppHandle, _window: Window, addr: String) 
         }
     }
     if let Ok(endpoint) = Endpoint::from_shared(String::from(u)) {
-        if let Ok(chan) = endpoint
-            .tcp_keepalive(Some(Duration::new(300, 0)))
-            .connect()
-            .await
+        let chan = endpoint
+            .connect_timeout(Duration::from_secs(5))
+            .tcp_keepalive(Some(Duration::from_secs(30)))
+            .concurrency_limit(16)
+            .buffer_size(1024 * 1024)
+            .connect_lazy();
+        
         {
             let grpc_chan = app_handle.state::<GrpcChan>().inner();
             *grpc_chan.0.lock().await = Some(chan);
@@ -362,7 +365,7 @@ fn main() {
                     git_widget_plugin::clear_by_close(app_handle.clone(), label.clone()).await;
                 });
             }
-            tauri::WindowEvent::Resized(_) =>{
+            tauri::WindowEvent::Resized(_) => {
                 //https://github.com/tauri-apps/tauri/issues/6322
                 std::thread::sleep(std::time::Duration::from_nanos(1));
             }
