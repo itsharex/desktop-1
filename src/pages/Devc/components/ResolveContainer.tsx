@@ -19,6 +19,7 @@ type FindResult = {
 export interface ResolveContainerProps {
     repoId: string;
     repoPath: string;
+    devType: string;
     onOk: (info: ContainerInfo) => void;
 }
 
@@ -72,57 +73,59 @@ const ResolveContainer = (props: ResolveContainerProps) => {
 
     const checkRecreate = async (findResult: FindResult) => {
         setStage("检查是否重建容器");
-        const devInfo = await load_simple_dev_info(props.repoPath);
-        const cmpDevInfo = JSON.parse(findResult.devCfg) as SimpleDevInfo;
-        for (const pkgVer of (devInfo.pkg_version_list ?? [])) {
-            let found = false;
-            for (const cmpPkgVer of (cmpDevInfo.pkg_version_list ?? [])) {
-                if (pkgVer.package == cmpPkgVer.package && pkgVer.version == cmpPkgVer.version) {
-                    found = true;
-                    break;
+        if (props.devType == "vscode") {
+            const devInfo = await load_simple_dev_info(props.repoPath);
+            const cmpDevInfo = JSON.parse(findResult.devCfg) as SimpleDevInfo;
+            for (const pkgVer of (devInfo.pkg_version_list ?? [])) {
+                let found = false;
+                for (const cmpPkgVer of (cmpDevInfo.pkg_version_list ?? [])) {
+                    if (pkgVer.package == cmpPkgVer.package && pkgVer.version == cmpPkgVer.version) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return true;
                 }
             }
-            if (!found) {
-                return true;
-            }
-        }
-        for (const pf of (devInfo.forward_port_list ?? [])) {
-            let found = false;
-            for (const cmpPf of (cmpDevInfo.forward_port_list ?? [])) {
-                if (pf.container_port == cmpPf.container_port && pf.host_port == cmpPf.host_port && pf.public == cmpPf.public) {
-                    found = true;
-                    break;
+            for (const pf of (devInfo.forward_port_list ?? [])) {
+                let found = false;
+                for (const cmpPf of (cmpDevInfo.forward_port_list ?? [])) {
+                    if (pf.container_port == cmpPf.container_port && pf.host_port == cmpPf.host_port && pf.public == cmpPf.public) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return true;
                 }
             }
-            if (!found) {
-                return true;
-            }
-        }
-        for (const env of (devInfo.env_list ?? [])) {
-            let found = false;
-            for (const cmpEnv of (cmpDevInfo.env_list ?? [])) {
-                if (env.key == cmpEnv.key && env.value == cmpEnv.value) {
-                    found = true;
-                    break;
+            for (const env of (devInfo.env_list ?? [])) {
+                let found = false;
+                for (const cmpEnv of (cmpDevInfo.env_list ?? [])) {
+                    if (env.key == cmpEnv.key && env.value == cmpEnv.value) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return true;
                 }
             }
-            if (!found) {
-                return true;
-            }
-        }
-        for (const ext of (devInfo.extension_list ?? [])) {
-            let found = false;
-            for (const cmpExt of (cmpDevInfo.extension_list ?? [])) {
-                if (ext.id == cmpExt.id) {
-                    found = true;
-                    break;
+            for (const ext of (devInfo.extension_list ?? [])) {
+                let found = false;
+                for (const cmpExt of (cmpDevInfo.extension_list ?? [])) {
+                    if (ext.id == cmpExt.id) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return true;
                 }
             }
-            if (!found) {
-                return true;
-            }
-        }
 
+        }
 
         if (findResult.repoPath != props.repoPath) {
             console.log(findResult.repoPath, props.repoPath);
@@ -144,16 +147,43 @@ const ResolveContainer = (props: ResolveContainerProps) => {
 
     const createContainer = async (port: number) => {
         setStage("创建容器");
-        console.log("devc", "container", "create", props.repoId, props.repoPath, `${port}`);
-        const cmd = Command.sidecar("bin/devc", ["container", "create", props.repoId, props.repoPath, `${port}`]);
-        const output = await cmd.execute();
-        const obj = JSON.parse(output.stdout) as CommandResult;
-        if (obj.success == true) {
-            return obj.data as string;
+        if (props.devType == "vscode") {
+            console.log("devc", "container", "create", props.repoId, props.repoPath, `${port}`);
+            const cmd = Command.sidecar("bin/devc", ["container", "create", props.repoId, props.repoPath, `${port}`]);
+            const output = await cmd.execute();
+            const obj = JSON.parse(output.stdout) as CommandResult;
+            if (obj.success == true) {
+                return obj.data as string;
+            } else {
+                console.log(obj);
+                setStage("创建容器失败");
+                throw new Error("创建容器失败");
+            }
         } else {
-            console.log(obj);
-            setStage("创建容器失败");
-            throw new Error("创建容器失败");
+            let pathInDocker = "";
+            let portInDocker = 0;
+            let dockerImage = "";
+            if (props.devType == "jupyter") {
+                pathInDocker = "/home/jovyan/work"
+                dockerImage = "jupyterhub/singleuser:latest"
+                portInDocker = 8888;
+            } else if (props.devType == "rstudio") {
+                pathInDocker = "/home/rstudio/workspace";
+                dockerImage = "rocker/rstudio:latest";
+                portInDocker = 8787
+            }
+
+            console.log("devc", "container", "create", "--localPath", pathInDocker, "--image", dockerImage, "--localPort", `${portInDocker}`, props.repoId, props.repoPath, `${port}`);
+            const cmd = Command.sidecar("bin/devc", ["container", "create", "--localPath", pathInDocker, "--image", dockerImage, "--localPort", `${portInDocker}`, props.repoId, props.repoPath, `${port}`]);
+            const output = await cmd.execute();
+            const obj = JSON.parse(output.stdout) as CommandResult;
+            if (obj.success == true) {
+                return obj.data as string;
+            } else {
+                console.log(obj);
+                setStage("创建容器失败");
+                throw new Error("创建容器失败");
+            }
         }
     };
 

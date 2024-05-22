@@ -186,13 +186,12 @@ async fn conn_extern_server(addr: String) -> Result<Channel, String> {
     }
     let end_point = end_point.unwrap();
     let chan = end_point
-        .tcp_keepalive(Some(Duration::new(300, 0)))
-        .connect()
-        .await;
-    if chan.is_err() {
-        return Err(chan.err().unwrap().to_string());
-    }
-    return Ok(chan.unwrap());
+            .connect_timeout(Duration::from_secs(5))
+            .tcp_keepalive(Some(Duration::from_secs(30)))
+            .concurrency_limit(16)
+            .buffer_size(1024 * 1024)
+            .connect_lazy();
+    return Ok(chan);
 }
 
 fn get_base_dir() -> Option<String> {

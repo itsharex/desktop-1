@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Command } from '@tauri-apps/api/shell';
 
 export interface BuildImageProps {
+    devType: string;
     onOk: () => void;
 }
 
@@ -17,18 +18,36 @@ const BuildImage = (props: BuildImageProps) => {
         const cmd = Command.sidecar("bin/devc", ["image", "build"]);
         cmd.on("close", () => props.onOk());
         cmd.stdout.on("data", line => {
-            const obj = JSON.parse(line);
-            if ("stream" in obj) {
-                setLogs(oldValue => oldValue + obj.stream)
-                endRef.current?.scrollIntoView();
-            }
+            setLogs(oldValue => oldValue + line);
+            endRef.current?.scrollIntoView();
+        });
+        await cmd.spawn();
+    };
+
+    const runPullImage = async () => {
+        let image = "";
+        if (props.devType == "jupyter") {
+            image = "jupyterhub/singleuser:latest"
+        } else if (props.devType == "rstudio") {
+            image = "rocker/rstudio:latest";
+        }
+        console.log("devc", "image", "pull", image);
+        const cmd = Command.sidecar("bin/devc", ["image", "pull", image]);
+        cmd.on("close", () => props.onOk());
+        cmd.stdout.on("data", line => {
+            setLogs(oldValue => oldValue + line);
+            endRef.current?.scrollIntoView();
         });
         await cmd.spawn();
     };
 
     useEffect(() => {
-        runBuildImage();
-    }, []);
+        if (props.devType == "vscode") {
+            runBuildImage();
+        } else {
+            runPullImage();
+        }
+    }, [props.devType]);
 
     return (
         <Card title="构建研发镜像中(需要等待数分钟)..." bodyStyle={{ height: "calc(100vh - 40px)", overflowY: "scroll", backgroundColor: "black", color: "white" }}>
