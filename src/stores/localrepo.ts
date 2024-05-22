@@ -5,6 +5,7 @@ import { get_head_info, list_config, list_git_filter, list_repo, remove_repo } f
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { LocalRepoInfo, HeadInfo } from "@/api/local_repo";
 import { message } from 'antd';
+import { exists as exists_path } from '@tauri-apps/api/fs';
 
 export interface LocalRepoExtInfo {
     id: string;
@@ -53,6 +54,11 @@ export default class LocalRepoStore {
             const tmpList = [] as LocalRepoExtInfo[];
             for (const repo of res) {
                 try {
+                    const exist = await exists_path(repo.path);
+                    if (!exist) {
+                        await remove_repo(repo.id);
+                        continue;
+                    }
                     const headInfo = await get_head_info(repo.path);
                     const filterList = await list_git_filter(repo.path);
                     tmpList.push({
