@@ -24,7 +24,10 @@ import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import GitConfigModal from './components/GitConfigModal';
 import MyLearnRecordList from './components/MyLearnRecordList';
-
+import DevContextList from './DevContextList';
+import type { CommandResult } from "@/pages/Devc/components/types";
+import { Command } from "@tauri-apps/api/shell";
+import { InstallDockerHelp } from './components/LaunchRepoModal';
 
 const Workbench: React.FC = () => {
   const location = useLocation();
@@ -43,6 +46,18 @@ const Workbench: React.FC = () => {
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
   const [showResetDevModal, setShowResetDevModal] = useState(false);
   const [showGitConfigModal, setShowGitConfigModal] = useState(false);
+  const [hasDocker, setHasDocker] = useState<boolean | null>(null);
+
+  const checkDocker = async () => {
+    const cmd = Command.sidecar("bin/devc", ["image", "exist", "linksaas.pro/devbase:latest"]);
+    const output = await cmd.execute();
+    const result = JSON.parse(output.stdout) as CommandResult;
+    if (result.success) {
+      setHasDocker(true);
+    } else {
+      setHasDocker(false);
+    }
+  };
 
 
   useMemo(() => {
@@ -67,6 +82,9 @@ const Workbench: React.FC = () => {
       </Card>
       <Tabs activeKey={tab} className={s.my_wrap} type="card"
         onChange={key => {
+          if (key == "devContext") {
+            checkDocker();
+          }
           history.push(`${WORKBENCH_PATH}?tab=${key}`);
         }}
         tabBarExtraContent={
@@ -139,6 +157,21 @@ const Workbench: React.FC = () => {
                 </Popover>
               </Space>
             )}
+            {tab == "devContext" && (
+              <Space>
+                {hasDocker == false && (
+                  <>
+                    <span style={{ color: "red" }}>未安装/启动Docker引擎!&nbsp;&nbsp;</span>
+                    <InstallDockerHelp />
+                  </>
+                )}
+                <Button type="primary" onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  checkDocker();
+                }}>重新检查docker</Button>
+              </Space>
+            )}
           </div>
         }>
         {userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_ATOM_GIT && (
@@ -162,6 +195,14 @@ const Workbench: React.FC = () => {
           {tab == "userApp" && (
             <div className={s.content_wrap}>
               <UserAppList />
+            </div>
+          )}
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab={<h2><AppstoreOutlined />开发环境</h2>} key="devContext">
+          {tab == "devContext" && (
+            <div className={s.content_wrap}>
+              <DevContextList hasDocker={hasDocker} />
             </div>
           )}
         </Tabs.TabPane>
