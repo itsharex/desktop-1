@@ -44,6 +44,7 @@ const InstallDockerHelp = () => {
 };
 
 interface IdeExtensionListProps {
+    disabled: boolean;
     extensionList: DevExtension[];
     onAdd: (ext: DevExtension) => void;
     onRemove: (id: string) => void;
@@ -149,7 +150,8 @@ const IdeExtensionList = (props: IdeExtensionListProps) => {
                 <h1>已安装插件:</h1>
                 <List key="id" dataSource={props.extensionList} style={{ height: "274px", overflowY: "scroll" }} renderItem={item => (
                     <List.Item style={{ display: "flex" }} extra={
-                        <Button type="link" danger icon={<DeleteOutlined />} title="移除插件" onClick={e => {
+                        <Button type="link" danger icon={<DeleteOutlined />} title="移除插件" disabled={props.disabled}
+                        onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             props.onRemove(item.id);
@@ -172,10 +174,10 @@ const IdeExtensionList = (props: IdeExtensionListProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setSearchValue(e.target.value.trim());
-                        }} />
+                        }} disabled={props.disabled}/>
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" icon={<SearchOutlined />} disabled={searchValue == ""} onClick={e => {
+                        <Button type="primary" icon={<SearchOutlined />} disabled={searchValue == ""||props.disabled} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             runSearch();
@@ -211,6 +213,7 @@ const IdeExtensionList = (props: IdeExtensionListProps) => {
 interface PkgVersionItemProps {
     package: string;
     version: string;
+    editable: boolean;
     onChange: (version: string) => void;
 }
 
@@ -233,7 +236,7 @@ const PkgVersionItem = (props: PkgVersionItemProps) => {
     }, [props.package]);
 
     return (
-        <EditSelect editable={true} curValue={props.version} itemList={versionList.map(item => ({
+        <EditSelect editable={props.editable} curValue={props.version} itemList={versionList.map(item => ({
             value: item,
             label: item,
             color: "black",
@@ -324,7 +327,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             title: "软件包",
             width: 190,
             render: (_, row: DevPkgVersion) => (
-                <EditSelect editable={true} curValue={row.package}
+                <EditSelect editable={hasDocker == true} curValue={row.package}
                     itemList={pkgInfoList.map(item => ({
                         value: item.name,
                         label: item.name,
@@ -352,33 +355,35 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             title: "版本",
             width: 190,
             render: (_, row: DevPkgVersion) => (
-                <PkgVersionItem package={row.package} version={row.version} onChange={version => {
-                    if (simpleDevInfo == null) {
-                        return;
-                    }
-                    const tmpList = simpleDevInfo.pkg_version_list.slice();
-                    const index = tmpList.findIndex(item => item.package == row.package);
-                    if (index != -1) {
-                        tmpList[index].version = version;
-                        setSimpleDevInfo({ ...simpleDevInfo, pkg_version_list: tmpList });
-                        setHasChange(true);
-                    }
-                }} />
+                <PkgVersionItem package={row.package} version={row.version} editable={hasDocker == true}
+                    onChange={version => {
+                        if (simpleDevInfo == null) {
+                            return;
+                        }
+                        const tmpList = simpleDevInfo.pkg_version_list.slice();
+                        const index = tmpList.findIndex(item => item.package == row.package);
+                        if (index != -1) {
+                            tmpList[index].version = version;
+                            setSimpleDevInfo({ ...simpleDevInfo, pkg_version_list: tmpList });
+                            setHasChange(true);
+                        }
+                    }} />
             ),
         },
         {
             title: "操作",
             render: (_, row: DevPkgVersion) => (
-                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (simpleDevInfo == null) {
-                        return;
-                    }
-                    const tmpList = simpleDevInfo.pkg_version_list.filter(item => item.id != row.id);
-                    setSimpleDevInfo({ ...simpleDevInfo, pkg_version_list: tmpList });
-                    setHasChange(true);
-                }}>移除</Button>
+                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={hasDocker == false}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (simpleDevInfo == null) {
+                            return;
+                        }
+                        const tmpList = simpleDevInfo.pkg_version_list.filter(item => item.id != row.id);
+                        setSimpleDevInfo({ ...simpleDevInfo, pkg_version_list: tmpList });
+                        setHasChange(true);
+                    }}>移除</Button>
             ),
         }
     ];
@@ -389,7 +394,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             title: "容器端口",
             width: 170,
             render: (_, row: DevForwardPort) => (
-                <EditNumber editable={true} value={row.container_port} showEditIcon={true}
+                <EditNumber editable={hasDocker == true} value={row.container_port} showEditIcon={true}
                     fixedLen={0} min={1} max={65534} onChange={async value => {
                         if (simpleDevInfo == null) {
                             return false;
@@ -409,7 +414,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             title: "本地端口",
             width: 170,
             render: (_, row: DevForwardPort) => (
-                <EditNumber editable={true} value={row.host_port} showEditIcon={true}
+                <EditNumber editable={hasDocker == true} value={row.host_port} showEditIcon={true}
                     fixedLen={0} min={10000} max={60000} onChange={async value => {
                         if (simpleDevInfo == null) {
                             return false;
@@ -429,18 +434,19 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             title: "公共端口",
             width: 80,
             render: (_, row: DevForwardPort) => (
-                <Select style={{ width: "70" }} value={row.public} onChange={value => {
-                    if (simpleDevInfo == null) {
-                        return;
-                    }
-                    const tmpList = simpleDevInfo.forward_port_list.slice();
-                    const index = tmpList.findIndex(item => item.id == row.id);
-                    if (index != -1) {
-                        tmpList[index].public = value;
-                        setSimpleDevInfo({ ...simpleDevInfo, forward_port_list: tmpList });
-                        setHasChange(true);
-                    }
-                }}>
+                <Select style={{ width: "70" }} value={row.public} disabled={hasDocker == false}
+                    onChange={value => {
+                        if (simpleDevInfo == null) {
+                            return;
+                        }
+                        const tmpList = simpleDevInfo.forward_port_list.slice();
+                        const index = tmpList.findIndex(item => item.id == row.id);
+                        if (index != -1) {
+                            tmpList[index].public = value;
+                            setSimpleDevInfo({ ...simpleDevInfo, forward_port_list: tmpList });
+                            setHasChange(true);
+                        }
+                    }}>
                     <Select.Option value={true}>是</Select.Option>
                     <Select.Option value={false}>否</Select.Option>
                 </Select>
@@ -449,16 +455,17 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
         {
             title: "操作",
             render: (_, row: DevForwardPort) => (
-                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (simpleDevInfo == null) {
-                        return;
-                    }
-                    const tmpList = simpleDevInfo.forward_port_list.filter(item => item.id != row.id);
-                    setSimpleDevInfo({ ...simpleDevInfo, forward_port_list: tmpList });
-                    setHasChange(true);
-                }}>移除</Button>
+                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={hasDocker == false}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (simpleDevInfo == null) {
+                            return;
+                        }
+                        const tmpList = simpleDevInfo.forward_port_list.filter(item => item.id != row.id);
+                        setSimpleDevInfo({ ...simpleDevInfo, forward_port_list: tmpList });
+                        setHasChange(true);
+                    }}>移除</Button>
             ),
         }
     ];
@@ -481,7 +488,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                         setSimpleDevInfo({ ...simpleDevInfo, env_list: tmpList });
                         setHasChange(true);
                     }
-                }} />
+                }} disabled={hasDocker == false} />
             ),
         },
         {
@@ -501,22 +508,23 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                         setSimpleDevInfo({ ...simpleDevInfo, env_list: tmpList });
                         setHasChange(true);
                     }
-                }} />
+                }} disabled={hasDocker == false} />
             ),
         },
         {
             title: "操作",
             render: (_, row: DevEnv) => (
-                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (simpleDevInfo == null) {
-                        return;
-                    }
-                    const tmpList = simpleDevInfo.env_list.filter(item => item.id != row.id);
-                    setSimpleDevInfo({ ...simpleDevInfo, env_list: tmpList });
-                    setHasChange(true);
-                }}>移除</Button>
+                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} disabled={hasDocker == false}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (simpleDevInfo == null) {
+                            return;
+                        }
+                        const tmpList = simpleDevInfo.env_list.filter(item => item.id != row.id);
+                        setSimpleDevInfo({ ...simpleDevInfo, env_list: tmpList });
+                        setHasChange(true);
+                    }}>移除</Button>
             ),
         }
     ];
@@ -529,7 +537,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
 
     return (
         <Modal open title="启动开发环境" bodyStyle={{ padding: "4px 4px" }}
-            okText={hasChange ? "保存并启动" : "启动"} okButtonProps={{ disabled: simpleDevInfo == null }}
+            okText={hasChange ? "保存并启动" : "启动"} okButtonProps={{ disabled: simpleDevInfo == null || hasDocker == false }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -552,48 +560,51 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                     tabBarExtraContent={
                         <div style={{ marginRight: "20px" }}>
                             {activeKey == "pkg" && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setSimpleDevInfo({
-                                        ...simpleDevInfo, pkg_version_list: [...simpleDevInfo.pkg_version_list, {
-                                            id: uniqId(),
-                                            package: "",
-                                            version: "",
-                                            pluginUrl: "",
-                                        }]
-                                    });
-                                    setHasChange(true);
-                                }}>增加软件包</Button>
+                                <Button type="primary" icon={<PlusOutlined />} disabled={hasDocker == false}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSimpleDevInfo({
+                                            ...simpleDevInfo, pkg_version_list: [...simpleDevInfo.pkg_version_list, {
+                                                id: uniqId(),
+                                                package: "",
+                                                version: "",
+                                                pluginUrl: "",
+                                            }]
+                                        });
+                                        setHasChange(true);
+                                    }}>增加软件包</Button>
                             )}
                             {activeKey == "port" && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setSimpleDevInfo({
-                                        ...simpleDevInfo, forward_port_list: [...simpleDevInfo.forward_port_list, {
-                                            id: uniqId(),
-                                            container_port: 0,
-                                            host_port: 0,
-                                            public: false,
-                                        }]
-                                    });
-                                    setHasChange(true);
-                                }}>增加转发端口</Button>
+                                <Button type="primary" icon={<PlusOutlined />} disabled={hasDocker == false}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSimpleDevInfo({
+                                            ...simpleDevInfo, forward_port_list: [...simpleDevInfo.forward_port_list, {
+                                                id: uniqId(),
+                                                container_port: 0,
+                                                host_port: 0,
+                                                public: false,
+                                            }]
+                                        });
+                                        setHasChange(true);
+                                    }}>增加转发端口</Button>
                             )}
                             {activeKey == "env" && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setSimpleDevInfo({
-                                        ...simpleDevInfo, env_list: [...simpleDevInfo.env_list, {
-                                            id: uniqId(),
-                                            key: "",
-                                            value: "",
-                                        }]
-                                    });
-                                    setHasChange(true);
-                                }}>增加环境变量</Button>
+                                <Button type="primary" icon={<PlusOutlined />} disabled={hasDocker == false}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setSimpleDevInfo({
+                                            ...simpleDevInfo, env_list: [...simpleDevInfo.env_list, {
+                                                id: uniqId(),
+                                                key: "",
+                                                value: "",
+                                            }]
+                                        });
+                                        setHasChange(true);
+                                    }}>增加环境变量</Button>
                             )}
                         </div>
                     }
@@ -628,15 +639,16 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
                         {
                             label: "IDE插件",
                             key: "extension",
-                            children: (<IdeExtensionList extensionList={simpleDevInfo.extension_list} onAdd={ext => {
-                                const tmpList = simpleDevInfo.extension_list.slice();
-                                const index = tmpList.findIndex(item => item.id == ext.id);
-                                if (index == -1) {
-                                    tmpList.unshift(ext);
-                                    setSimpleDevInfo({ ...simpleDevInfo, extension_list: tmpList });
-                                    setHasChange(true);
-                                }
-                            }}
+                            children: (<IdeExtensionList extensionList={simpleDevInfo.extension_list} disabled={hasDocker == false}
+                                onAdd={ext => {
+                                    const tmpList = simpleDevInfo.extension_list.slice();
+                                    const index = tmpList.findIndex(item => item.id == ext.id);
+                                    if (index == -1) {
+                                        tmpList.unshift(ext);
+                                        setSimpleDevInfo({ ...simpleDevInfo, extension_list: tmpList });
+                                        setHasChange(true);
+                                    }
+                                }}
                                 onRemove={id => {
                                     const tmpList = simpleDevInfo.extension_list.filter(item => item.id != id);
                                     setSimpleDevInfo({ ...simpleDevInfo, extension_list: tmpList });
