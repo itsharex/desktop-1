@@ -42,12 +42,12 @@ const BuildImage = (props: BuildImageProps) => {
     };
 
     useEffect(() => {
-        if (props.devType == "vsCode") {
+        if (props.devType == "vscode") {
             runBuildImage();
         } else {
             runPullImage();
         }
-    }, []);
+    }, [props.devType]);
 
     return (
         <Card title="构建研发镜像中(需要等待数分钟)..." bodyStyle={{ height: "calc(100vh - 40px)", overflowY: "scroll", backgroundColor: "black", color: "white" }}>
