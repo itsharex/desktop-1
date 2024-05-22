@@ -19,7 +19,7 @@ import type { CommandResult } from "@/pages/Devc/components/types";
 import { Command } from "@tauri-apps/api/shell";
 
 
-const InstallDockerHelp = () => {
+export const InstallDockerHelp = () => {
     const [platform, setPlatform] = useState<"" | "windows" | "linux" | "darwin">("");
 
     useEffect(() => {
@@ -151,11 +151,11 @@ const IdeExtensionList = (props: IdeExtensionListProps) => {
                 <List key="id" dataSource={props.extensionList} style={{ height: "274px", overflowY: "scroll" }} renderItem={item => (
                     <List.Item style={{ display: "flex" }} extra={
                         <Button type="link" danger icon={<DeleteOutlined />} title="移除插件" disabled={props.disabled}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            props.onRemove(item.id);
-                        }} />
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                props.onRemove(item.id);
+                            }} />
                     }>
                         <div style={{ width: "60px" }}>
                             <img src={item.logo_url} style={{ width: "50px" }} />
@@ -174,10 +174,10 @@ const IdeExtensionList = (props: IdeExtensionListProps) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setSearchValue(e.target.value.trim());
-                        }} disabled={props.disabled}/>
+                        }} disabled={props.disabled} />
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" icon={<SearchOutlined />} disabled={searchValue == ""||props.disabled} onClick={e => {
+                        <Button type="primary" icon={<SearchOutlined />} disabled={searchValue == "" || props.disabled} onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             runSearch();
@@ -277,7 +277,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     }
 
     const checkDocker = async () => {
-        const cmd = Command.sidecar("bin/devc", ["image", "exist"]);
+        const cmd = Command.sidecar("bin/devc", ["image", "exist", "linksaas.pro/devbase:latest"]);
         const output = await cmd.execute();
         const result = JSON.parse(output.stdout) as CommandResult;
         if (result.success) {
@@ -291,7 +291,6 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
         if (simpleDevInfo == null) {
             return;
         }
-        console.log(simpleDevInfo);
         if (hasChange || (simpleDevInfo.env_list.length == 0 && simpleDevInfo.extension_list.length == 0 && simpleDevInfo.forward_port_list.length == 0 && simpleDevInfo.pkg_version_list.length == 0)) {
             await save_simple_dev_info(props.repo.path, simpleDevInfo);
         }
@@ -307,7 +306,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             return;
         }
         new WebviewWindow(label, {
-            url: `devc.html?repoId=${encodeURIComponent(props.repo.id)}&repoPath=${encodeURIComponent(props.repo.path)}`,
+            url: `devc.html?repoId=${encodeURIComponent(props.repo.id)}&repoPath=${encodeURIComponent(props.repo.path)}&type=vscode`,
             width: 800,
             minWidth: 800,
             height: 600,

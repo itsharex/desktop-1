@@ -15,12 +15,21 @@ const DevcPrepare = () => {
     const urlParams = new URLSearchParams(location.search);
     const repoId = urlParams.get("repoId") ?? "";
     const repoPath = urlParams.get("repoPath") ?? "";
+    const devType = urlParams.get("type") ?? "vscode";
 
     const [imageExist, setImageExist] = useState<boolean | null>(null);
     const [containerInfo, setContainerInfo] = useState<ContainerInfo | null>(null);
 
     const checkImageExist = async () => {
-        const cmd = Command.sidecar("bin/devc", ["image", "exist"]);
+        let image = "";
+        if (devType == "vscode") {
+            image = "linksaas.pro/devbase:latest";
+        } else if (devType == "jupyter") {
+            image = "jupyterhub/singleuser:latest"
+        } else if (devType == "rstudio") {
+            image = "rocker/rstudio:latest";
+        }
+        const cmd = Command.sidecar("bin/devc", ["image", "exist", image]);
         const output = await cmd.execute();
         const result = JSON.parse(output.stdout) as CommandResult;
         if (result.success) {
@@ -39,10 +48,10 @@ const DevcPrepare = () => {
 
     return (
         <>
-            {imageExist == false && (<BuildImage onOk={() => checkImageExist()} />)}
+            {imageExist == false && (<BuildImage onOk={() => checkImageExist()} devType={devType} />)}
             {imageExist == true && (
                 <>
-                    {containerInfo == null && (<ResolveContainer repoId={repoId} repoPath={repoPath} onOk={info => setContainerInfo(info)} />)}
+                    {containerInfo == null && (<ResolveContainer repoId={repoId} repoPath={repoPath} devType={devType} onOk={info => setContainerInfo(info)} />)}
                     {containerInfo != null && (<StartContainer containerId={containerInfo.containerId} serverPort={containerInfo.serverPort} />)}
                 </>
             )}
