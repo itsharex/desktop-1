@@ -10,7 +10,7 @@ import { PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import { useStores } from '@/hooks';
 import Card from './components/Card';
 import InfoCount from './components/InfoCount';
-import { Popover, Space, Tabs } from 'antd';
+import { Modal, Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
 import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, RocketOutlined, WarningOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
@@ -28,6 +28,7 @@ import DevContextList from './DevContextList';
 import type { CommandResult } from "@/pages/Devc/components/types";
 import { Command } from "@tauri-apps/api/shell";
 import { InstallDockerHelp } from './components/LaunchRepoModal';
+import { install_lfs } from "@/api/git_wrap";
 
 const Workbench: React.FC = () => {
   const location = useLocation();
@@ -46,6 +47,7 @@ const Workbench: React.FC = () => {
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
   const [showResetDevModal, setShowResetDevModal] = useState(false);
   const [showGitConfigModal, setShowGitConfigModal] = useState(false);
+  const [showGitLfsConfigModal, setShowGitLfsConfigModal] = useState(false);
   const [hasDocker, setHasDocker] = useState<boolean | null>(null);
 
   const checkDocker = async () => {
@@ -98,9 +100,24 @@ const Workbench: React.FC = () => {
                   history.push(`${PUB_RES_PATH}?tab=appStore`);
                 }}>前往应用市场<DoubleRightOutlined /></Button>
             )}
-            {tab == "localRepo" && (
+            {tab == "localRepo" && localRepoStore.checkResult != null && (
               <Space>
-                {localRepoStore.hasGitConfig == false && (
+                {localRepoStore.checkResult.hasGit == false && (
+                  <>
+                    <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        shell_open("https://git-scm.com/downloads");
+                      }}><WarningOutlined />安装Git工具</Button>
+                    <Button type="default" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      localRepoStore.checkGitEnv();
+                    }}>重新检测</Button>
+                  </>
+                )}
+                {localRepoStore.checkResult.hasGit && localRepoStore.checkResult.hasConfigGit == false && (
                   <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
                     onClick={e => {
                       e.stopPropagation();
@@ -108,13 +125,38 @@ const Workbench: React.FC = () => {
                       setShowGitConfigModal(true);
                     }}><WarningOutlined />未配置git用户</Button>
                 )}
-                <Button style={{ marginRight: "20px" }} onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setShowAddRepoModal(true);
-                }}>
-                  添加代码仓库
-                </Button>
+                {localRepoStore.checkResult.hasGit && localRepoStore.checkResult.hasConfigGit && localRepoStore.checkResult.hasGitLfs == false && (
+                  <>
+                    <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        shell_open("https://git-lfs.com/");
+                      }}><WarningOutlined />安装GitLfs工具</Button>
+                    <Button type="default" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      localRepoStore.checkGitEnv();
+                    }}>重新检测</Button>
+                  </>
+                )}
+                {localRepoStore.checkResult.hasGit && localRepoStore.checkResult.hasConfigGit && localRepoStore.checkResult.hasGitLfs && localRepoStore.checkResult.hasConfigGitLfs == false && (
+                  <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setShowGitLfsConfigModal(true);
+                    }}><WarningOutlined />未配置GitLfs</Button>
+                )}
+                {localRepoStore.checkResult.hasGit && (
+                  <Button style={{ marginRight: "20px" }} onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setShowAddRepoModal(true);
+                  }}>
+                    添加代码仓库
+                  </Button>
+                )}
                 <Popover trigger="click" placement="bottom" content={
                   <Space direction="vertical" style={{ padding: "10px 10px" }}>
                     <Button type="link" onClick={e => {
@@ -246,8 +288,27 @@ const Workbench: React.FC = () => {
       {showGitConfigModal == true && (
         <GitConfigModal onCancel={() => setShowGitConfigModal(false)} onOk={() => {
           setShowGitConfigModal(false);
-          localRepoStore.checkGitConfig();
+          localRepoStore.checkGitEnv();
         }} />
+      )}
+      {showGitLfsConfigModal == true && (
+        <Modal open title="配置GitLfs"
+          okText="执行"
+          onCancel={e => {
+            e.stopPropagation();
+            e.preventDefault();
+            setShowGitLfsConfigModal(false);
+          }}
+          onOk={e => {
+            e.stopPropagation();
+            e.preventDefault();
+            install_lfs().then(() => {
+              setShowGitLfsConfigModal(false);
+              localRepoStore.checkGitEnv();
+            });
+          }}>
+          是否执行git lfs install?
+        </Modal>
       )}
     </div>
   );

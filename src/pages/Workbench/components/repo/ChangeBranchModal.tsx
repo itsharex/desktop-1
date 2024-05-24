@@ -2,8 +2,9 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
-import { checkout_branch, list_repo_branch, LocalRepoBranchInfo, type LocalRepoInfo } from "@/api/local_repo";
+import { list_repo_branch, LocalRepoBranchInfo, type LocalRepoInfo } from "@/api/local_repo";
 import { Form, message, Modal, Select } from "antd";
+import { checkout as checkout_branch, run_status } from "@/api/git_wrap";
 
 
 export interface ChangeBranchModalProps {
@@ -43,6 +44,11 @@ const ChangeBranchModal = (props: ChangeBranchModalProps) => {
     };
 
     const checkOutBranch = async () => {
+        const statusList = await run_status(props.repo.path);
+        if (statusList.length > 0) {
+            message.warn("本地有文件修改未提交，请先提交文件");
+            return;
+        }
         await checkout_branch(props.repo.path, curBranch);
         props.onOk();
         message.info("切换成功");

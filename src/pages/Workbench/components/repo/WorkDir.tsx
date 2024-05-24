@@ -10,11 +10,12 @@ import { homeDir, resolve } from '@tauri-apps/api/path';
 import { type WidgetInfo } from "@/api/widget";
 import GitFile from "./GitFile";
 import type { RemoteInfo } from "@/api/local_repo";
-import { fetch_remote, get_repo_status, list_remote, list_ssh_key_name, run_pull, run_push } from "@/api/local_repo";
+import { list_remote, list_ssh_key_name, test_ssh } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
-
+import type { AUTH_TYPE, GitProgressItem } from "@/api/git_wrap";
+import { pull as run_pull, push as run_push, run_status } from "@/api/git_wrap";
 
 interface ModalProps {
     headBranch: string;
@@ -28,7 +29,7 @@ const PullModal = observer((props: ModalProps) => {
     const [curRemote, setCurRemote] = useState<RemoteInfo | null>(null);
     const [remoteList, setRemoteList] = useState([] as RemoteInfo[]);
 
-    const [authType, setAuthType] = useState<"none" | "privkey" | "password">("none");
+    const [authType, setAuthType] = useState<AUTH_TYPE>("none");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -37,8 +38,7 @@ const PullModal = observer((props: ModalProps) => {
 
     const [inPull, setInPull] = useState(false);
 
-    const [recvRatio, setRecvRatio] = useState(0);
-    const [indexRatio, setIndexRatio] = useState(0);
+    const [pullProgress, setPullProgress] = useState<GitProgressItem | null>(null);
 
     const loadRemoteList = async () => {
         const res = await list_remote(props.repoPath);
@@ -55,35 +55,30 @@ const PullModal = observer((props: ModalProps) => {
 
     const runPull = async () => {
         //检查是否有文件变更
-        const statusRes = await get_repo_status(props.repoPath);
-        if (statusRes.path_list.length > 0) {
+        const statusList = await run_status(props.repoPath);
+        if (statusList.length > 0) {
             message.warn("本地有文件修改未提交，请先提交文件");
             return;
+        }
+        if (authType == "sshKey") {
+            await test_ssh(curRemote?.url ?? "");
         }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPull(true);
         try {
-            await fetch_remote(props.repoPath, curRemote?.name ?? "", authType, username, password, privKeyPath, info => {
+            await run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath, info => {
+                setPullProgress(info);
                 if (info == null) {
                     setInPull(false);
-                    setRecvRatio(0);
-                    setIndexRatio(0);
-                    run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch);
                     message.info("拉取成功");
                     props.onClose();
-                } else {
-                    if (info.totalObjs > 0) {
-                        setRecvRatio(info.recvObjs * 100 / info.totalObjs);
-                        setIndexRatio(info.indexObjs * 100 / info.totalObjs);
-                    }
                 }
             });
         } catch (e) {
             message.error(`${e}`);
             setInPull(false);
-            setRecvRatio(0);
-            setIndexRatio(0);
+            setPullProgress(null);
         }
     };
 
@@ -100,9 +95,9 @@ const PullModal = observer((props: ModalProps) => {
             setUsername(userStore.userInfo.userName.substring("atomgit:".length));
         }
         if (remoteUrl.startsWith("git@")) {
-            setAuthType("privkey");
+            setAuthType("sshKey");
         } else if (remoteUrl.startsWith("http")) {
-            if (authType == "privkey") {
+            if (authType == "sshKey") {
                 setAuthType("none");
             }
         }
@@ -118,7 +113,7 @@ const PullModal = observer((props: ModalProps) => {
     }, []);
 
     return (
-        <Modal open title="拉取提交"
+        <Modal open title="拉取" width={800}
             okText="拉取" okButtonProps={{ disabled: (curRemote == null) || inPull }}
             onCancel={e => {
                 e.stopPropagation();
@@ -130,7 +125,7 @@ const PullModal = observer((props: ModalProps) => {
                 e.preventDefault();
                 runPull();
             }}>
-            <Form>
+            <Form labelCol={{ span: 4 }}>
                 <Form.Item label="远程仓库">
                     <Select value={curRemote?.name ?? ""} onChange={value => {
                         const tmpItem = remoteList.find(item => item.name == value);
@@ -154,7 +149,7 @@ const PullModal = observer((props: ModalProps) => {
                         }}>
                             <Radio value="none" disabled={curRemote.url.startsWith("git@")}>无需验证</Radio>
                             <Radio value="password" disabled={curRemote.url.startsWith("git@")}>账号密码</Radio>
-                            <Radio value="privkey" disabled={curRemote.url.startsWith("http")}>SSH公钥</Radio>
+                            <Radio value="sshKey" disabled={curRemote.url.startsWith("http")}>SSH公钥</Radio>
                         </Radio.Group>
                     </Form.Item>
                 )}
@@ -176,7 +171,7 @@ const PullModal = observer((props: ModalProps) => {
                         </Form.Item>
                     </>
                 )}
-                {authType == "privkey" && (
+                {authType == "sshKey" && (
                     <Form.Item label="SSH密钥">
                         <Select value={curSshKey} onChange={key => setCurSshKey(key)}>
                             {sshKeyNameList.map(sshName => (
@@ -185,14 +180,9 @@ const PullModal = observer((props: ModalProps) => {
                         </Select>
                     </Form.Item>
                 )}
-                {recvRatio != 0 && (
-                    <Form.Item label="下载进度">
-                        <Progress percent={recvRatio} showInfo={false} />
-                    </Form.Item>
-                )}
-                {indexRatio != 0 && (
-                    <Form.Item label="索引进度">
-                        <Progress percent={indexRatio} showInfo={false} />
+                {pullProgress != null && (
+                    <Form.Item label={pullProgress.stage}>
+                        <Progress percent={pullProgress.totalCount == 0 ? 0 : (pullProgress.doneCount * 100 / pullProgress.totalCount)} showInfo={false} />
                     </Form.Item>
                 )}
             </Form>
@@ -206,7 +196,7 @@ const PushModal = observer((props: ModalProps) => {
     const [curRemote, setCurRemote] = useState<RemoteInfo | null>(null);
     const [remoteList, setRemoteList] = useState([] as RemoteInfo[]);
 
-    const [authType, setAuthType] = useState<"none" | "privkey" | "password">("none");
+    const [authType, setAuthType] = useState<AUTH_TYPE>("none");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -214,7 +204,7 @@ const PushModal = observer((props: ModalProps) => {
     const [curSshKey, setCurSshKey] = useState("");
 
     const [inPush, setInPush] = useState(false);
-    const [pushRatio, setPushRatio] = useState(0);
+    const [pushProgress, setPushProgress] = useState<GitProgressItem | null>(null);
 
     const loadRemoteList = async () => {
         const res = await list_remote(props.repoPath);
@@ -230,21 +220,18 @@ const PushModal = observer((props: ModalProps) => {
     };
 
     const runPush = async () => {
+        if (authType == "sshKey") {
+            await test_ssh(curRemote?.url ?? "");
+        }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPush(true);
-        setPushRatio(0);
-        let hasPush = false;
+        setPushProgress(null);
         try {
             await run_push(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath,
-                (current: number, total: number, _bytes: number) => {
-                    if (total > 0) {
-                        setPushRatio(current * 100 / total);
-                    } else {
-                        setPushRatio(100);
-                    }
-                    if (current >= total && hasPush == false) {
-                        hasPush = true;
+                info => {
+                    setPushProgress(info);
+                    if (info == null) {
                         setTimeout(() => {
                             setInPush(false);
                             message.info("推送成功");
@@ -256,7 +243,7 @@ const PushModal = observer((props: ModalProps) => {
         } catch (e) {
             message.error(`${e}`);
             setInPush(false);
-            setPushRatio(0);
+            setPushProgress(null);
         }
     };
 
@@ -273,9 +260,9 @@ const PushModal = observer((props: ModalProps) => {
             setUsername(userStore.userInfo.userName.substring("atomgit:".length));
         }
         if (remoteUrl.startsWith("git@")) {
-            setAuthType("privkey");
+            setAuthType("sshKey");
         } else if (remoteUrl.startsWith("http")) {
-            if (authType == "privkey") {
+            if (authType == "sshKey") {
                 setAuthType("none");
             }
         }
@@ -291,7 +278,7 @@ const PushModal = observer((props: ModalProps) => {
     }, []);
 
     return (
-        <Modal open title="推送提交"
+        <Modal open title="推送" width={800}
             okText="推送" okButtonProps={{ disabled: (curRemote == null) || inPush }}
             onCancel={e => {
                 e.stopPropagation();
@@ -303,7 +290,7 @@ const PushModal = observer((props: ModalProps) => {
                 e.preventDefault();
                 runPush();
             }}>
-            <Form>
+            <Form labelCol={{ span: 4 }}>
                 <Form.Item label="远程仓库">
                     <Select value={curRemote?.name ?? ""} onChange={value => {
                         const tmpItem = remoteList.find(item => item.name == value);
@@ -327,7 +314,7 @@ const PushModal = observer((props: ModalProps) => {
                         }}>
                             <Radio value="none" disabled={curRemote.url.startsWith("git@")}>无需验证</Radio>
                             <Radio value="password" disabled={curRemote.url.startsWith("git@")}>账号密码</Radio>
-                            <Radio value="privkey" disabled={curRemote.url.startsWith("http")}>SSH公钥</Radio>
+                            <Radio value="sshKey" disabled={curRemote.url.startsWith("http")}>SSH公钥</Radio>
                         </Radio.Group>
                     </Form.Item>
                 )}
@@ -349,7 +336,7 @@ const PushModal = observer((props: ModalProps) => {
                         </Form.Item>
                     </>
                 )}
-                {authType == "privkey" && (
+                {authType == "sshKey" && (
                     <Form.Item label="SSH密钥">
                         <Select value={curSshKey} onChange={key => setCurSshKey(key)}>
                             {sshKeyNameList.map(sshName => (
@@ -358,9 +345,9 @@ const PushModal = observer((props: ModalProps) => {
                         </Select>
                     </Form.Item>
                 )}
-                {inPush && (
-                    <Form.Item label="推送进度">
-                        <Progress percent={pushRatio} showInfo={false} />
+                {inPush && pushProgress != null && (
+                    <Form.Item label={pushProgress.stage}>
+                        <Progress percent={pushProgress.totalCount == 0 ? 0 : (pushProgress.doneCount * 100 / pushProgress.totalCount)} showInfo={false} />
                     </Form.Item>
                 )}
             </Form>
@@ -376,6 +363,8 @@ interface WorkDirProps {
 }
 
 const WorkDir = (props: WorkDirProps) => {
+    const localRepoStore = useStores("localRepoStore");
+
     const [curDirList, setCurDirList] = useState([] as string[]);
     const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
     const [showPullModal, setShowPullModal] = useState(false);
@@ -428,18 +417,18 @@ const WorkDir = (props: WorkDirProps) => {
             } extra={
                 <Space>
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title={props.filterList.length > 0 ? "请使用命令行工具" : "pull"} onClick={e => {
+                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="拉取(pull)" onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowPullModal(true);
-                        }} disabled={props.filterList.length > 0} />
+                        }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} />
                     )}
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title={props.filterList.length > 0 ? "请使用命令行工具" : "push"} onClick={e => {
+                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title="推送(push)" onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
                             setShowPushModal(true);
-                        }} disabled={props.filterList.length > 0} />
+                        }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} />
                     )}
                     <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
                         onClick={e => {
@@ -482,4 +471,4 @@ const WorkDir = (props: WorkDirProps) => {
     );
 };
 
-export default WorkDir;
+export default observer(WorkDir);

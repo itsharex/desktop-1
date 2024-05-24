@@ -3,7 +3,6 @@
 
 import { invoke } from '@tauri-apps/api/tauri';
 import { Command } from '@tauri-apps/api/shell';
-import { message } from 'antd';
 import { resolve, homeDir } from '@tauri-apps/api/path';
 import { exists as exist_path, readDir, readTextFile } from '@tauri-apps/api/fs';
 
@@ -21,11 +20,6 @@ export type LocalRepoInfo = {
 export type LocalRepoPathStatusInfo = {
     path: string;
     status: string[];
-};
-
-export type LocalRepoStatusInfo = {
-    head: string;
-    path_list: LocalRepoPathStatusInfo[];
 };
 
 export type LocalRepoBranchInfo = {
@@ -103,12 +97,6 @@ export type LocalRepoAnalyseInfo = {
 export type LocalRepoRemoteInfo = {
     name: string;
     url: string;
-};
-
-export type CloneProgressInfo = {
-    totalObjs: number;
-    recvObjs: number;
-    indexObjs: number;
 };
 
 //git pro相关属性
@@ -196,15 +184,6 @@ export async function list_repo(): Promise<LocalRepoInfo[]> {
 
 export async function gen_ssh_key(): Promise<SshKeyPairInfo> {
     return invoke<SshKeyPairInfo>("plugin:local_repo|gen_ssh_key", {});
-}
-
-export async function get_repo_status(path: string): Promise<LocalRepoStatusInfo> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "status"]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return JSON.parse(result.stdout);
 }
 
 export async function list_repo_branch(path: string, remote: boolean = false): Promise<LocalRepoBranchInfo[]> {
@@ -302,14 +281,6 @@ export async function save_stash(path: string, msg: string): Promise<void> {
     }
 }
 
-export async function checkout_branch(path: string, branch: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "checkout-branch", branch]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
 export async function create_branch(path: string, srcBranch: string, destBranch: string): Promise<void> {
     const command = Command.sidecar('bin/gitspy', ["--git-path", path, "create-branch", srcBranch, destBranch]);
     const result = await command.execute();
@@ -347,93 +318,6 @@ export async function create_tag(path: string, tag: string, commitId: string, ms
     }
 }
 
-
-export async function clone(path: string, url: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo | null) => void): Promise<void> {
-    const args = ["--git-path", path, "clone", "--auth-type", authType];
-    if (authType == "privkey") {
-        args.push(...["--priv-key", privKey]);
-    } else if (authType == "password") {
-        args.push(...["--username", username, "--password", password]);
-    }
-    args.push(url);
-    const command = Command.sidecar('bin/gitspy', args);
-    command.stdout.on("data", (line: string) => {
-        const parts = line.split(":");
-        if (parts.length == 3) {
-            callback({
-                totalObjs: parseInt(parts[0]),
-                recvObjs: parseInt(parts[1]),
-                indexObjs: parseInt(parts[2]),
-            });
-        }
-    });
-    command.on("close", () => {
-        callback(null);
-    });
-    command.stderr.on("data", line => message.error(line));
-    await command.spawn();
-}
-
-export async function fetch_remote(path: string, remoteName: string, authType: string, username: string, password: string, privKey: string, callback: (info: CloneProgressInfo | null) => void): Promise<void> {
-    const args = ["--git-path", path, "fetch-remote", "--auth-type", authType];
-    if (authType == "privkey") {
-        args.push(...["--priv-key", privKey]);
-    } else if (authType == "password") {
-        args.push(...["--username", username, "--password", password]);
-    }
-    args.push(remoteName);
-    const command = Command.sidecar('bin/gitspy', args);
-    command.stdout.on("data", (line: string) => {
-        const parts = line.split(":");
-        if (parts.length == 3) {
-            callback({
-                totalObjs: parseInt(parts[0]),
-                recvObjs: parseInt(parts[1]),
-                indexObjs: parseInt(parts[2]),
-            });
-        }
-    });
-    command.on("close", () => {
-        callback(null);
-    });
-    command.stderr.on("data", line => message.error(line));
-    await command.spawn();
-}
-
-export async function run_push(path: string, remoteName: string, branch: string, authType: string, username: string, password: string, privKey: string, callback: (current: number, total: number, bytes: number) => void): Promise<void> {
-    const args = ["--git-path", path, "push", "--auth-type", authType];
-    if (authType == "privkey") {
-        args.push(...["--priv-key", privKey]);
-    } else if (authType == "password") {
-        args.push(...["--username", username, "--password", password]);
-    }
-    args.push(remoteName);
-    args.push(branch);
-
-    const command = Command.sidecar('bin/gitspy', args);
-    command.stdout.on("data", (line: string) => {
-        const parts = line.split(":");
-        if (parts.length == 3) {
-            callback(
-                parseInt(parts[0]),
-                parseInt(parts[1]),
-                parseInt(parts[2]),
-            );
-        }
-    });
-    command.stderr.on("data", line => message.error(line));
-    await command.spawn();
-}
-
-export async function run_pull(path: string, remoteName: string, branch: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "pull", remoteName, branch]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
-}
-
 export async function get_git_info(path: string): Promise<GitInfo> {
     const command = Command.sidecar('bin/gitspy', ["--git-path", path, "info"]);
     const result = await command.execute();
@@ -461,33 +345,6 @@ export async function list_commit_graph(path: string, commitId: string): Promise
         throw new Error(result.stderr);
     }
     return JSON.parse(result.stdout);
-}
-
-export async function add_to_index(path: string, filePathList: string[]): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "add-to-index", ...filePathList]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
-}
-
-export async function remove_from_index(path: string, filePathList: string[]): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "remove-from-index", ...filePathList]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
-}
-
-export async function run_commit(path: string, msg: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "commit", msg]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
 }
 
 export async function list_config(): Promise<GitConfigItem[]> {

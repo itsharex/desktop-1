@@ -147,12 +147,53 @@ async fn keep_alive_run<R: Runtime>(handle: &AppHandle<R>) {
     }
 }
 
-async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {  
+async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
     let handle = app_handle.clone();
     tauri::async_runtime::spawn(async move {
         loop {
             sleep(Duration::from_secs(30)).await;
             keep_alive_run(&handle).await;
+        }
+    });
+}
+
+fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key: String, url: Url) {
+    tauri::async_runtime::spawn(async move {
+        let topic = format!(
+            "{notice_key}/{channel}/",
+            notice_key = notice_key.trim_matches('/'),
+            channel = (&url).path().trim_matches('/')
+        );
+        let id = Uuid::new_v4().to_string();
+        let option = MqttOptions::new(
+            id,
+            (&url).host().unwrap().to_string(),
+            (&url).port().unwrap(),
+        );
+        loop {
+            let (client, mut eventloop) = MqttClient::new(option.clone(), 10);
+            let sub_res = client.subscribe(topic.clone(), QoS::AtLeastOnce).await;
+            if sub_res.is_ok() {
+                println!("sub {} success", topic);
+                let notice_client = (&app_handle).state::<CurNoticeClient>().inner();
+                *notice_client.0.lock().await = Some(client);
+                loop {
+                    let notice = eventloop.poll().await;
+                    if notice.is_err() {
+                        println!("disconnect mqtt,error {:?}", notice.err().unwrap());
+                        break;
+                    }
+                    emit_notice(&window, notice.unwrap());
+                }
+            } else {
+                println!("{:?}", sub_res.err().unwrap());
+            }
+            let cur_value = (&app_handle).state::<CurSession>().inner();
+            let cur_session = cur_value.0.lock().await;
+            if cur_session.is_none() {
+                break;
+            }
+            sleep(Duration::from_secs(5)).await;
         }
     });
 }
@@ -183,44 +224,7 @@ async fn login<R: Runtime>(
 
             let notice_key = ret.notice_key.clone();
             if let Ok(url) = Url::parse(ret.notice_url.clone().as_str()) {
-                tauri::async_runtime::spawn(async move {
-                    let topic = format!(
-                        "{notice_key}/{channel}/",
-                        notice_key = notice_key.trim_matches('/'),
-                        channel = (&url).path().trim_matches('/')
-                    );
-                    let id = Uuid::new_v4().to_string();
-                    let option = MqttOptions::new(
-                        id,
-                        (&url).host().unwrap().to_string(),
-                        (&url).port().unwrap(),
-                    );
-                    loop {
-                        let (client, mut eventloop) = MqttClient::new(option.clone(), 10);
-                        let sub_res = client.subscribe(topic.clone(), QoS::AtLeastOnce).await;
-                        if sub_res.is_ok() {
-                            println!("sub {} success", topic);
-                            let notice_client = (&app_handle).state::<CurNoticeClient>().inner();
-                            *notice_client.0.lock().await = Some(client);
-                            loop {
-                                let notice = eventloop.poll().await;
-                                if notice.is_err() {
-                                    println!("disconnect mqtt,error {:?}", notice.err().unwrap());
-                                    break;
-                                }
-                                emit_notice(&window, notice.unwrap());
-                            }
-                        } else {
-                            println!("{:?}", sub_res.err().unwrap());
-                        }
-                        let cur_value = (&app_handle).state::<CurSession>().inner();
-                        let cur_session = cur_value.0.lock().await;
-                        if cur_session.is_none() {
-                            break;
-                        }
-                        sleep(Duration::from_secs(5)).await;
-                    }
-                });
+                run_mqtt(app_handle, window, notice_key, url);
             } else {
                 println!("xxxxxxxxx");
             }

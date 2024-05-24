@@ -1,11 +1,13 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { get_head_info, list_config, list_git_filter, list_repo, remove_repo } from '@/api/local_repo';
+import { get_head_info, list_git_filter, list_repo, remove_repo } from '@/api/local_repo';
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { LocalRepoInfo, HeadInfo } from "@/api/local_repo";
 import { message } from 'antd';
 import { exists as exists_path } from '@tauri-apps/api/fs';
+import { check_git_env } from "@/api/git_wrap";
+import type { GitEnvCheckResult } from "@/api/git_wrap";
 
 export interface LocalRepoExtInfo {
     id: string;
@@ -19,10 +21,10 @@ export default class LocalRepoStore {
         makeAutoObservable(this);
     }
 
-    private _hasGitConfig = false;
+    private _checkResult: GitEnvCheckResult | null = null;
 
-    get hasGitConfig() {
-        return this._hasGitConfig;
+    get checkResult() {
+        return this._checkResult;
     }
 
     private _repoExtList: LocalRepoExtInfo[] = [];
@@ -30,23 +32,6 @@ export default class LocalRepoStore {
     get repoExtList() {
         return this._repoExtList;
     }
-
-    async checkGitConfig() {
-        let name = "";
-        let email = "";
-        const cfgItemList = await list_config();
-        for (const cfgItem of cfgItemList) {
-            if (cfgItem.name == "user.name") {
-                name = cfgItem.value;
-            } else if (cfgItem.name == "user.email") {
-                email = cfgItem.value;
-            }
-        }
-        runInAction(() => {
-            this._hasGitConfig = (name != "" && email != "")
-        })
-    };
-
 
     async loadRepoList() {
         try {
@@ -104,8 +89,15 @@ export default class LocalRepoStore {
         await this.loadRepoList();
     }
 
+    async checkGitEnv() {
+        const res = await check_git_env();
+        runInAction(() => {
+            this._checkResult = res;
+        });
+    }
+
     async init() {
-        await this.checkGitConfig();
+        await this.checkGitEnv();
         await this.loadRepoList();
     }
 }

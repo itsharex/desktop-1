@@ -92,13 +92,15 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
                                         items: [
                                             {
                                                 key: "ssh",
-                                                label: "SSH",
+                                                label: <span title={(localRepoStore.checkResult?.hasGit == false) ? "未安装Git工具" : ""}>SSH</span>,
                                                 onClick: () => setCloneUrl(props.repoInfo?.git_url ?? ""),
+                                                disabled: localRepoStore.checkResult?.hasGit == false,
                                             },
                                             {
                                                 key: "https",
-                                                label: "HTTPS",
+                                                label: <span title={(localRepoStore.checkResult?.hasGit == false) ? "未安装Git工具" : ""}>HTTPS</span>,
                                                 onClick: () => setCloneUrl(props.repoInfo?.html_url ?? ""),
+                                                disabled: localRepoStore.checkResult?.hasGit == false,
                                             },
                                         ],
                                     }} trigger={["click"]} >
