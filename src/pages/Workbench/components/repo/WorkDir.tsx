@@ -10,7 +10,7 @@ import { homeDir, resolve } from '@tauri-apps/api/path';
 import { type WidgetInfo } from "@/api/widget";
 import GitFile from "./GitFile";
 import type { RemoteInfo } from "@/api/local_repo";
-import { list_remote, list_ssh_key_name } from "@/api/local_repo";
+import { list_remote, list_ssh_key_name, test_ssh } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
@@ -59,6 +59,9 @@ const PullModal = observer((props: ModalProps) => {
         if (statusList.length > 0) {
             message.warn("本地有文件修改未提交，请先提交文件");
             return;
+        }
+        if (authType == "sshKey") {
+            await test_ssh(curRemote?.url ?? "");
         }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
@@ -217,6 +220,9 @@ const PushModal = observer((props: ModalProps) => {
     };
 
     const runPush = async () => {
+        if (authType == "sshKey") {
+            await test_ssh(curRemote?.url ?? "");
+        }
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPush(true);
