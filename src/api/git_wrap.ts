@@ -85,6 +85,17 @@ export async function install_lfs(): Promise<void> {
     }
 }
 
+export async function list_lfs_file(repoPath: string): Promise<string[]> {
+    const command = Command.sidecar('bin/gitwrap', ["git", "--localPath", repoPath, "listLfsFile"]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        const obj = JSON.parse(result.stderr) as GitwrapResult;
+        throw new Error(obj.data as string);
+    }
+    const obj = JSON.parse(result.stdout) as GitwrapResult;
+    return obj.data as string[];
+}
+
 export async function run_status(repoPath: string): Promise<GitStatusItem[]> {
     const command = Command.sidecar('bin/gitwrap', ["git", "--localPath", repoPath, "status"]);
     const result = await command.execute();

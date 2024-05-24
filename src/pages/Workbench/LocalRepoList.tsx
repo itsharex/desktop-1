@@ -24,6 +24,7 @@ import WorkDir from "./components/repo/WorkDir";
 import ChangeBranchModal from "./components/repo/ChangeBranchModal";
 import CreateBranchModal from "./components/repo/CreateBranchModal";
 import { LocalRepoExtInfo } from "@/stores/localrepo";
+import LargeFileList from "./components/repo/LargeFileList";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -308,7 +309,7 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="提交记录" key="commitList">
                 {activeKey == "commitList" && (
-                    <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name}/>
+                    <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name} />
                 )}
             </Tabs.TabPane>
             <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
@@ -391,6 +392,13 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
                     )} />
                 )}
             </Tabs.TabPane>
+            {props.repo.filterList.includes("lfs") && (
+                <Tabs.TabPane tab="大文件列表" key="largeFile" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                    {activeKey == "largeFile" && (
+                        <LargeFileList repoPath={props.repo.repoInfo.path}/>
+                    )}
+                </Tabs.TabPane>
+            )}
         </Tabs>
     );
 };
