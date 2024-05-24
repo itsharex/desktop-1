@@ -27,6 +27,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     const loadStatus = async () => {
         const tmpList = await run_status(props.repo.path);
         setStatusList(tmpList);
+        console.log(tmpList);
     };
 
 
@@ -74,7 +75,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                 disabled={statusList.filter(item => item.indexChange).length == 0}>提交</Button>}>
             <Transfer rowKey={st => st.path} dataSource={statusList} titles={["工作目录", "待提交"]}
                 listStyle={{ height: "calc(100vh - 460px)", width: "calc(50% - 10px)" }}
-                targetKeys={statusList.filter(item => item.indexChange).map(item => item.path)}
+                targetKeys={statusList.filter(item => item.workDirChange == false).map(item => item.path)}
                 onChange={(_, direction, moveKeys) => {
                     if (direction == "left") {
                         removeFromIndex(moveKeys);
@@ -91,7 +92,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                             <span style={{ textDecorationLine: item.indexDelete ? "line-through" : undefined }}>{item.path}</span>
                         )}
                     </>
-                )} disabled={(localRepoStore.checkResult?.hasGit == false)||(props.filterList.includes("lfs") && localRepoStore.checkResult?.hasConfigGitLfs == false)}/>
+                )} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs") && localRepoStore.checkResult?.hasConfigGitLfs == false)} />
             {showModal == true && (
                 <Modal open title="提交变更"
                     okText="提交" okButtonProps={{ disabled: commitMsg.trim() == "" || inCommit }}
