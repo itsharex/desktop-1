@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
-import { Button, Card, Checkbox, Input, List, message, Modal, Space, Spin, Transfer } from "antd";
+import { Button, Card, Input, message, Modal, Spin, Transfer } from "antd";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from "mobx-react";
