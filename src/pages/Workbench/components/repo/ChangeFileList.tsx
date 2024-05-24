@@ -27,7 +27,6 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     const loadStatus = async () => {
         const tmpList = await run_status(props.repo.path);
         setStatusList(tmpList);
-        console.log(tmpList);
     };
 
 
