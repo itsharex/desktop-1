@@ -6,7 +6,8 @@ import React, { useState } from "react";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog } from '@tauri-apps/api/dialog';
-import { get_repo_status, update_repo } from "@/api/local_repo";
+import { update_repo } from "@/api/local_repo";
+import {run_status} from "@/api/git_wrap";
 
 interface SetLocalRepoModalProps {
     repo: LocalRepoInfo;
@@ -39,7 +40,7 @@ const SetLocalRepoModal: React.FC<SetLocalRepoModalProps> = (props) => {
             return false;
         }
         try {
-            await get_repo_status(path);
+            await run_status(path);
         } catch (e) {
             console.log(e);
             message.error(`${e}`);

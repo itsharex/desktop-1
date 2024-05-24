@@ -3,16 +3,17 @@
 
 import { Modal, Form, Input, Button, message, Radio, Progress, Select } from "antd";
 import React, { useEffect, useState } from "react";
-import type { CloneProgressInfo } from "@/api/local_repo";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog, save as save_dialog } from '@tauri-apps/api/dialog';
-import { get_repo_status, add_repo, clone as clone_repo, list_ssh_key_name, test_ssh } from "@/api/local_repo";
+import { add_repo, list_ssh_key_name, test_ssh } from "@/api/local_repo";
 import { uniqId } from "@/utils/utils";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
 import { documentDir, resolve } from "@tauri-apps/api/path";
 import { homeDir } from '@tauri-apps/api/path';
+import type { GitProgressItem, AUTH_TYPE } from "@/api/git_wrap";
+import { run_status, clone as clone_repo } from "@/api/git_wrap";
 
 interface AddRepoModalProps {
     name?: string;
@@ -29,10 +30,10 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const [repoType, setRepoType] = useState<"local" | "remote">(props.remoteUrl == undefined ? "local" : "remote");
     const [remoteUrl, setRemoteUrl] = useState(props.remoteUrl ?? "");
     const [localPath, setLocalPath] = useState("");
-    const [authType, setAuthType] = useState<"none" | "privkey" | "password">("none");
+    const [authType, setAuthType] = useState<AUTH_TYPE>("none");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [cloneProgress, setCloneProgress] = useState<CloneProgressInfo | null>(null);
+    const [cloneProgress, setCloneProgress] = useState<GitProgressItem | null>(null);
 
     const [sshKeyNameList, setSshKeyNameList] = useState([] as string[]);
     const [curSshKey, setCurSshKey] = useState("");
@@ -73,7 +74,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
             if (remoteUrl == "") {
                 return false;
             }
-            if (authType == "privkey" && curSshKey == "") {
+            if (authType == "sshKey" && curSshKey == "") {
                 return false;
             } else if (authType == "password") {
                 if (username == "" || password == "") {
@@ -86,7 +87,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
 
     const addRepo = async () => {
         try {
-            await get_repo_status(localPath);
+            await run_status(localPath);
             await add_repo(uniqId(), name.trim(), localPath.trim());
             props.onOk();
         } catch (e) {
@@ -98,7 +99,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const cloneRepo = async () => {
         setCloneProgress(null);
         try {
-            if (authType == "privkey") {
+            if (authType == "sshKey") {
                 await test_ssh(remoteUrl);
             }
             const homePath = await homeDir();
@@ -123,9 +124,9 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
 
     useEffect(() => {
         if (remoteUrl.startsWith("git@")) {
-            setAuthType("privkey");
+            setAuthType("sshKey");
         } else if (remoteUrl.startsWith("http")) {
-            if (authType == "privkey") {
+            if (authType == "sshKey") {
                 setAuthType("none");
             }
         }
@@ -148,6 +149,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
 
     return (
         <Modal open title={repoType == "local" ? "添加本地仓库" : "克隆远程仓库"}
+            width={800}
             okText={repoType == "local" ? "添加" : "克隆"} okButtonProps={{ disabled: !checkValid() || cloneProgress != null }}
             cancelButtonProps={{ disabled: cloneProgress != null }}
             onCancel={e => {
@@ -165,7 +167,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                 }
             }}
         >
-            <Form labelCol={{ span: 3 }} disabled={cloneProgress != null}>
+            <Form labelCol={{ span: 4 }} disabled={cloneProgress != null}>
                 <Form.Item label="名称">
                     <Input value={name} onChange={e => {
                         e.stopPropagation();
@@ -213,7 +215,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                                 }}>
                                     <Radio value="none" disabled={remoteUrl.startsWith("git@")}>无需验证</Radio>
                                     <Radio value="password" disabled={remoteUrl.startsWith("git@")}>账号密码</Radio>
-                                    <Radio value="privkey" disabled={remoteUrl.startsWith("http")}>SSH公钥</Radio>
+                                    <Radio value="sshKey" disabled={remoteUrl.startsWith("http")}>SSH公钥</Radio>
                                 </Radio.Group>
                             </Form.Item>
                         )}
@@ -236,7 +238,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                                 </Form.Item>
                             </>
                         )}
-                        {authType == "privkey" && (
+                        {authType == "sshKey" && (
                             <Form.Item label="SSH密钥">
                                 <Select value={curSshKey} onChange={key => setCurSshKey(key)}>
                                     {sshKeyNameList.map(sshName => (
@@ -247,11 +249,8 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                         )}
                         {cloneProgress != null && (
                             <>
-                                <Form.Item label="下载进度">
-                                    <Progress percent={cloneProgress.totalObjs == 0 ? 100 : Math.round(cloneProgress.recvObjs * 100 / cloneProgress.totalObjs)} />
-                                </Form.Item>
-                                <Form.Item label="索引进度">
-                                    <Progress percent={cloneProgress.totalObjs == 0 ? 100 : Math.round(cloneProgress.indexObjs * 100 / cloneProgress.totalObjs)} />
+                                <Form.Item label={cloneProgress.stage}>
+                                    <Progress percent={cloneProgress.totalCount == 0 ? 100 : Math.round(cloneProgress.doneCount * 100 / cloneProgress.totalCount)} />
                                 </Form.Item>
                             </>
                         )}

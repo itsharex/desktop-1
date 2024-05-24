@@ -30,6 +30,7 @@
       "resources": [],
       "externalBin": [
         "bin/gitspy",
+        "bin/gitwrap",
         "bin/redis",
         "bin/mongo",
         "bin/sql",
@@ -83,6 +84,11 @@
         "scope": [
           {
             "name": "bin/gitspy",
+            "sidecar": true,
+            "args": true
+          },
+          {
+            "name": "bin/gitwrap",
             "sidecar": true,
             "args": true
           },
