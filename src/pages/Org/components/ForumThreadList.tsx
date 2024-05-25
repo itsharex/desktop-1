@@ -203,7 +203,7 @@ const ForumThreadList = (props: ForumThreadListProps) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setShowCreateModal(true);
-                }}>发布帖子</Button>
+                }} disabled={!(props.forumInfo.user_perm?.create_thread ?? true)}>发布帖子</Button>
             }>
             <List rowKey="thread_id" dataSource={threadList}
                 pagination={{ total: totalCount, current: props.curPage + 1, pageSize: PAGE_SIZE, onChange: page => props.onChangePage(page - 1), showSizeChanger: false, hideOnSinglePage: true }}

@@ -3,6 +3,19 @@
 
 import { invoke } from '@tauri-apps/api/tauri';
 
+
+export type OrgForumPerm = {
+    allow_create_thread_for_all: boolean;
+    create_thread_user_id_list: string[];
+    allow_reply_thread_for_all: boolean;
+    reply_thread_user_id_list: string[];
+};
+
+export type UserPerm = {
+    create_thread: boolean;
+    reply_thread: boolean;
+};
+
 export type OrgForumInfo = {
     forum_id: string;
     forum_name: string;
@@ -10,6 +23,8 @@ export type OrgForumInfo = {
     weight: number;
     fs_id: string;
     thread_count: number;
+    org_forum_perm?: OrgForumPerm;
+    user_perm?: UserPerm;
 };
 
 export type ForumThreadInfo = {
@@ -57,6 +72,7 @@ export type CreateForumRequest = {
     org_id: string;
     forum_name: string;
     weight: number;
+    org_forum_perm: OrgForumPerm;
 };
 
 export type CreateForumResponse = {
@@ -65,13 +81,13 @@ export type CreateForumResponse = {
     forum_id: string;
 };
 
-
 export type UpdateForumRequest = {
     session_id: string;
     org_id: string;
     forum_id: string;
     forum_name: string;
     weight: number;
+    org_forum_perm: OrgForumPerm;
 };
 
 export type UpdateForumResponse = {

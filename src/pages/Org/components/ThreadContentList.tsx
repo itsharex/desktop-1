@@ -268,7 +268,7 @@ const ThreadContentList = (props: ThreadContentListProps) => {
                         e.preventDefault();
                         setEditContentInfo(null);
                         setShowEditModal(true);
-                    }}>回复帖子</Button>
+                    }} disabled={!(props.forumInfo.user_perm?.reply_thread ?? true)}>回复帖子</Button>
                     {((threadInfo != null && threadInfo.user_id == userStore.userInfo.userId) || orgStore.curOrg?.owner_user_id == userStore.userInfo.userId) && (
                         <Popover trigger="click" placement="bottom" content={
                             <Space>

@@ -74,8 +74,10 @@ const Workbench: React.FC = () => {
   }, [userStore.sessionId]);
 
   useEffect(() => {
-    localRepoStore.init();
-  }, []);
+    if (["localRepo", "atomGit"].includes(tab)) {
+      localRepoStore.init();
+    }
+  }, [tab]);
 
   return (
     <div className={s.workbench_wrap}>

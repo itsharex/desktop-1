@@ -68,6 +68,7 @@ export const EditSelect: React.FC<EditSelectProps> = (props) => {
                     e.preventDefault();
                     setInEdit(false);
                 }}
+                filterOption={(value, option) => (option?.name ?? "").includes(value)}
                 onChange={(value) => {
                     props.onChange(value).then(res => {
                         if (res) {
@@ -78,7 +79,7 @@ export const EditSelect: React.FC<EditSelectProps> = (props) => {
                     });
                 }}>
                 {props.itemList.map(item => (
-                    <Select.Option key={item.value} value={item.value}>
+                    <Select.Option key={item.value} value={item.value} name={item.label}>
                         <span style={{ color: item.color, display: "inline-block", width: props.width ?? "60px", textAlign: "center" }}>{item.label}</span>
                     </Select.Option>
                 ))}
