@@ -72,6 +72,7 @@ const OrgDetail = () => {
         }
     }, [orgStore.curOrgId]);
 
+
     return (
         <div className={s.detail_wrap}>
             <div className={s.left}>
