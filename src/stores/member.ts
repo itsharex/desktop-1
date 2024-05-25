@@ -5,7 +5,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import type { MemberInfo } from '@/api/project_member';
 import type { PluginEvent } from '@/api/events';
-import { list_event_by_id, get_event } from '@/api/events';
+import { list_event_by_id, get_event, EVENT_TYPE_TASK, EVENT_TYPE_BUG } from '@/api/events';
 import type { MemberState as IssueMemberState } from '@/api/project_issue';
 import { list_member, get_member } from '@/api/project_member';
 import { list_member_state as list_member_issue_state } from '@/api/project_issue';
@@ -189,6 +189,9 @@ class MemberStore {
         this._memberMap.set(memberUserId, memberInfo);
       }
     });
+    if (res.event.event_type == EVENT_TYPE_TASK || res.event.event_type == EVENT_TYPE_BUG) {
+      this.updateIssueState(projectId, memberUserId);
+    }
   }
 
   async updateIssueState(projectId: string, memberUserId: string) {

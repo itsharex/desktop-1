@@ -26,11 +26,14 @@ import { SHORT_NOTE_BUG, SHORT_NOTE_TASK } from "@/api/short_note";
 import type { LearnSummaryItem } from "@/api/skill_learn";
 import { get_learn_summary_in_project } from "@/api/skill_learn";
 import SkillSummaryTag from "@/components/Skill/SkillSummaryTag";
+import { listen } from '@tauri-apps/api/event';
+import type * as NoticeType from '@/api/notice_type';
 
 interface IssueListProps {
     memberUserId: string;
     issueType: ISSUE_TYPE;
     issueState: ISSUE_STATE
+    count: number;
 }
 
 const IssueList = observer((props: IssueListProps) => {
@@ -149,7 +152,7 @@ const IssueList = observer((props: IssueListProps) => {
 
     useEffect(() => {
         loadIssueList();
-    }, []);
+    }, [props.count]);
 
     useEffect(() => {
         return () => {
@@ -249,6 +252,21 @@ const MemberDetail = () => {
         }
     }, [memberStore.showDetailMemberId]);
 
+    useEffect(() => {
+        const unlistenFn = listen<NoticeType.AllNotice>('notice', (ev) => {
+            if (ev.payload.ProjectNotice?.NewEventNotice != undefined) {
+                if (ev.payload.ProjectNotice.NewEventNotice.project_id == projectStore.curProjectId && ev.payload.ProjectNotice.NewEventNotice.member_user_id == memberStore.showDetailMemberId) {
+                    setTimeout(() => {
+                        setMemberInfo(memberStore.getMember(memberStore.showDetailMemberId));
+                    }, 500);
+                }
+            }
+        });
+        return () => {
+            unlistenFn.then((unListen) => unListen());
+        };
+    }, []);
+
     return (
         <Card title={<Space size="small">
             <Button type="link" icon={<DoubleLeftOutlined />} onClick={e => {
@@ -338,22 +356,22 @@ const MemberDetail = () => {
                     </Card>
                     {(memberInfo.issue_member_state?.task_un_exec_count ?? 0) > 0 && (
                         <Card title="未完成任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
-                            <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} />
+                            <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} count={memberInfo.issue_member_state?.task_un_exec_count ?? 0} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.task_un_check_count ?? 0) > 0 && (
                         <Card title="未检查任务" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
-                            <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} />
+                            <IssueList issueType={ISSUE_TYPE_TASK} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} count={memberInfo.issue_member_state?.task_un_check_count ?? 0} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.bug_un_exec_count ?? 0) > 0 && (
                         <Card title="未处理缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }} >
-                            <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} />
+                            <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_PROCESS} memberUserId={memberInfo.member.member_user_id} count={memberInfo.issue_member_state?.task_un_check_count ?? 0} />
                         </Card>
                     )}
                     {(memberInfo.issue_member_state?.task_un_check_count ?? 0) > 0 && (
                         <Card title="未检查缺陷" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
-                            <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} />
+                            <IssueList issueType={ISSUE_TYPE_BUG} issueState={ISSUE_STATE_CHECK} memberUserId={memberInfo.member.member_user_id} count={memberInfo.issue_member_state?.task_un_check_count ?? 0} />
                         </Card>
                     )}
                     <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
