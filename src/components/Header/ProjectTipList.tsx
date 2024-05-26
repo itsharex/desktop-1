@@ -4,11 +4,12 @@
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import { useStores } from "@/hooks";
-import { Tooltip } from "antd";
+import { Popover } from "antd";
 import { PROJECT_SETTING_TAB } from "@/utils/constant";
 import s from "./ProjectTipList.module.less";
 
 const ProjectTipList = () => {
+    const appStore = useStores('appStore');
     const projectStore = useStores('projectStore');
 
     const [tipList, setTipList] = useState<string[]>([]);
@@ -47,11 +48,11 @@ const ProjectTipList = () => {
     });
 
     return (
-        <Tooltip open={projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST} placement="top" trigger={[]}
-            title="经验集锦" color="orange" overlayInnerStyle={{ color: 'black' }}>
-            <div style={{width: "calc(100vw - 700px)"}}>
+        <Popover open={appStore.showHelp || projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST} placement="top"
+            content="经验集锦" overlayClassName="global_help">
+            <div style={{ width: "calc(100vw - 700px)" }}>
                 <div style={{
-                    border: projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST ? "2px solid orange" : undefined,
+                    border: (appStore.showHelp || projectStore.showProjectSetting == PROJECT_SETTING_TAB.PROJECT_SETTING_TIPLIST) ? "2px solid orange" : undefined,
                     height: "30px", lineHeight: "20px", padding: "4px 4px", overflow: "hidden", color: "#aaa", fontSize: "14px", fontWeight: 600
                 }} >
                     {tipList.length > 0 && tipIndex < tipList.length && (
@@ -59,7 +60,7 @@ const ProjectTipList = () => {
                     )}
                 </div>
             </div>
-        </Tooltip>
+        </Popover>
     );
 };
 

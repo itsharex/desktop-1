@@ -181,11 +181,14 @@ const InfoCount = () => {
               <img src={memberIcon} alt="" />
             )}
             {userStore.sessionId == "" ? (
-              <Popover placement='bottom' overlayClassName="global_help"
-                open={appStore.showHelp}
+              <Popover placement='right' overlayClassName="global_help"
+                open={appStore.showHelp} destroyTooltipOnHide
                 title="登录凌鲨" content={
                   <div>
                     <p>登录后可使用项目，团队和技能中心功能</p>
+                    {(appStore.clientCfg?.atom_git_client_id ?? "") != "" && (
+                      <p>支持AtomGit账号登录</p>
+                    )}
                   </div>
                 } >
                 <Button type="primary"
@@ -223,7 +226,7 @@ const InfoCount = () => {
 
 
       <div className={s.right_wrap}>
-        <Popover placement='bottom' overlayClassName="global_help"
+        <Popover placement='left' overlayClassName="global_help"
           title="管理SSH密钥"
           content="SSH密钥用于clone,push,pull代码仓库"
           open={appStore.showHelp}>
