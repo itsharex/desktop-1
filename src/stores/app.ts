@@ -31,7 +31,7 @@ class AppStore {
     return this._clientCfg;
   }
 
-  private _curExtraMenu : clientCfgApi.ExtraMenuItem | null= null;
+  private _curExtraMenu: clientCfgApi.ExtraMenuItem | null = null;
 
   get curExtraMenu() {
     return this._curExtraMenu;
@@ -146,6 +146,19 @@ class AppStore {
   set openMinAppId(val: string) {
     runInAction(() => {
       this._openMinAppId = val;
+    });
+  }
+
+  // 显示帮助
+  private _showHelp = false;
+
+  get showHelp() {
+    return this._showHelp;
+  }
+
+  set showHelp(val: boolean) {
+    runInAction(() => {
+      this._showHelp = val;
     });
   }
 }

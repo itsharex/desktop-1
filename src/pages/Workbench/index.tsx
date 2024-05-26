@@ -37,6 +37,7 @@ const Workbench: React.FC = () => {
   const type = urlParams.get('type');
   const [passwordModal, setPasswordModal] = useState(type === 'resetPassword');
 
+  const appStore = useStores('appStore');
   const userStore = useStores('userStore');
   const projectStore = useStores('projectStore');
   const orgStore = useStores('orgStore');
@@ -94,24 +95,31 @@ const Workbench: React.FC = () => {
         tabBarExtraContent={
           <div>
             {tab == "userApp" && (
-              <Button
-                type="link"
-                style={{ marginRight: "20px" }} onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  history.push(`${PUB_RES_PATH}?tab=appStore`);
-                }}>前往应用市场<DoubleRightOutlined /></Button>
+              <Popover placement='bottom' overlayClassName="global_help"
+                open={appStore.showHelp} title="前往应用市场" content="应用市场提供了研发常用的小工具">
+                <Button
+                  type="link"
+                  style={{ marginRight: "20px" }} onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    history.push(`${PUB_RES_PATH}?tab=appStore`);
+                  }}>前往应用市场<DoubleRightOutlined /></Button>
+              </Popover>
             )}
             {tab == "localRepo" && localRepoStore.checkResult != null && (
               <Space>
                 {localRepoStore.checkResult.hasGit == false && (
                   <>
-                    <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
-                      onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        shell_open("https://git-scm.com/downloads");
-                      }}><WarningOutlined />安装Git工具</Button>
+                    <Popover placement='bottom' overlayClassName="global_help"
+                      open={appStore.showHelp}
+                      content={<p style={{ fontWeight: 700 }}>需要本地安装Git工具后才能使用本地仓库功能</p>}>
+                      <Button type="text" style={{ color: "red", fontWeight: 700, fontSize: "14px" }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          shell_open("https://git-scm.com/downloads");
+                        }}><WarningOutlined />安装Git工具</Button>
+                    </Popover>
                     <Button type="default" onClick={e => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -151,13 +159,17 @@ const Workbench: React.FC = () => {
                     }}><WarningOutlined />未配置GitLfs</Button>
                 )}
                 {localRepoStore.checkResult.hasGit && (
-                  <Button style={{ marginRight: "20px" }} onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setShowAddRepoModal(true);
-                  }}>
-                    添加代码仓库
-                  </Button>
+                  <Popover placement='bottom' overlayClassName="global_help"
+                    open={appStore.showHelp} content="添加本地仓库或clone远程仓库">
+                    <Button style={{ marginRight: "20px" }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowAddRepoModal(true);
+                      }}>
+                      添加代码仓库
+                    </Button>
+                  </Popover>
                 )}
                 <Popover trigger="click" placement="bottom" content={
                   <Space direction="vertical" style={{ padding: "10px 10px" }}>

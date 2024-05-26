@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import { MenuOutlined } from "@ant-design/icons";
-import { Dropdown, Modal } from "antd";
+import { Dropdown, Modal, Popover } from "antd";
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
 import type { MenuProps } from 'antd';
@@ -585,11 +585,14 @@ const ProjectQuickAccess = () => {
 
     return (
         <>
-            <Dropdown overlayStyle={{ minWidth: "100px" }} menu={{ items, subMenuCloseDelay: 0.05, onClick: (info: MenuInfo) => onMenuClick(info) }} trigger={["click"]} >
-                <a onClick={(e) => e.preventDefault()} style={{ margin: "0px 10px", color: "orange", fontSize: "18px" }} title="项目快捷菜单">
-                    <MenuOutlined />
-                </a>
-            </Dropdown >
+            <Popover placement='left' overlayClassName="global_help"
+                open={appStore.showHelp} content="项目快捷菜单">
+                <Dropdown overlayStyle={{ minWidth: "100px" }} menu={{ items, subMenuCloseDelay: 0.05, onClick: (info: MenuInfo) => onMenuClick(info) }} trigger={["click"]} >
+                    <a onClick={(e) => e.preventDefault()} style={{ margin: "0px 10px", color: "orange", fontSize: "18px" }} title="项目快捷菜单">
+                        <MenuOutlined />
+                    </a>
+                </Dropdown >
+            </Popover>
             {showHelp == true && (
                 <Modal open title="快捷键帮助" footer={null}
                     bodyStyle={{ height: "calc(100vh - 300px)", overflowY: "scroll", padding: "0px 0px" }}
