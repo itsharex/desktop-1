@@ -188,10 +188,12 @@ fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key:
             } else {
                 println!("{:?}", sub_res.err().unwrap());
             }
-            let cur_value = (&app_handle).state::<CurSession>().inner();
-            let cur_session = cur_value.0.lock().await;
-            if cur_session.is_none() {
-                break;
+            {
+                let cur_value = (&app_handle).state::<CurSession>().inner();
+                let cur_session = cur_value.0.lock().await;
+                if cur_session.is_none() {
+                    break;
+                }
             }
             sleep(Duration::from_secs(5)).await;
         }

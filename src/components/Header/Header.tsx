@@ -302,7 +302,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
             </Popover>
           )}
           <QuestionCircleTwoTone twoToneColor={appStore.showHelp ? ["white", "orange"] : ["white", "grey"]}
-            style={{ cursor: "default",fontSize:"28px" }}
+            style={{ cursor: "default",fontSize:"24px" }}
             onMouseEnter={e => {
               e.stopPropagation();
               e.preventDefault();
