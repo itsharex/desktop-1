@@ -166,6 +166,7 @@ export interface OrgForumListProps {
 }
 
 const OrgForumList = (props: OrgForumListProps) => {
+    const appStore = useStores('appStore');
     const userStore = useStores('userStore');
     const orgStore = useStores('orgStore');
 
@@ -219,12 +220,16 @@ const OrgForumList = (props: OrgForumListProps) => {
             headStyle={{ backgroundColor: "#eee", fontWeight: 600 }}
             extra={<>
                 {orgStore.curOrg != undefined && userStore.userInfo.userId == orgStore.curOrg.owner_user_id && (
-                    <Button type="link" icon={<PlusOutlined />} title="创建讨论组"
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setShowCreateModal(true);
-                        }} />
+                    <Popover placement='bottom' overlayClassName="global_help"
+                        open={appStore.showHelp}
+                        content="创建团队讨论组" >
+                        <Button type="link" icon={<PlusOutlined />} title="创建讨论组"
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowCreateModal(true);
+                            }} />
+                    </Popover>
                 )}
             </>}>
             <List rowKey="forum_id" dataSource={forumList} pagination={false}

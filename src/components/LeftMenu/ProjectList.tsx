@@ -13,6 +13,7 @@ import { ProjectOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 import { useHistory, useLocation } from "react-router-dom";
 import { APP_PROJECT_MANAGER_PATH } from "@/utils/constant";
+import { Popover } from "antd";
 
 
 const ProjectList = () => {
@@ -44,7 +45,10 @@ const ProjectList = () => {
                         history.push(APP_PROJECT_MANAGER_PATH);
                     }
                 }}>
-                    <ProjectOutlined style={{ width: "20px" }} />项目
+                    <Popover placement='right' overlayClassName="global_help"
+                        open={appStore.showHelp} content="管理项目">
+                        <ProjectOutlined style={{ width: "20px" }} />项目
+                    </Popover>
                 </div>
 
             </div>

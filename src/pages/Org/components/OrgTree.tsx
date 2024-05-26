@@ -20,6 +20,7 @@ export interface OrgTreeProps {
 }
 
 const OrgTree = (props: OrgTreeProps) => {
+    const appStore = useStores('appStore');
     const userStore = useStores('userStore');
     const orgStore = useStores('orgStore');
 
@@ -108,7 +109,7 @@ const OrgTree = (props: OrgTreeProps) => {
                         <ReadOnlyEditor content={orgStore.curOrg?.basic_info.org_desc ?? ""} />
                     </div>
                 } destroyTooltipOnHide>
-                    <InfoCircleOutlined style={{ color: "blue",fontSize:"14px" }} />
+                    <InfoCircleOutlined style={{ color: "blue", fontSize: "14px" }} />
                 </Popover>
             </>
         }
@@ -118,16 +119,24 @@ const OrgTree = (props: OrgTreeProps) => {
                 <>
                     {userStore.userInfo.userId == orgStore.curOrg?.owner_user_id && (
                         <Space>
-                            <Button type="primary" icon={<UserAddOutlined />} onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                orgStore.showInviteMember = true;
-                            }}>邀请</Button>
-                            <Button type="text" icon={<SettingOutlined />} title="设置" onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setShowUpdateModal(true);
-                            }} />
+                            <Popover placement='bottom' overlayClassName="global_help"
+                                open={appStore.showHelp} title="团队设置"
+                                content="邀请成员加入团队" >
+                                <Button type="primary" icon={<UserAddOutlined />} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    orgStore.showInviteMember = true;
+                                }}>邀请</Button>
+                            </Popover>
+                            <Popover placement='right' overlayClassName="global_help"
+                                open={appStore.showHelp}
+                                content="对团队进行设置">
+                                <Button type="text" icon={<SettingOutlined />} title="设置" onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowUpdateModal(true);
+                                }} />
+                            </Popover>
                         </Space>
                     )}
                 </>

@@ -8,7 +8,7 @@ import { request } from "@/utils/request";
 import { ALARM_TYPE_ISSUE_DELAY_ALERT, ALARM_TYPE_ISSUE_DELAY_HIT, ALARM_TYPE_ISSUE_DEPEND_ALERT, ALARM_TYPE_ISSUE_DEPEND_HIT, ALARM_TYPE_ISSUE_REOPEN_ALERT, ALARM_TYPE_ISSUE_REOPEN_HIT } from "@/api/project_alarm";
 import { list_alarm, remove_alarm } from "@/api/project_alarm";
 import type { Alarm } from "@/api/project_alarm";
-import { Badge, Button,  Popover, Space, Table, message } from "antd";
+import { Badge, Button, Popover, Space, Table, message } from "antd";
 import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 import { useHistory } from "react-router-dom";
@@ -153,30 +153,34 @@ const AlarmList: React.FC<AlarmListProps> = (props) => {
 }
 
 const AlarmHeader = () => {
+    const appStore = useStores("appStore");
     const projectStore = useStores("projectStore");
 
     return (
-        <div style={{ marginRight: "80px" }}>
-            <Space size="middle">
-                <Popover open={projectStore.curProject?.project_status.alarm_hit_count == 0 ? false : undefined} trigger="hover"
-                    mouseLeaveDelay={1}
-                    content={<AlarmList includeHit={true} includeAlert={false} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
-                    <Badge count={projectStore.curProject?.project_status.alarm_hit_count} size="small">
-                        <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_hit_count == 0 ? "#ccc" : ["#aaa", "yellow"]} title="风险提示" />
-                    </Badge>
-                </Popover>
+        <Popover placement='top' overlayClassName="global_help"
+            open={appStore.showHelp} title="项目预警" content="对项目中的风险提出提示/警告">
+            <div style={{ marginRight: "60px", padding:"0px 10px", backgroundColor: appStore.showHelp ? "mintcream" : undefined }}>
+                <Space size="middle">
+                    <Popover open={projectStore.curProject?.project_status.alarm_hit_count == 0 ? false : undefined} trigger="hover"
+                        mouseLeaveDelay={1}
+                        content={<AlarmList includeHit={true} includeAlert={false} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
+                        <Badge count={projectStore.curProject?.project_status.alarm_hit_count} size="small">
+                            <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_hit_count == 0 ? "#ccc" : ["#aaa", "yellow"]} title="风险提示" />
+                        </Badge>
+                    </Popover>
 
 
-                <Popover open={projectStore.curProject?.project_status.alarm_alert_count == 0 ? false : undefined} trigger="hover"
-                    mouseLeaveDelay={1}
-                    content={<AlarmList includeHit={false} includeAlert={true} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
-                    <Badge count={projectStore.curProject?.project_status.alarm_alert_count} size="small">
-                        <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_alert_count == 0 ? "#ccc" : ["#aaa", "red"]} title="风险警告" />
-                    </Badge>
-                </Popover>
+                    <Popover open={projectStore.curProject?.project_status.alarm_alert_count == 0 ? false : undefined} trigger="hover"
+                        mouseLeaveDelay={1}
+                        content={<AlarmList includeHit={false} includeAlert={true} />} placement="topLeft" destroyTooltipOnHide autoAdjustOverflow>
+                        <Badge count={projectStore.curProject?.project_status.alarm_alert_count} size="small">
+                            <AlertTwoTone style={{ fontSize: "20px", cursor: "default" }} twoToneColor={projectStore.curProject?.project_status.alarm_alert_count == 0 ? "#ccc" : ["#aaa", "red"]} title="风险警告" />
+                        </Badge>
+                    </Popover>
 
-            </Space>
-        </div >
+                </Space>
+            </div >
+        </Popover>
     );
 };
 

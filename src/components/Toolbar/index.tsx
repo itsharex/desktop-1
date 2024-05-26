@@ -1,9 +1,9 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Badge, Divider, Tooltip } from 'antd';
+import { Badge, Divider, Popover } from 'antd';
 
 import style from './index.module.less';
 import { useStores } from '@/hooks';
@@ -13,6 +13,10 @@ import { APP_PROJECT_HOME_PATH, APP_PROJECT_KB_BOARD_PATH, APP_PROJECT_KB_DOC_PA
 
 const Item: React.FC<{ id: string; pathname: string; title: string; badge?: number }> = observer((props) => {
   const history = useHistory();
+
+  const apptStore = useStores('appStore');
+
+  const [hover, setHover] = useState(false);
 
   const current = props.pathname.includes(props.id);
   const gotoPage = (id: string) => {
@@ -30,24 +34,33 @@ const Item: React.FC<{ id: string; pathname: string; title: string; badge?: numb
   };
 
   return (
-    <Tooltip
-      title={<span>{props.title}</span>}
+    <Popover overlayClassName="global_help"
+      content={props.title}
       placement="left"
-      color="orange"
-      overlayInnerStyle={{ color: 'black' }}
+      open={apptStore.showHelp ? true : hover}
     >
       <div
         data-menu-id={props.id}
         className={current ? style.menuCurrent : style.menu}
         onClick={() => gotoPage(props.id)}
+        onMouseEnter={e=>{
+          e.stopPropagation();
+          e.preventDefault();
+          setHover(true);
+        }}
+        onMouseLeave={e=>{
+          e.stopPropagation();
+          e.preventDefault();
+          setHover(false);
+        }}
       >
         <Badge
           count={props.badge ?? 0}
-          offset={ [15, -18]}
+          offset={[15, -18]}
           style={{ padding: ' 0   3px', height: '16px', lineHeight: '16px' }}
         />
       </div>
-    </Tooltip>
+    </Popover>
   );
 });
 
