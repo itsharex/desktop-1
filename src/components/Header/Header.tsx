@@ -8,7 +8,7 @@ import style from './index.module.less';
 import { Badge, Button, Layout, Popover, Progress, Space, Table, message } from 'antd';
 import { observer } from 'mobx-react';
 import { useStores } from '@/hooks';
-import { CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreOutlined, PartitionOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreOutlined, PartitionOutlined, QuestionCircleTwoTone } from '@ant-design/icons';
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
@@ -301,6 +301,18 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Badge>
             </Popover>
           )}
+          <QuestionCircleTwoTone twoToneColor={appStore.showHelp ? ["white", "orange"] : ["white", "grey"]}
+            style={{ cursor: "default",fontSize:"28px" }}
+            onMouseEnter={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              appStore.showHelp = true;
+            }}
+            onMouseLeave={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              appStore.showHelp = false;
+            }} />
           <div className={style.btnMinimize} onClick={() => handleClick('minimize')} title="最小化" />
           <div className={style.btnMaximize} onClick={() => handleClick('maximize')} title="最大化/恢复" />
           <div className={style.btnClose} title="隐藏窗口" onClick={() => handleClick('hide')} />

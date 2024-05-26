@@ -69,7 +69,7 @@ export async function check_git_env(): Promise<GitEnvCheckResult> {
     const obj = JSON.parse(result.stdout) as GitwrapResult;
     return obj.data as GitEnvCheckResult;
     // return {
-    //     hasGit: true,
+    //     hasGit: false,
     //     hasConfigGit: true,
     //     hasGitLfs: true,
     //     hasConfigGitLfs: false,

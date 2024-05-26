@@ -11,6 +11,7 @@ import { TeamOutlined } from "@ant-design/icons";
 import { useStores } from "@/hooks";
 import CreatedOrJoinOrg from "./CreatedOrJoinOrg";
 import InviteOrgMember from "./InviteOrgMember";
+import { Popover } from "antd";
 
 const OrgList = () => {
     const location = useLocation();
@@ -40,7 +41,10 @@ const OrgList = () => {
                         history.push(APP_ORG_MANAGER_PATH);
                     }
                 }}>
-                    <TeamOutlined style={{ width: "20px" }} />团队
+                    <Popover placement='right' overlayClassName="global_help"
+                        open={appStore.showHelp} content="管理团队">
+                        <TeamOutlined style={{ width: "20px" }} />团队
+                    </Popover>
                 </div>
             </div>
 
