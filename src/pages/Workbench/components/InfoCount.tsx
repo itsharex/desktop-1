@@ -145,87 +145,91 @@ const InfoCount = () => {
 
   return (
     <div className={s.infoCount_wrap}>
-      <div className={s.left_wrap}>
-        <Popover placement='bottom' overlayClassName="global_help"
-          open={appStore.showHelp && userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_INTERNAL && !userStore.userInfo.testAccount}
-          title="更改用户头像" content="可以修改用户头像">
-          <div style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL || userStore.sessionId == "") ? "default" : "pointer" }}
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (userStore.sessionId == "") {
-                return;
-              }
-              if (userStore.userInfo.testAccount) {
-                return;
-              }
-              if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
-                return;
-              }
-              setPictrueListVisible(true);
-              userStore.accountsModal = false;
-            }}>
-            <UserPhoto logoUri={userStore.userInfo.logoUri} width='60px' style={{ border: "1px solid white", borderRadius: "30px", marginRight: "14px" }} />
-          </div>
-        </Popover>
-        <div className={s.content}>
-          {userStore.sessionId != "" && (
-            <div className={s.name}>
-              欢迎您！{userStore.userInfo.displayName}
+      {(appStore.clientCfg?.disable_login ?? false) == true && (<div className={s.left_wrap} />)}
+      {(appStore.clientCfg?.disable_login ?? false) == false && (
+        <div className={s.left_wrap}>
+          <Popover placement='bottom' overlayClassName="global_help"
+            open={appStore.showHelp && userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_INTERNAL && !userStore.userInfo.testAccount}
+            title="更改用户头像" content="可以修改用户头像">
+            <div style={{ cursor: (userStore.userInfo.testAccount || userStore.userInfo.userType != USER_TYPE_INTERNAL || userStore.sessionId == "") ? "default" : "pointer" }}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (userStore.sessionId == "") {
+                  return;
+                }
+                if (userStore.userInfo.testAccount) {
+                  return;
+                }
+                if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
+                  return;
+                }
+                setPictrueListVisible(true);
+                userStore.accountsModal = false;
+              }}>
+              <UserPhoto logoUri={userStore.userInfo.logoUri} width='60px' style={{ border: "1px solid white", borderRadius: "30px", marginRight: "14px" }} />
             </div>
-          )}
-          <div
-            className={s.account}
-          >
+          </Popover>
+          <div className={s.content}>
             {userStore.sessionId != "" && (
-              <img src={memberIcon} alt="" />
+              <div className={s.name}>
+                欢迎您！{userStore.userInfo.displayName}
+              </div>
             )}
-            {userStore.sessionId == "" ? (
-              <Popover placement='right' overlayClassName="global_help"
-                open={appStore.showHelp} destroyTooltipOnHide
-                title="登录凌鲨" content={
-                  <div>
-                    <p>登录后可使用项目，团队和技能中心功能</p>
-                    {(appStore.clientCfg?.atom_git_client_id ?? "") != "" && (
-                      <p>支持AtomGit账号登录</p>
-                    )}
-                     {(appStore.clientCfg?.gitee_client_id ?? "") != "" && (
-                      <p>支持Gitee账号登录</p>
-                    )}
-                  </div>
-                } >
-                <Button type="primary"
-                  onClick={e => {
+            <div
+              className={s.account}
+            >
+              {userStore.sessionId != "" && (
+                <img src={memberIcon} alt="" />
+              )}
+              {userStore.sessionId == "" ? (
+                <Popover placement='right' overlayClassName="global_help"
+                  open={appStore.showHelp} destroyTooltipOnHide
+                  title="登录凌鲨" content={
+                    <div>
+                      <p>登录后可使用项目，团队和技能中心功能</p>
+                      {(appStore.clientCfg?.atom_git_client_id ?? "") != "" && (
+                        <p>支持AtomGit账号登录</p>
+                      )}
+                      {(appStore.clientCfg?.gitee_client_id ?? "") != "" && (
+                        <p>支持Gitee账号登录</p>
+                      )}
+                    </div>
+                  } >
+                  <Button type="primary"
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      userStore.showUserLogin = () => { };
+                    }}>登录</Button>
+                </Popover>
+              ) : (
+                <Space style={{ paddingLeft: "2px" }}>
+                  {userStore.userInfo.testAccount == false && userStore.userInfo.userType == USER_TYPE_INTERNAL && (
+                    <a onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setPasswordVisible(true);
+                      userStore.accountsModal = false;
+                    }}>修改密码</a>
+                  )}
+                  <a style={{ fontSize: "12px" }} onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();
-                    userStore.showUserLogin = () => { };
-                  }}>登录</Button>
-              </Popover>
-            ) : (
-              <Space style={{ paddingLeft: "2px" }}>
-                {userStore.userInfo.testAccount == false && userStore.userInfo.userType == USER_TYPE_INTERNAL && (
-                  <a onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setPasswordVisible(true);
+                    if (appStore.inEdit) {
+                      message.info("请先保存修改内容");
+                      return;
+                    }
+                    setShowExit(true);
                     userStore.accountsModal = false;
-                  }}>修改密码</a>
-                )}
-                <a style={{ fontSize: "12px" }} onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (appStore.inEdit) {
-                    message.info("请先保存修改内容");
-                    return;
-                  }
-                  setShowExit(true);
-                  userStore.accountsModal = false;
-                }}>退出登录</a>
-              </Space>
-            )}
+                  }}>退出登录</a>
+                </Space>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
 
 
       <div className={s.right_wrap}>

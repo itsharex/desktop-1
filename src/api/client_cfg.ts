@@ -31,6 +31,7 @@ export type GetCfgResponse = {
   gitee_client_id: string;
   server_time: number;
   client_time: number; //本地属性，非服务端返回
+  disable_login?: boolean;
 };
 
 export type ServerInfo = {
