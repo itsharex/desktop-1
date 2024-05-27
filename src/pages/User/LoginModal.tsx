@@ -87,8 +87,8 @@ const LoginModal = () => {
                 userStore.showUserLogin = null;
             }}>
             {loginTab == "login" && (
-                <Tabs tabPosition="top" type="card" defaultActiveKey={(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.atom_git_client_id != "") ? "extern" : "password"}>
-                    {(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.atom_git_client_id != "") && (
+                <Tabs tabPosition="top" type="card" defaultActiveKey={(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.gitee_client_id != "") ? "extern" : "password"}>
+                    {(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.gitee_client_id != "") && (
                         <Tabs.TabPane tab="外部账号" key="extern" style={{ padding: "20px 10px" }}>
                             {appStore.clientCfg?.atom_git_client_id != "" && (
                                 <Space style={{ marginBottom: "10px" }}>
@@ -103,7 +103,7 @@ const LoginModal = () => {
                                             openAtomLoginPage();
                                         }}>授权登录&nbsp;<ExportOutlined /></a>
                                     </div>
-                                    <div><a href="https://gitee.com/signup" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
+                                    <div><a href="https://passport.atomgit.com/login" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
                                 </Space>
                             )}
                             {appStore.clientCfg?.gitee_client_id != "" && (
@@ -119,7 +119,7 @@ const LoginModal = () => {
                                             openGiteeLoginPage();
                                         }}>授权登录&nbsp;<ExportOutlined /></a>
                                     </div>
-                                    <div><a href="https://passport.atomgit.com/login" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
+                                    <div><a href="https://gitee.com/signup" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
                                 </Space>
                             )}
 
