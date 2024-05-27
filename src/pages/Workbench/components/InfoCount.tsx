@@ -189,6 +189,9 @@ const InfoCount = () => {
                     {(appStore.clientCfg?.atom_git_client_id ?? "") != "" && (
                       <p>支持AtomGit账号登录</p>
                     )}
+                     {(appStore.clientCfg?.gitee_client_id ?? "") != "" && (
+                      <p>支持Gitee账号登录</p>
+                    )}
                   </div>
                 } >
                 <Button type="primary"

@@ -28,6 +28,7 @@ export type GetCfgResponse = {
   can_register: boolean;
   enable_admin: boolean;
   atom_git_client_id: string;
+  gitee_client_id: string;
   server_time: number;
   client_time: number; //本地属性，非服务端返回
 };

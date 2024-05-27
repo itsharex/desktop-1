@@ -11,6 +11,7 @@ export const USER_STATE_FORBIDDEN: USER_STATE = 1;  //冻结账户
 export type USER_TYPE = number;
 export const USER_TYPE_INTERNAL: USER_TYPE = 0;  //内部用户
 export const USER_TYPE_ATOM_GIT: USER_TYPE = 1;  // atomgit用户
+export const USER_TYPE_GITEE: USER_TYPE = 2;  // atomgit用户
 
 
 export type GenCaptchaResponse = {
