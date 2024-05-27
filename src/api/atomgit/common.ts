@@ -4,6 +4,8 @@
 export function get_username(username: string): string {
     if (username.startsWith("atomgit:")) {
         return username.substring("atomgit:".length);
+    }else if(username.startsWith("gitee:")) {
+        return username.substring("gitee:".length);
     }
     return username;
 }
