@@ -19,7 +19,7 @@ import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
-import { get_session, USER_TYPE_ATOM_GIT } from '@/api/user';
+import { get_session, USER_TYPE_ATOM_GIT, USER_TYPE_GITEE } from '@/api/user';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -254,7 +254,7 @@ class NoticeStore {
       setTimeout(() => {
         appWindow.setAlwaysOnTop(false);
       }, 200);
-      if(this.rootStore.userStore.sessionId == ""){
+      if (this.rootStore.userStore.sessionId == "") {
         return;
       }
       const projectId = notice.GitPostHookNotice.project_id;
@@ -298,6 +298,8 @@ class NoticeStore {
       this.rootStore.userStore.updateExtraToken(notice.NewExtraTokenNotice.extra_token);
     } else if (notice.AtomGitLoginNotice !== undefined) {
       this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
+    } else if (notice.GiteeLoginNotice !== undefined) {
+      this.rootStore.userStore.callLogin("", notice.GiteeLoginNotice.code, USER_TYPE_GITEE);
     }
   }
 

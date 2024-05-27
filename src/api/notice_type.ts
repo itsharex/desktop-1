@@ -394,6 +394,10 @@ export namespace client {
     code: string;
   };
 
+  export type GiteeLoginNotice = {
+    code: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     GitPostHookNotice?: GitPostHookNotice;
@@ -402,6 +406,7 @@ export namespace client {
     OpenEntryNotice?: OpenEntryNotice;
     NewExtraTokenNotice?: NewExtraTokenNotice;
     AtomGitLoginNotice?: AtomGitLoginNotice;
+    GiteeLoginNotice?: GiteeLoginNotice;
   };
 }
 
