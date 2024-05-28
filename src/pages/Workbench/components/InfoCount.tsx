@@ -21,6 +21,7 @@ import { joinOrgOrProject } from '@/components/LeftMenu/join';
 import Profile from '@/components/Profile';
 import * as fsApi from '@/api/fs';
 import PasswordModal from '@/components/PasswordModal';
+import UpdateDisplayNameModal from '@/pages/User/UpdateDisplayNameModal';
 
 interface JoinModalProps {
   onClose: () => void;
@@ -80,6 +81,7 @@ const InfoCount = () => {
   const [showSshKeyModal, setShowSshKeyModal] = useState(false);
   const [showExit, setShowExit] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showUpdateDisplayNameModal, setShowUpdateDisplayNameModal] = useState(false);
 
   const [pictrueListVisible, setPictrueListVisible] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -173,7 +175,18 @@ const InfoCount = () => {
           <div className={s.content}>
             {userStore.sessionId != "" && (
               <div className={s.name}>
-                欢迎您！{userStore.userInfo.displayName}
+                欢迎您！
+                <Popover placement='right' overlayClassName="global_help"
+                  open={appStore.showHelp && userStore.userInfo.userType == USER_TYPE_INTERNAL} content="可修改昵称">
+                  <span style={{ cursor: userStore.userInfo.userType == USER_TYPE_INTERNAL ? "pointer" : undefined }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      if (userStore.userInfo.userType == USER_TYPE_INTERNAL) {
+                        setShowUpdateDisplayNameModal(true);
+                      }
+                    }}>{userStore.userInfo.displayName}</span>
+                </Popover>
               </div>
             )}
             <div
@@ -424,6 +437,9 @@ const InfoCount = () => {
       )}
       {passwordVisible && (
         <PasswordModal visible={passwordVisible} onCancel={setPasswordVisible} />
+      )}
+      {showUpdateDisplayNameModal && (
+        <UpdateDisplayNameModal onClose={() => setShowUpdateDisplayNameModal(false)} />
       )}
     </div>
   );
