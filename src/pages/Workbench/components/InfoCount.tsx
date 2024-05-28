@@ -201,12 +201,10 @@ const InfoCount = () => {
                   title="登录凌鲨" content={
                     <div>
                       <p>登录后可使用项目，团队和技能中心功能</p>
-                      {(appStore.clientCfg?.atom_git_client_id ?? "") != "" && (
-                        <p>支持AtomGit账号登录</p>
+                      {((appStore.clientCfg?.atom_git_client_id ?? "") != "" || (appStore.clientCfg?.gitee_client_id ?? "") != "") && (
+                        <p>同时支持外部账号{`${(appStore.clientCfg?.atom_git_client_id ?? "") != "" ? " AtomGit" : ""} ${(appStore.clientCfg?.gitee_client_id ?? "") != "" ? " Gitee" : ""}`}</p>
                       )}
-                      {(appStore.clientCfg?.gitee_client_id ?? "") != "" && (
-                        <p>支持Gitee账号登录</p>
-                      )}
+
                     </div>
                   } >
                   <Button type="primary"
