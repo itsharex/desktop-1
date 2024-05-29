@@ -12,6 +12,7 @@ export type USER_TYPE = number;
 export const USER_TYPE_INTERNAL: USER_TYPE = 0;  //内部用户
 export const USER_TYPE_ATOM_GIT: USER_TYPE = 1;  // atomgit用户
 export const USER_TYPE_GITEE: USER_TYPE = 2;  // atomgit用户
+export const USER_TYPE_JIHU_LAB: USER_TYPE = 3;  // jihulab用户
 
 
 export type GenCaptchaResponse = {

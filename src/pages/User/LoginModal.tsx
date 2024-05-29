@@ -11,6 +11,7 @@ import { get_conn_server_addr } from "@/api/main";
 import { USER_TYPE_INTERNAL } from "@/api/user";
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import iconGitee from '@/assets/allIcon/icon-gitee.png';
+import iconGitlab from '@/assets/allIcon/icon-gitlab.png';
 import { ExportOutlined } from "@ant-design/icons";
 import { WebviewWindow } from '@tauri-apps/api/window';
 import { sleep } from "@/utils/time";
@@ -60,8 +61,24 @@ const LoginModal = () => {
         }
         await sleep(200);
         new WebviewWindow(label, {
-            url: `https://gitee.com/oauth/authorize?client_id=${appStore.clientCfg?.gitee_client_id??""}&redirect_uri=${encodeURIComponent("https://www.linksaas.pro/callback/gitee")}&response_type=code`,
+            url: `https://gitee.com/oauth/authorize?client_id=${appStore.clientCfg?.gitee_client_id ?? ""}&redirect_uri=${encodeURIComponent("https://www.linksaas.pro/callback/gitee")}&response_type=code`,
             title: "Gitee授权登录",
+            alwaysOnTop: true,
+            width: 1200,
+            height: 760,
+        });
+    };
+
+    const openJihulabLoginPage = async () => {
+        const label = "jihulabLogin";
+        const win = await WebviewWindow.getByLabel(label);
+        if (win != null) {
+            await win.close();
+        }
+        await sleep(200);
+        new WebviewWindow(label, {
+            url: `https://jihulab.com/oauth/authorize?client_id=${appStore.clientCfg?.jihulab_client_id ?? ""}&redirect_uri=${encodeURIComponent("https://www.linksaas.pro/callback/jihulab")}&response_type=code&state=STATE&scope=${encodeURIComponent("read_user read_repository")}`,
+            title: "Jihulab授权登录",
             alwaysOnTop: true,
             width: 1200,
             height: 760,
@@ -91,7 +108,7 @@ const LoginModal = () => {
                     {(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.gitee_client_id != "") && (
                         <Tabs.TabPane tab="外部账号" key="extern" style={{ padding: "20px 10px" }}>
                             {appStore.clientCfg?.atom_git_client_id != "" && (
-                                <Space style={{ marginBottom: "10px" }}>
+                                <Space style={{ marginBottom: "20px" }}>
                                     <div style={{ width: "150px" }}>
                                         <img src={iconAtomgit} style={{ width: "20px", marginRight: "10px" }} />
                                         AtomGit
@@ -107,7 +124,7 @@ const LoginModal = () => {
                                 </Space>
                             )}
                             {appStore.clientCfg?.gitee_client_id != "" && (
-                                <Space>
+                                <Space style={{ marginBottom: "20px" }}>
                                     <div style={{ width: "150px" }}>
                                         <img src={iconGitee} style={{ width: "20px", marginRight: "10px" }} />
                                         Gitee
@@ -122,7 +139,22 @@ const LoginModal = () => {
                                     <div><a href="https://gitee.com/signup" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
                                 </Space>
                             )}
-
+                            {appStore.clientCfg?.jihulab_client_id != "" && (
+                                <Space style={{ marginBottom: "20px" }}>
+                                    <div style={{ width: "150px" }}>
+                                        <img src={iconGitlab} style={{ width: "20px", marginRight: "10px" }} />
+                                        Jihulab
+                                    </div>
+                                    <div style={{ width: "200px" }}>
+                                        <a onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            openJihulabLoginPage();
+                                        }}>授权登录&nbsp;<ExportOutlined /></a>
+                                    </div>
+                                    <div><a href="https://jihulab.com/users/sign_up" target="_blank" rel="noreferrer">注册账号&nbsp;<ExportOutlined /></a></div>
+                                </Space>
+                            )}
                         </Tabs.TabPane>
                     )}
                     <Tabs.TabPane tab="内部账号" key="password">

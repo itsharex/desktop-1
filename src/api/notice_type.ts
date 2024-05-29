@@ -398,6 +398,10 @@ export namespace client {
     code: string;
   };
 
+  export type JihulabLoginNotice = {
+    code: string;
+  };
+
   export type AllNotice = {
     WrongSessionNotice?: WrongSessionNotice;
     GitPostHookNotice?: GitPostHookNotice;
@@ -407,6 +411,7 @@ export namespace client {
     NewExtraTokenNotice?: NewExtraTokenNotice;
     AtomGitLoginNotice?: AtomGitLoginNotice;
     GiteeLoginNotice?: GiteeLoginNotice;
+    JihulabLoginNotice?: JihulabLoginNotice;
   };
 }
 

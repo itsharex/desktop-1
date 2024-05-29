@@ -202,7 +202,7 @@ const InfoCount = () => {
                     <div>
                       <p>登录后可使用项目，团队和技能中心功能</p>
                       {((appStore.clientCfg?.atom_git_client_id ?? "") != "" || (appStore.clientCfg?.gitee_client_id ?? "") != "") && (
-                        <p>同时支持外部账号{`${(appStore.clientCfg?.atom_git_client_id ?? "") != "" ? " AtomGit" : ""} ${(appStore.clientCfg?.gitee_client_id ?? "") != "" ? " Gitee" : ""}`}</p>
+                        <p>同时支持外部账号{`${(appStore.clientCfg?.atom_git_client_id ?? "") != "" ? " AtomGit" : ""} ${(appStore.clientCfg?.gitee_client_id ?? "") != "" ? " Gitee" : ""} ${(appStore.clientCfg?.jihulab_client_id ?? "") != "" ? " Jihulab" : ""}`}</p>
                       )}
 
                     </div>
