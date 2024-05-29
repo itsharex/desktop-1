@@ -19,7 +19,7 @@ import { get as get_issue } from '@/api/project_issue';
 import { APP_PROJECT_HOME_PATH } from '@/utils/constant';
 import { message } from 'antd';
 import type { COMMENT_TARGET_TYPE } from '@/api/project_comment';
-import { get_session, USER_TYPE_ATOM_GIT, USER_TYPE_GITEE } from '@/api/user';
+import { get_session, USER_TYPE_ATOM_GIT, USER_TYPE_GITEE, USER_TYPE_JIHU_LAB } from '@/api/user';
 
 class NoticeStore {
   constructor(rootStore: RootStore) {
@@ -300,6 +300,8 @@ class NoticeStore {
       this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
     } else if (notice.GiteeLoginNotice !== undefined) {
       this.rootStore.userStore.callLogin("", notice.GiteeLoginNotice.code, USER_TYPE_GITEE);
+    } else if(notice.JihulabLoginNotice !== undefined){
+      this.rootStore.userStore.callLogin("", notice.JihulabLoginNotice.code, USER_TYPE_JIHU_LAB);
     }
   }
 
