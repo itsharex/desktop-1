@@ -4,14 +4,14 @@
 export function get_username(username: string): string {
     if (username.startsWith("atomgit:")) {
         return username.substring("atomgit:".length);
-    }else if(username.startsWith("gitee:")) {
+    } else if (username.startsWith("gitee:")) {
         return username.substring("gitee:".length);
     }
     return username;
 }
 
-export interface AtomGitUser {
-    id: string;
+export interface GiteeUser {
+    id: number;
     login: string;
     url: string;
     avatar_url: string;

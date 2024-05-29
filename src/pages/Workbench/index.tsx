@@ -18,8 +18,9 @@ import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
 import AddRepoModal from './components/AddRepoModal';
 import ResetDevModal from './components/ResetDevModal';
-import { USER_TYPE_ATOM_GIT } from '@/api/user';
+import { USER_TYPE_ATOM_GIT, USER_TYPE_GITEE } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
+import iconGitee from '@/assets/allIcon/icon-gitee.png';
 import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import GitConfigModal from './components/GitConfigModal';
@@ -29,6 +30,7 @@ import type { CommandResult } from "@/pages/Devc/components/types";
 import { Command } from "@tauri-apps/api/shell";
 import { InstallDockerHelp } from './components/LaunchRepoModal';
 import { install_lfs } from "@/api/git_wrap";
+import GiteePanel from './GiteePanel';
 
 const Workbench: React.FC = () => {
   const location = useLocation();
@@ -75,7 +77,7 @@ const Workbench: React.FC = () => {
   }, [userStore.sessionId]);
 
   useEffect(() => {
-    if (["localRepo", "atomGit"].includes(tab)) {
+    if (["localRepo", "atomGit", "gitee"].includes(tab)) {
       localRepoStore.init();
     }
   }, [tab]);
@@ -213,6 +215,30 @@ const Workbench: React.FC = () => {
                 </Popover>
               </Space>
             )}
+            {tab == "gitee" && (
+              <Space>
+                <Button type="link" onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  shell_open("https://gitee.com/projects/new");
+                }}>
+                  <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                    创建项目&nbsp;<ExportOutlined />
+                  </span>
+                </Button>
+                <Popover trigger="click" placement="bottom" content={
+                  <div style={{ padding: "10px 10px" }}>
+                    <Button type="link" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      shell_open("https://help.gitee.com/");
+                    }}>查看帮助&nbsp;<ExportOutlined /></Button>
+                  </div>
+                }>
+                  <MoreOutlined style={{ marginRight: "32px" }} />
+                </Popover>
+              </Space>
+            )}
             {tab == "devContext" && (
               <Space>
                 {hasDocker == false && (
@@ -235,6 +261,15 @@ const Workbench: React.FC = () => {
             {tab == "atomGit" && (
               <div className={s.content_wrap}>
                 <AtomGitPanel />
+              </div>
+            )}
+          </Tabs.TabPane>
+        )}
+        {userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_GITEE && (
+          <Tabs.TabPane tab={<h2><img src={iconGitee} style={{ width: "14px", marginRight: "10px", marginTop: "-4px" }} />Gitee</h2>} key="gitee">
+            {tab == "gitee" && (
+              <div className={s.content_wrap}>
+                <GiteePanel />
               </div>
             )}
           </Tabs.TabPane>
