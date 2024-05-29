@@ -2,32 +2,27 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
+import { observer } from "mobx-react";
+import { Button, Card, Dropdown, Empty, Layout, Menu, Space, Tabs } from "antd";
+import { type GiteeRepo, list_user_repo } from "@/api/gitee/repo";
 import { useStores } from "@/hooks";
-import { Button, Card, Dropdown, Empty, Input, Layout, Menu, Select, Space, Tabs, message } from "antd";
-import type { AtomGitRepo } from "@/api/atomgit/repo";
-import { list_user_repo, list_org_repo } from "@/api/atomgit/repo";
-import { DownOutlined, ExportOutlined, FilterFilled, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
+import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { list_remote as list_local_remote } from "@/api/local_repo";
-import AddRepoModal from "./components/AddRepoModal";
-import LaunchRepoModal from "./components/LaunchRepoModal";
-import { AtomGitBranchList, AtomGitIssueList, AtomGitTagList } from "./components/AtomGitList";
-import { type AtomGitOrg, list_user_org } from "@/api/atomgit/org";
 import { useHistory } from "react-router-dom";
 import { WORKBENCH_PATH } from "@/utils/constant";
-import { observer } from "mobx-react";
+import AddRepoModal from "./components/AddRepoModal";
+import LaunchRepoModal from "./components/LaunchRepoModal";
+import { GiteeBranchList, GiteeIssueList, GiteeTagList } from "./components/GiteeList";
 
-
-interface AtomGitRepoPanelProps {
-    curOrgId: string;
-    repoInfo?: AtomGitRepo;
+interface GiteeRepoPanelProps {
+    repoInfo?: GiteeRepo;
 }
 
-const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
+const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
     const history = useHistory();
 
     const localRepoStore = useStores("localRepoStore");
-
     const [localRepo, setLocalRepo] = useState<LocalRepoInfo | null>(null);
     const [cloneUrl, setCloneUrl] = useState("");
     const [showLaunchRepo, setShowLaunchRepo] = useState(false);
@@ -41,7 +36,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
         for (const tmpRepo of localRepoStore.repoExtList) {
             const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
             for (const remoteInfo of remoteList) {
-                if (remoteInfo.url == props.repoInfo.git_url || remoteInfo.url == props.repoInfo.html_url) {
+                if (remoteInfo.url == props.repoInfo.ssh_url || remoteInfo.url == props.repoInfo.html_url) {
                     setLocalRepo(tmpRepo.repoInfo);
                     return;
                 }
@@ -93,7 +88,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
                                             {
                                                 key: "ssh",
                                                 label: <span title={(localRepoStore.checkResult?.hasGit == false) ? "未安装Git工具" : ""}>SSH</span>,
-                                                onClick: () => setCloneUrl(props.repoInfo?.git_url ?? ""),
+                                                onClick: () => setCloneUrl(props.repoInfo?.ssh_url ?? ""),
                                                 disabled: localRepoStore.checkResult?.hasGit == false,
                                             },
                                             {
@@ -128,7 +123,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
                                     label: "工单列表",
                                     children: (
                                         <>
-                                            {activeKey == "issue" && <AtomGitIssueList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
+                                            {activeKey == "issue" && <GiteeIssueList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
                                         </>
                                     ),
                                 },
@@ -137,7 +132,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
                                     label: "分支列表",
                                     children: (
                                         <>
-                                            {activeKey == "branch" && <AtomGitBranchList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
+                                            {activeKey == "branch" && <GiteeBranchList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
                                         </>
                                     ),
                                 },
@@ -146,7 +141,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
                                     label: "标签列表",
                                     children: (
                                         <>
-                                            {activeKey == "tag" && <AtomGitTagList repoId={getRepoId(props.repoInfo.full_name ?? "")} curOrgId={props.curOrgId} />}
+                                            {activeKey == "tag" && <GiteeTagList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
                                         </>
                                     ),
                                 },
@@ -170,68 +165,25 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
     );
 });
 
-const AtomGitPanel = () => {
+const GiteePanel = () => {
     const userStore = useStores('userStore');
 
-    const [repoList, setRepoList] = useState([] as AtomGitRepo[]);
+    const [repoList, setRepoList] = useState([] as GiteeRepo[]);
     const [curRepoId, setCurRepoId] = useState("");
-    const [curOrgId, setCurOrgId] = useState("");
-    const [orgList, setOrgList] = useState([] as AtomGitOrg[]);
-    const [keyword, setKeyword] = useState("");
 
     const loadRepoList = async () => {
-        let res: null | AtomGitRepo[] = null;
-        if (curOrgId == "") {
-            res = await list_user_repo(userStore.userInfo.extraToken, userStore.userInfo.userName, 99, 1);
-        } else {
-            res = await list_org_repo(userStore.userInfo.extraToken, curOrgId, 99, 1);
-        }
+        const res = await list_user_repo(userStore.userInfo.extraToken, 100, 1);
         setRepoList(res);
-        if (res.length > 0 && res.map(item => item.id.toFixed(0)).includes(curRepoId) == false) {
-            setCurRepoId(res[0].id.toFixed(0));
-        }
     };
 
     useEffect(() => {
         loadRepoList();
-    }, [curOrgId]);
-
-    useEffect(() => {
-        list_user_org(userStore.userInfo.extraToken).then(res => setOrgList(res));
     }, []);
 
     return (
         <Layout>
             <Layout.Sider style={{ borderRight: "1px solid #e4e4e8" }} theme="light">
-                <Space style={{ padding: "10px 0px 10px 4px", backgroundColor: "#eee" }}>
-                    <Select value={curOrgId} onChange={value => {
-                        setCurOrgId(value);
-                        setKeyword("");
-                    }}
-                        style={{ width: "160px" }}>
-                        <Select.Option value="">个人项目</Select.Option>
-                        {orgList.map(org => (
-                            <Select.Option key={org.id} value={org.login}>组织&nbsp;{org.login}</Select.Option>
-                        ))}
-                    </Select>
-                    <Button title="刷新" type="text" icon={<ReloadOutlined />} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        loadRepoList().then(() => {
-                            message.info("刷新成功");
-                        });
-                    }} style={{ minWidth: 0, padding: "0px 0px" }} />
-                </Space>
-                <Space style={{ margin: "4px 0px" }}>
-                    <Input placeholder="搜索项目" style={{ width: "170px" }} allowClear value={keyword}
-                        onChange={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setKeyword(e.target.value.trim());
-                        }} />
-                    <FilterFilled />
-                </Space>
-                <Menu items={repoList.filter(repo => repo.name.includes(keyword)).map(repo => ({
+                <Menu items={repoList.map(repo => ({
                     key: repo.id.toFixed(0),
                     label: (
                         <Space style={{ fontSize: "14px" }}>
@@ -240,16 +192,16 @@ const AtomGitPanel = () => {
                             <div>{repo.name}</div>
                         </Space>
                     ),
-                }))} style={{ border: "none", height: "calc(100vh - 320px)", overflowY: "scroll" }} selectedKeys={curRepoId == "" ? [] : [curRepoId]}
+                }))} style={{ border: "none", height: "calc(100vh - 230px)", overflowY: "scroll" }} selectedKeys={curRepoId == "" ? [] : [curRepoId]}
                     onSelect={info => {
                         setCurRepoId(info.key);
                     }} />
             </Layout.Sider>
             <Layout.Content style={{ height: "calc(100vh - 230px)", overflowY: "scroll", backgroundColor: "white" }}>
-                <AtomGitRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} curOrgId={curOrgId} />
+                <GiteeRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} />
             </Layout.Content>
         </Layout>
-    )
+    );
 };
 
-export default observer(AtomGitPanel);
+export default observer(GiteePanel);
