@@ -3,23 +3,23 @@
 
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react";
-import { Button, Card, Dropdown, Empty, Layout, Menu, Space, Tabs } from "antd";
-import { type GiteeRepo, list_user_repo } from "@/api/gitee/repo";
+import { type JihulabRepo, list_user_repo } from "@/api/jihulab/repo";
 import { useStores } from "@/hooks";
+import { Button, Card, Dropdown, Empty, Layout, Menu, Space, Tabs } from "antd";
 import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined } from "@ant-design/icons";
+import { useHistory } from "react-router-dom";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { list_remote as list_local_remote } from "@/api/local_repo";
-import { useHistory } from "react-router-dom";
 import { WORKBENCH_PATH } from "@/utils/constant";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
-import { GiteeBranchList, GiteeIssueList, GiteeTagList } from "./components/GiteeList";
+import { JihulabBranchList, JihulabIssueList, JihulabTagList } from "./components/JihulabList";
 
-interface GiteeRepoPanelProps {
-    repoInfo?: GiteeRepo;
+interface JihulabRepoPanelProps {
+    repoInfo?: JihulabRepo;
 }
 
-const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
+const JihulabRepoPanel = observer((props: JihulabRepoPanelProps) => {
     const history = useHistory();
 
     const localRepoStore = useStores("localRepoStore");
@@ -36,22 +36,14 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
         for (const tmpRepo of localRepoStore.repoExtList) {
             const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
             for (const remoteInfo of remoteList) {
-                if (remoteInfo.url == props.repoInfo.ssh_url || remoteInfo.url == props.repoInfo.html_url) {
+                if (remoteInfo.url == props.repoInfo.ssh_url_to_repo || remoteInfo.url == props.repoInfo.http_url_to_repo) {
                     setLocalRepo(tmpRepo.repoInfo);
                     return;
                 }
             }
         }
     };
-
-    const getRepoId = (fullName: string) => {
-        const parts = fullName.split("/");
-        if (parts.length > 1) {
-            return parts[1];
-        }
-        return "";
-    };
-
+    
     useEffect(() => {
         findLocalRepo();
     }, [props.repoInfo?.id]);
@@ -64,7 +56,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
             {props.repoInfo != undefined && (
                 <>
                     <Card
-                        title={<a href={props.repoInfo.html_url} target="_blank" rel="noreferrer" style={{ fontSize: "16px", fontWeight: 600 }}>{props.repoInfo.name}&nbsp;<ExportOutlined /></a>}
+                        title={<a href={props.repoInfo.http_url_to_repo} target="_blank" rel="noreferrer" style={{ fontSize: "16px", fontWeight: 600 }}>{props.repoInfo.name}&nbsp;<ExportOutlined /></a>}
                         bordered={false} bodyStyle={{ minHeight: "50px" }} headStyle={{ backgroundColor: "#eee", height: "46px" }}
                         extra={
                             <Space>
@@ -88,13 +80,13 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
                                             {
                                                 key: "ssh",
                                                 label: <span title={(localRepoStore.checkResult?.hasGit == false) ? "未安装Git工具" : ""}>SSH</span>,
-                                                onClick: () => setCloneUrl(props.repoInfo?.ssh_url ?? ""),
+                                                onClick: () => setCloneUrl(props.repoInfo?.ssh_url_to_repo ?? ""),
                                                 disabled: localRepoStore.checkResult?.hasGit == false,
                                             },
                                             {
                                                 key: "https",
                                                 label: <span title={(localRepoStore.checkResult?.hasGit == false) ? "未安装Git工具" : ""}>HTTPS</span>,
-                                                onClick: () => setCloneUrl(props.repoInfo?.html_url ?? ""),
+                                                onClick: () => setCloneUrl(props.repoInfo?.http_url_to_repo ?? ""),
                                                 disabled: localRepoStore.checkResult?.hasGit == false,
                                             },
                                         ],
@@ -123,7 +115,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
                                     label: "工单列表",
                                     children: (
                                         <>
-                                            {activeKey == "issue" && <GiteeIssueList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
+                                            {activeKey == "issue" && <JihulabIssueList repoId={props.repoInfo.id??0} />}
                                         </>
                                     ),
                                 },
@@ -132,7 +124,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
                                     label: "分支列表",
                                     children: (
                                         <>
-                                            {activeKey == "branch" && <GiteeBranchList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
+                                            {activeKey == "branch" && <JihulabBranchList repoId={props.repoInfo.id??0} />}
                                         </>
                                     ),
                                 },
@@ -141,7 +133,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
                                     label: "标签列表",
                                     children: (
                                         <>
-                                            {activeKey == "tag" && <GiteeTagList repoId={getRepoId(props.repoInfo.full_name ?? "")} />}
+                                            {activeKey == "tag" && <JihulabTagList repoId={props.repoInfo.id??0} />}
                                         </>
                                     ),
                                 },
@@ -150,7 +142,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
                 </>
             )}
             {cloneUrl != "" && (
-                <AddRepoModal name={props.repoInfo?.name ?? ""} enName={getRepoId(props.repoInfo?.full_name ?? "")} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
+                <AddRepoModal name={props.repoInfo?.name ?? ""} enName={props.repoInfo?.path ?? ""} remoteUrl={cloneUrl} onCancel={() => setCloneUrl("")}
                     onOk={() => {
                         localRepoStore.loadRepoList().then(() => {
                             findLocalRepo();
@@ -165,18 +157,24 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
     );
 });
 
-const GiteePanel = () => {
+const JihulabPanel = () => {
     const userStore = useStores('userStore');
 
-    const [repoList, setRepoList] = useState([] as GiteeRepo[]);
+    const [repoList, setRepoList] = useState([] as JihulabRepo[]);
     const [curRepoId, setCurRepoId] = useState("");
 
     const loadRepoList = async () => {
-        const res = await list_user_repo(userStore.userInfo.extraToken, 100, 1);
+        const res = await list_user_repo(userStore.userInfo.extraToken);
         setRepoList(res);
         if (curRepoId == "" && res.length > 0) {
             setCurRepoId(res[0].id.toFixed(0));
         }
+    };
+
+    const adjustPath = (path: string) => {
+        const parts = path.split("/");
+        parts.shift();
+        return parts.join("/");
     };
 
     useEffect(() => {
@@ -190,9 +188,9 @@ const GiteePanel = () => {
                     key: repo.id.toFixed(0),
                     label: (
                         <Space style={{ fontSize: "14px" }}>
-                            {repo.private && <ProjectOutlined />}
-                            {repo.private == false && <GlobalOutlined />}
-                            <div>{repo.name}</div>
+                            {repo.visibility != "public" && <ProjectOutlined />}
+                            {repo.visibility == "public" && <GlobalOutlined />}
+                            <div>{adjustPath(repo.path_with_namespace)}</div>
                         </Space>
                     ),
                 }))} style={{ border: "none", height: "calc(100vh - 230px)", overflowY: "scroll" }} selectedKeys={curRepoId == "" ? [] : [curRepoId]}
@@ -201,10 +199,10 @@ const GiteePanel = () => {
                     }} />
             </Layout.Sider>
             <Layout.Content style={{ height: "calc(100vh - 230px)", overflowY: "scroll", backgroundColor: "white" }}>
-                <GiteeRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} />
+                <JihulabRepoPanel repoInfo={repoList.find(item => item.id.toFixed(0) == curRepoId)} />
             </Layout.Content>
         </Layout>
     );
 };
 
-export default observer(GiteePanel);
+export default observer(JihulabPanel);

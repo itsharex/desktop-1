@@ -127,6 +127,7 @@ export async function clone(repoPath: string, repoUrl: string, authType: AUTH_TY
     const command = Command.sidecar('bin/gitwrap', args);
     command.stdout.on("data", (line: string) => {
         const parts = line.split("\t");
+        console.log("xxxxxx", line, parts);
         if (parts.length == 3) {
             callback({
                 stage: parts[0],
@@ -136,6 +137,7 @@ export async function clone(repoPath: string, repoUrl: string, authType: AUTH_TY
         }
     });
     command.on("close", () => {
+        console.log("xxxxxx", "close");
         callback(null);
     });
     command.stderr.on("data", line => message.error(line));

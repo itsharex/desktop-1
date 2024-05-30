@@ -77,7 +77,7 @@ const LoginModal = () => {
         }
         await sleep(200);
         new WebviewWindow(label, {
-            url: `https://jihulab.com/oauth/authorize?client_id=${appStore.clientCfg?.jihulab_client_id ?? ""}&redirect_uri=${encodeURIComponent("https://www.linksaas.pro/callback/jihulab")}&response_type=code&state=STATE&scope=${encodeURIComponent("read_user read_repository")}`,
+            url: `https://jihulab.com/oauth/authorize?client_id=${appStore.clientCfg?.jihulab_client_id ?? ""}&redirect_uri=${encodeURIComponent("https://www.linksaas.pro/callback/jihulab")}&response_type=code&state=STATE&scope=${encodeURIComponent("read_api read_user")}`,
             title: "Jihulab授权登录",
             alwaysOnTop: true,
             width: 1200,
