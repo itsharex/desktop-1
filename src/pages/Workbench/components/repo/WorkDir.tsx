@@ -66,6 +66,11 @@ const PullModal = observer((props: ModalProps) => {
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPull(true);
+        setPullProgress({
+            stage: "拉取中",
+            doneCount: 0,
+            totalCount: 1,
+        })
         try {
             await run_pull(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath, info => {
                 setPullProgress(info);
@@ -226,7 +231,11 @@ const PushModal = observer((props: ModalProps) => {
         const home = await homeDir();
         const privKeyPath = await resolve(home, ".ssh", curSshKey);
         setInPush(true);
-        setPushProgress(null);
+        setPushProgress({
+            stage: "推送中",
+            doneCount: 0,
+            totalCount: 1,
+        });
         try {
             await run_push(props.repoPath, curRemote?.name ?? "", props.headBranch, authType, username, password, privKeyPath,
                 info => {

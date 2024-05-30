@@ -4,7 +4,7 @@
 import { Card, Form, Input, Select, Space, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import type { USER_STATE, UserInfo } from '@/api/user';
-import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN, USER_TYPE_INTERNAL, USER_TYPE_ATOM_GIT } from '@/api/user';
+import { USER_STATE_NORMAL, USER_STATE_FORBIDDEN, USER_TYPE_INTERNAL, USER_TYPE_ATOM_GIT, USER_TYPE_GITEE, USER_TYPE_JIHU_LAB } from '@/api/user';
 import { list as list_user } from '@/api/user_admin';
 import type { ColumnsType } from 'antd/es/table';
 import { request } from "@/utils/request";
@@ -71,6 +71,8 @@ const UserList = () => {
                 <>
                     {row.user_type == USER_TYPE_INTERNAL && "内部账号"}
                     {row.user_type == USER_TYPE_ATOM_GIT && "atomGit"}
+                    {row.user_type == USER_TYPE_GITEE && "gitee"}
+                    {row.user_type == USER_TYPE_JIHU_LAB && "jihulab"}
                 </>
             ),
         },

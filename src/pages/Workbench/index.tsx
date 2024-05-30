@@ -18,9 +18,10 @@ import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
 import AddRepoModal from './components/AddRepoModal';
 import ResetDevModal from './components/ResetDevModal';
-import { USER_TYPE_ATOM_GIT, USER_TYPE_GITEE } from '@/api/user';
+import { USER_TYPE_ATOM_GIT, USER_TYPE_GITEE, USER_TYPE_JIHU_LAB } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import iconGitee from '@/assets/allIcon/icon-gitee.png';
+import iconGitlab from '@/assets/allIcon/icon-gitlab.png';
 import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import GitConfigModal from './components/GitConfigModal';
@@ -31,6 +32,7 @@ import { Command } from "@tauri-apps/api/shell";
 import { InstallDockerHelp } from './components/LaunchRepoModal';
 import { install_lfs } from "@/api/git_wrap";
 import GiteePanel from './GiteePanel';
+import JihulabPanel from './JihulabPanel';
 
 const Workbench: React.FC = () => {
   const location = useLocation();
@@ -71,13 +73,13 @@ const Workbench: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (userStore.sessionId == "" && ["atomGit", "gitee", "learnRecord"].includes(tab)) {
+    if (userStore.sessionId == "" && ["atomGit", "gitee", "jihulab", "learnRecord"].includes(tab)) {
       history.push(`${WORKBENCH_PATH}?tab=localRepo`);
     }
   }, [userStore.sessionId]);
 
   useEffect(() => {
-    if (["localRepo", "atomGit", "gitee"].includes(tab)) {
+    if (["localRepo", "atomGit", "gitee", "jihulab"].includes(tab)) {
       localRepoStore.init();
     }
   }, [tab]);
@@ -239,6 +241,30 @@ const Workbench: React.FC = () => {
                 </Popover>
               </Space>
             )}
+            {tab == "jihulab" && (
+              <Space>
+                <Button type="link" onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  shell_open("https://jihulab.com/projects/new");
+                }}>
+                  <span style={{ fontSize: "14px", fontWeight: 600 }}>
+                    创建项目&nbsp;<ExportOutlined />
+                  </span>
+                </Button>
+                <Popover trigger="click" placement="bottom" content={
+                  <div style={{ padding: "10px 10px" }}>
+                    <Button type="link" onClick={e => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      shell_open("https://jihulab.com/help");
+                    }}>查看帮助&nbsp;<ExportOutlined /></Button>
+                  </div>
+                }>
+                  <MoreOutlined style={{ marginRight: "32px" }} />
+                </Popover>
+              </Space>
+            )}
             {tab == "devContext" && (
               <Space>
                 {hasDocker == false && (
@@ -270,6 +296,15 @@ const Workbench: React.FC = () => {
             {tab == "gitee" && (
               <div className={s.content_wrap}>
                 <GiteePanel />
+              </div>
+            )}
+          </Tabs.TabPane>
+        )}
+        {userStore.sessionId != "" && userStore.userInfo.userType == USER_TYPE_JIHU_LAB && (
+          <Tabs.TabPane tab={<h2><img src={iconGitlab} style={{ width: "14px", marginRight: "10px", marginTop: "-4px" }} />极狐</h2>} key="jihulab">
+            {tab == "jihulab" && (
+              <div className={s.content_wrap}>
+                <JihulabPanel />
               </div>
             )}
           </Tabs.TabPane>

@@ -126,7 +126,7 @@ export async function clone(repoPath: string, repoUrl: string, authType: AUTH_TY
     args.push(repoUrl);
     const command = Command.sidecar('bin/gitwrap', args);
     command.stdout.on("data", (line: string) => {
-        const parts = line.split("\t");
+        const parts = line.trim().split("\t");
         if (parts.length == 3) {
             callback({
                 stage: parts[0],
@@ -136,6 +136,7 @@ export async function clone(repoPath: string, repoUrl: string, authType: AUTH_TY
         }
     });
     command.on("close", () => {
+        console.log("xxxxxx", "close");
         callback(null);
     });
     command.stderr.on("data", line => message.error(line));
@@ -153,7 +154,7 @@ export async function pull(repoPath: string, remoteName: string, branch: string,
     args.push(branch);
     const command = Command.sidecar('bin/gitwrap', args);
     command.stdout.on("data", (line: string) => {
-        const parts = line.split("\t");
+        const parts = line.trim().split("\t");
         if (parts.length == 3) {
             callback({
                 stage: parts[0],
@@ -180,7 +181,7 @@ export async function push(repoPath: string, remoteName: string, branch: string,
     args.push(branch);
     const command = Command.sidecar('bin/gitwrap', args);
     command.stdout.on("data", (line: string) => {
-        const parts = line.split("\t");
+        const parts = line.trim().split("\t");
         if (parts.length == 3) {
             callback({
                 stage: parts[0],

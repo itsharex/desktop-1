@@ -34,6 +34,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [cloneProgress, setCloneProgress] = useState<GitProgressItem | null>(null);
+    const [inClone, setInClone] = useState(false);
 
     const [sshKeyNameList, setSshKeyNameList] = useState([] as string[]);
     const [curSshKey, setCurSshKey] = useState("");
@@ -97,7 +98,12 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     };
 
     const cloneRepo = async () => {
-        setCloneProgress(null);
+        setCloneProgress({
+            stage: "克隆中",
+            doneCount: 0,
+            totalCount: 1,
+        });
+        setInClone(true);
         try {
             if (authType == "sshKey") {
                 await test_ssh(remoteUrl);
@@ -107,6 +113,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
             await clone_repo(localPath, remoteUrl, authType, username, password, privKey, info => {
                 setCloneProgress(info);
                 if (info == null) {
+                    setInClone(false);
                     add_repo(uniqId(), name.trim(), localPath.trim()).then(() => {
                         props.onOk();
                     }).catch(e => {
@@ -118,6 +125,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
         } catch (e) {
             console.log(e);
             message.error(`${e}`);
+            setInClone(false);
             setCloneProgress(null);
         }
     };
@@ -150,8 +158,8 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
     return (
         <Modal open title={repoType == "local" ? "添加本地仓库" : "克隆远程仓库"}
             width={800}
-            okText={repoType == "local" ? "添加" : "克隆"} okButtonProps={{ disabled: !checkValid() || cloneProgress != null }}
-            cancelButtonProps={{ disabled: cloneProgress != null }}
+            okText={repoType == "local" ? "添加" : "克隆"} okButtonProps={{ disabled: !checkValid() || inClone }}
+            cancelButtonProps={{ disabled: inClone }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -167,7 +175,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                 }
             }}
         >
-            <Form labelCol={{ span: 4 }} disabled={cloneProgress != null}>
+            <Form labelCol={{ span: 4 }} disabled={inClone}>
                 <Form.Item label="名称">
                     <Input value={name} onChange={e => {
                         e.stopPropagation();
