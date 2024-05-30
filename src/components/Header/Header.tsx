@@ -301,18 +301,22 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
               </Badge>
             </Popover>
           )}
-          <QuestionCircleTwoTone twoToneColor={appStore.showHelp ? ["white", "orange"] : ["white", "grey"]}
-            style={{ cursor: "default",fontSize:"24px" }}
-            onMouseEnter={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              appStore.showHelp = true;
-            }}
-            onMouseLeave={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              appStore.showHelp = false;
-            }} />
+
+          {location.pathname.startsWith("/app/") && (
+            <QuestionCircleTwoTone twoToneColor={appStore.showHelp ? ["white", "orange"] : ["white", "grey"]}
+              style={{ cursor: "default", fontSize: "24px" }}
+              onMouseEnter={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                appStore.showHelp = true;
+              }}
+              onMouseLeave={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                appStore.showHelp = false;
+              }} />
+          )}
+
           <div className={style.btnMinimize} onClick={() => handleClick('minimize')} title="最小化" />
           <div className={style.btnMaximize} onClick={() => handleClick('maximize')} title="最大化/恢复" />
           <div className={style.btnClose} title="隐藏窗口" onClick={() => handleClick('hide')} />
