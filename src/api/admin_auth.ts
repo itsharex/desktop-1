@@ -152,7 +152,7 @@ export type AdminPermInfo = {
     org_perm: OrgPerm;
     org_member_perm: OrgMemberPerm;
     keyword_perm: KeywordPerm;
-    global_server: boolean;
+    super_admin_user: boolean;
 };
 
 export type PreAuthRequest = {
@@ -176,6 +176,7 @@ export type AuthResponse = {
     code: number;
     err_msg: string;
     admin_perm_info: AdminPermInfo;
+    global_server: boolean;
 };
 
 export async function pre_auth(request: PreAuthRequest): Promise<PreAuthResponse> {
@@ -201,10 +202,17 @@ export async function get_admin_session(): Promise<string> {
 }
 
 //获取当前管理会话权限
-export async function get_admin_perm(): Promise<AdminPermInfo> {
+export async function get_admin_perm(): Promise<AdminPermInfo | null> {
     const cmd = 'plugin:admin_auth_api|get_admin_perm';
     const perm = await invoke<AdminPermInfo>(cmd, {});
-    return perm
+    return perm ?? null;
+}
+
+//检测是否是全局服务器
+export async function is_global_server(): Promise<boolean> {
+    const cmd = 'plugin:admin_auth_api|is_global_server';
+    const globalServer = await invoke<boolean>(cmd, {});
+    return globalServer ?? false;
 }
 
 //用私钥对内容签名

@@ -6,7 +6,7 @@ import { Collapse, Layout, Menu } from "antd";
 import React, { useEffect, useState } from "react";
 import s from './AdminNav.module.less';
 import type { AdminPermInfo } from '@/api/admin_auth';
-import { get_admin_perm } from '@/api/admin_auth';
+import { get_admin_perm, is_global_server } from '@/api/admin_auth';
 import { useHistory, useLocation } from "react-router-dom";
 import {
     ADMIN_PATH_APPSTORE_APP_SUFFIX,
@@ -35,6 +35,7 @@ const AdminNav = () => {
     const userStore = useStores('userStore');
 
     const [permInfo, setPermInfo] = useState<AdminPermInfo | null>(null);
+    const [globalServer, setGlobalServer] = useState(false);
     const [userSelectedKeys, setUserSelectedKeys] = useState<string[]>([]);
     const [projectSelectedKeys, setProjectSelectedKeys] = useState<string[]>([]);
     const [orgSelectedKeys, setOrgSelectedKeys] = useState<string[]>([]);
@@ -80,12 +81,12 @@ const AdminNav = () => {
         }
     }, [location.pathname]);
 
-    useEffect(()=>{
+    useEffect(() => {
         setSecuritySelectedKeys([]);
-        if(location.pathname == ADMIN_PATH_SECURITY_KEYWORD_SUFFIX) {
+        if (location.pathname == ADMIN_PATH_SECURITY_KEYWORD_SUFFIX) {
             setSecuritySelectedKeys(["security_keyword"]);
         }
-    },[location.pathname]);
+    }, [location.pathname]);
 
     useEffect(() => {
         setAppstoreSelectedKeys([]);
@@ -157,6 +158,7 @@ const AdminNav = () => {
             console.log(res);
             setPermInfo(res);
         });
+        is_global_server().then(res => setGlobalServer(res));
     }, []);
 
     return (
@@ -236,7 +238,7 @@ const AdminNav = () => {
                         }}
                     />
                 </Collapse.Panel>
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="应用管理" key="appstore">
                         <Menu selectedKeys={appstoreSelectedKeys} items={[
                             {
@@ -263,7 +265,7 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="软件管理" key="swstore">
                         <Menu selectedKeys={swStoreSelectedKeys} items={[
                             {
@@ -290,7 +292,7 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="Git插件管理" key="widgetStore">
                         <Menu selectedKeys={widgetStoreSelectedKeys} items={[
                             {
@@ -310,7 +312,7 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="知识点管理" key="ideastore">
                         <Menu selectedKeys={ideastoreSelectedKeys} items={[
                             {
@@ -382,7 +384,7 @@ const AdminNav = () => {
                             }
                         }} />
                 </Collapse.Panel>
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
                         <Menu selectedKeys={dockerTemplateSelectedKeys} items={[
                             {
@@ -408,7 +410,7 @@ const AdminNav = () => {
                             }} />
                     </Collapse.Panel>
                 )}
-                {permInfo?.global_server == true && (
+                {globalServer == true && (
                     <Collapse.Panel header="研发环境管理" key="devContainer">
                         <Menu selectedKeys={devContainerSelectedKeys} items={[
                             {
@@ -461,7 +463,7 @@ const AdminNav = () => {
                             }
                         }} />
                 </Collapse.Panel>
-                
+
             </Collapse>
         </Layout.Sider>
     );
