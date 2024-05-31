@@ -150,6 +150,34 @@ async fn list_user<R: Runtime>(
 }
 
 #[tauri::command]
+async fn get_user<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    request: AdminGetUserRequest,
+) -> Result<AdminGetUserResponse, String> {
+    let chan = super::get_grpc_chan(&app_handle).await;
+    if (&chan).is_none() {
+        return Err("no grpc conn".into());
+    }
+    let mut client = AdminAuthAdminApiClient::new(chan.unwrap());
+    match client.get_user(request).await {
+        Ok(response) => {
+            let inner_resp = response.into_inner();
+            if inner_resp.code == admin_get_user_response::Code::WrongSession as i32
+                || inner_resp.code == admin_get_user_response::Code::NotAuth as i32
+            {
+                crate::admin_auth_api_plugin::logout(app_handle).await;
+                if let Err(err) = window.emit("notice", new_wrong_session_notice("get_user".into())) {
+                    println!("{:?}", err);
+                }
+            }
+            return Ok(inner_resp);
+        }
+        Err(status) => Err(status.message().into()),
+    }
+}
+
+#[tauri::command]
 async fn remove_user<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
@@ -191,6 +219,7 @@ impl<R: Runtime> AdminAuthAdminApiPlugin<R> {
                 update_user_perm,
                 update_user_desc,
                 list_user,
+                get_user,
                 remove_user,
             ]),
         }

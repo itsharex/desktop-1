@@ -51,6 +51,7 @@ import {
   ADMIN_PATH_ORG_LIST_SUFFIX,
   ADMIN_PATH_ORG_DETAIL_SUFFIX,
   ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
+  ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -96,6 +97,7 @@ import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList'
 import OrgList from '@/pages/Admin/OrgAdmin/OrgList';
 import AdminOrgDetail from "@/pages/Admin/OrgAdmin/OrgDetail";
 import KeywordList from '@/pages/Admin/SecurityAdmin/KeywordList';
+import AdminUserList from '@/pages/Admin/SecurityAdmin/AdminUserList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -351,6 +353,12 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
         title: "关键词管理",
         component: KeywordList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX,
+        title: "管理员列表",
+        component: AdminUserList,
         exact: true,
       },
       {

@@ -16,7 +16,6 @@ export type UserPerm = {
     set_state: boolean;
     set_test_account: boolean;
     reset_password: boolean;
-    access_event: boolean;
 };
 
 export type ProjectPerm = {
@@ -36,7 +35,6 @@ export type MenuPerm = {
     update: boolean;
 };
 
-
 export type AppStorePerm = {
     read: boolean;
     add_cate: boolean;
@@ -45,7 +43,6 @@ export type AppStorePerm = {
     add_app: boolean;
     update_app: boolean;
     remove_app: boolean;
-    remove_comment: boolean;
 };
 
 export type DockerTemplatePerm = {
@@ -58,7 +55,6 @@ export type DockerTemplatePerm = {
     remove_app: boolean;
     create_template: boolean;
     remove_template: boolean;
-    remove_comment: boolean;
 };
 
 export type DevContainerPerm = {

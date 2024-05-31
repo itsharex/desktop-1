@@ -20,13 +20,13 @@ export type AdminAddUserRequest = {
 };
 
 export type AdminAddUserResponse = {
-    code: number;    
+    code: number;
     err_msg: string;
 };
 
 export type AdminUpdateUserPubKeyRequest = {
     admin_session_id: string;
-    user_name: string;    
+    user_name: string;
     pub_key: string;
 };
 
@@ -68,6 +68,17 @@ export type AdminListUserResponse = {
     err_msg: string;
     total_count: number;
     admin_user_list: AdminUserInfo[];
+};
+
+export type AdminGetUserRequest = {
+    admin_session_id: string;
+    user_name: string;
+};
+
+export type AdminGetUserResponse = {
+    code: number;
+    err_msg: string;
+    admin_user: AdminUserInfo;
 };
 
 export type AdminRemoveUserRequest = {
@@ -121,6 +132,15 @@ export async function list_user(request: AdminListUserRequest): Promise<AdminLis
     const cmd = 'plugin:admin_auth_admin_api|list_user';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
     return invoke<AdminListUserResponse>(cmd, {
+        request,
+    });
+}
+
+//获取单个用户
+export async function get_user(request: AdminGetUserRequest): Promise<AdminGetUserResponse> {
+    const cmd = 'plugin:admin_auth_admin_api|get_user';
+    console.log(`%c${cmd}`, 'color:#0f0;', request);
+    return invoke<AdminGetUserResponse>(cmd, {
         request,
     });
 }

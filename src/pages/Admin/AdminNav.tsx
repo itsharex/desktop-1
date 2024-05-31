@@ -21,7 +21,7 @@ import {
     ADMIN_PATH_ORG_DETAIL_SUFFIX,
     ADMIN_PATH_ORG_LIST_SUFFIX,
     ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SECURITY_KEYWORD_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX, ADMIN_PATH_SECURITY_KEYWORD_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -85,6 +85,8 @@ const AdminNav = () => {
         setSecuritySelectedKeys([]);
         if (location.pathname == ADMIN_PATH_SECURITY_KEYWORD_SUFFIX) {
             setSecuritySelectedKeys(["security_keyword"]);
+        } else if (location.pathname == ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX) {
+            setSecuritySelectedKeys(["security_admin_user"]);
         }
     }, [location.pathname]);
 
@@ -453,12 +455,19 @@ const AdminNav = () => {
                             key: "security_keyword",
                             disabled: !(permInfo?.keyword_perm.read ?? false),
                         },
+                        {
+                            label: "管理员列表",
+                            key: "security_admin_user",
+                            disabled: !(permInfo?.super_admin_user ?? false),
+                        },
                     ]}
                         style={{ borderRightWidth: "0px" }}
                         onSelect={e => {
                             if (e.selectedKeys.length == 1) {
                                 if (e.selectedKeys[0] == "security_keyword") {
                                     history.push(ADMIN_PATH_SECURITY_KEYWORD_SUFFIX);
+                                } else if (e.selectedKeys[0] == "security_admin_user") {
+                                    history.push(ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX);
                                 }
                             }
                         }} />
