@@ -23,6 +23,9 @@ pub struct CurAdminSession(pub Mutex<Option<String>>);
 #[derive(Default)]
 pub struct CurAdminPermInfo(pub Mutex<Option<AdminPermInfo>>);
 
+#[derive(Default)]
+pub struct CurGlobalServer(pub Mutex<Option<bool>>);
+
 #[tauri::command]
 async fn pre_auth<R: Runtime>(
     app_handle: AppHandle<R>,
@@ -65,9 +68,13 @@ async fn auth<R: Runtime>(
             }
             let sess = app_handle.state::<CurAdminSession>().inner();
             *sess.0.lock().await = Some(admin_session_id);
+
             let ret_perm = inner_resp.admin_perm_info.clone();
             let perm = app_handle.state::<CurAdminPermInfo>().inner();
             *perm.0.lock().await = ret_perm;
+
+            let global_server = app_handle.state::<CurGlobalServer>().inner();
+            *global_server.0.lock().await = Some(inner_resp.global_server);
 
             return Ok(inner_resp);
         }
@@ -78,8 +85,12 @@ async fn auth<R: Runtime>(
 pub async fn logout<R: Runtime>(app_handle: AppHandle<R>) {
     let sess = app_handle.state::<CurAdminSession>().inner();
     *sess.0.lock().await = None;
+
     let perm = app_handle.state::<CurAdminPermInfo>().inner();
     *perm.0.lock().await = None;
+
+    let global_server = app_handle.state::<CurGlobalServer>().inner();
+    *global_server.0.lock().await = None;
 }
 
 #[tauri::command]
@@ -97,6 +108,13 @@ async fn get_admin_perm<R: Runtime>(app_handle: AppHandle<R>) -> Option<AdminPer
     let cur_value = app_handle.state::<CurAdminPermInfo>().inner();
     let cur_perm = cur_value.0.lock().await;
     return cur_perm.clone();
+}
+
+#[tauri::command]
+async fn is_global_server<R: Runtime>(app_handle: AppHandle<R>) -> Option<bool> {
+    let cur_value = app_handle.state::<CurGlobalServer>().inner();
+    let cur_value = cur_value.0.lock().await;
+    return cur_value.clone();
 }
 
 #[tauri::command]
@@ -184,6 +202,7 @@ impl<R: Runtime> AdminAuthApiPlugin<R> {
                 sign,
                 get_admin_session,
                 get_admin_perm,
+                is_global_server,
             ]),
         }
     }
@@ -200,6 +219,7 @@ impl<R: Runtime> Plugin<R> for AdminAuthApiPlugin<R> {
     fn initialize(&mut self, app: &AppHandle<R>, _config: serde_json::Value) -> PluginResult<()> {
         app.manage(CurAdminSession(Default::default()));
         app.manage(CurAdminPermInfo(Default::default()));
+        app.manage(CurGlobalServer(Default::default()));
         tauri::async_runtime::block_on(async {
             keep_alive(app).await;
         });
