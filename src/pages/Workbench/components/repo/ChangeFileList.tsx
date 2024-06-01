@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
-import { Button, Card, Input, message, Modal, Spin, Transfer } from "antd";
+import { Button, Card, Input, message, Modal, Space, Spin, Transfer } from "antd";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from "mobx-react";
@@ -63,17 +63,22 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     }, []);
 
     return (
-        <Card title="未提交文件" extra={
-            <Button type="primary"
-                onClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setCommitMsg("");
-                    setShowModal(true);
-                }}
-                disabled={statusList.filter(item => item.indexChange).length == 0}>提交</Button>}>
-            <Transfer rowKey={st => st.path} dataSource={statusList} titles={["工作目录", "待提交"]}
-                listStyle={{ height: "calc(100vh - 460px)", width: "calc(50% - 10px)" }}
+        <>
+            <Transfer rowKey={st => st.path} dataSource={statusList}
+                titles={["工作目录",
+                    <Space>
+                        <span>待提交</span>
+                        <Button type="primary"
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setCommitMsg("");
+                                setShowModal(true);
+                            }}
+                            disabled={statusList.filter(item => item.indexChange).length == 0}>提交</Button>
+                    </Space>
+                ]}
+                listStyle={{ height: "calc(100vh - 400px)", width: "calc(50% - 10px)" }}
                 targetKeys={statusList.filter(item => item.workDirChange == false).map(item => item.path)}
                 onChange={(_, direction, moveKeys) => {
                     if (direction == "left") {
@@ -118,7 +123,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                     )}
                 </Modal>
             )}
-        </Card>
+        </>
     );
 };
 
