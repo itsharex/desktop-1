@@ -12,6 +12,7 @@ use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
 mod admin_auth_api_plugin;
+mod admin_auth_admin_api_plugin;
 mod minapp_api;
 mod org_api;
 mod project_cloud_api;
@@ -438,6 +439,7 @@ fn main() {
         .plugin(local_api::LocalApiPlugin::new())
         .plugin(project_misc_api::events_subscribe_api_plugin::EventsSubscribeApiPlugin::new())
         .plugin(admin_auth_api_plugin::AdminAuthApiPlugin::new())
+        .plugin(admin_auth_admin_api_plugin::AdminAuthAdminApiPlugin::new())
         .plugin(project_comm_api::project_admin_api_plugin::ProjectAdminApiPlugin::new())
         .plugin(
             project_comm_api::project_member_admin_api_plugin::ProjectMemberAdminApiPlugin::new(),
