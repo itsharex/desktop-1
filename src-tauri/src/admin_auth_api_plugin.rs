@@ -146,47 +146,44 @@ async fn sign(private_key_file: String, to_sign_str: String) -> Result<Signature
     });
 }
 
-async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
-    let handle = app_handle.clone();
-    tauri::async_runtime::spawn(async move {
-        loop {
-            sleep(Duration::from_secs(30)).await;
-            let mut session_id = String::from("");
-            {
-                let cur_value = handle.state::<CurAdminSession>().inner();
-                let cur_session = cur_value.0.lock().await;
-                if let Some(cur_session) = cur_session.clone() {
-                    session_id.clone_from(&cur_session);
-                }
+async fn keep_alive<R: Runtime>(handle: AppHandle<R>) {
+    loop {
+        sleep(Duration::from_secs(30)).await;
+        let mut session_id = String::from("");
+        {
+            let cur_value = handle.state::<CurAdminSession>().inner();
+            let cur_session = cur_value.0.lock().await;
+            if let Some(cur_session) = cur_session.clone() {
+                session_id.clone_from(&cur_session);
             }
-            if session_id != "" {
-                if let Some(chan) = super::get_grpc_chan(&handle).await {
-                    let mut client = AdminAuthApiClient::new(chan);
-                    let resp = client
-                        .keep_alive(KeepAliveRequest {
-                            admin_session_id: session_id,
-                        })
-                        .await;
-                    if let Err(err) = resp {
-                        println!("err {}", err);
-                    } else {
-                        let inner_resp = resp.unwrap().into_inner();
-                        if inner_resp.code == keep_alive_response::Code::WrongSession as i32
-                            || inner_resp.code == keep_alive_response::Code::NotAuth as i32
+        }
+        if session_id != "" {
+            if let Some(chan) = super::get_grpc_chan(&handle).await {
+                let mut client = AdminAuthApiClient::new(chan);
+                let resp = client
+                    .keep_alive(KeepAliveRequest {
+                        admin_session_id: session_id,
+                    })
+                    .await;
+                if let Err(err) = resp {
+                    println!("err {}", err);
+                } else {
+                    let inner_resp = resp.unwrap().into_inner();
+                    if inner_resp.code == keep_alive_response::Code::WrongSession as i32
+                        || inner_resp.code == keep_alive_response::Code::NotAuth as i32
+                    {
+                        logout(handle.clone()).await;
+                        let window = (&handle).get_window("main").unwrap();
+                        if let Err(err) =
+                            window.emit("notice", new_wrong_session_notice("keep_alive".into()))
                         {
-                            logout(handle.clone()).await;
-                            let window = (&handle).get_window("main").unwrap();
-                            if let Err(err) =
-                                window.emit("notice", new_wrong_session_notice("keep_alive".into()))
-                            {
-                                println!("{:?}", err);
-                            }
+                            println!("{:?}", err);
                         }
                     }
                 }
             }
         }
-    });
+    }
 }
 
 pub struct AdminAuthApiPlugin<R: Runtime> {
@@ -220,8 +217,9 @@ impl<R: Runtime> Plugin<R> for AdminAuthApiPlugin<R> {
         app.manage(CurAdminSession(Default::default()));
         app.manage(CurAdminPermInfo(Default::default()));
         app.manage(CurGlobalServer(Default::default()));
-        tauri::async_runtime::block_on(async {
-            keep_alive(app).await;
+        let handle = app.clone();
+        tauri::async_runtime::spawn(async move {
+            keep_alive(handle).await;
         });
         Ok(())
     }
