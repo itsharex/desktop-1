@@ -122,7 +122,6 @@ type InviteOrgMemberProps = {
 const InviteOrgMember = (props: InviteOrgMemberProps) => {
     const { visible, onChange } = props;
 
-    const appStore = useStores('appStore');
     const userStore = useStores("userStore");
     const orgStore = useStores("orgStore");
 
@@ -146,11 +145,7 @@ const InviteOrgMember = (props: InviteOrgMemberProps) => {
             ttl: ttl,
         }));
         if (res) {
-            if (appStore.clientCfg?.can_register == true) {
-                setLinkText(`${userStore.userInfo.displayName} 邀请您加入 ${orgStore.curOrg?.basic_info.org_name ?? ""} 团队，您的邀请码 ${res.invite_code} (有效期${getTtlStr()}),请在软件内输入邀请码加入团队。如您尚未安装【凌鲨】，可直接点击链接下载 https://www.linksaas.pro`);
-            } else {
-                setLinkText(`${userStore.userInfo.displayName} 邀请您加入 ${orgStore.curOrg?.basic_info.org_name ?? ""} 团队，您的邀请码 ${res.invite_code} (有效期${getTtlStr()}),请在软件内输入邀请码加入团队。`);
-            }
+            setLinkText(`${userStore.userInfo.displayName} 邀请您加入 ${orgStore.curOrg?.basic_info.org_name ?? ""} 团队，您的邀请码 ${res.invite_code} (有效期${getTtlStr()}),请在软件内输入邀请码加入团队。`);
         }
     };
 

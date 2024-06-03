@@ -1,7 +1,6 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import PasswordModal from '@/components/PasswordModal';
 import { useState, useMemo, useEffect } from 'react';
 import React from 'react';
 import s from './index.module.less';
@@ -38,8 +37,6 @@ const Workbench: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
   const urlParams = new URLSearchParams(location.search);
-  const type = urlParams.get('type');
-  const [passwordModal, setPasswordModal] = useState(type === 'resetPassword');
 
   const appStore = useStores('appStore');
   const userStore = useStores('userStore');
@@ -343,23 +340,6 @@ const Workbench: React.FC = () => {
           </Tabs.TabPane>
         )}
       </Tabs>
-      {passwordModal && (
-        <PasswordModal
-          visible={passwordModal}
-          type="resetPassword"
-          onCancel={(bool) => {
-            userStore.logout();
-            if (userStore.isResetPassword) {
-              history.push("/");
-            }
-            setPasswordModal(bool);
-          }}
-          onSuccess={async () => {
-            history.push(WORKBENCH_PATH);
-            setPasswordModal(false);
-          }}
-        />
-      )}
       {showAddRepoModal == true && (
         <AddRepoModal onCancel={() => setShowAddRepoModal(false)} onOk={() => {
           localRepoStore.loadRepoList();

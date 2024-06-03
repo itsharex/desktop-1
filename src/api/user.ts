@@ -15,19 +15,6 @@ export const USER_TYPE_GITEE: USER_TYPE = 2;  // atomgit用户
 export const USER_TYPE_JIHU_LAB: USER_TYPE = 3;  // jihulab用户
 
 
-export type GenCaptchaResponse = {
-  code: number;
-  err_msg: string;
-  captcha_id: string;
-  ///base64编码的图片
-  base64_image: string;
-};
-
-export type PreRegisterResponse = {
-  code: number;
-  err_msg: string;
-};
-
 export type BasicUserInfo = {
   display_name: string;
   logo_uri: string;
@@ -50,18 +37,6 @@ export type UserInfo = {
   user_state: USER_STATE;
   user_type: USER_TYPE;
   test_account: boolean;
-};
-
-export type RegisterRequest = {
-  user_name: string;
-  basic_info: BasicUserInfo;
-  auth_code: string;
-  passwd: string;
-};
-
-export type RegisterResponse = {
-  code: number;
-  err_msg: string;
 };
 
 export type LoginResponse = {
@@ -89,16 +64,6 @@ export type ChangePasswdResponse = {
   err_msg: string;
 };
 
-export type PreResetPasswordResponse = {
-  code: number;
-  err_msg: string;
-};
-
-export type ResetPasswordResponse = {
-  code: number;
-  err_msg: string;
-};
-
 type CheckSessionResponse = {
   code: number;
   err_msg: string;
@@ -114,39 +79,6 @@ export type UpdateFeatureResponse = {
   code: number;
   err_msg: string;
 };
-
-//生成图片验证码
-export async function gen_captcha(): Promise<GenCaptchaResponse> {
-  return invoke<GenCaptchaResponse>('plugin:user_api|gen_captcha', {
-    request: {},
-  });
-}
-
-//预注册，主要用来发送验证码
-export async function pre_register(
-  user_name: string,
-  captcha_id: string,
-  captcha_value: string,
-): Promise<PreRegisterResponse> {
-  const cmd = 'plugin:user_api|pre_register';
-  console.log(cmd, user_name);
-  return invoke<PreRegisterResponse>('plugin:user_api|pre_register', {
-    request: {
-      user_name: user_name,
-      captcha_id: captcha_id,
-      captcha_value: captcha_value,
-    },
-  });
-}
-
-//通过验证码来注册用户
-export async function register(request: RegisterRequest): Promise<RegisterResponse> {
-  const cmd = 'plugin:user_api|register';
-  console.log(`%c${cmd}`, 'color:#0f0;', request);
-  return invoke<RegisterResponse>('plugin:user_api|register', {
-    request: request,
-  });
-}
 
 /* 用户登录，登录后
  * 1. 自动进行会话保活
@@ -221,40 +153,6 @@ export async function change_passwd(
   console.log(`%c${cmd}`, 'color:#0f0;', request);
   return invoke<ChangePasswdResponse>(cmd, {
     request,
-  });
-}
-
-//预重设密码
-export async function pre_reset_password(
-  user_name: string,
-  captcha_id: string,
-  captcha_value: string,
-): Promise<PreResetPasswordResponse> {
-  console.log(user_name, captcha_id, captcha_value);
-
-  return invoke<PreResetPasswordResponse>('plugin:user_api|pre_reset_password', {
-    request: {
-      user_name: user_name,
-      captcha_id: captcha_id,
-      captcha_value: captcha_value,
-    },
-  });
-}
-
-//重设密码
-export async function reset_password(
-  user_name: string,
-  auth_code: string,
-  passwd: string,
-): Promise<ResetPasswordResponse> {
-  console.log(user_name, auth_code, passwd);
-
-  return invoke<ResetPasswordResponse>('plugin:user_api|reset_password', {
-    request: {
-      user_name: user_name,
-      auth_code: auth_code,
-      passwd: passwd,
-    },
   });
 }
 

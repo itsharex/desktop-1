@@ -130,7 +130,6 @@ type InviteProjectMemberProps = {
 const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
   const { visible, onChange } = props;
 
-  const appStore = useStores('appStore');
   const userStore = useStores("userStore");
   const projectStore = useStores("projectStore");
   const orgStore = useStores('orgStore');
@@ -157,11 +156,7 @@ const InviteProjectMember: FC<InviteProjectMemberProps> = (props) => {
   const genInvite = async () => {
     const res = await request(gen_invite(userStore.sessionId, projectStore.curProjectId, ttl));
     if (res) {
-      if (appStore.clientCfg?.can_register == true) {
-        setLinkText(`${userStore.userInfo.displayName} 邀请您加入 ${projectStore.curProject?.basic_info.project_name ?? ""} 项目，您的邀请码 ${res.invite_code} (有效期${getTtlStr()}),请在软件内输入邀请码加入项目。如您尚未安装【凌鲨】，可直接点击链接下载 https://www.linksaas.pro`);
-      } else {
         setLinkText(`${userStore.userInfo.displayName} 邀请您加入 ${projectStore.curProject?.basic_info.project_name ?? ""} 项目，您的邀请码 ${res.invite_code} (有效期${getTtlStr()}),请在软件内输入邀请码加入项目。`);
-      }
     }
   };
 
