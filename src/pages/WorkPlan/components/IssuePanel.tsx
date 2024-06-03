@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Card, Popover, Space, Table, Tooltip, List, Form, Dropdown } from "antd";
+import { Card, Popover, Space, Table, Tooltip, List, Form, Dropdown, Button, Modal } from "antd";
 import { useStores } from "@/hooks";
 import { EditOutlined, ExclamationCircleOutlined, CheckOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ISSUE_TYPE, IssueInfo, PROCESS_STAGE, SubIssueInfo } from "@/api/project_issue";
@@ -22,7 +22,6 @@ import {
 } from "@/pages/Issue/components/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { bugLvSelectItems, bugPrioritySelectItems, hourSelectItems, taskPrioritySelectItems } from "@/pages/Issue/components/constant";
-import Deliconsvg from '@/assets/svg/delicon.svg?react';
 import StageModel from "@/pages/Issue/components/StageModel";
 import type { ColumnType } from 'antd/lib/table';
 import { EditText } from "@/components/EditCell/EditText";
@@ -116,9 +115,14 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     const [newIssueType, setNewIssueType] = useState<ISSUE_TYPE | null>(null);
 
     const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+    const [removeIssueInfo, setRemoveIssueInfo] = useState<IssueInfo | null>(null);
 
-    const cancelLinkSprit = async (issueId: string) => {
-        await request(cancel_link_sprit(userStore.sessionId, projectStore.curProjectId, issueId));
+    const cancelLinkSprit = async () => {
+        if (removeIssueInfo == null) {
+            return;
+        }
+        await request(cancel_link_sprit(userStore.sessionId, projectStore.curProjectId, removeIssueInfo.issue_id));
+        setRemoveIssueInfo(null);
     }
 
     const showStage = (issueId: string) => {
@@ -178,7 +182,7 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
     const columns: ColumnsTypes[] = [
         {
             title: `ID`,
-            width: 100,
+            width: 60,
             fixed: true,
             align: "left",
             render: (_, row: IssueInfo) => {
@@ -191,14 +195,6 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                 }
                 return (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {(entryStore.curEntry?.can_update ?? false) && projectStore.isAdmin && <Deliconsvg
-                            style={{ marginRight: '10px', cursor: 'pointer', color: '#0E83FF' }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                cancelLinkSprit(row.issue_id);
-                            }}
-                        />}
                         {notComplete == false && <span>{row.issue_index}</span>}
                         {notComplete && (<Popover content={
                             <div style={{ padding: "10px 10px", color: "red" }}>
@@ -245,6 +241,19 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
             },
         },
         {
+            title: "操作",
+            width: 50,
+            render: (_, row: IssueInfo) => (
+                <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }}
+                    disabled={!((entryStore.curEntry?.can_update ?? false) && projectStore.isAdmin)}
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setRemoveIssueInfo(row);
+                    }}>移除</Button>
+            ),
+        },
+        {
             title: `阶段`,
             dataIndex: 'state',
             sorter: {
@@ -264,7 +273,11 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                     if ([ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK].includes(row.state) && (
                         (userStore.userInfo.userId == row.exec_user_id) || (userStore.userInfo.userId == row.check_user_id)
                     )) {
-                        tips = "请等待同事更新状态"
+                        if (row.sub_issue_status.done_count < row.sub_issue_status.total_count) {
+                            tips = "子任务未完成";
+                        } else {
+                            tips = "请等待同事更新状态";
+                        }
                     }
                 }
                 return (
@@ -656,6 +669,22 @@ const IssuePanel: React.FC<IssuePanelProps> = (props) => {
                         props.taskStore.itemList.map(item => item.issue_id) : props.bugStore.itemList.map(item => item.issue_id)}
                     type={refIssueType == ISSUE_TYPE_TASK ? "task" : "bug"}
                 />
+            )}
+            {removeIssueInfo != null && (
+                <Modal open title={`移除${removeIssueInfo.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}`}
+                    okText="移除" okButtonProps={{ danger: true }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setRemoveIssueInfo(null);
+                    }}
+                    onOk={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        cancelLinkSprit();
+                    }}>
+                    是否从工作计划中移除&nbsp;{removeIssueInfo.issue_type == ISSUE_TYPE_TASK ? "任务" : "缺陷"}&nbsp;{removeIssueInfo.basic_info.title}&nbsp;?
+                </Modal>
             )}
         </div>
     );
