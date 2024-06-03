@@ -139,7 +139,11 @@ const IssueList = (props: IssueListProps) => {
                     if ([ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK].includes(row.state) && (
                         (userStore.userInfo.userId == row.exec_user_id) || (userStore.userInfo.userId == row.check_user_id)
                     )) {
-                        tips = "请等待同事更新状态"
+                        if (row.sub_issue_status.done_count < row.sub_issue_status.total_count) {
+                            tips = "子任务未完成";
+                        } else {
+                            tips = "请等待同事更新状态";
+                        }
                     }
                 }
                 return (

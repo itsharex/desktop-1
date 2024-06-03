@@ -197,7 +197,16 @@ const DetailPanel = () => {
                                         }
                                     }}
                                 >
-                                    <Tooltip title={`${issueInfo.user_issue_perm.next_state_list.length > 0 ? "" : "请等待同事更新状态"}`}>{issueState[issueInfo.state].label}</Tooltip>
+                                    <Tooltip title={() => {
+                                        if (issueInfo.user_issue_perm.next_state_list.length == 0) {
+                                            if (issueInfo.sub_issue_status.done_count < issueInfo.sub_issue_status.total_count) {
+                                                return "子任务未完成";
+                                            } else {
+                                                return "请等待同事更新状态";
+                                            }
+                                        }
+                                        return "";
+                                    }}>{issueState[issueInfo.state].label}</Tooltip>
                                     {(!projectStore.isClosed) && issueInfo.user_issue_perm.next_state_list.length > 0 && <a><EditOutlined /></a>}
                                 </div>
                             </Descriptions.Item>
