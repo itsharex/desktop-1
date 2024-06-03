@@ -147,14 +147,11 @@ async fn keep_alive_run<R: Runtime>(handle: &AppHandle<R>) {
     }
 }
 
-async fn keep_alive<R: Runtime>(app_handle: &AppHandle<R>) {
-    let handle = app_handle.clone();
-    tauri::async_runtime::spawn(async move {
-        loop {
-            sleep(Duration::from_secs(30)).await;
-            keep_alive_run(&handle).await;
-        }
-    });
+async fn keep_alive<R: Runtime>(app_handle: AppHandle<R>) {
+    loop {
+        sleep(Duration::from_secs(30)).await;
+        keep_alive_run(&app_handle).await;
+    }
 }
 
 fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key: String, url: Url) {
@@ -561,8 +558,9 @@ impl<R: Runtime> Plugin<R> for UserApiPlugin<R> {
         app.manage(CurUserId(Default::default()));
         app.manage(CurUserSecret(Default::default()));
         app.manage(CurNoticeClient(Default::default()));
-        tauri::async_runtime::block_on(async {
-            keep_alive(app).await;
+        let handle = app.clone();
+        tauri::async_runtime::spawn(async move {
+            keep_alive(handle).await;
         });
         Ok(())
     }

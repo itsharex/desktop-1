@@ -14,17 +14,10 @@ export interface ServerMgrModalProps {
 const ServerMgrModal = (props: ServerMgrModalProps) => {
     const [serverList, setServerList] = useState([] as ServerInfo[]);
     const [newServAddr, setNewServAddr] = useState("");
-    const [hasChange, setHasChange] = useState(false);
 
     const loadServerList = async () => {
         const res = await list_server(false);
         setServerList(res.server_list);
-    };
-
-    const saveServerList = async () => {
-        await save_server_list(serverList);
-        props.onChange();
-        props.onClose();
     };
 
     useEffect(() => {
@@ -33,18 +26,12 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
 
     return (
         <Modal open title="服务器管理"
-            width="400px"
+            width="400px" footer={null}
             bodyStyle={{ maxHeight: "calc(100vh - 400px)", overflowY: "scroll" }}
-            okText="更新" okButtonProps={{ disabled: !hasChange }}
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
                 props.onClose();
-            }}
-            onOk={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                saveServerList();
             }}>
             <List rowKey="addr" dataSource={serverList}
                 renderItem={serverInfo => (
@@ -60,7 +47,7 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
                                     if (index != -1) {
                                         tmpList[index].default_server = true;
                                         setServerList(tmpList);
-                                        setHasChange(true);
+                                        save_server_list(tmpList).then(()=>props.onChange());
                                     }
                                 }}>设为默认服务器</Button>
                             )}
@@ -76,7 +63,7 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
                                             if (index != -1) {
                                                 tmpList[index].default_server = true;
                                                 setServerList(tmpList);
-                                                setHasChange(true);
+                                                save_server_list(tmpList).then(()=>props.onChange());
                                             }
                                         }}>设为默认服务器</Button>
                                     )}
@@ -85,7 +72,7 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
                                         e.preventDefault();
                                         const tmpList = serverList.filter(item => item.addr != serverInfo.addr);
                                         setServerList(tmpList);
-                                        setHasChange(true);
+                                        save_server_list(tmpList).then(()=>props.onChange());
                                     }}>删除</Button>
                                 </>
                             )}
@@ -112,7 +99,7 @@ const ServerMgrModal = (props: ServerMgrModalProps) => {
                         default_server: false,
                     });
                     setServerList(tmpList);
-                    setHasChange(true);
+                    save_server_list(tmpList).then(()=>props.onChange());
                 }}>新增</Button>
             </Space>
         </Modal>

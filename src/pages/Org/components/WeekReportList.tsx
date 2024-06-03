@@ -34,8 +34,8 @@ const SimpleDayReportList = (props: SimpleDayReportListProps) => {
             member_user_id: userStore.userInfo.userId,
             list_param: {
                 filter_by_day_time: true,
-                from_day_time: props.fromTime.valueOf(),
-                to_day_time: props.toTime.valueOf(),
+                from_day_time: props.fromTime.startOf("day").valueOf(),
+                to_day_time: props.toTime.endOf("day").valueOf(),
             },
             offset: 0,
             limit: 99,
@@ -48,7 +48,7 @@ const SimpleDayReportList = (props: SimpleDayReportListProps) => {
     }, [props.fromTime, props.toTime]);
 
     return (
-        <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>参考日报</span>} style={{ width: "400px",marginTop:"-13px" }} bordered={false}
+        <Card title={<span style={{ fontSize: "16px", fontWeight: 600 }}>参考日报</span>} style={{ width: "400px", marginTop: "-13px" }} bordered={false}
             bodyStyle={{ height: "286px", overflowY: "scroll" }}>
             <List rowKey="report_id" dataSource={reportList} pagination={false} renderItem={reportItem => (
                 <Card title={`${moment(reportItem.basic_info.day_time).format("YYYY-MM-DD")}`} style={{ width: "100%", marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee" }}>

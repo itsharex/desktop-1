@@ -343,7 +343,7 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                         </Space>
                     </div>
                 )}
-                {hover && props.issue.sub_issue_status.total_count > 0 && (
+                {props.issue.sub_issue_status.total_count > 0 && (
                     <>
                         <h2 style={{ fontSize: "16px", fontWeight: 600, marginTop: "10px" }}>子任务</h2>
                         <ul style={{ listStyleType: "disc", marginLeft: "20px" }}>
@@ -487,6 +487,13 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
                         <span style={{ color: "red" }}><WarningOutlined />&nbsp;预估结束时间早于预估开始时间</span>
                     </Tag>
                 )}
+
+                {props.issue.sub_issue_status.done_count < props.issue.sub_issue_status.total_count && (
+                    <Tag style={{ border: "none", backgroundColor: "#fffaea", marginTop: "10px" }}>
+                        <span style={{ color: "red" }}><WarningOutlined />&nbsp;子任务未完成</span>
+                    </Tag>
+                )}
+
                 {hover && (
                     <div>
                         {props.issue.re_open_count > 0 && (
