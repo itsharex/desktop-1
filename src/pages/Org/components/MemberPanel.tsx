@@ -108,7 +108,9 @@ const MemberPanel = (props: MemberPanelProps) => {
 
     useEffect(() => {
         calcTabList();
-    }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report, orgStore.curOrg?.setting.enable_okr, userStore.userInfo.featureInfo.enable_skill_center, activeKey]);
+    }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report,
+        orgStore.curOrg?.setting.enable_okr, userStore.userInfo.featureInfo.enable_skill_center,
+        activeKey, dayReportDataVersion, weekReportDataVersion, okrDataVersion]);
 
     return (
         <>
