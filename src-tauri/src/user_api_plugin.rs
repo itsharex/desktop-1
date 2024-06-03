@@ -38,56 +38,6 @@ pub struct CurUserSecret(pub Mutex<Option<String>>);
 #[derive(Default)]
 struct CurNoticeClient(Mutex<Option<MqttClient>>);
 
-#[tauri::command]
-async fn gen_captcha<R: Runtime>(
-    app_handle: AppHandle<R>,
-    _window: Window<R>,
-    request: GenCaptchaRequest,
-) -> Result<GenCaptchaResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = UserApiClient::new(chan.unwrap());
-    match client.gen_captcha(request).await {
-        Ok(response) => Ok(response.into_inner()),
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn pre_register<R: Runtime>(
-    app_handle: AppHandle<R>,
-    _window: Window<R>,
-    request: PreRegisterRequest,
-) -> Result<PreRegisterResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = UserApiClient::new(chan.unwrap());
-    match client.pre_register(request).await {
-        Ok(response) => Ok(response.into_inner()),
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn register<R: Runtime>(
-    app_handle: AppHandle<R>,
-    _window: Window<R>,
-    request: RegisterRequest,
-) -> Result<RegisterResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = UserApiClient::new(chan.unwrap());
-    match client.register(request).await {
-        Ok(response) => Ok(response.into_inner()),
-        Err(status) => Err(status.message().into()),
-    }
-}
 
 async fn keep_alive_run<R: Runtime>(handle: &AppHandle<R>) {
     let mut session_id = String::from("");
@@ -370,46 +320,6 @@ async fn change_passwd<R: Runtime>(
 }
 
 #[tauri::command]
-async fn pre_reset_password<R: Runtime>(
-    app_handle: AppHandle<R>,
-    _window: Window<R>,
-    request: PreResetPasswordRequest,
-) -> Result<PreResetPasswordResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = UserApiClient::new(chan.unwrap());
-    match client.pre_reset_password(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
-async fn reset_password<R: Runtime>(
-    app_handle: AppHandle<R>,
-    _window: Window<R>,
-    request: ResetPasswordRequest,
-) -> Result<ResetPasswordResponse, String> {
-    let chan = super::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = UserApiClient::new(chan.unwrap());
-    match client.reset_password(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
-#[tauri::command]
 async fn check_session<R: Runtime>(
     app_handle: AppHandle<R>,
     _window: Window<R>,
@@ -527,16 +437,11 @@ impl<R: Runtime> UserApiPlugin<R> {
     pub fn new() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
-                gen_captcha,
-                pre_register,
-                register,
                 login,
                 logout,
                 update,
                 update_feature,
                 change_passwd,
-                pre_reset_password,
-                reset_password,
                 check_session,
                 get_session,
                 get_user_id,
