@@ -338,7 +338,7 @@ const OkrList = (props: OkrListProps) => {
         } else {
             loadOkrList();
         }
-    }, [props.memberUserId, props.dataVersion]);
+    }, [props.memberUserId, props.dataVersion, orgStore.curOrgId]);
 
     useEffect(() => {
         loadOkrList();

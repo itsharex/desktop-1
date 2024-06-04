@@ -228,7 +228,7 @@ const WeekReportList = (props: WeekReportListProps) => {
         } else {
             loadReportList();
         }
-    }, [props.memberUserId, props.dataVersion]);
+    }, [props.memberUserId, props.dataVersion, orgStore.curOrgId]);
 
     useEffect(() => {
         loadReportList();
