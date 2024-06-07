@@ -3,6 +3,7 @@
 
 import { Command } from '@tauri-apps/api/shell';
 import { message } from 'antd';
+import { get_host } from './local_repo';
 
 export type AUTH_TYPE = "none" | "sshKey" | "password";
 
@@ -195,4 +196,14 @@ export async function push(repoPath: string, remoteName: string, branch: string,
     });
     command.stderr.on("data", line => message.error(line));
     await command.spawn();
+}
+
+export async function test_ssh(url: string, sshKey: string): Promise<void> {
+    const host = get_host(url);
+    const command = Command.sidecar('bin/gitwrap', ["testSsh", `${host}:22`, sshKey]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        throw new Error(result.stderr);
+    }
+    return;
 }

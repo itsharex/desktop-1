@@ -48,6 +48,7 @@ export type LocalRepoCommitInfo = {
     time_stamp: number;
     commiter: string;
     email: string;
+    tag: string;
 };
 
 export type LocalRepoFileDiffInfo = {
@@ -389,18 +390,6 @@ export function get_http_url(url: string): string {
 export function get_host(url: string): string {
     const l = new URL(get_http_url(url));
     return l.host
-}
-
-export async function test_ssh(url: string): Promise<void> {
-    const host = get_host(url);
-    const homePath = await homeDir();
-    const hostsPath = await resolve(homePath, ".ssh", "known_hosts");
-    const command = Command.sidecar('bin/gitspy', ["--git-path", ".", "test-ssh", host, hostsPath]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return;
 }
 
 export async function list_ssh_key_name(): Promise<string[]> {

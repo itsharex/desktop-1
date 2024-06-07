@@ -136,6 +136,11 @@ const CommitList = (props: CommitListProps) => {
             ),
         },
         {
+            title: "标记",
+            width: 100,
+            render: (_, row: LocalRepoCommitInfo) => row.tag.replace("refs/tags/",""),
+        },
+        {
             title: "提交时间",
             width: 100,
             render: (_, row: LocalRepoCommitInfo) => `${moment(row.time_stamp).format("YYYY-MM-DD HH:mm")}`,
