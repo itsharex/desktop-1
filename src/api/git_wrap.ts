@@ -137,7 +137,6 @@ export async function clone(repoPath: string, repoUrl: string, authType: AUTH_TY
         }
     });
     command.on("close", () => {
-        console.log("xxxxxx", "close");
         callback(null);
     });
     command.stderr.on("data", line => message.error(line));
@@ -196,6 +195,48 @@ export async function push(repoPath: string, remoteName: string, branch: string,
     });
     command.stderr.on("data", line => message.error(line));
     await command.spawn();
+}
+
+export async function add_tag(repoPath: string, tag: string, commitId: string): Promise<void> {
+    const command = Command.sidecar('bin/gitwrap', ["git", "--localPath", repoPath, "addTag", tag, commitId]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        const obj = JSON.parse(result.stderr) as GitwrapResult;
+        throw new Error(obj.data as string);
+    }
+}
+
+export async function remove_tag(repoPath: string, tag: string): Promise<void> {
+    const command = Command.sidecar('bin/gitwrap', ["git", "--localPath", repoPath, "removeTag", tag]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        const obj = JSON.parse(result.stderr) as GitwrapResult;
+        throw new Error(obj.data as string);
+    }
+}
+
+export async function add_branch(repoPath: string, branch: string, commitId: string): Promise<void> {
+    const command = Command.sidecar('bin/gitwrap', ["git", "--localPath", repoPath, "addBranch", branch, commitId]);
+    const result = await command.execute();
+    if (result.code != 0) {
+        const obj = JSON.parse(result.stderr) as GitwrapResult;
+        throw new Error(obj.data as string);
+    }
+}
+
+
+export async function remove_branch(repoPath: string, branch: string, force: boolean): Promise<void> {
+    const args = ["git", "--localPath", repoPath, "removeBranch"]
+    if (force) {
+        args.push("--force")
+    }
+    args.push(branch)
+    const command = Command.sidecar('bin/gitwrap', args);
+    const result = await command.execute();
+    if (result.code != 0) {
+        const obj = JSON.parse(result.stderr) as GitwrapResult;
+        throw new Error(obj.data as string);
+    }
 }
 
 export async function test_ssh(url: string, sshKey: string): Promise<void> {

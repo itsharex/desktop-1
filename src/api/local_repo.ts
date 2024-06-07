@@ -37,10 +37,6 @@ export type LocalRepoTagInfo = {
     commit_time: number;
 }
 
-export type LocalRepoStashInfo = {
-    commit_id: string;
-    commit_summary: string;
-};
 
 export type LocalRepoCommitInfo = {
     id: string;
@@ -48,7 +44,6 @@ export type LocalRepoCommitInfo = {
     time_stamp: number;
     commiter: string;
     email: string;
-    tag: string;
 };
 
 export type LocalRepoFileDiffInfo = {
@@ -247,76 +242,6 @@ export async function list_remote(path: string): Promise<LocalRepoRemoteInfo[]> 
         throw new Error(result.stderr);
     }
     return JSON.parse(result.stdout);
-}
-
-export async function list_stash(path: string): Promise<LocalRepoStashInfo[]> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "list-stash"]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-    return JSON.parse(result.stdout);
-}
-
-export async function apply_stash(path: string, commitId: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "apply-stash", commitId]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function drop_stash(path: string, commitId: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "drop-stash", commitId]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function save_stash(path: string, msg: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "save-stash", msg]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function create_branch(path: string, srcBranch: string, destBranch: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "create-branch", srcBranch, destBranch]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function remove_branch(path: string, branch: string, force: boolean = false): Promise<void> {
-    const args = ["--git-path", path, "remove-branch"];
-    if (force) {
-        args.push("--force");
-    }
-    args.push(branch);
-    const command = Command.sidecar('bin/gitspy', args);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function remove_tag(path: string, tag: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "remove-tag", tag]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
-}
-
-export async function create_tag(path: string, tag: string, commitId: string, msg: string): Promise<void> {
-    const command = Command.sidecar('bin/gitspy', ["--git-path", path, "create-tag", tag, commitId, msg]);
-    const result = await command.execute();
-    if (result.code != 0) {
-        throw new Error(result.stderr);
-    }
 }
 
 export async function get_git_info(path: string): Promise<GitInfo> {

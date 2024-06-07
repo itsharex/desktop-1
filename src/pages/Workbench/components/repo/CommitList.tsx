@@ -2,18 +2,22 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Form, Segmented, Select, Table } from "antd";
-import type { LocalRepoInfo, LocalRepoCommitInfo, LocalRepoBranchInfo, CommitGraphInfo } from "@/api/local_repo";
+import { Button, Card, Form, Segmented, Select, Space, Table } from "antd";
+import type { LocalRepoInfo, LocalRepoCommitInfo, LocalRepoBranchInfo, CommitGraphInfo, LocalRepoTagInfo } from "@/api/local_repo";
 import { list_commit_graph, list_repo_commit } from "@/api/local_repo";
 import type { ColumnsType } from 'antd/lib/table';
 import moment from "moment";
 import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
 import { createGitgraph, type CommitOptions, MergeStyle } from "@gitgraph/js";
+import CreateTagModal from "./CreateTagModal";
+import CreateBranchModal from "./CreateBranchModal";
 
 export interface CommitListProps {
     repo: LocalRepoInfo;
     branchList: LocalRepoBranchInfo[];
     headBranch: string;
+    tagList: LocalRepoTagInfo[];
+    onChange: () => void;
 }
 
 const CommitList = (props: CommitListProps) => {
@@ -24,6 +28,9 @@ const CommitList = (props: CommitListProps) => {
     const [filterBranch, setFilterBranch] = useState("");
     const [commiterList, setCommiterList] = useState<string[]>([]);
     const [showType, setShowType] = useState<"list" | "graph">("list");
+
+    const [newTagCommitId, setNewTagCommitId] = useState("");
+    const [newBranchCommitId, setNewBranchCommitId] = useState("");
 
     const loadCommitList = async (branch: string) => {
         const commitRes = await list_repo_commit(props.repo.path, `refs/heads/${branch}`);
@@ -136,9 +143,14 @@ const CommitList = (props: CommitListProps) => {
             ),
         },
         {
+            title: "分支",
+            width: 100,
+            render: (_, row: LocalRepoCommitInfo) => props.branchList.find(item => item.commit_id == row.id)?.name ?? "",
+        },
+        {
             title: "标记",
             width: 100,
-            render: (_, row: LocalRepoCommitInfo) => row.tag.replace("refs/tags/",""),
+            render: (_, row: LocalRepoCommitInfo) => props.tagList.find(item => item.commit_id == row.id)?.name ?? "",
         },
         {
             title: "提交时间",
@@ -149,6 +161,28 @@ const CommitList = (props: CommitListProps) => {
             title: "提交者",
             width: 100,
             render: (_, row: LocalRepoCommitInfo) => `${row.commiter}(${row.email})`,
+        },
+        {
+            title: "操作",
+            width: 150,
+            render: (_, row: LocalRepoCommitInfo) => (
+                <Space>
+                    {props.branchList.findIndex(item => item.commit_id == row.id) == -1 && (
+                        <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setNewBranchCommitId(row.id);
+                        }}>创建分支</Button>
+                    )}
+                    {props.tagList.findIndex(item => item.commit_id == row.id) == -1 && (
+                        <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setNewTagCommitId(row.id);
+                        }}>创建标记</Button>
+                    )}
+                </Space>
+            ),
         }
     ];
 
@@ -211,6 +245,20 @@ const CommitList = (props: CommitListProps) => {
                 })} columns={columns} pagination={{ pageSize: 10, showSizeChanger: false }} />
             )}
             {showType == "graph" && (<div ref={graphRef} />)}
+            {newTagCommitId != "" && (
+                <CreateTagModal repo={props.repo} commitId={newTagCommitId} onCancel={() => setNewTagCommitId("")}
+                    onOk={() => {
+                        setNewTagCommitId("");
+                        loadCommitList(filterBranch).then(() => props.onChange());
+                    }} />
+            )}
+            {newBranchCommitId != "" && (
+                <CreateBranchModal repo={props.repo} commitId={newBranchCommitId} onCancel={() => setNewBranchCommitId("")}
+                    onOk={() => {
+                        setNewBranchCommitId("");
+                        loadCommitList(filterBranch).then(() => props.onChange());
+                    }} />
+            )}
         </Card>
     );
 };
