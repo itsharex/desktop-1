@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
-import { Button, Input, message, Modal, Space, Spin, Transfer } from "antd";
+import { Button, Card, Checkbox, Input, List, message, Modal, Space, Spin } from "antd";
 import type { LocalRepoInfo } from "@/api/local_repo";
 import { useStores } from "@/hooks";
 import { observer } from "mobx-react";
@@ -63,40 +63,48 @@ const ChangeFileList = (props: ChangeFileListProps) => {
     }, []);
 
     return (
-        <>
-            <Transfer rowKey={st => st.path} dataSource={statusList}
-                titles={["工作目录",
-                    <Space>
-                        <span>待提交</span>
-                        <Button type="primary"
-                            onClick={e => {
+        <Card title={
+            <Space>
+                <Checkbox checked={statusList.length > 0 && statusList.filter(item => item.workDirChange).length == 0}
+                    indeterminate={statusList.filter(item => item.workDirChange).length > 0 && statusList.filter(item => item.workDirChange).length < statusList.length}
+                    disabled={(localRepoStore.checkResult?.hasGit ?? false) == false}
+                    onChange={e => {
+                        e.stopPropagation();
+                        if (e.target.checked) {
+                            addToIndex(statusList.map(item => item.path));
+                        } else {
+                            removeFromIndex(statusList.map(item => item.path));
+                        }
+                    }} />
+                全选
+            </Space>
+        } bordered={false} bodyStyle={{ height: "calc(100vh - 460px)", overflowY: "scroll" }}
+            extra={
+                <Button type="primary"
+                    onClick={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setCommitMsg("");
+                        setShowModal(true);
+                    }}
+                    disabled={statusList.filter(item => item.workDirChange == false && item.indexChange).length == 0}>提交</Button>
+            }>
+            <List rowKey="path" dataSource={statusList} pagination={false}
+                renderItem={item => (
+                    <List.Item>
+                        <Space>
+                            <Checkbox checked={item.workDirChange == false} onChange={e => {
                                 e.stopPropagation();
-                                e.preventDefault();
-                                setCommitMsg("");
-                                setShowModal(true);
-                            }}
-                            disabled={statusList.filter(item => item.indexChange).length == 0}>提交</Button>
-                    </Space>
-                ]}
-                listStyle={{ height: "calc(100vh - 400px)", width: "calc(50% - 10px)" }}
-                targetKeys={statusList.filter(item => item.workDirChange == false).map(item => item.path)}
-                onChange={(_, direction, moveKeys) => {
-                    if (direction == "left") {
-                        removeFromIndex(moveKeys);
-                    } else if (direction == "right") {
-                        addToIndex(moveKeys);
-                    }
-                }}
-                render={item => (
-                    <>
-                        {item.indexChange == false && (
-                            <span style={{ textDecorationLine: item.workDirDelete ? "line-through" : undefined }}>{item.path}</span>
-                        )}
-                        {item.indexChange == true && (
-                            <span style={{ textDecorationLine: item.indexDelete ? "line-through" : undefined }}>{item.path}</span>
-                        )}
-                    </>
-                )} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs") && localRepoStore.checkResult?.hasConfigGitLfs == false)} />
+                                if (e.target.checked) {
+                                    addToIndex([item.path]);
+                                } else {
+                                    removeFromIndex([item.path]);
+                                }
+                            }} disabled={(localRepoStore.checkResult?.hasGit ?? false) == false} />
+                            <span style={{ textDecorationLine: item.workDirDelete ? "overline" : undefined }}>{item.path}</span>
+                        </Space>
+                    </List.Item>
+                )} />
             {showModal == true && (
                 <Modal open title="提交变更"
                     okText="提交" okButtonProps={{ disabled: commitMsg.trim() == "" || inCommit }}
@@ -123,7 +131,7 @@ const ChangeFileList = (props: ChangeFileListProps) => {
                     )}
                 </Modal>
             )}
-        </>
+        </Card>
     );
 };
 

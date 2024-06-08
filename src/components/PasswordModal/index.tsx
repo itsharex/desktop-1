@@ -1,64 +1,41 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { USER_TYPE_INTERNAL, change_passwd, reset_password } from '@/api/user';
+import { change_passwd } from '@/api/user';
 import { useStores } from '@/hooks';
-import type { ResetPasswordType } from '@/pages/User/Reset';
 import { request } from '@/utils/request';
 import type { ModalProps } from 'antd';
 import { Button, Form, Input, message } from 'antd';
 import type { FC } from 'react';
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import ActionModal from '../ActionModal';
 import s from './index.module.less';
-
-type PasswordType = 'changePassword' | 'resetPassword';
 
 type PasswordModalProps = Omit<ModalProps, 'onCancel' | 'okText' | 'cancelText'> & {
   visible: boolean;
   onCancel: (boo: boolean) => void;
-  type?: PasswordType;
   onSuccess?: () => void;
-  // sessionId: string;
-  // projectId: string;
 };
 
 const PasswordModal: FC<PasswordModalProps> = ({
-  type = 'changePassword',
   visible,
   onCancel,
   onSuccess,
   ...props
 }) => {
-  const typeText = type === 'changePassword' ? '修改' : '重置';
   const [disabled, setDisabled] = useState(true);
   const userStore = useStores('userStore');
-  const { state } = useLocation<ResetPasswordType>();
 
   const submit = async (values: { old_passwd: string; password: string; repetition: string }) => {
-    if (type === 'resetPassword') {
-      try {
-        await request(reset_password(state.user_name, state.auth_code, values.repetition));
-        await userStore.callLogin(state.user_name, values.repetition, USER_TYPE_INTERNAL);
-        userStore.isResetPassword = false;
-        message.success('密码重置成功');
-        if (onSuccess) {
-          onSuccess();
-          onCancel(false);
-        }
-      } catch (error) { }
-      return;
-    } else {
-      try {
-        await request(change_passwd(userStore.sessionId, values.old_passwd, values.repetition));
-        message.success('密码修改成功');
-        onCancel(false);
-        if (onSuccess) {
-          onSuccess();
-        }
-      } catch (error) { }
-      return;
+    try {
+      await request(change_passwd(userStore.sessionId, values.old_passwd, values.repetition));
+      message.success('密码修改成功');
+      onCancel(false);
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -66,8 +43,8 @@ const PasswordModal: FC<PasswordModalProps> = ({
     <ActionModal
       maskClosable={false}
       width={416}
-      visible={visible}
-      title={`${typeText}密码`}
+      open={visible}
+      title="修改密码"
       onCancel={() => onCancel(false)}
       {...props}
     >
@@ -77,15 +54,14 @@ const PasswordModal: FC<PasswordModalProps> = ({
           submit(values);
         }}
       >
-        {type !== 'resetPassword' && (
-          <Form.Item
-            name="old_passwd"
-            label="旧密码"
-            rules={[{ required: true, message: '旧密码必填' }]}
-          >
-            <Input.Password allowClear placeholder="请输入旧密码" />
-          </Form.Item>
-        )}
+
+        <Form.Item
+          name="old_passwd"
+          label="旧密码"
+          rules={[{ required: true, message: '旧密码必填' }]}
+        >
+          <Input.Password allowClear placeholder="请输入旧密码" />
+        </Form.Item>
 
         <Form.Item
           name="password"

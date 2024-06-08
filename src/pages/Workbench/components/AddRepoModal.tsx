@@ -5,7 +5,7 @@ import { Modal, Form, Input, Button, message, Radio, Progress, Select } from "an
 import React, { useEffect, useState } from "react";
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { open as open_dialog, save as save_dialog } from '@tauri-apps/api/dialog';
-import { add_repo, list_ssh_key_name, test_ssh } from "@/api/local_repo";
+import { add_repo, list_ssh_key_name } from "@/api/local_repo";
 import { uniqId } from "@/utils/utils";
 import { useStores } from "@/hooks";
 import { observer } from 'mobx-react';
@@ -13,7 +13,7 @@ import { USER_TYPE_ATOM_GIT } from "@/api/user";
 import { documentDir, resolve } from "@tauri-apps/api/path";
 import { homeDir } from '@tauri-apps/api/path';
 import type { GitProgressItem, AUTH_TYPE } from "@/api/git_wrap";
-import { run_status, clone as clone_repo } from "@/api/git_wrap";
+import { run_status, clone as clone_repo, test_ssh } from "@/api/git_wrap";
 
 interface AddRepoModalProps {
     name?: string;
@@ -105,11 +105,11 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
         });
         setInClone(true);
         try {
-            if (authType == "sshKey") {
-                await test_ssh(remoteUrl);
-            }
             const homePath = await homeDir();
             const privKey = await resolve(homePath, ".ssh", curSshKey);
+            if (authType == "sshKey") {
+                await test_ssh(remoteUrl, privKey);
+            }
             await clone_repo(localPath, remoteUrl, authType, username, password, privKey, info => {
                 setCloneProgress(info);
                 if (info == null) {

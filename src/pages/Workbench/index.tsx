@@ -1,7 +1,6 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import PasswordModal from '@/components/PasswordModal';
 import { useState, useMemo, useEffect } from 'react';
 import React from 'react';
 import s from './index.module.less';
@@ -17,7 +16,6 @@ import Button from '@/components/Button';
 import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
 import AddRepoModal from './components/AddRepoModal';
-import ResetDevModal from './components/ResetDevModal';
 import { USER_TYPE_ATOM_GIT, USER_TYPE_GITEE, USER_TYPE_JIHU_LAB } from '@/api/user';
 import iconAtomgit from '@/assets/allIcon/icon-atomgit.png';
 import iconGitee from '@/assets/allIcon/icon-gitee.png';
@@ -38,8 +36,6 @@ const Workbench: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
   const urlParams = new URLSearchParams(location.search);
-  const type = urlParams.get('type');
-  const [passwordModal, setPasswordModal] = useState(type === 'resetPassword');
 
   const appStore = useStores('appStore');
   const userStore = useStores('userStore');
@@ -50,13 +46,12 @@ const Workbench: React.FC = () => {
   const tab = urlParams.get('tab') ?? "localRepo";
 
   const [showAddRepoModal, setShowAddRepoModal] = useState(false);
-  const [showResetDevModal, setShowResetDevModal] = useState(false);
   const [showGitConfigModal, setShowGitConfigModal] = useState(false);
   const [showGitLfsConfigModal, setShowGitLfsConfigModal] = useState(false);
   const [hasDocker, setHasDocker] = useState<boolean | null>(null);
 
   const checkDocker = async () => {
-    const cmd = Command.sidecar("bin/devc", ["image", "exist", "linksaas.pro/devbase:latest"]);
+    const cmd = Command.sidecar("bin/devc", ["image", "exist", "ccr.ccs.tencentyun.com/linksaas/code-server:latest"]);
     const output = await cmd.execute();
     const result = JSON.parse(output.stdout) as CommandResult;
     if (result.success) {
@@ -177,11 +172,6 @@ const Workbench: React.FC = () => {
                 )}
                 <Popover trigger="click" placement="bottom" content={
                   <Space direction="vertical" style={{ padding: "10px 10px" }}>
-                    <Button type="link" onClick={e => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setShowResetDevModal(true);
-                    }}>重置研发环境</Button>
                     <Button type="link" onClick={e => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -343,31 +333,11 @@ const Workbench: React.FC = () => {
           </Tabs.TabPane>
         )}
       </Tabs>
-      {passwordModal && (
-        <PasswordModal
-          visible={passwordModal}
-          type="resetPassword"
-          onCancel={(bool) => {
-            userStore.logout();
-            if (userStore.isResetPassword) {
-              history.push("/");
-            }
-            setPasswordModal(bool);
-          }}
-          onSuccess={async () => {
-            history.push(WORKBENCH_PATH);
-            setPasswordModal(false);
-          }}
-        />
-      )}
       {showAddRepoModal == true && (
         <AddRepoModal onCancel={() => setShowAddRepoModal(false)} onOk={() => {
           localRepoStore.loadRepoList();
           setShowAddRepoModal(false);
         }} />
-      )}
-      {showResetDevModal == true && (
-        <ResetDevModal onClose={() => setShowResetDevModal(false)} />
       )}
       {showGitConfigModal == true && (
         <GitConfigModal onCancel={() => setShowGitConfigModal(false)} onOk={() => {

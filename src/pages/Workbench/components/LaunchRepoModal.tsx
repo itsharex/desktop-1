@@ -277,7 +277,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
     }
 
     const checkDocker = async () => {
-        const cmd = Command.sidecar("bin/devc", ["image", "exist", "linksaas.pro/devbase:latest"]);
+        const cmd = Command.sidecar("bin/devc", ["image", "exist", "ccr.ccs.tencentyun.com/linksaas/code-server:latest"]);
         const output = await cmd.execute();
         const result = JSON.parse(output.stdout) as CommandResult;
         if (result.success) {
