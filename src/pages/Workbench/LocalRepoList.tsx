@@ -22,9 +22,9 @@ import { useLocation } from "react-router-dom";
 import ChangeFileList from "./components/repo/ChangeFileList";
 import WorkDir from "./components/repo/WorkDir";
 import ChangeBranchModal from "./components/repo/ChangeBranchModal";
-import CreateBranchModal from "./components/repo/CreateBranchModal";
 import { LocalRepoExtInfo } from "@/stores/localrepo";
 import LargeFileList from "./components/repo/LargeFileList";
+import { remove_branch, remove_tag } from "@/api/git_wrap";
 
 interface LinkProjectModalProps {
     repo: LocalRepoInfo;
@@ -248,7 +248,8 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     const [activeKey, setActiveKey] = useState("workDir");
     const [widgetList, setWidgetList] = useState<WidgetInfo[]>([]);
 
-    const [createBranchFrom, setCreateBranchFrom] = useState("");
+    const [removeTagName, setRemoveTagName] = useState("");
+    const [removeBranchName, setRemoveBranchName] = useState("");
 
     const loadRepoInfo = async () => {
         try {
@@ -292,6 +293,26 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
         });
     };
 
+    const removeBranch = async () => {
+        if (removeBranchName == "") {
+            return;
+        }
+        await remove_branch(props.repo.repoInfo.path, removeBranchName, false);
+        await loadRepoInfo();
+        setRemoveBranchName("");
+        message.info("删除成功");
+    };
+
+    const removeTag = async () => {
+        if (removeTagName == "") {
+            return;
+        }
+        await remove_tag(props.repo.repoInfo.path, removeTagName);
+        await loadRepoInfo();
+        setRemoveTagName("");
+        message.info("删除成功");
+    };
+
     useEffect(() => {
         loadRepoInfo();
     }, [props.repo.repoInfo.path, props.repo.headInfo.commit_id]);
@@ -301,105 +322,143 @@ const LocalRepoPanel: React.FC<LocalRepoPanelProps> = (props) => {
     }, []);
 
     return (
-        <Tabs type="card" tabPosition="left" key={props.repo.id} activeKey={activeKey} onChange={key => {
-            setActiveKey(key);
-        }}>
-            <Tabs.TabPane tab="工作目录" key="workDir">
-                <WorkDir basePath={props.repo.repoInfo.path} widgetList={widgetList} headBranch={props.repo.headInfo.branch_name} filterList={props.repo.filterList} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="提交记录" key="commitList">
-                {activeKey == "commitList" && (
-                    <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name} />
-                )}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                {activeKey == "branchList" && (
-                    <>
-                        <List rowKey="name" dataSource={branchList} renderItem={item => (
+        <>
+            <Tabs type="card" tabPosition="left" key={props.repo.id} activeKey={activeKey} onChange={key => {
+                setActiveKey(key);
+            }}>
+                <Tabs.TabPane tab="工作目录" key="workDir">
+                    <WorkDir basePath={props.repo.repoInfo.path} widgetList={widgetList} headBranch={props.repo.headInfo.branch_name} filterList={props.repo.filterList} />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="提交记录" key="commitList">
+                    {activeKey == "commitList" && (
+                        <CommitList repo={props.repo.repoInfo} branchList={branchList} headBranch={props.repo.headInfo.branch_name}
+                            tagList={tagList}
+                            onChange={() => loadRepoInfo()} />
+                    )}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="分支列表" key="branchList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                    {activeKey == "branchList" && (
+                        <>
+                            <List rowKey="name" dataSource={branchList} renderItem={item => (
+                                <List.Item style={{ display: "block" }}>
+                                    <Space size="small">
+                                        <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                                        {item.upstream != "" && (
+                                            <span>({item.upstream})</span>
+                                        )}
+                                        {item.name != props.repo.headInfo.branch_name && (
+                                            <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    setRemoveBranchName(item.name);
+                                                }}>删除分支</Button>
+                                        )}
+                                    </Space>
+                                    <br />
+                                    <Space size="small">
+                                        <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            openBranchDiff(item);
+                                        }}>{item.commit_summary}</a>
+                                    </Space>
+                                </List.Item>
+                            )} />
+                        </>
+                    )}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                    {activeKey == "tagList" && (
+                        <List rowKey="name" dataSource={tagList} renderItem={item => (
                             <List.Item style={{ display: "block" }}>
                                 <Space size="small">
-                                    <BranchesOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                                    {item.upstream != "" && (
-                                        <span>({item.upstream})</span>
-                                    )}
-                                    <a onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setCreateBranchFrom(item.name);
-                                    }}>创建分支</a>
+                                    <TagOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
+                                    <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setRemoveTagName(item.name);
+                                        }}>删除标记</Button>
                                 </Space>
                                 <br />
                                 <Space size="small">
                                     <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
-                                        openBranchDiff(item);
+                                        openTagDiff(item);
                                     }}>{item.commit_summary}</a>
                                 </Space>
                             </List.Item>
                         )} />
-                        {createBranchFrom != "" && (
-                            <CreateBranchModal repo={props.repo.repoInfo} fromBranch={createBranchFrom}
-                                onCancel={() => setCreateBranchFrom("")} onOk={() => {
-                                    setCreateBranchFrom("");
-                                    loadRepoInfo();
-                                }} />
-                        )}
-                    </>
-                )}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="标记列表" key="tagList" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                {activeKey == "tagList" && (
-                    <List rowKey="name" dataSource={tagList} renderItem={item => (
-                        <List.Item style={{ display: "block" }}>
-                            <Space size="small">
-                                <TagOutlined /> {moment(item.commit_time).format("YYYY-MM-DD HH:mm")} {item.name}
-                            </Space>
-                            <br />
-                            <Space size="small">
-                                <NodeIndexOutlined /> {item.commit_id.substring(0, 8)} <a onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    openTagDiff(item);
-                                }}>{item.commit_summary}</a>
-                            </Space>
-                        </List.Item>
-                    )} />
-                )}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
-                {activeKey == "status" && (
-                    <ChangeFileList repo={props.repo.repoInfo} onCommit={() => loadRepoInfo()} filterList={props.repo.filterList} />
-                )}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                {activeKey == "remotes" && (
-                    <List rowKey="name" dataSource={remoteList} renderItem={item => (
-                        <List.Item>
-                            <div style={{ display: "flex", width: "100%" }}>
-                                <div style={{ width: "200px" }}>
-                                    <a onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        shell_open(get_http_url(item.url));
-                                    }}>{item.name}</a>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    {item.url}
-                                </div>
-                            </div>
-                        </List.Item>
-                    )} />
-                )}
-            </Tabs.TabPane>
-            {props.repo.filterList.includes("lfs") && (
-                <Tabs.TabPane tab="大文件列表" key="largeFile" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
-                    {activeKey == "largeFile" && (
-                        <LargeFileList repoPath={props.repo.repoInfo.path}/>
                     )}
                 </Tabs.TabPane>
+                <Tabs.TabPane tab="未提交文件" key="status" style={{ height: "calc(100vh - 400px)", overflow: "hidden" }}>
+                    {activeKey == "status" && (
+                        <ChangeFileList repo={props.repo.repoInfo} onCommit={() => loadRepoInfo()} filterList={props.repo.filterList} />
+                    )}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="远程仓库" key="remotes" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                    {activeKey == "remotes" && (
+                        <List rowKey="name" dataSource={remoteList} renderItem={item => (
+                            <List.Item>
+                                <div style={{ display: "flex", width: "100%" }}>
+                                    <div style={{ width: "200px" }}>
+                                        <a onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            shell_open(get_http_url(item.url));
+                                        }}>{item.name}</a>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        {item.url}
+                                    </div>
+                                </div>
+                            </List.Item>
+                        )} />
+                    )}
+                </Tabs.TabPane>
+                {props.repo.filterList.includes("lfs") && (
+                    <Tabs.TabPane tab="大文件列表" key="largeFile" style={{ height: "calc(100vh - 400px)", overflow: "scroll" }}>
+                        {activeKey == "largeFile" && (
+                            <LargeFileList repoPath={props.repo.repoInfo.path} />
+                        )}
+                    </Tabs.TabPane>
+                )}
+            </Tabs>
+            {removeBranchName != "" && (
+                <Modal open title="删除分支"
+                    okText="删除" okButtonProps={{ danger: true }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setRemoveBranchName("");
+                    }}
+                    onOk={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        removeBranch();
+                    }}>
+                    是否删除分支&nbsp;{removeBranchName}&nbsp;
+                </Modal>
             )}
-        </Tabs>
+            {removeTagName != "" && (
+                <Modal open title="删除标记"
+                    okText="删除" okButtonProps={{ danger: true }}
+                    onCancel={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setRemoveTagName("");
+                    }}
+                    onOk={e => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        removeTag();
+                    }}>
+                    是否删除标记&nbsp;{removeTagName}&nbsp;
+                </Modal>
+            )}
+        </>
     );
 };
 
