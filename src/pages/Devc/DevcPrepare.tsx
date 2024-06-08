@@ -3,12 +3,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Command } from '@tauri-apps/api/shell';
-import { message } from "antd";
-import BuildImage from "./components/BuildImage";
 import type { CommandResult, ContainerInfo } from "./components/types";
 import ResolveContainer from "./components/ResolveContainer";
 import StartContainer from "./components/StartContainer";
+import BuildImage from "./components/BuildImage";
+import { Command } from '@tauri-apps/api/shell';
+import { message } from "antd";
 
 const DevcPrepare = () => {
     const location = useLocation();
@@ -23,15 +23,16 @@ const DevcPrepare = () => {
     const checkImageExist = async () => {
         let image = "";
         if (devType == "vscode") {
-            image = "linksaas.pro/devbase:latest";
+            image = "ccr.ccs.tencentyun.com/linksaas/code-server:latest";
         } else if (devType == "jupyter") {
-            image = "jupyterhub/singleuser:latest"
+            image = "ccr.ccs.tencentyun.com/linksaas/jupyterhub:latest"
         } else if (devType == "rstudio") {
-            image = "rocker/rstudio:latest";
+            image = "ccr.ccs.tencentyun.com/linksaas/rstudio:latest";
         }
         const cmd = Command.sidecar("bin/devc", ["image", "exist", image]);
         const output = await cmd.execute();
         const result = JSON.parse(output.stdout) as CommandResult;
+        console.log(result);
         if (result.success) {
             setImageExist(result.data ?? false);
         } else {
@@ -39,12 +40,12 @@ const DevcPrepare = () => {
         }
     };
 
-
     useEffect(() => {
         if (imageExist == null) {
             checkImageExist()
         }
     }, [imageExist]);
+
 
     return (
         <>

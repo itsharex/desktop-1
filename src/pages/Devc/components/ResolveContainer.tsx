@@ -149,7 +149,7 @@ const ResolveContainer = (props: ResolveContainerProps) => {
         setStage("创建容器");
         if (props.devType == "vscode") {
             console.log("devc", "container", "create", props.repoId, props.repoPath, `${port}`);
-            const cmd = Command.sidecar("bin/devc", ["container", "create", props.repoId, props.repoPath, `${port}`]);
+            const cmd = Command.sidecar("bin/devc", ["container", "create", "--image", "ccr.ccs.tencentyun.com/linksaas/code-server:latest", props.repoId, props.repoPath, `${port}`]);
             const output = await cmd.execute();
             const obj = JSON.parse(output.stdout) as CommandResult;
             if (obj.success == true) {
@@ -165,11 +165,11 @@ const ResolveContainer = (props: ResolveContainerProps) => {
             let dockerImage = "";
             if (props.devType == "jupyter") {
                 pathInDocker = "/home/jovyan/work"
-                dockerImage = "jupyterhub/singleuser:latest"
+                dockerImage = "ccr.ccs.tencentyun.com/linksaas/jupyterhub:latest"
                 portInDocker = 8888;
             } else if (props.devType == "rstudio") {
                 pathInDocker = "/home/rstudio/workspace";
-                dockerImage = "rocker/rstudio:latest";
+                dockerImage = "ccr.ccs.tencentyun.com/linksaas/rstudio:latest";
                 portInDocker = 8787
             }
 
