@@ -14,22 +14,14 @@ const BuildImage = (props: BuildImageProps) => {
     const endRef = useRef<HTMLDivElement>(null);
     const [logs, setLogs] = useState("");
 
-    const runBuildImage = async () => {
-        const cmd = Command.sidecar("bin/devc", ["image", "build"]);
-        cmd.on("close", () => props.onOk());
-        cmd.stdout.on("data", line => {
-            setLogs(oldValue => oldValue + line);
-            endRef.current?.scrollIntoView();
-        });
-        await cmd.spawn();
-    };
-
     const runPullImage = async () => {
         let image = "";
         if (props.devType == "jupyter") {
-            image = "jupyterhub/singleuser:latest"
+            image = "ccr.ccs.tencentyun.com/linksaas/jupyterhub:latest";
         } else if (props.devType == "rstudio") {
-            image = "rocker/rstudio:latest";
+            image = "ccr.ccs.tencentyun.com/linksaas/rstudio:latest";
+        } else if (props.devType == "vscode") {
+            image = "ccr.ccs.tencentyun.com/linksaas/code-server:latest";
         }
         console.log("devc", "image", "pull", image);
         const cmd = Command.sidecar("bin/devc", ["image", "pull", image]);
@@ -42,11 +34,7 @@ const BuildImage = (props: BuildImageProps) => {
     };
 
     useEffect(() => {
-        if (props.devType == "vscode") {
-            runBuildImage();
-        } else {
-            runPullImage();
-        }
+        runPullImage();
     }, [props.devType]);
 
     return (
