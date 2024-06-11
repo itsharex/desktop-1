@@ -19,19 +19,7 @@ const App = () => {
     return (
         <div style={{ backgroundColor: "#fff", height: "140px" }}>
             <div style={{ position: "relative", backgroundColor: "#ddd", paddingLeft: "10px", paddingTop: "5px", paddingBottom: "3px", cursor: "move" }}
-                onMouseDown={e => {
-                    if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        appWindow.startDragging();
-                    }
-                }} onTouchStart={e => {
-                    if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        appWindow.startDragging();
-                    }
-                }} data-drag>
+                data-tauri-drag-region>
                 <span style={{
                     fontSize: "16px",
                     fontWeight: 500,

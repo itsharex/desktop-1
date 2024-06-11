@@ -167,19 +167,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
       <div style={{ height: "4px", backgroundColor: location.pathname.startsWith("/app") ? "#f6f6f8" : "white", borderTop: "1px solid #e8e9ee" }} />
       <Header className={style.layout_header} {...props}
         style={{ backgroundColor: location.pathname.startsWith("/app") ? "#f6f6f8" : "white", boxShadow: "none" }}
-        onMouseDown={e => {
-          if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-            e.preventDefault();
-            e.stopPropagation();
-            appWindow.startDragging();
-          }
-        }} onTouchStart={e => {
-          if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-            e.preventDefault();
-            e.stopPropagation();
-            appWindow.startDragging();
-          }
-        }} data-drag>
+        data-tauri-drag-region>
         {projectStore.curProjectId != "" && (
           <div>
             <ProjectQuickAccess />

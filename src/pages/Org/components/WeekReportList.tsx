@@ -226,12 +226,16 @@ const WeekReportList = (props: WeekReportListProps) => {
         if (curPage != 0) {
             setCurPage(0);
         } else {
-            loadReportList();
+            if (orgStore.curOrgId != "") {
+                loadReportList();
+            }
         }
     }, [props.memberUserId, props.dataVersion, orgStore.curOrgId]);
 
     useEffect(() => {
-        loadReportList();
+        if (orgStore.curOrgId != "") {
+            loadReportList();
+        }
     }, [curPage]);
 
     return (
