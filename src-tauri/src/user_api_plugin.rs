@@ -121,7 +121,7 @@ fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key:
             let (client, mut eventloop) = MqttClient::new(option.clone(), 10);
             let sub_res = client.subscribe(topic.clone(), QoS::AtLeastOnce).await;
             if sub_res.is_ok() {
-                println!("sub {} success", topic);
+                println!("sub {} {} success", (&url).host().unwrap().to_string(), topic);
                 let notice_client = (&app_handle).state::<CurNoticeClient>().inner();
                 *notice_client.0.lock().await = Some(client);
                 loop {

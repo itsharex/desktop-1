@@ -36,20 +36,20 @@ const ProjectItem: React.FC<{ item: WebProjectInfo }> = ({ item }) => {
                             appStore.showCheckLeave(() => {
                                 projectStore.setCurProjectId(item.project_id).then(() => {
                                     entryStore.reset();
-                                    orgStore.setCurOrgId("");
                                     appStore.curExtraMenu = null;
                                     projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                                     history.push(APP_PROJECT_HOME_PATH);
+                                    orgStore.setCurOrgId("");
                                 });
                             });
                             return;
                         }
                         projectStore.setCurProjectId(item.project_id).then(() => {
                             entryStore.reset();
-                            orgStore.setCurOrgId("");
                             appStore.curExtraMenu = null;
                             projectStore.projectHome.homeType = MAIN_CONTENT_CONTENT_LIST;
                             history.push(APP_PROJECT_HOME_PATH);
+                            orgStore.setCurOrgId("");
                         });
 
                     }}><FolderFilled style={{ color: item.project_id == projectStore.curProjectId ? "white" : "inherit" }} />
