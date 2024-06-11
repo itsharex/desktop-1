@@ -278,7 +278,11 @@ const ProjectHome = () => {
                         <Dropdown.Button type="primary" onClick={e => {
                             e.stopPropagation();
                             e.preventDefault();
-                            entryStore.createEntryType = ENTRY_TYPE_SPRIT;
+                            if (projectStore.isAdmin) {
+                                entryStore.createEntryType = ENTRY_TYPE_SPRIT;
+                            } else {
+                                entryStore.createEntryType = ENTRY_TYPE_DOC;
+                            }
                         }} menu={{
                             items: [
                                 {
