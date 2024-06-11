@@ -87,20 +87,8 @@ const Content = () => {
             height: "100vh",
             overflowY: "scroll",
             cursor: "move"
-        }} onMouseDown={e => {
-            if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-                e.preventDefault();
-                e.stopPropagation();
-                appWindow.startDragging();
-            }
-        }} onTouchStart={e => {
-            if ((e.target as HTMLDivElement).hasAttribute("data-drag")) {
-                e.preventDefault();
-                e.stopPropagation();
-                appWindow.startDragging();
-            }
-        }} data-drag>
-            <div style={{ position: "relative", height: "30px", paddingTop: "10px" }} data-drag>
+        }} data-tauri-drag-region>
+            <div style={{ position: "relative", height: "30px", paddingTop: "10px" }} data-tauri-drag-region>
                 <div style={{ position: "absolute", right: "0px" }}>
                     <a onClick={e => {
                         e.stopPropagation();
@@ -114,9 +102,9 @@ const Content = () => {
                     }}><CloseSquareOutlined style={{ fontSize: "24px", color: "black" }} /></a>
                 </div>
             </div>
-            <div style={{ paddingLeft: "20px" }} data-drag>
-                <div data-drag>项目:{projectName}</div>
-                <div data-drag>
+            <div style={{ paddingLeft: "20px" }} data-tauri-drag-region>
+                <div data-tauri-drag-region>项目:{projectName}</div>
+                <div data-tauri-drag-region>
                     {getShortNoteType()}:{title}&nbsp;&nbsp;
                     <a onClick={e => {
                         e.stopPropagation();

@@ -33,7 +33,7 @@ pub async fn run(app: AppHandle) {
     }
 
     for port in 8001..8099 {
-        let addr = format!("127.0.0.1:{}", port);
+        let addr = format!("0.0.0.0:{}", port);
         let listener = TcpListener::bind(&addr);
         if listener.is_err() {
             continue;

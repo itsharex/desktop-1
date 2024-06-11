@@ -494,7 +494,9 @@ const CreateEntryModal = () => {
                         e.stopPropagation();
                         entryStore.createEntryType = e.target.value;
                     }}>
-                        <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
+                        {projectStore.isAdmin && (
+                            <Radio value={ENTRY_TYPE_SPRIT}>工作计划</Radio>
+                        )}
                         <Radio value={ENTRY_TYPE_DOC}>文档</Radio>
                         <Radio value={ENTRY_TYPE_PAGES}>静态网页</Radio>
                         <Radio value={ENTRY_TYPE_BOARD}>信息面板</Radio>

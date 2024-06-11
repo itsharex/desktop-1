@@ -151,6 +151,7 @@ const ProjectQuickAccess = () => {
                 {
                     key: MENU_KEY_ENTRY_CREATE_SPRIT,
                     label: "创建工作计划(ctrl+n w)",
+                    disabled: projectStore.isAdmin == false,
                 },
                 {
                     key: MENU_KEY_ENTRY_CREATE_DOC,
@@ -408,7 +409,9 @@ const ProjectQuickAccess = () => {
                 linkAuxStore.goToExtEventList(history);
                 break;
             case MENU_KEY_ENTRY_CREATE_SPRIT:
-                entryStore.createEntryType = ENTRY_TYPE_SPRIT;
+                if (projectStore.isAdmin) {
+                    entryStore.createEntryType = ENTRY_TYPE_SPRIT;
+                }
                 break;
             case MENU_KEY_ENTRY_CREATE_DOC:
                 entryStore.createEntryType = ENTRY_TYPE_DOC;

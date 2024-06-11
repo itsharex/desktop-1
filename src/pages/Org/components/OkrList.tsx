@@ -336,12 +336,16 @@ const OkrList = (props: OkrListProps) => {
         if (curPage != 0) {
             setCurPage(0);
         } else {
-            loadOkrList();
+            if (orgStore.curOrgId != "") {
+                loadOkrList();
+            }
         }
     }, [props.memberUserId, props.dataVersion, orgStore.curOrgId]);
 
     useEffect(() => {
-        loadOkrList();
+        if (orgStore.curOrgId != "") {
+            loadOkrList();
+        }
     }, [curPage]);
 
     return (
