@@ -173,6 +173,7 @@ class UserStore {
     await this.updateNoticeStatus(res.session_id);
     await this.updateLearnState(res.session_id);
 
+    sessionStorage.clear();
     sessionStorage.setItem('sessionId', res.session_id);
     sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
 
