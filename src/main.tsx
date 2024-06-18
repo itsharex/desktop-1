@@ -1,7 +1,7 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'mobx-react';
@@ -17,15 +17,25 @@ import 'remirror/styles/all.css';
 import '@/components/Editor/editor.less';
 
 const App = () => {
-  stores.noticeStore.initListen();
-  if (stores.userStore.sessionId !== '') {
-    stores.appStore.loadClientCfg();
-    stores.appStore.loadLocalProxy();
-    stores.projectStore.initLoadProjectList();
-    stores.orgStore.initLoadOrgList().then(() => {
-      stores.orgStore.setCurOrgId("");
-    });
-  }
+  useEffect(() => {
+    const unListenList = stores.noticeStore.initListen();
+    if (stores.userStore.sessionId !== '') {
+      stores.appStore.loadClientCfg();
+      stores.appStore.loadLocalProxy();
+      stores.projectStore.initLoadProjectList();
+      stores.orgStore.initLoadOrgList().then(() => {
+        stores.orgStore.setCurOrgId("");
+      });
+    }
+    return () => {
+      unListenList.then(unListens => {
+        for (const unListen of unListens) {
+          unListen();
+        }
+      })
+    };
+  }, []);
+
   return (
     <Provider stores={stores}>
       <BrowserRouter>
