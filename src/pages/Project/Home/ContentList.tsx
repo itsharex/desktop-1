@@ -13,10 +13,11 @@ import {
     ENTRY_TYPE_SPRIT, ENTRY_TYPE_DOC, ENTRY_TYPE_NULL, ENTRY_TYPE_PAGES, ENTRY_TYPE_BOARD, ENTRY_TYPE_FILE,
     ENTRY_TYPE_API_COLL,
     ENTRY_TYPE_DATA_ANNO,
-    ENTRY_TYPE_MY_WORK
+    ENTRY_TYPE_MY_WORK,
+    get_folder
 } from "@/api/project_entry";
 import { request } from "@/utils/request";
-import { CreditCardFilled, FilterTwoTone, FolderAddOutlined } from "@ant-design/icons";
+import { CreditCardFilled, FilterTwoTone, FolderAddOutlined, HomeFilled } from "@ant-design/icons";
 import EntryCard from "./EntryCard";
 import CreateFolderModal from "./components/CreateFolderModal";
 import FolderCard from "./FolderCard";
@@ -53,6 +54,35 @@ const ProjectHome = () => {
             is_folder: true,
             value: item,
         }));
+        if (entryStore.curFolderId != "") {
+            const curFolderRes = await request(get_folder({
+                session_id: userStore.sessionId,
+                project_id: projectStore.curProjectId,
+                folder_id: entryStore.curFolderId,
+            }));
+            console.log(curFolderRes);
+            folderList.unshift({
+                id: curFolderRes.folder.parent_folder_id,
+                is_folder: true,
+                value: {
+                    folder_id: curFolderRes.folder.parent_folder_id,
+                    folder_title: "上级目录",
+                    parent_folder_id: "",
+                    sub_entry_count: -1,
+                    sub_folder_count: -1,
+                    create_user_id: "",
+                    create_display_name: "",
+                    create_logo_uri: "",
+                    create_time: 0,
+                    update_user_id: "",
+                    update_display_name: "",
+                    update_logo_uri: "",
+                    update_time: 0,
+                    can_update: false,
+                    can_remove: false,
+                },
+            });
+        }
         entryStore.entryOrFolderList = [...folderList, ...tmpList];
     };
 
@@ -75,18 +105,6 @@ const ProjectHome = () => {
                 }));
                 setPathItemList(res.path_list);
             }
-            const folderRes = await request(list_sub_folder({
-                session_id: userStore.sessionId,
-                project_id: projectStore.curProjectId,
-                parent_folder_id: entryStore.curFolderId,
-            }));
-            for (const item of folderRes.folder_list) {
-                tmpList.push({
-                    id: item.folder_id,
-                    is_folder: true,
-                    value: item,
-                });
-            }
             const entryRes = await request(list_sub_entry({
                 session_id: userStore.sessionId,
                 project_id: projectStore.curProjectId,
@@ -99,6 +117,8 @@ const ProjectHome = () => {
                     value: item,
                 })
             }
+            entryStore.entryOrFolderList = tmpList;
+            await loadFolderList();
             projectStore.projectHome.contentTotalCount = 0;
         } else {
             let listParam: ListParam | null = null;
@@ -137,8 +157,8 @@ const ProjectHome = () => {
                     value: item,
                 })
             }
+            entryStore.entryOrFolderList = tmpList;
         }
-        entryStore.entryOrFolderList = tmpList;
     };
 
     const loadSysEntryList = async () => {
@@ -389,19 +409,22 @@ const ProjectHome = () => {
                                     <Breadcrumb>
                                         <Breadcrumb.Item>
                                             <Button type="link" disabled={entryStore.curFolderId == ""}
-                                                style={{ minWidth: 0, padding: "0px 0px" }}
+                                                style={{ minWidth: 0, padding: "0px 0px", fontSize: "14px" }}
                                                 onClick={e => {
                                                     e.stopPropagation();
                                                     e.preventDefault();
                                                     entryStore.curFolderId = "";
                                                 }}>
-                                                根目录
+                                                <Space size="small">
+                                                    <HomeFilled />
+                                                    根目录
+                                                </Space>
                                             </Button>
                                         </Breadcrumb.Item>
                                         {pathItemList.map(item => (
                                             <Breadcrumb.Item key={item.folder_id}>
                                                 <Button type="link" disabled={item.folder_id == entryStore.curFolderId}
-                                                    style={{ minWidth: 0, padding: "0px 0px" }}
+                                                    style={{ minWidth: 0, padding: "0px 0px", fontSize: "14px" }}
                                                     onClick={e => {
                                                         e.stopPropagation();
                                                         e.preventDefault();
