@@ -397,6 +397,7 @@ const WorkDir = (props: WorkDirProps) => {
             loadFileEntryList();
         }
     }, [props.headBranch]);
+    
     return (
         <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
             headStyle={{ backgroundColor: "#eee" }}
