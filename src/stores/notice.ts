@@ -27,8 +27,7 @@ class NoticeStore {
     makeAutoObservable(this);
   }
   private rootStore: RootStore;
-  private unlistenFn: UnlistenFn | null = null;
-  private unlistenShortNoteFn: UnlistenFn | null = null;
+
 
   private history: History = createBrowserHistory();
 
@@ -39,13 +38,7 @@ class NoticeStore {
   }
 
   //成功登录后接收通知
-  async initListen() {
-    if (this.unlistenFn !== null) {
-      this.unlistenFn();
-      runInAction(() => {
-        this.unlistenFn = null;
-      });
-    }
+  async initListen(): Promise<UnlistenFn[]> {
     const unlistenFn = await listen<NoticeType.AllNotice>('notice', (ev) => {
       try {
         const notice = ev.payload
@@ -75,17 +68,7 @@ class NoticeStore {
         console.log(e);
       }
     });
-    runInAction(() => {
-      this.unlistenFn = unlistenFn;
-    });
 
-
-    if (this.unlistenShortNoteFn !== null) {
-      this.unlistenShortNoteFn();
-      runInAction(() => {
-        this.unlistenShortNoteFn = null;
-      });
-    }
     const unlistenShortNoteFn = await listen<ShortNoteEvent | string>("shortNote", (ev) => {
       try {
         if (isString(ev.payload)) {
@@ -98,10 +81,7 @@ class NoticeStore {
       }
 
     });
-    runInAction(() => {
-      this.unlistenShortNoteFn = unlistenShortNoteFn;
-    });
-
+    return [unlistenFn, unlistenShortNoteFn];
   }
 
   private async forwardCommentNotice(_targetType: COMMENT_TARGET_TYPE, targetId: string, notice: NoticeType.comment.AllNotice) {
@@ -300,7 +280,7 @@ class NoticeStore {
       this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
     } else if (notice.GiteeLoginNotice !== undefined) {
       this.rootStore.userStore.callLogin("", notice.GiteeLoginNotice.code, USER_TYPE_GITEE);
-    } else if(notice.JihulabLoginNotice !== undefined){
+    } else if (notice.JihulabLoginNotice !== undefined) {
       this.rootStore.userStore.callLogin("", notice.JihulabLoginNotice.code, USER_TYPE_JIHU_LAB);
     }
   }

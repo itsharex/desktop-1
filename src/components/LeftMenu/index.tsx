@@ -144,6 +144,12 @@ const LeftMenu: React.FC = () => {
           </div>
         ))}
       </div>
+      <div style={{ position: "absolute", bottom: "2px", left: "10px", cursor: "pointer" }} onClick={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        shell_open("https://openlinksaas.atomgit.net/docs/#/");
+      }}>
+        使用手册</div>
       <div style={{ position: "absolute", bottom: "2px", right: "10px", cursor: "pointer" }} onClick={e => {
         e.stopPropagation();
         e.preventDefault();

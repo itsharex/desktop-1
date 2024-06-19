@@ -38,7 +38,6 @@ pub struct CurUserSecret(pub Mutex<Option<String>>);
 #[derive(Default)]
 struct CurNoticeClient(Mutex<Option<MqttClient>>);
 
-
 async fn keep_alive_run<R: Runtime>(handle: &AppHandle<R>) {
     let mut session_id = String::from("");
     {
@@ -104,6 +103,36 @@ async fn keep_alive<R: Runtime>(app_handle: AppHandle<R>) {
     }
 }
 
+async fn mqtt_event_loop<R: Runtime>(
+    app_handle: AppHandle<R>,
+    window: Window<R>,
+    topic: String,
+    url: Url,
+    option: MqttOptions,
+) {
+    let (client, mut eventloop) = MqttClient::new(option, 10);
+    let sub_res = client.subscribe(topic.clone(), QoS::AtLeastOnce).await;
+    if sub_res.is_ok() {
+        println!(
+            "sub {} {} success",
+            (&url).host().unwrap().to_string(),
+            topic
+        );
+        let notice_client = (&app_handle).state::<CurNoticeClient>().inner();
+        *notice_client.0.lock().await = Some(client);
+        loop {
+            let notice = eventloop.poll().await;
+            if notice.is_err() {
+                println!("disconnect mqtt,error {:?}", notice.err().unwrap());
+                return;
+            }
+            emit_notice(&window, notice.unwrap());
+        }
+    } else {
+        println!("{:?}", sub_res.err().unwrap());
+    }
+}
+
 fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key: String, url: Url) {
     tauri::async_runtime::spawn(async move {
         let topic = format!(
@@ -118,28 +147,20 @@ fn run_mqtt<R: Runtime>(app_handle: AppHandle<R>, window: Window<R>, notice_key:
             (&url).port().unwrap(),
         );
         loop {
-            let (client, mut eventloop) = MqttClient::new(option.clone(), 10);
-            let sub_res = client.subscribe(topic.clone(), QoS::AtLeastOnce).await;
-            if sub_res.is_ok() {
-                println!("sub {} {} success", (&url).host().unwrap().to_string(), topic);
-                let notice_client = (&app_handle).state::<CurNoticeClient>().inner();
-                *notice_client.0.lock().await = Some(client);
-                loop {
-                    let notice = eventloop.poll().await;
-                    if notice.is_err() {
-                        println!("disconnect mqtt,error {:?}", notice.err().unwrap());
-                        break;
-                    }
-                    emit_notice(&window, notice.unwrap());
-                }
-            } else {
-                println!("{:?}", sub_res.err().unwrap());
-            }
+            mqtt_event_loop(
+                app_handle.clone(),
+                window.clone(),
+                topic.clone(),
+                url.clone(),
+                option.clone(),
+            )
+            .await;
             {
                 let cur_value = (&app_handle).state::<CurSession>().inner();
                 let cur_session = cur_value.0.lock().await;
                 if cur_session.is_none() {
-                    break;
+                    println!("exit run_mqtt");
+                    return;
                 }
             }
             sleep(Duration::from_secs(5)).await;
