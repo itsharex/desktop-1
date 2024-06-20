@@ -66,9 +66,11 @@ const FolderCard = (props: FolderCardProps) => {
             headStyle={{ borderBottom: "none" }} bodyStyle={{ padding: "0px 10px" }}
             extra={
                 <Space>
-                    <Popover placement="top" trigger="hover" content={<FolderPopover folderInfo={props.folderInfo} />}>
-                        <InfoCircleOutlined />
-                    </Popover>
+                    {props.folderInfo.sub_folder_count >= 0 && props.folderInfo.sub_entry_count >= 0 && (
+                        <Popover placement="top" trigger="hover" content={<FolderPopover folderInfo={props.folderInfo} />}>
+                            <InfoCircleOutlined />
+                        </Popover>
+                    )}
                     {props.folderInfo.can_update && (
                         <Button style={{ minWidth: 0, padding: "0px 0px" }} type="text" icon={<EditOutlined />}
                             onClick={e => {
@@ -77,26 +79,28 @@ const FolderCard = (props: FolderCardProps) => {
                                 setShowEditModal(true);
                             }} />
                     )}
-                    <Popover trigger="click" placement="bottom" content={
-                        <Space direction="vertical" style={{ padding: "10px 10px" }}>
-                            {props.canMove && (
-                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowMoveModal(true);
-                                }}>移动到目录</Button>
-                            )}
-                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                disabled={!props.folderInfo.can_remove} danger
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowRemoveModal(true);
-                                }}>删除目录</Button>
-                        </Space>
-                    }>
-                        <MoreOutlined />
-                    </Popover>
+                    {props.folderInfo.sub_folder_count >= 0 && props.folderInfo.sub_entry_count >= 0 && (
+                        <Popover trigger="click" placement="bottom" content={
+                            <Space direction="vertical" style={{ padding: "10px 10px" }}>
+                                {props.canMove && (
+                                    <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowMoveModal(true);
+                                    }}>移动到目录</Button>
+                                )}
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                    disabled={!props.folderInfo.can_remove} danger
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setShowRemoveModal(true);
+                                    }}>删除目录</Button>
+                            </Space>
+                        }>
+                            <MoreOutlined />
+                        </Popover>
+                    )}
                 </Space>
             }>
             <a onClick={e => {
@@ -107,10 +111,12 @@ const FolderCard = (props: FolderCardProps) => {
                 <h1 className={s.title}>
                     {props.folderInfo.folder_title}
                 </h1>
-                <div style={{ color: "black" }}>
-                    <div>子目录:&nbsp;{props.folderInfo.sub_folder_count}</div>
-                    <div>子内容:&nbsp;{props.folderInfo.sub_entry_count}</div>
-                </div>
+                {props.folderInfo.sub_folder_count >= 0 && props.folderInfo.sub_entry_count >= 0 && (
+                    <div style={{ color: "black" }}>
+                        <div>子目录:&nbsp;{props.folderInfo.sub_folder_count}</div>
+                        <div>子内容:&nbsp;{props.folderInfo.sub_entry_count}</div>
+                    </div>
+                )}
             </a>
             {showEditModal == true && (
                 <UpdateFolderModal folderInfo={props.folderInfo} onCancel={() => setShowEditModal(false)}
