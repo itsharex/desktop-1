@@ -23,7 +23,7 @@ const RightFloat = observer(() => {
   return (
     <div className={s.right_float}>
       <AlarmHeader />
-      {!(projectStore.curProject?.closed) && projectStore.isAdmin && appStore.clientCfg?.can_invite && (
+      {!(projectStore.curProject?.closed) && (
         <div className={s.member_wrap}>
           <Popover placement='top' overlayClassName="global_help"
             open={appStore.showHelp} content="邀请加入项目">

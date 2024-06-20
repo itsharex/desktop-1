@@ -24,7 +24,6 @@ export type GetCfgResponse = {
   item_list: ExtraMenuItem[];
   server_cap: ServerCap;
   pay_center_url: string;
-  can_invite: boolean;
   enable_admin: boolean;
   atom_git_client_id: string;
   gitee_client_id: string;

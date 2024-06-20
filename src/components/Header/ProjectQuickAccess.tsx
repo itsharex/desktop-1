@@ -130,7 +130,7 @@ const ProjectQuickAccess = () => {
                 {
                     key: MENU_KEY_SHOW_INVITE_MEMBER,
                     label: "邀请成员",
-                    disabled: projectStore.curProject?.closed || appStore.clientCfg?.can_invite == false || projectStore.isAdmin == false,
+                    disabled: projectStore.curProject?.closed || projectStore.isAdmin == false,
                 },
                 {
                     key: "members",
