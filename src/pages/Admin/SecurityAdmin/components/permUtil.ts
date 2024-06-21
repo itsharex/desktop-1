@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import type { CheckboxOptionType } from 'antd';
-import type { UserPerm, ProjectPerm, ProjectMemberPerm, MenuPerm, AppStorePerm, DockerTemplatePerm, DevContainerPerm, IdeaStorePerm, WidgetStorePerm, SwStorePerm, SkillCenterPerm, OrgPerm, OrgMemberPerm, KeywordPerm } from "@/api/admin_auth";
+import type { UserPerm, ProjectPerm, ProjectMemberPerm, MenuPerm, AppStorePerm, DockerTemplatePerm, DevContainerPerm, IdeaStorePerm, WidgetStorePerm, SwStorePerm, SkillCenterPerm, OrgPerm, OrgMemberPerm, KeywordPerm, GitVpPerm } from "@/api/admin_auth";
 
 export const userPermOptionList: CheckboxOptionType[] = [
     {
@@ -1090,6 +1090,86 @@ export const genKeywordPermValues = (perm: KeywordPerm): string[] => {
     }
     if (perm.remove) {
         retList.push("remove");
+    }
+    return retList;
+};
+
+export const gitVpPermOptionList: CheckboxOptionType[] = [
+    {
+        label: "访问知名项目",
+        value: "read",
+    },
+    {
+        label: "重新生成密钥",
+        value: "renew_secret",
+    },
+    {
+        label: "增加项目数据源",
+        value: "add_vp_source",
+    },
+    {
+        label: "更新项目数据源",
+        value: "update_vp_source",
+    },
+    {
+        label: "删除项目数据源",
+        value: "remove_vp_source",
+    },
+    {
+        label: "删除项目",
+        value: "remove_vp",
+    },
+];
+
+export const calcGitVpPerm = (values: string[] | undefined): GitVpPerm => {
+    const ret: GitVpPerm = {
+        read: false,
+        renew_secret: false,
+        add_vp_source: false,
+        update_vp_source: false,
+        remove_vp_source: false,
+        remove_vp: false,
+    };
+    if (values == undefined) {
+        return ret;
+    }
+    values.forEach(value => {
+        if (value == "read") {
+            ret.read = true;
+        } else if (value == "renew_secret") {
+            ret.renew_secret = true;
+        } else if (value == "add_vp_source") {
+            ret.add_vp_source = true;
+        } else if (value == "update_vp_source") {
+            ret.update_vp_source = true;
+        } else if (value == "remove_vp_source") {
+            ret.remove_vp_source = true;
+        } else if (value == "remove_vp") {
+            ret.remove_vp = true;
+        }
+    });
+    return ret;
+};
+
+export const genGitVpPermValues = (perm: GitVpPerm): string[] => {
+    const retList: string[] = [];
+    if (perm.read) {
+        retList.push("read");
+    }
+    if (perm.renew_secret) {
+        retList.push("renew_secret");
+    }
+    if (perm.add_vp_source) {
+        retList.push("add_vp_source");
+    }
+    if (perm.update_vp_source) {
+        retList.push("update_vp_source");
+    }
+    if (perm.remove_vp_source) {
+        retList.push("remove_vp_source");
+    }
+    if (perm.remove_vp) {
+        retList.push("remove_vp");
     }
     return retList;
 };

@@ -10,7 +10,7 @@ import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
 import AddAdminUserModal from "./components/AddAdminUserModal";
 import { EditTextArea } from "@/components/EditCell/EditTextArea";
-import { appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcIdeaStorePerm, calcKeywordPerm, calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm, calcSkillCenterPerm, calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, genAppStorePermValues, genDevContainerPermValues, genDockerTemplatePermValues, genIdeaStorePermValues, genKeywordPermValues, genMenuPermValues, genOrgMemberPermValues, genOrgPermValues, genProjectMemberPermValues, genProjectPermValues, genSkillCenterPermValues, genSwStorePermValues, genUserPermValues, genWidgetStorePermValues, ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList, projectPermOptionList, skillCenterPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList } from "./components/permUtil";
+import { appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcGitVpPerm, calcIdeaStorePerm, calcKeywordPerm, calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm, calcSkillCenterPerm, calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, genAppStorePermValues, genDevContainerPermValues, genDockerTemplatePermValues, genGitVpPermValues, genIdeaStorePermValues, genKeywordPermValues, genMenuPermValues, genOrgMemberPermValues, genOrgPermValues, genProjectMemberPermValues, genProjectPermValues, genSkillCenterPermValues, genSwStorePermValues, genUserPermValues, genWidgetStorePermValues, gitVpPermOptionList, ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList, projectPermOptionList, skillCenterPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList } from "./components/permUtil";
 
 const PAGE_SIZE = 10;
 
@@ -38,6 +38,7 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
     const [orgPermValues, setOrgPermValues] = useState([] as string[]);
     const [orgMemberPermValues, setOrgMemberPermValues] = useState([] as string[]);
     const [keywordPermValues, setKeywordPermValues] = useState([] as string[]);
+    const [gitVpPermValues, setGitVpPermValues] = useState([] as string[]);
 
     const resetPerm = () => {
         setUserPermValues(genUserPermValues(props.adminUserInfo.perm_info.user_perm));
@@ -54,6 +55,7 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
         setOrgPermValues(genOrgPermValues(props.adminUserInfo.perm_info.org_perm));
         setOrgMemberPermValues(genOrgMemberPermValues(props.adminUserInfo.perm_info.org_member_perm));
         setKeywordPermValues(genKeywordPermValues(props.adminUserInfo.perm_info.keyword_perm));
+        setGitVpPermValues(genGitVpPermValues(props.adminUserInfo.perm_info.git_vp_perm));
     };
 
     const updatePerm = async () => {
@@ -76,6 +78,7 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
                 org_perm: calcOrgPerm(orgPermValues),
                 org_member_perm: calcOrgMemberPerm(orgMemberPermValues),
                 keyword_perm: calcKeywordPerm(keywordPermValues),
+                git_vp_perm: calcGitVpPerm(gitVpPermValues),
                 super_admin_user: false,
             },
         }));
@@ -207,6 +210,9 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
                     </Form.Item>
                     <Form.Item label="软件管理权限">
                         <Checkbox.Group options={swStorePermOptionList} value={swStorePermValues} onChange={values => setSwStorePermValues(values as string[])} />
+                    </Form.Item>
+                    <Form.Item label="Git项目权限">
+                        <Checkbox.Group options={gitVpPermOptionList} value={gitVpPermValues} onChange={values => setGitVpPermValues(values as string[])} />
                     </Form.Item>
                     <Form.Item label="技能中心管理权限">
                         <Checkbox.Group options={skillCenterPermOptionList} value={skillCenterPermValues} onChange={values => setSkillCenterPermValues(values as string[])} />
