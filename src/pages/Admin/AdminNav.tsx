@@ -15,6 +15,8 @@ import {
     ADMIN_PATH_DEV_CONTAINER_PKG_SUFFIX,
     ADMIN_PATH_DOCKER_TEMPLATE_APP_SUFFIX,
     ADMIN_PATH_DOCKER_TEMPLATE_CATE_SUFFIX,
+    ADMIN_PATH_GITVP_REPO_SUFFIX,
+    ADMIN_PATH_GITVP_SOURCE_SUFFIX,
     ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
     ADMIN_PATH_IDEA_STORE_SUFFIX,
     ADMIN_PATH_IDEA_SUFFIX,
@@ -41,6 +43,7 @@ const AdminNav = () => {
     const [orgSelectedKeys, setOrgSelectedKeys] = useState<string[]>([]);
     const [clientCfgSelectedKeys, setClientCfgSelectedKeys] = useState<string[]>([]);
     const [securitySelectedKeys, setSecuritySelectedKeys] = useState<string[]>([]);
+    const [gitvpSelectedKeys, setGitvpSelectedKeys] = useState<string[]>([]);
     const [appstoreSelectedKeys, setAppstoreSelectedKeys] = useState<string[]>([]);
     const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
     const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
@@ -87,6 +90,15 @@ const AdminNav = () => {
             setSecuritySelectedKeys(["security_keyword"]);
         } else if (location.pathname == ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX) {
             setSecuritySelectedKeys(["security_admin_user"]);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
+        setGitvpSelectedKeys([]);
+        if (location.pathname == ADMIN_PATH_GITVP_SOURCE_SUFFIX) {
+            setAppstoreSelectedKeys(["gitvp_source"]);
+        } else if (location.pathname == ADMIN_PATH_GITVP_REPO_SUFFIX) {
+            setAppstoreSelectedKeys(["gitvp_repo"]);
         }
     }, [location.pathname]);
 
@@ -178,7 +190,8 @@ const AdminNav = () => {
                     }}><LogoutOutlined />&nbsp;&nbsp;退出</a>
                 </div>
             </div>
-            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate", "devContainer", "pubSearch", "ideastore", "widgetStore", "skillcenter", "security"]}
+            <Collapse defaultActiveKey={["user", "org", "project", "clientCfg", "appstore", "swstore", "dockerTemplate",
+                "devContainer", "pubSearch", "ideastore", "widgetStore", "skillcenter", "security", "gitvp"]}
                 style={{ height: "calc(100vh - 132px)", overflowY: "scroll", paddingBottom: "10px" }}>
                 <Collapse.Panel header="用户管理" key="user">
                     <Menu selectedKeys={userSelectedKeys} items={[
@@ -240,6 +253,33 @@ const AdminNav = () => {
                         }}
                     />
                 </Collapse.Panel>
+                {globalServer == true && (
+                    <Collapse.Panel header="代码仓库精选" key="gitvp">
+                        <Menu selectedKeys={gitvpSelectedKeys} items={[
+                            {
+                                label: "数据来源",
+                                key: "gitvp_source",
+                                disabled: !(permInfo?.git_vp_perm.read ?? false),
+                            },
+                            {
+                                label: "代码仓库",
+                                key: "gitvp_repo",
+                                disabled: !(permInfo?.git_vp_perm.read ?? false),
+                            },
+                        ]}
+                            style={{ borderRightWidth: "0px" }}
+                            onSelect={e => {
+                                if (e.selectedKeys.length == 1) {
+                                    if (e.selectedKeys[0] == "gitvp_source") {
+                                        history.push(ADMIN_PATH_GITVP_SOURCE_SUFFIX);
+                                    } else if (e.selectedKeys[0] == "gitvp_repo") {
+                                        history.push(ADMIN_PATH_GITVP_REPO_SUFFIX);
+                                    }
+                                }
+                            }}
+                        />
+                    </Collapse.Panel>
+                )}
                 {globalServer == true && (
                     <Collapse.Panel header="应用管理" key="appstore">
                         <Menu selectedKeys={appstoreSelectedKeys} items={[

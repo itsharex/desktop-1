@@ -52,6 +52,8 @@ import {
   ADMIN_PATH_ORG_DETAIL_SUFFIX,
   ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
   ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX,
+  ADMIN_PATH_GITVP_SOURCE_SUFFIX,
+  ADMIN_PATH_GITVP_REPO_SUFFIX,
 } from '@/utils/constant';
 import KnowledgeBaseLayout from '@/layouts/KnowledgeBaseLayout';
 import ProjectDoc from '@/pages/KnowledgeBase/ProjectDoc';
@@ -98,6 +100,8 @@ import OrgList from '@/pages/Admin/OrgAdmin/OrgList';
 import AdminOrgDetail from "@/pages/Admin/OrgAdmin/OrgDetail";
 import KeywordList from '@/pages/Admin/SecurityAdmin/KeywordList';
 import AdminUserList from '@/pages/Admin/SecurityAdmin/AdminUserList';
+import GitVpSourceList from '@/pages/Admin/GitVpAdmin/GitVpSourceList';
+import GitVpRepoList from '@/pages/Admin/GitVpAdmin/GitVpRepoList';
 
 export interface IRouteConfig {
   // 路由路径
@@ -365,6 +369,18 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_APPSTORE_CATE_SUFFIX,
         title: "应用类别管理",
         component: AppCateList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_GITVP_SOURCE_SUFFIX,
+        title: "代码仓库数据来源",
+        component: GitVpSourceList,
+        exact: true,
+      },
+      {
+        path: ADMIN_PATH_GITVP_REPO_SUFFIX,
+        title: "代码仓库列表",
+        component: GitVpRepoList,
         exact: true,
       },
       {

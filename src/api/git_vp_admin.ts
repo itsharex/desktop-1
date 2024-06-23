@@ -5,19 +5,19 @@ import { invoke } from '@tauri-apps/api/tauri';
 import type { GitVpSourceInfo } from './git_vp';
 
 export type AdminGetSecretRequest = {
-    admin_session_id: string;  
+    admin_session_id: string;
     vp_source_id: string;
 };
 
-export type AdminGetSecretResponse ={    
+export type AdminGetSecretResponse = {
     code: number;
     err_msg: string;
     secret: string;
 };
 
 export type AdminRenewSecretRequest = {
-admin_session_id: string;  
-vp_source_id: string;
+    admin_session_id: string;
+    vp_source_id: string;
 };
 
 export type AdminRenewSecretResponse = {
@@ -47,7 +47,7 @@ export type AdminUpdateGitVpSourceResponse = {
 };
 
 export type AdminRemoveGitVpSourceRequest = {
-    admin_session_id: string;  
+    admin_session_id: string;
     vp_source_id: string;
 };
 
@@ -62,7 +62,7 @@ export type AdminRemoveGitVpRequest = {
     web_url: string;
 };
 
-export type AdminRemoveGitVpResponse ={
+export type AdminRemoveGitVpResponse = {
     code: number;
     err_msg: string;
 };
