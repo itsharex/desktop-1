@@ -9,6 +9,7 @@ import type { ImagePreviewType } from 'rc-image';
 import { useLocation } from "react-router-dom";
 import { get_admin_session } from "@/api/admin_auth";
 import { get_session } from "@/api/user";
+import { fetch, ResponseType } from '@tauri-apps/api/http';
 
 
 export interface AsyncImageProps {
@@ -30,6 +31,23 @@ const AsyncImage: React.FC<AsyncImageProps> = (props) => {
 
     const [imgSrc, setImgSrc] = useState("");
 
+    const convertToB64 = (data: Uint8Array): string => {
+        const chunk = 8 * 1024;
+        const dataStrList = [] as string[];
+        for (let i = 0; i < data.length / chunk; i++) {
+            const buf = data.slice(i * chunk, (i + 1) * chunk);
+            dataStrList.push(String.fromCharCode(...buf));
+        }
+        return btoa(dataStrList.join(""));
+    }
+
+    const guessReferer = (srcUrl: string): string => {
+        if (srcUrl.includes("gitcode.com")) {
+            return "https://gitcode.com";
+        } else {
+            return srcUrl;
+        }
+    }
     const adjustImgSrc = async () => {
         if (props.src.startsWith("fs://localhost/") || props.src.startsWith("https://fs.localhost/")) {
             const tmpSrc = props.src.replace("fs://localhost/", "").replace("https://fs.localhost/", "");
@@ -52,19 +70,12 @@ const AsyncImage: React.FC<AsyncImageProps> = (props) => {
                 if (cacheRes.exist_in_local) {
                     localPath = cacheRes.local_path;
                 } else {
-                    console.log(sessionId, parts[0], parts[1], "", asName);
+                    // console.log(sessionId, parts[0], parts[1], "", asName);
                     const res = await download_file(sessionId, parts[0], parts[1], "", asName);
                     localPath = res.local_path;
                 }
                 const data = await readBinaryFile(localPath);
-                const chunk = 8 * 1024;
-                const dataStrList = [] as string[];
-                for (let i = 0; i < data.length / chunk; i++) {
-                    const buf = data.slice(i * chunk, (i + 1) * chunk);
-                    dataStrList.push(String.fromCharCode(...buf));
-                }
-                const dataB64 = btoa(dataStrList.join(""));
-                setImgSrc(`data:image/*;base64,${dataB64}`);
+                setImgSrc(`data:image/*;base64,${convertToB64(data)}`);
             } catch (e) {
                 console.log(e);
                 if (props.fallback != undefined) {
@@ -73,7 +84,18 @@ const AsyncImage: React.FC<AsyncImageProps> = (props) => {
             }
         } else {
             if (props.src != "") {
-                setImgSrc(props.src);
+                if (props.src.startsWith("http")) {
+                    const data = await fetch<Uint8Array>(props.src, {
+                        method: "GET",
+                        headers: {
+                            "Referer": guessReferer(props.src),
+                        },
+                        responseType: ResponseType.Binary,
+                    });
+                    setImgSrc(`data:image/*;base64,${convertToB64(data.data)}`);
+                } else {
+                    setImgSrc(props.src);
+                }
             } else {
                 setImgSrc(props.fallback ?? "");
             }

@@ -199,7 +199,7 @@ export async function auth(request: AuthRequest): Promise<AuthResponse> {
     const ret = await invoke<AuthResponse>(cmd, {
         request,
     });
-    if (ret.admin_perm_info.git_vp_perm == undefined) {
+    if (ret.admin_perm_info.git_vp_perm == undefined || ret.admin_perm_info.git_vp_perm == null) {
         ret.admin_perm_info.git_vp_perm = {
             read: false,
             renew_secret: false,

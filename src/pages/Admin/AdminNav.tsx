@@ -96,9 +96,9 @@ const AdminNav = () => {
     useEffect(() => {
         setGitvpSelectedKeys([]);
         if (location.pathname == ADMIN_PATH_GITVP_SOURCE_SUFFIX) {
-            setAppstoreSelectedKeys(["gitvp_source"]);
+            setGitvpSelectedKeys(["gitvp_source"]);
         } else if (location.pathname == ADMIN_PATH_GITVP_REPO_SUFFIX) {
-            setAppstoreSelectedKeys(["gitvp_repo"]);
+            setGitvpSelectedKeys(["gitvp_repo"]);
         }
     }, [location.pathname]);
 
@@ -259,12 +259,12 @@ const AdminNav = () => {
                             {
                                 label: "数据来源",
                                 key: "gitvp_source",
-                                disabled: !(permInfo?.git_vp_perm.read ?? false),
+                                disabled: !(permInfo?.git_vp_perm?.read ?? false),
                             },
                             {
                                 label: "代码仓库",
                                 key: "gitvp_repo",
-                                disabled: !(permInfo?.git_vp_perm.read ?? false),
+                                disabled: !(permInfo?.git_vp_perm?.read ?? false),
                             },
                         ]}
                             style={{ borderRightWidth: "0px" }}

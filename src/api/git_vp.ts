@@ -5,9 +5,8 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 export type VP_SORT_BY = number;
 export const VP_SORT_BY_TIMESTAMP: VP_SORT_BY = 0;
-export const VP_SORT_BY_WATCH_COUNT: VP_SORT_BY = 1;
-export const VP_SORT_BY_STAR_COUNT: VP_SORT_BY = 2;
-export const VP_SORT_BY_FORK_COUNT: VP_SORT_BY = 3;
+export const VP_SORT_BY_STAR_COUNT: VP_SORT_BY = 1;
+export const VP_SORT_BY_FORK_COUNT: VP_SORT_BY = 2;
 
 export type GitVpSourceInfo = {
     git_vp_source_id: string;
@@ -22,13 +21,12 @@ export type GitVpInfo = {
     git_ssh_url: string;
     git_http_url: string;
     site_url: string;
-    watch_count: number;
     star_count: number;
     fork_count: number;
     branch_count: number;
     tag_count: number;
     release_count: number;
-    commit_count: number;
+
     time_stamp: number;
 };
 
