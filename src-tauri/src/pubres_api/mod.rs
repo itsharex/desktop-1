@@ -12,3 +12,5 @@ pub mod widget_store_api_plugin;
 pub mod widget_store_admin_api_plugin;
 pub mod sw_store_api_plugin;
 pub mod sw_store_admin_api_plugin;
+pub mod git_vp_api_plugin;
+pub mod git_vp_admin_api_plugin;

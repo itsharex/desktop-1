@@ -477,6 +477,8 @@ fn main() {
         .plugin(pubres_api::widget_store_admin_api_plugin::WidgetStoreAdminApiPlugin::new())
         .plugin(pubres_api::sw_store_api_plugin::SwStoreApiPlugin::new())
         .plugin(pubres_api::sw_store_admin_api_plugin::SwStoreAdminApiPlugin::new())
+        .plugin(pubres_api::git_vp_api_plugin::GitVpApiPlugin::new())
+        .plugin(pubres_api::git_vp_admin_api_plugin::GitVpAdminApiPlugin::new())
         .plugin(project_content_api::pages_plugin::PagesPlugin::new())
         .plugin(project_content_api::project_board_api_plugin::ProjectBoardApiPlugin::new())
         .plugin(project_cloud_api::k8s_proxy_api_plugin::K8sProxyApiPlugin::new())

@@ -9,7 +9,6 @@ import { Button, Card, Dropdown, Empty, Layout, Menu, Space, Tabs } from "antd";
 import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { list_remote as list_local_remote } from "@/api/local_repo";
 import { WORKBENCH_PATH } from "@/utils/constant";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
@@ -34,8 +33,7 @@ const JihulabRepoPanel = observer((props: JihulabRepoPanelProps) => {
             return;
         }
         for (const tmpRepo of localRepoStore.repoExtList) {
-            const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
-            for (const remoteInfo of remoteList) {
+            for (const remoteInfo of tmpRepo.remoteList) {
                 if (remoteInfo.url == props.repoInfo.ssh_url_to_repo || remoteInfo.url == props.repoInfo.http_url_to_repo) {
                     setLocalRepo(tmpRepo.repoInfo);
                     return;
