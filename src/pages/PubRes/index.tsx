@@ -4,7 +4,7 @@
 import React, { useMemo, useState } from 'react';
 import s from "./index.module.less";
 import { Tabs } from 'antd';
-import { AppstoreOutlined, BulbOutlined, GlobalOutlined, SearchOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, BulbOutlined, GlobalOutlined, ProjectOutlined, SearchOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import { PUB_RES_PATH } from '@/utils/constant';
 import AppStorePanel from './components/AppStorePanel';
@@ -16,6 +16,7 @@ import { observer } from 'mobx-react';
 import AppStoreDetailModal from './components/AppStoreDetailModal';
 import IdeaListPanel from './components/IdeaListPanel';
 import SoftWareListPanel from './components/SoftWareListPanel';
+import GitVpListPanel from './components/GitVpListPanel';
 
 
 const PubRes = () => {
@@ -30,7 +31,7 @@ const PubRes = () => {
     const urlParams = new URLSearchParams(location.search);
     let tab = urlParams.get('tab') ?? "";
     if (tab == "") {
-        tab = "appStore";
+        tab = "gitVp";
     }
 
     const [activeKey, setActiveKey] = useState(tab);
@@ -48,6 +49,14 @@ const PubRes = () => {
                     setActiveKey(key);
                     history.push(`${PUB_RES_PATH}?tab=${key}`);
                 }}>
+
+                <Tabs.TabPane tab={<h2><ProjectOutlined />&nbsp;开源项目</h2>} key="gitVp">
+                    {activeKey == "gitVp" && (
+                        <div className={s.content_wrap}>
+                            <GitVpListPanel/>
+                        </div>
+                    )}
+                </Tabs.TabPane>
 
                 <Tabs.TabPane tab={<h2><AppstoreOutlined />&nbsp;应用市场</h2>} key="appStore">
                     {activeKey == "appStore" && (

@@ -9,7 +9,7 @@ import type { GitVpSourceInfo, GitVpInfo } from "@/api/git_vp";
 import { list_git_vp_source, list_git_vp, VP_SORT_BY_TIMESTAMP, VP_SORT_BY_STAR_COUNT, VP_SORT_BY_FORK_COUNT } from "@/api/git_vp";
 import { remove_git_vp } from "@/api/git_vp_admin";
 import { request } from "@/utils/request";
-import { MoreOutlined } from "@ant-design/icons";
+import { BranchesOutlined, ForkOutlined, MoreOutlined, StarOutlined, TagOutlined } from "@ant-design/icons";
 import { open as shell_open } from '@tauri-apps/api/shell';
 import AsyncImage from "@/components/AsyncImage";
 import defaultIcon from '@/assets/allIcon/app-default-icon.png';
@@ -141,6 +141,15 @@ const GitVpRepoList = () => {
                             <div style={{ display: "flex" }}>
                                 <div style={{ width: "110px" }}>
                                     <AsyncImage width={90} height={90} src={repo.logo_url} preview={false} useRawImg={true} fallback={defaultIcon} />
+                                    {repo.not_repo == false && (
+                                        <div style={{ marginLeft: "10px",fontSize:"16px" }}>
+                                            <div><StarOutlined />&nbsp;{repo.star_count}</div>
+                                            <div><ForkOutlined />&nbsp;{repo.fork_count}</div>
+                                            <div><BranchesOutlined />&nbsp;{repo.branch_count}</div>
+                                            <div><TagOutlined />&nbsp;{repo.tag_count}</div>
+                                        </div>
+                                    )}
+
                                 </div>
                                 <div style={{ padding: "10px 10px", overflowY: "scroll", height: "240px" }}>
                                     <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>

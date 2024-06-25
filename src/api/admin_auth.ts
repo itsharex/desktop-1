@@ -222,7 +222,19 @@ export async function get_admin_session(): Promise<string> {
 export async function get_admin_perm(): Promise<AdminPermInfo | null> {
     const cmd = 'plugin:admin_auth_api|get_admin_perm';
     const perm = await invoke<AdminPermInfo>(cmd, {});
-    return perm ?? null;
+    if (perm != null) {
+        if (perm.git_vp_perm == undefined || perm.git_vp_perm == null) {
+            perm.git_vp_perm = {
+                read: false,
+                renew_secret: false,
+                add_vp_source: false,
+                update_vp_source: false,
+                remove_vp_source: false,
+                remove_vp: false,
+            };
+        }
+    }
+    return perm;
 }
 
 //检测是否是全局服务器

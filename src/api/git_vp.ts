@@ -28,6 +28,7 @@ export type GitVpInfo = {
     release_count: number;
 
     time_stamp: number;
+    not_repo: boolean;
 };
 
 export type ListGitVpSourceRequest = {};
