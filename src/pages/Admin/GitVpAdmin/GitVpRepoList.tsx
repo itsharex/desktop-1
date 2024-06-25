@@ -126,23 +126,25 @@ const GitVpRepoList = () => {
                                 e.preventDefault();
                                 shell_open(repo.web_url);
                             }}>{repo.name}</a>
-                        } bodyStyle={{ width: "400px", height: "250px" }} extra={
-                            <Popover placement="bottom" trigger="click" content={
-                                <Button type="link" danger disabled={!(permInfo?.git_vp_perm.remove_vp ?? false)}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setRemoveRepoInfo(repo);
-                                    }}>删除</Button>
+                        } bodyStyle={{ width: "400px", height: "250px" }}
+                            headStyle={{ backgroundColor: "#eee" }}
+                            extra={
+                                <Popover placement="bottom" trigger="click" content={
+                                    <Button type="link" danger disabled={!(permInfo?.git_vp_perm.remove_vp ?? false)}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setRemoveRepoInfo(repo);
+                                        }}>删除</Button>
+                                }>
+                                    <MoreOutlined />
+                                </Popover>
                             }>
-                                <MoreOutlined />
-                            </Popover>
-                        }>
                             <div style={{ display: "flex" }}>
                                 <div style={{ width: "110px" }}>
                                     <AsyncImage width={90} height={90} src={repo.logo_url} preview={false} useRawImg={true} fallback={defaultIcon} />
                                     {repo.not_repo == false && (
-                                        <div style={{ marginLeft: "10px",fontSize:"16px" }}>
+                                        <div style={{ marginLeft: "10px", fontSize: "16px" }}>
                                             <div><StarOutlined />&nbsp;{repo.star_count}</div>
                                             <div><ForkOutlined />&nbsp;{repo.fork_count}</div>
                                             <div><BranchesOutlined />&nbsp;{repo.branch_count}</div>

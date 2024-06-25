@@ -111,6 +111,7 @@ const GitVpList = observer((props: GitVpListProps) => {
                                 shell_open(repo.web_url);
                             }}>{repo.name}</a>
                         } bodyStyle={{ width: "500px", height: "250px" }}
+                            headStyle={{ backgroundColor: "#eee" }}
                             extra={
                                 <Space>
                                     {repo.not_repo == false && localRepoStore.checkResult?.hasGit == true && (
