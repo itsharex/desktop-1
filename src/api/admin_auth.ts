@@ -133,6 +133,15 @@ export type KeywordPerm = {
     remove: boolean;
 };
 
+export type GitVpPerm = {
+    read: boolean;
+    renew_secret: boolean;
+    add_vp_source: boolean;
+    update_vp_source: boolean;
+    remove_vp_source: boolean;
+    remove_vp: boolean;
+};
+
 export type AdminPermInfo = {
     user_perm: UserPerm;
     project_perm: ProjectPerm;
@@ -148,6 +157,7 @@ export type AdminPermInfo = {
     org_perm: OrgPerm;
     org_member_perm: OrgMemberPerm;
     keyword_perm: KeywordPerm;
+    git_vp_perm: GitVpPerm;
     super_admin_user: boolean;
 };
 
@@ -186,9 +196,20 @@ export async function pre_auth(request: PreAuthRequest): Promise<PreAuthResponse
 export async function auth(request: AuthRequest): Promise<AuthResponse> {
     const cmd = 'plugin:admin_auth_api|auth';
     console.log(`%c${cmd}`, 'color:#0f0;', request);
-    return invoke<AuthResponse>(cmd, {
+    const ret = await invoke<AuthResponse>(cmd, {
         request,
     });
+    if (ret.admin_perm_info.git_vp_perm == undefined || ret.admin_perm_info.git_vp_perm == null) {
+        ret.admin_perm_info.git_vp_perm = {
+            read: false,
+            renew_secret: false,
+            add_vp_source: false,
+            update_vp_source: false,
+            remove_vp_source: false,
+            remove_vp: false,
+        };
+    }
+    return ret;
 }
 
 //获取当前管理会话ID
@@ -201,7 +222,19 @@ export async function get_admin_session(): Promise<string> {
 export async function get_admin_perm(): Promise<AdminPermInfo | null> {
     const cmd = 'plugin:admin_auth_api|get_admin_perm';
     const perm = await invoke<AdminPermInfo>(cmd, {});
-    return perm ?? null;
+    if (perm != null) {
+        if (perm.git_vp_perm == undefined || perm.git_vp_perm == null) {
+            perm.git_vp_perm = {
+                read: false,
+                renew_secret: false,
+                add_vp_source: false,
+                update_vp_source: false,
+                remove_vp_source: false,
+                remove_vp: false,
+            };
+        }
+    }
+    return perm;
 }
 
 //检测是否是全局服务器

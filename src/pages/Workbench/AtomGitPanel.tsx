@@ -8,7 +8,6 @@ import type { AtomGitRepo } from "@/api/atomgit/repo";
 import { list_user_repo, list_org_repo } from "@/api/atomgit/repo";
 import { DownOutlined, ExportOutlined, FilterFilled, GlobalOutlined, ProjectOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { list_remote as list_local_remote } from "@/api/local_repo";
 import AddRepoModal from "./components/AddRepoModal";
 import LaunchRepoModal from "./components/LaunchRepoModal";
 import { AtomGitBranchList, AtomGitIssueList, AtomGitTagList } from "./components/AtomGitList";
@@ -39,8 +38,7 @@ const AtomGitRepoPanel = observer((props: AtomGitRepoPanelProps) => {
             return;
         }
         for (const tmpRepo of localRepoStore.repoExtList) {
-            const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
-            for (const remoteInfo of remoteList) {
+            for (const remoteInfo of tmpRepo.remoteList) {
                 if (remoteInfo.url == props.repoInfo.git_url || remoteInfo.url == props.repoInfo.html_url) {
                     setLocalRepo(tmpRepo.repoInfo);
                     return;

@@ -8,7 +8,6 @@ import { type GiteeRepo, list_user_repo } from "@/api/gitee/repo";
 import { useStores } from "@/hooks";
 import { DownOutlined, ExportOutlined, GlobalOutlined, ProjectOutlined } from "@ant-design/icons";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { list_remote as list_local_remote } from "@/api/local_repo";
 import { useHistory } from "react-router-dom";
 import { WORKBENCH_PATH } from "@/utils/constant";
 import AddRepoModal from "./components/AddRepoModal";
@@ -34,8 +33,7 @@ const GiteeRepoPanel = observer((props: GiteeRepoPanelProps) => {
             return;
         }
         for (const tmpRepo of localRepoStore.repoExtList) {
-            const remoteList = await list_local_remote(tmpRepo.repoInfo.path);
-            for (const remoteInfo of remoteList) {
+            for (const remoteInfo of tmpRepo.remoteList) {
                 if (remoteInfo.url == props.repoInfo.ssh_url || remoteInfo.url == props.repoInfo.html_url) {
                     setLocalRepo(tmpRepo.repoInfo);
                     return;

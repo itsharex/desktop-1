@@ -1,9 +1,9 @@
 //SPDX-FileCopyrightText:2022-2024 深圳市同心圆网络有限公司
 //SPDX-License-Identifier: GPL-3.0-only
 
-import { get_head_info, list_git_filter, list_repo, remove_repo } from '@/api/local_repo';
+import { get_head_info, list_git_filter, list_repo, remove_repo,list_remote as list_local_remote } from '@/api/local_repo';
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { LocalRepoInfo, HeadInfo } from "@/api/local_repo";
+import type { LocalRepoInfo, HeadInfo, LocalRepoRemoteInfo } from "@/api/local_repo";
 import { message } from 'antd';
 import { exists as exists_path } from '@tauri-apps/api/fs';
 import { check_git_env } from "@/api/git_wrap";
@@ -14,6 +14,7 @@ export interface LocalRepoExtInfo {
     repoInfo: LocalRepoInfo;
     headInfo: HeadInfo;
     filterList: string[];
+    remoteList: LocalRepoRemoteInfo[];
 }
 
 export default class LocalRepoStore {
@@ -46,11 +47,13 @@ export default class LocalRepoStore {
                     }
                     const headInfo = await get_head_info(repo.path);
                     const filterList = await list_git_filter(repo.path);
+                    const remoteList = await list_local_remote(repo.path);
                     tmpList.push({
                         id: repo.id,
                         repoInfo: repo,
                         headInfo: headInfo,
                         filterList: filterList,
+                        remoteList: remoteList,
                     });
                 } catch (e) {
                     console.log(e);
@@ -101,4 +104,3 @@ export default class LocalRepoStore {
         await this.loadRepoList();
     }
 }
-
