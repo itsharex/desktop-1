@@ -110,7 +110,7 @@ const GitVpList = observer((props: GitVpListProps) => {
                                 e.preventDefault();
                                 shell_open(repo.web_url);
                             }}>{repo.name}</a>
-                        } bodyStyle={{ width: "500px", height: "250px" }}
+                        } bodyStyle={{ width: "500px", height: "180px" }}
                             headStyle={{ backgroundColor: "#eee" }}
                             extra={
                                 <Space>
@@ -167,16 +167,20 @@ const GitVpList = observer((props: GitVpListProps) => {
                                 <div style={{ width: "110px" }}>
                                     <AsyncImage width={90} height={90} src={repo.logo_url} preview={false} useRawImg={true} fallback={defaultIcon} />
                                     {repo.not_repo == false && (
-                                        <div style={{ marginLeft: "10px", fontSize: "16px" }}>
-                                            <div><StarOutlined />&nbsp;{repo.star_count}</div>
-                                            <div><ForkOutlined />&nbsp;{repo.fork_count}</div>
-                                            <div><BranchesOutlined />&nbsp;{repo.branch_count}</div>
-                                            <div><TagOutlined />&nbsp;{repo.tag_count}</div>
+                                        <div style={{ marginLeft: "10px", fontSize: "14px" }}>
+                                            <div style={{ display: "flex" }}>
+                                                <div style={{ flex: 1 }}><StarOutlined />&nbsp;{repo.star_count}</div>
+                                                <div style={{ flex: 1 }}><ForkOutlined />&nbsp;{repo.fork_count}</div>
+                                            </div>
+                                            <div style={{ display: "flex" }}>
+                                                <div style={{ flex: 1 }}><BranchesOutlined />&nbsp;{repo.branch_count}</div>
+                                                <div style={{ flex: 1 }}><TagOutlined />&nbsp;{repo.tag_count}</div>
+                                            </div>
                                         </div>
                                     )}
 
                                 </div>
-                                <div style={{ padding: "10px 10px", overflowY: "scroll", height: "240px" }}>
+                                <div style={{ padding: "10px 10px", overflowY: "scroll", height: "150px", width: "400px" }}>
                                     <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
                                         {repo.desc}
                                     </pre>
