@@ -15,7 +15,7 @@ import { useHistory } from 'react-router-dom';
 import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, SKILL_CENTER_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
-import { FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
+import { type FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
 import { PlusSquareTwoTone } from '@ant-design/icons';
 
 
