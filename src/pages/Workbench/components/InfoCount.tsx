@@ -7,65 +7,17 @@ import memberIcon from '@/assets/allIcon/icon-member.png';
 import { useStores } from '@/hooks';
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import { Button, Form, Input, Modal, Popover, Space, Switch, message } from 'antd';
+import { Button, Popover, Space, Switch, message } from 'antd';
 import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
-import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, SKILL_CENTER_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
-import { FeatureInfo, update_feature, USER_TYPE_INTERNAL, update as update_user } from '@/api/user';
+import { FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
 import { PlusSquareTwoTone } from '@ant-design/icons';
-import { joinOrgOrProject } from '@/components/LeftMenu/join';
-import Profile from '@/components/Profile';
-import * as fsApi from '@/api/fs';
-import PasswordModal from '@/components/PasswordModal';
-import UpdateDisplayNameModal from '@/pages/User/UpdateDisplayNameModal';
 
-interface JoinModalProps {
-  onClose: () => void;
-}
-
-const JoinModal = observer((props: JoinModalProps) => {
-  const history = useHistory();
-
-  const userStore = useStores('userStore');
-  const projectStore = useStores('projectStore');
-  const orgStore = useStores('orgStore');
-
-  const [linkText, setLinkText] = useState('');
-
-  const runJoin = async () => {
-    await joinOrgOrProject(linkText, userStore, projectStore, orgStore, history);
-    props.onClose();
-  };
-
-  return (
-    <Modal open title="加入项目/团队"
-      okText="加入" okButtonProps={{ disabled: linkText == "" }}
-      onCancel={e => {
-        e.stopPropagation();
-        e.preventDefault();
-        props.onClose();
-      }}
-      onOk={e => {
-        e.stopPropagation();
-        e.preventDefault();
-        runJoin();
-      }}>
-      <Form labelCol={{ span: 3 }} style={{ paddingRight: "20px" }}>
-        <Form.Item label="邀请码">
-          <Input
-            placeholder="请输入邀请码"
-            allowClear
-            onChange={(e) => setLinkText(e.target.value.trim())}
-          />
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-});
 
 const InfoCount = () => {
   const history = useHistory();
@@ -79,12 +31,6 @@ const InfoCount = () => {
   const [sshKeyCount, setSshKeyCount] = useState(0);
   const [showMyTodoModal, setShowMyTodoModal] = useState(false);
   const [showSshKeyModal, setShowSshKeyModal] = useState(false);
-  const [showExit, setShowExit] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [showUpdateDisplayNameModal, setShowUpdateDisplayNameModal] = useState(false);
-
-  const [pictrueListVisible, setPictrueListVisible] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const loadMyTodoCount = async () => {
     if (userStore.sessionId == "") {
@@ -102,38 +48,7 @@ const InfoCount = () => {
   };
 
 
-  const uploadFile = async (data: string | null) => {
-    if (data === null) {
-      return;
-    }
-    //上传文件
-    const uploadRes = await request(fsApi.write_file_base64(userStore.sessionId, userStore.userInfo.userFsId, "portrait.png", data, ""));
-    console.log(uploadRes);
-    if (!uploadRes) {
-      return;
-    }
-    //设置文件owner
-    const ownerRes = await request(fsApi.set_file_owner({
-      session_id: userStore.sessionId,
-      fs_id: userStore.userInfo.userFsId,
-      file_id: uploadRes.file_id,
-      owner_type: fsApi.FILE_OWNER_TYPE_USER_PHOTO,
-      owner_id: userStore.userInfo.userId,
-    }));
-    if (!ownerRes) {
-      return;
-    }
-    //设置头像url
-    const logoUri = `fs://localhost/${userStore.userInfo.userFsId}/${uploadRes.file_id}/portrait.png`;
-    const updateRes = await request(update_user(userStore.sessionId, {
-      display_name: userStore.userInfo.displayName,
-      logo_uri: logoUri,
-    }));
-    if (updateRes) {
-      setPictrueListVisible(false);
-    }
-    userStore.updateLogoUri(logoUri);
-  };
+
 
   useEffect(() => {
     loadMyTodoCount();
@@ -166,7 +81,7 @@ const InfoCount = () => {
                 if (userStore.userInfo.userType != USER_TYPE_INTERNAL) {
                   return;
                 }
-                setPictrueListVisible(true);
+                userStore.showChangeLogo = true;
                 userStore.accountsModal = false;
               }}>
               <UserPhoto logoUri={userStore.userInfo.logoUri} width='60px' style={{ border: "1px solid white", borderRadius: "30px", marginRight: "14px" }} />
@@ -183,7 +98,7 @@ const InfoCount = () => {
                       e.stopPropagation();
                       e.preventDefault();
                       if (userStore.userInfo.userType == USER_TYPE_INTERNAL) {
-                        setShowUpdateDisplayNameModal(true);
+                        userStore.showChangeNickName = true;
                       }
                     }}>{userStore.userInfo.displayName}</span>
                 </Popover>
@@ -211,7 +126,7 @@ const InfoCount = () => {
                     onClick={e => {
                       e.stopPropagation();
                       e.preventDefault();
-                      userStore.showUserLogin = () => { };
+                      userStore.showUserLogin = true;
                     }}>登录</Button>
                 </Popover>
               ) : (
@@ -220,7 +135,7 @@ const InfoCount = () => {
                     <a onClick={e => {
                       e.stopPropagation();
                       e.preventDefault();
-                      setPasswordVisible(true);
+                      userStore.showChangePasswd = true;
                       userStore.accountsModal = false;
                     }}>修改密码</a>
                   )}
@@ -231,7 +146,7 @@ const InfoCount = () => {
                       message.info("请先保存修改内容");
                       return;
                     }
-                    setShowExit(true);
+                    appStore.showExit = true;
                     userStore.accountsModal = false;
                   }}>退出登录</a>
                 </Space>
@@ -391,7 +306,7 @@ const InfoCount = () => {
               onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                setShowJoinModal(true);
+                appStore.showJoinModal = true;
               }} />
           </div>
         )}
@@ -403,41 +318,6 @@ const InfoCount = () => {
       )}
       {showSshKeyModal == true && (
         <SshKeyListModal onCount={value => setSshKeyCount(value)} onClose={() => setShowSshKeyModal(false)} />
-      )}
-      {showExit == true && (
-        <Modal
-          open={showExit}
-          title="退出"
-          onCancel={() => setShowExit(false)}
-          onOk={() => {
-            userStore.logout();
-            setShowExit(false);
-            if (location.pathname.startsWith(WORKBENCH_PATH) || location.pathname.startsWith(PUB_RES_PATH)) {
-              //do nothing
-            } else {
-              history.push(WORKBENCH_PATH);
-            }
-          }}
-        >
-          <p style={{ textAlign: 'center' }}>是否确认退出?</p>
-        </Modal>
-      )}
-      {showJoinModal == true && (
-        <JoinModal onClose={() => setShowJoinModal(false)} />
-      )}
-      {pictrueListVisible == true && (
-        <Profile
-          visible={pictrueListVisible}
-          defaultSrc={userStore.userInfo.logoUri ?? ""}
-          onCancel={() => setPictrueListVisible(false)}
-          onOK={(data: string | null) => uploadFile(data)}
-        />
-      )}
-      {passwordVisible && (
-        <PasswordModal visible={passwordVisible} onCancel={setPasswordVisible} />
-      )}
-      {showUpdateDisplayNameModal && (
-        <UpdateDisplayNameModal onClose={() => setShowUpdateDisplayNameModal(false)} />
       )}
     </div>
   );
