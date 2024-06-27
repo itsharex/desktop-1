@@ -7,7 +7,7 @@ import memberIcon from '@/assets/allIcon/icon-member.png';
 import { useStores } from '@/hooks';
 import UserPhoto from '@/components/Portrait/UserPhoto';
 import { observer } from 'mobx-react';
-import { Button, Form, Input, Modal, Popover, Space, Switch, message } from 'antd';
+import { Button, Popover, Space, Switch, message } from 'antd';
 import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
@@ -17,51 +17,7 @@ import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
 import { FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
 import { PlusSquareTwoTone } from '@ant-design/icons';
-import { joinOrgOrProject } from '@/components/LeftMenu/join';
 
-interface JoinModalProps {
-  onClose: () => void;
-}
-
-const JoinModal = observer((props: JoinModalProps) => {
-  const history = useHistory();
-
-  const userStore = useStores('userStore');
-  const projectStore = useStores('projectStore');
-  const orgStore = useStores('orgStore');
-
-  const [linkText, setLinkText] = useState('');
-
-  const runJoin = async () => {
-    await joinOrgOrProject(linkText, userStore, projectStore, orgStore, history);
-    props.onClose();
-  };
-
-  return (
-    <Modal open title="加入项目/团队"
-      okText="加入" okButtonProps={{ disabled: linkText == "" }}
-      onCancel={e => {
-        e.stopPropagation();
-        e.preventDefault();
-        props.onClose();
-      }}
-      onOk={e => {
-        e.stopPropagation();
-        e.preventDefault();
-        runJoin();
-      }}>
-      <Form labelCol={{ span: 3 }} style={{ paddingRight: "20px" }}>
-        <Form.Item label="邀请码">
-          <Input
-            placeholder="请输入邀请码"
-            allowClear
-            onChange={(e) => setLinkText(e.target.value.trim())}
-          />
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-});
 
 const InfoCount = () => {
   const history = useHistory();
@@ -75,7 +31,6 @@ const InfoCount = () => {
   const [sshKeyCount, setSshKeyCount] = useState(0);
   const [showMyTodoModal, setShowMyTodoModal] = useState(false);
   const [showSshKeyModal, setShowSshKeyModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
 
   const loadMyTodoCount = async () => {
     if (userStore.sessionId == "") {
@@ -351,7 +306,7 @@ const InfoCount = () => {
               onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                setShowJoinModal(true);
+                appStore.showJoinModal = true;
               }} />
           </div>
         )}
@@ -364,10 +319,6 @@ const InfoCount = () => {
       {showSshKeyModal == true && (
         <SshKeyListModal onCount={value => setSshKeyCount(value)} onClose={() => setShowSshKeyModal(false)} />
       )}
-      {showJoinModal == true && (
-        <JoinModal onClose={() => setShowJoinModal(false)} />
-      )}
-
     </div>
   );
 };

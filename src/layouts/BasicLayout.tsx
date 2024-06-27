@@ -30,6 +30,7 @@ import { request } from '@/utils/request';
 import * as fsApi from '@/api/fs';
 import { update as update_user } from '@/api/user';
 import { AdminLoginModal } from '@/pages/User/AdminLoginModal';
+import JoinModal from '@/pages/Workbench/components/JoinModal';
 
 const { Content } = Layout;
 
@@ -175,8 +176,11 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
           />
         )}
         {userStore.showAdminLogin == true && (
-                <AdminLoginModal onClose={() => userStore.showAdminLogin = false} />
-            )}
+          <AdminLoginModal onClose={() => userStore.showAdminLogin = false} />
+        )}
+        {appStore.showJoinModal == true && (
+          <JoinModal onClose={() => appStore.showJoinModal = false} />
+        )}
       </Layout>
     </HotkeysProvider>
   );

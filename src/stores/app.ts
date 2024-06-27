@@ -174,6 +174,19 @@ class AppStore {
       this._showExit = val;
     });
   }
+
+  // 显示加入项目/团队
+  private _showJoinModal = false;
+
+  get showJoinModal() {
+    return this._showJoinModal;
+  }
+
+  set showJoinModal(val: boolean) {
+    runInAction(() => {
+      this._showJoinModal = val;
+    });
+  }
 }
 
 export default AppStore;

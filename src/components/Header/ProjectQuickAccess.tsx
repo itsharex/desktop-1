@@ -32,7 +32,7 @@ const MENU_KEY_EXIST_APP = "app.exit";
 
 const MENU_KEY_TEST_LOCALAPI = "localapi.test";
 
-
+const MENU_KEY_JOIN_PROJECT_OR_ORG = "join.projectOrOrg";
 
 const MENU_KEY_SHOW_INVITE_MEMBER = "invite.member.show";
 const MENU_KEY_MEMBER_PREFIX = "member:";
@@ -336,6 +336,10 @@ const ProjectQuickAccess = () => {
                 });
             }
             tmpItems.push(userItem);
+            tmpItems.push({
+                key: MENU_KEY_JOIN_PROJECT_OR_ORG,
+                label: "加入项目/团队",
+            });
         }
         tmpItems.push({
             key: MENU_KEY_TEST_LOCALAPI,
@@ -469,6 +473,9 @@ const ProjectQuickAccess = () => {
                 break;
             case MENU_KEY_TEST_LOCALAPI:
                 openLocalApi();
+                break;
+            case MENU_KEY_JOIN_PROJECT_OR_ORG:
+                appStore.showJoinModal = true;
                 break;
 
             case MENU_KEY_SHOW_INVITE_MEMBER:
