@@ -87,7 +87,7 @@ const LoginModal = () => {
             onCancel={e => {
                 e.stopPropagation();
                 e.preventDefault();
-                userStore.showUserLogin = null;
+                userStore.showUserLogin = false;
             }}>
             <Tabs tabPosition="top" type="card" defaultActiveKey={(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.gitee_client_id != "") ? "extern" : "password"}>
                 {(appStore.clientCfg?.atom_git_client_id != "" || appStore.clientCfg?.gitee_client_id != "") && (
@@ -165,6 +165,7 @@ const LoginModal = () => {
                                     }
                                     userStore.callLogin(userName, password, USER_TYPE_INTERNAL).then(() => {
                                         localStorage.setItem(`${connAddr}:username`, userName);
+                                        userStore.showUserLogin = false;
                                     });
                                 }
                             }} />
@@ -174,13 +175,14 @@ const LoginModal = () => {
                                 <Button onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    userStore.showUserLogin = null;
+                                    userStore.showUserLogin = false;
                                 }}>取消</Button>
                                 <Button type="primary" disabled={userName == "" || password == ""} onClick={e => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     userStore.callLogin(userName, password, USER_TYPE_INTERNAL).then(() => {
                                         localStorage.setItem(`${connAddr}:username`, userName);
+                                        userStore.showUserLogin = false;
                                     });
                                 }}>登录</Button>
                             </Space>

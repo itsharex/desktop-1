@@ -161,6 +161,19 @@ class AppStore {
       this._showHelp = val;
     });
   }
+
+  // 显示退出
+  private _showExit = false;
+
+  get showExit() {
+    return this._showExit;
+  }
+
+  set showExit(val: boolean) {
+    runInAction(() => {
+      this._showExit = val;
+    });
+  }
 }
 
 export default AppStore;

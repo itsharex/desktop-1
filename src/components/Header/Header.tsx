@@ -12,7 +12,7 @@ import { CloseCircleFilled, EditOutlined, InfoCircleOutlined, MailTwoTone, MoreO
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { check_update } from '@/api/main';
 import { listen } from '@tauri-apps/api/event';
-import { APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from '@/utils/constant';
+import { ADMIN_PATH, APP_PROJECT_HOME_PATH, APP_PROJECT_MY_WORK_PATH } from '@/utils/constant';
 import { useHistory, useLocation } from 'react-router-dom';
 import ProjectQuickAccess from './ProjectQuickAccess';
 import { ENTRY_TYPE_SPRIT } from '@/api/project_entry';
@@ -161,89 +161,93 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
     }
   }, []);
 
-
   return (
     <div>
       <div style={{ height: "4px", backgroundColor: location.pathname.startsWith("/app") ? "#f6f6f8" : "white", borderTop: "1px solid #e8e9ee" }} />
       <Header className={style.layout_header} {...props}
         style={{ backgroundColor: location.pathname.startsWith("/app") ? "#f6f6f8" : "white", boxShadow: "none" }}
         data-tauri-drag-region>
-        {projectStore.curProjectId != "" && (
-          <div>
+
+        <div>
+          {location.pathname.startsWith(ADMIN_PATH) == false && (
             <ProjectQuickAccess />
-            <Button
-              type="link"
-              style={{ minWidth: 0, padding: "0px 0px", display: "inline" }}
-              disabled={location.pathname.startsWith(APP_PROJECT_HOME_PATH) == true}
-              size='small'
-              onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (appStore.inEdit) {
-                  appStore.showCheckLeave(() => {
+          )}
+          {projectStore.curProjectId != "" && (
+            <>
+              <Button
+                type="link"
+                style={{ minWidth: 0, padding: "0px 0px", display: "inline" }}
+                disabled={location.pathname.startsWith(APP_PROJECT_HOME_PATH) == true}
+                size='small'
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (appStore.inEdit) {
+                    appStore.showCheckLeave(() => {
+                      entryStore.reset();
+                      history.push(APP_PROJECT_HOME_PATH);
+                    });
+                  } else {
                     entryStore.reset();
                     history.push(APP_PROJECT_HOME_PATH);
-                  });
-                } else {
-                  entryStore.reset();
-                  history.push(APP_PROJECT_HOME_PATH);
-                }
-              }}>
-              <span style={{ fontSize: "20px", fontWeight: 600 }}>{projectStore.curProject?.basic_info.project_name ?? ""}</span>
-            </Button>
-            <Space size="small" style={{ fontSize: "16px", marginLeft: "10px", lineHeight: "26px", cursor: "default" }}>
-              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) && (
-                <>
-                  <span>/</span>
-                  <span>我的工作</span>
-                </>
-              )}
-              {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false
-                && location.pathname.startsWith(APP_PROJECT_HOME_PATH) == false
-                && entryStore.curEntry != null && (
+                  }
+                }}>
+                <span style={{ fontSize: "20px", fontWeight: 600 }}>{projectStore.curProject?.basic_info.project_name ?? ""}</span>
+              </Button>
+              <Space size="small" style={{ fontSize: "16px", marginLeft: "10px", lineHeight: "26px", cursor: "default" }}>
+                {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) && (
                   <>
                     <span>/</span>
-                    <Popover trigger={["hover", "click"]} placement='top' content={<EntryPopover entryInfo={entryStore.curEntry} />}>
-                      <InfoCircleOutlined />
-                    </Popover>
-                    <span>
-                      <a onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        if (entryStore.curEntry?.my_watch == true) {
-                          unwatchEntry();
-                        } else {
-                          watchEntry();
-                        }
-                      }}>
-                        <span className={(entryStore.curEntry?.my_watch ?? false) ? style.isCollect : style.noCollect} />
-                      </a>
-                    </span>
-                    <div style={{ maxWidth: "300px", textOverflow: "clip", overflow: "hidden", whiteSpace: "nowrap" }} title={genEntryTitle()}>{genEntryTitle()}</div>
-                    {entryStore.curEntry.can_update && (
-                      <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        entryStore.editEntryId = entryStore.curEntry?.entry_id ?? "";
-                      }} />
-                    )}
-                    <Popover trigger="click" placement="bottom" content={
-                      <div style={{ padding: "10px 10px" }}>
-                        <Button type="link" danger disabled={(!entryStore.curEntry.can_remove) || appStore.inEdit}
-                          onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setShowRemoveModal(true);
-                          }}>移至回收站</Button>
-                      </div>
-                    }>
-                      <MoreOutlined />
-                    </Popover>
+                    <span>我的工作</span>
                   </>
                 )}
-            </Space>
-          </div>
-        )}
+                {location.pathname.startsWith(APP_PROJECT_MY_WORK_PATH) == false
+                  && location.pathname.startsWith(APP_PROJECT_HOME_PATH) == false
+                  && entryStore.curEntry != null && (
+                    <>
+                      <span>/</span>
+                      <Popover trigger={["hover", "click"]} placement='top' content={<EntryPopover entryInfo={entryStore.curEntry} />}>
+                        <InfoCircleOutlined />
+                      </Popover>
+                      <span>
+                        <a onClick={e => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          if (entryStore.curEntry?.my_watch == true) {
+                            unwatchEntry();
+                          } else {
+                            watchEntry();
+                          }
+                        }}>
+                          <span className={(entryStore.curEntry?.my_watch ?? false) ? style.isCollect : style.noCollect} />
+                        </a>
+                      </span>
+                      <div style={{ maxWidth: "300px", textOverflow: "clip", overflow: "hidden", whiteSpace: "nowrap" }} title={genEntryTitle()}>{genEntryTitle()}</div>
+                      {entryStore.curEntry.can_update && (
+                        <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          entryStore.editEntryId = entryStore.curEntry?.entry_id ?? "";
+                        }} />
+                      )}
+                      <Popover trigger="click" placement="bottom" content={
+                        <div style={{ padding: "10px 10px" }}>
+                          <Button type="link" danger disabled={(!entryStore.curEntry.can_remove) || appStore.inEdit}
+                            onClick={e => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setShowRemoveModal(true);
+                            }}>移至回收站</Button>
+                        </div>
+                      }>
+                        <MoreOutlined />
+                      </Popover>
+                    </>
+                  )}
+              </Space>
+            </>
+          )}
+        </div>
 
         <div className={style.l} />
         <div className={style.r}>

@@ -277,11 +277,14 @@ class NoticeStore {
     } else if (notice.NewExtraTokenNotice !== undefined) {
       this.rootStore.userStore.updateExtraToken(notice.NewExtraTokenNotice.extra_token);
     } else if (notice.AtomGitLoginNotice !== undefined) {
-      this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
+      await this.rootStore.userStore.callLogin("", notice.AtomGitLoginNotice.code, USER_TYPE_ATOM_GIT);
+      this.rootStore.userStore.showUserLogin = false;
     } else if (notice.GiteeLoginNotice !== undefined) {
-      this.rootStore.userStore.callLogin("", notice.GiteeLoginNotice.code, USER_TYPE_GITEE);
+      await this.rootStore.userStore.callLogin("", notice.GiteeLoginNotice.code, USER_TYPE_GITEE);
+      this.rootStore.userStore.showUserLogin = false;
     } else if (notice.JihulabLoginNotice !== undefined) {
-      this.rootStore.userStore.callLogin("", notice.JihulabLoginNotice.code, USER_TYPE_JIHU_LAB);
+      await this.rootStore.userStore.callLogin("", notice.JihulabLoginNotice.code, USER_TYPE_JIHU_LAB);
+      this.rootStore.userStore.showUserLogin = false;
     }
   }
 

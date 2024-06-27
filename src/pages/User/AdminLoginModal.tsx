@@ -40,7 +40,8 @@ export const AdminLoginModal = (props: AdminLoginModalProps) => {
         runInAction(() => {
             userStore.adminSessionId = preRes.admin_session_id;
         });
-        userStore.showUserLogin = null;
+        userStore.showUserLogin = false;
+        userStore.showAdminLogin = false;
         history.push(ADMIN_PATH);
     };
 
