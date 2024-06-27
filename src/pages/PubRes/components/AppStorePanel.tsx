@@ -239,7 +239,11 @@ const AppStorePanel = () => {
                             }
                             bodyStyle={{ display: "flex" }} extra={
                                 <Space style={{ fontSize: "18px" }} size="middle">
-                                    <div><DownloadOutlined />&nbsp;{app.install_count}</div>
+                                    <div style={{cursor: "pointer"}} onClick={e=>{
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        pubResStore.showAppId = app.app_id;
+                                    }}><DownloadOutlined />&nbsp;{app.install_count}</div>
                                     <div onClick={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
