@@ -3,11 +3,11 @@
 
 import React, { useEffect, useState } from "react";
 import type { LocalRepoInfo } from "@/api/local_repo";
-import { Button, Form, Input, List, Modal, Select, Space, Table, Tabs, message } from "antd";
+import { Button, Form, Input, List, Modal, Popover, Select, Space, Table, Tabs, message } from "antd";
 import type { SimpleDevInfo, DevPkgVersion, DevForwardPort, DevEnv, DevExtension, PackageInfo } from "@/api/dev_container";
 import { list_package, load_simple_dev_info, save_simple_dev_info, list_package_version } from "@/api/dev_container";
 import type { ColumnsType } from 'antd/lib/table';
-import { DeleteOutlined, ExportOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, ExportOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { uniqId } from "@/utils/utils";
 import { EditSelect } from "@/components/EditCell/EditSelect";
 import { request } from "@/utils/request";
@@ -410,7 +410,14 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             ),
         },
         {
-            title: "本地端口",
+            title: (
+                <Space>
+                    本地端口
+                    <Popover trigger="hover" placement="bottom" content="端口范围10000-60000">
+                        <InfoCircleOutlined />
+                    </Popover>
+                </Space>
+            ),
             width: 170,
             render: (_, row: DevForwardPort) => (
                 <EditNumber editable={hasDocker == true} value={row.host_port} showEditIcon={true}
@@ -557,7 +564,7 @@ const LaunchRepoModal = (props: LaunchRepoModalProps) => {
             {simpleDevInfo != null && (
                 <Tabs type="card" activeKey={activeKey} onChange={key => setActiveKey(key)}
                     tabBarExtraContent={
-                        <div style={{ marginRight: "20px" }}>
+                        <div style={{ marginRight: "20px", height: "32px" }}>
                             {activeKey == "pkg" && (
                                 <Button type="primary" icon={<PlusOutlined />} disabled={hasDocker == false}
                                     onClick={e => {

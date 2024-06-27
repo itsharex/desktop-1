@@ -66,10 +66,25 @@ class UserStore {
   private _accountsModal = false;
 
   // 用户登录弹窗
-  private _showUserLogin: null | (() => void) = null;
+  private _showUserLogin = false;
 
   // 重置密码
   private _isResetPassword = false;
+
+  // 退出账号
+  private _showLogout = false;
+
+  // 修改密码
+  private _showChangePasswd = false;
+
+  // 修改昵称
+  private _showChangeNickName = false;
+
+  // 修改头像
+  private _showChangeLogo = false;
+
+  // 管理员登录
+  private _showAdminLogin = false;
 
   private async closeAtomLogoutWindow(label: string) {
     const win = WebviewWindow.getByLabel(label);
@@ -176,13 +191,6 @@ class UserStore {
     sessionStorage.clear();
     sessionStorage.setItem('sessionId', res.session_id);
     sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
-
-    if (this._showUserLogin != null) {
-      this._showUserLogin();
-      runInAction(() => {
-        this._showUserLogin = null;
-      });
-    }
   }
 
   async updateNoticeStatus(sessionId: string) {
@@ -216,9 +224,59 @@ class UserStore {
     return this._showUserLogin;
   }
 
-  set showUserLogin(val: (() => void) | null) {
+  set showUserLogin(val: boolean) {
     runInAction(() => {
       this._showUserLogin = val;
+    });
+  }
+
+  get showLogout() {
+    return this._showLogout;
+  }
+
+  set showLogout(val: boolean) {
+    runInAction(() => {
+      this._showLogout = val;
+    });
+  }
+
+  get showChangePasswd() {
+    return this._showChangePasswd;
+  }
+
+  set showChangePasswd(val: boolean) {
+    runInAction(() => {
+      this._showChangePasswd = val;
+    });
+  }
+
+  get showChangeNickName() {
+    return this._showChangeNickName;
+  }
+
+  set showChangeNickName(val: boolean) {
+    runInAction(() => {
+      this._showChangeNickName = val;
+    });
+  }
+
+  get showChangeLogo() {
+    return this._showChangeLogo;
+  }
+
+  set showChangeLogo(val: boolean) {
+    runInAction(() => {
+      this._showChangeLogo = val;
+    });
+  }
+
+  get showAdminLogin() {
+    return this._showAdminLogin;
+  }
+
+  set showAdminLogin(val: boolean) {
+    runInAction(() => {
+      this._showAdminLogin = val;
     });
   }
 

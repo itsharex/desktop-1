@@ -3,18 +3,12 @@
 
 import React, { useEffect, useState } from "react";
 import { observer } from 'mobx-react';
-import { Button, Divider, Form, Modal, Popover, Select, Space, message } from "antd";
+import { Button, Divider, Form, Input, Select, Space, message } from "antd";
 import { useStores } from "@/hooks";
 import type { ServerInfo } from '@/api/client_cfg';
-import { list_server } from '@/api/client_cfg';
+import { list_server, save_server_list } from '@/api/client_cfg';
 import { conn_grpc_server, get_conn_server_addr } from '@/api/main';
-import { MoreOutlined } from "@ant-design/icons";
-import { get_port, get_token } from '@/api/local_api';
-import { WebviewWindow, appWindow } from '@tauri-apps/api/window';
-import { AdminLoginModal } from "@/pages/User/AdminLoginModal";
-import ServerMgrModal from "@/pages/User/ServerMgrModal";
-import { remove_info_file } from '@/api/local_api';
-import { exit } from '@tauri-apps/api/process';
+
 
 const ServerConnInfo = () => {
     const appStore = useStores('appStore');
@@ -22,9 +16,7 @@ const ServerConnInfo = () => {
 
     const [defaultAddr, setDefaultAddr] = useState("");
     const [serverList, setServerList] = useState<ServerInfo[]>([]);
-    const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
-    const [showServerMgrModal, setShowServerMgrModal] = useState(false);
-    const [showExitModal, setShowExitModal] = useState(false);
+    const [newServerAddr, setNewServerAddr] = useState("");
 
     const loadServerList = async () => {
         const res = await list_server(false);
@@ -55,30 +47,7 @@ const ServerConnInfo = () => {
         appStore.loadLocalProxy();
     };
 
-    const openLocalApi = async () => {
-        const port = await get_port();
-        const token = await get_token();
 
-        const label = "localapi";
-        const view = WebviewWindow.getByLabel(label);
-        if (view != null) {
-            await view.close();
-        }
-        const pos = await appWindow.innerPosition();
-
-        new WebviewWindow(label, {
-            url: `local_api.html?port=${port}&token=${token}`,
-            width: 800,
-            minWidth: 800,
-            height: 600,
-            minHeight: 600,
-            center: true,
-            title: "本地接口调试",
-            resizable: true,
-            x: pos.x + Math.floor(Math.random() * 200),
-            y: pos.y + Math.floor(Math.random() * 200),
-        });
-    };
 
     useEffect(() => {
         loadServerList();
@@ -93,86 +62,105 @@ const ServerConnInfo = () => {
             <Form layout="inline">
                 <Form.Item label="服务器">
                     <Select
-                        style={{ width: '150px' }}
+                        style={{ width: "150px" }}
+                        dropdownMatchSelectWidth={false}
                         value={defaultAddr}
                         onChange={(v) => setDefaultAddr(v)}
                         disabled={userStore.sessionId != ""}
+                        dropdownRender={menu => (
+                            <div style={{ padding: "10px 10px", width: "300px" }}>
+                                {menu}
+                                <Divider style={{ margin: '8px 0' }} />
+                                <Space>
+                                    <Input style={{ width: "190px" }} placeholder="请输入新服务器地址" value={newServerAddr} onChange={e => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        setNewServerAddr(e.target.value.trim());
+                                    }} />
+                                    <Button type="primary" disabled={newServerAddr == "" || serverList.map(item => item.addr).includes(newServerAddr)}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            const tmpList = serverList.slice();
+                                            tmpList.push({
+                                                name: newServerAddr,
+                                                system: false,
+                                                addr: newServerAddr,
+                                                default_server: false,
+                                            });
+                                            setServerList(tmpList);
+                                            save_server_list(tmpList).then(() => setNewServerAddr(""));
+                                        }}>增加服务器</Button>
+                                </Space>
+                                <Button type="link" style={{ minWidth: 0, padding: "0px 0px", marginTop: "10px" }} onClick={e => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    appStore.showGlobalServerModal = true;
+                                }}>设置全局服务器</Button>
+                            </div>
+                        )}
                     >
                         {serverList.map((item) => (
                             <Select.Option key={item.addr} value={item.addr}>
                                 {item.system ? (
-                                    <div style={{ height: "20px", fontSize: "16px" }}>{item.name}</div>
+                                    <Space>
+                                        <div style={{ height: "20px", fontSize: "16px", width: "150px", overflow: "hidden" }}>{item.name}</div>
+                                        {item.default_server == false && (
+                                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    const tmpList = serverList.slice();
+                                                    tmpList.forEach(item2 => item2.default_server = false);
+                                                    const index = tmpList.findIndex(item2 => item2.addr == item.addr);
+                                                    if (index != -1) {
+                                                        tmpList[index].default_server = true;
+                                                        setServerList(tmpList);
+                                                        save_server_list(tmpList);
+                                                    }
+                                                }}>设为默认</Button>
+                                        )}
+                                    </Space>
                                 ) : (
-                                    <div style={{ height: "20px", fontSize: "16px" }}>
-                                        {item.name}
-                                    </div>
+                                    <Space>
+                                        <div style={{ height: "20px", fontSize: "16px", width: "150px", overflow: "hidden" }}>
+                                            {item.name}
+                                        </div>
+                                        {item.default_server == false && (
+                                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    const tmpList = serverList.slice();
+                                                    tmpList.forEach(item2 => item2.default_server = false);
+                                                    const index = tmpList.findIndex(item2 => item2.addr == item.addr);
+                                                    if (index != -1) {
+                                                        tmpList[index].default_server = true;
+                                                        setServerList(tmpList);
+                                                        save_server_list(tmpList);
+                                                    }
+                                                }}>设为默认</Button>
+                                        )}
+                                        {item.addr != defaultAddr && (
+                                            <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                const tmpList = serverList.filter(item2 => item2.addr != item.addr);
+                                                const index = tmpList.findIndex(item2 => item2.default_server);
+                                                if (index == -1 && tmpList.length > 0) {
+                                                    tmpList[0].default_server = true;
+                                                }
+                                                setServerList(tmpList);
+                                                save_server_list(tmpList);
+                                            }}>删除</Button>
+                                        )}
+                                    </Space>
                                 )}
                             </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>
-                <Form.Item>
-                    <Popover trigger="click" placement="bottom" content={
-                        <Space direction="vertical" style={{ padding: "10px 10px" }}>
-                            {userStore.sessionId == "" && (<Button type="link"
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowServerMgrModal(true);
-                                }}>管理服务器</Button>)}
-                            <Button type="link" onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                appStore.showGlobalServerModal = true;
-                            }}>设置全局服务器</Button>
-                            {(appStore.clientCfg?.enable_admin) == true && userStore.sessionId == "" && (
-                                <Button type="link" onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowAdminLoginModal(true);
-                                }}>管理后台</Button>
-                            )}
-                            <Divider style={{ margin: "0px 0px" }} />
-                            <Button type="link" onClick={e => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                openLocalApi();
-                            }}>调试本地接口</Button>
-                            <Divider style={{ margin: "0px 0px" }} />
-                            <Button type="link" danger
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setShowExitModal(true);
-                                }}>关闭应用</Button>
-                        </Space>
-                    }>
-                        <MoreOutlined />
-                    </Popover>
-                </Form.Item>
             </Form>
-            {showAdminLoginModal == true && (
-                <AdminLoginModal onClose={() => setShowAdminLoginModal(false)} />
-            )}
-            {showServerMgrModal == true && (
-                <ServerMgrModal onChange={() => loadServerList()} onClose={() => setShowServerMgrModal(false)} />
-            )}
-            {showExitModal == true && (
-                <Modal open title="关闭应用"
-                    okText="关闭" okButtonProps={{ danger: true }}
-                    onCancel={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setShowExitModal(false);
-                    }}
-                    onOk={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        remove_info_file().then(() => exit(0));
-                    }}>
-                    是否关闭应用?
-                </Modal>
-            )}
         </>
     );
 };
