@@ -103,46 +103,44 @@ const ServerConnInfo = () => {
                         {serverList.map((item) => (
                             <Select.Option key={item.addr} value={item.addr}>
                                 {item.system ? (
-                                    <Space>
+                                    <Space style={{height:"20px"}}>
                                         <div style={{ height: "20px", fontSize: "16px", width: "150px", overflow: "hidden" }}>{item.name}</div>
                                         {item.default_server == false && (
-                                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    const tmpList = serverList.slice();
-                                                    tmpList.forEach(item2 => item2.default_server = false);
-                                                    const index = tmpList.findIndex(item2 => item2.addr == item.addr);
-                                                    if (index != -1) {
-                                                        tmpList[index].default_server = true;
-                                                        setServerList(tmpList);
-                                                        save_server_list(tmpList);
-                                                    }
-                                                }}>设为默认</Button>
+                                            <a onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                const tmpList = serverList.slice();
+                                                tmpList.forEach(item2 => item2.default_server = false);
+                                                const index = tmpList.findIndex(item2 => item2.addr == item.addr);
+                                                if (index != -1) {
+                                                    tmpList[index].default_server = true;
+                                                    setServerList(tmpList);
+                                                    save_server_list(tmpList);
+                                                }
+                                            }}>设为默认</a>
                                         )}
                                     </Space>
                                 ) : (
-                                    <Space>
+                                    <Space style={{height:"20px"}}>
                                         <div style={{ height: "20px", fontSize: "16px", width: "150px", overflow: "hidden" }}>
                                             {item.name}
                                         </div>
                                         {item.default_server == false && (
-                                            <Button type="link" style={{ minWidth: 0, padding: "0px 0px" }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    const tmpList = serverList.slice();
-                                                    tmpList.forEach(item2 => item2.default_server = false);
-                                                    const index = tmpList.findIndex(item2 => item2.addr == item.addr);
-                                                    if (index != -1) {
-                                                        tmpList[index].default_server = true;
-                                                        setServerList(tmpList);
-                                                        save_server_list(tmpList);
-                                                    }
-                                                }}>设为默认</Button>
+                                            <a onClick={e => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                const tmpList = serverList.slice();
+                                                tmpList.forEach(item2 => item2.default_server = false);
+                                                const index = tmpList.findIndex(item2 => item2.addr == item.addr);
+                                                if (index != -1) {
+                                                    tmpList[index].default_server = true;
+                                                    setServerList(tmpList);
+                                                    save_server_list(tmpList);
+                                                }
+                                            }}>设为默认</a>
                                         )}
                                         {item.addr != defaultAddr && (
-                                            <Button type="link" danger style={{ minWidth: 0, padding: "0px 0px" }} onClick={e => {
+                                            <a style={{ color: "red" }} onClick={e => {
                                                 e.stopPropagation();
                                                 e.preventDefault();
                                                 const tmpList = serverList.filter(item2 => item2.addr != item.addr);
@@ -152,7 +150,7 @@ const ServerConnInfo = () => {
                                                 }
                                                 setServerList(tmpList);
                                                 save_server_list(tmpList);
-                                            }}>删除</Button>
+                                            }}>删除</a>
                                         )}
                                     </Space>
                                 )}
