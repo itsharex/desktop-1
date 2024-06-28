@@ -181,7 +181,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setName(e.target.value);
-                    }} placeholder="请输入项目名称" />
+                    }} placeholder="请输入项目名称" status={name == "" ? "error" : undefined} />
                 </Form.Item>
                 <Form.Item label="仓库类型">
                     <Radio.Group value={repoType} onChange={e => {
@@ -198,7 +198,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             setRemoteUrl(e.target.value.trim());
-                        }} disabled={props.remoteUrl != undefined} placeholder="请输入远程仓库地址" />
+                        }} disabled={props.remoteUrl != undefined} placeholder="请输入远程仓库地址" status={remoteUrl == "" ? "error" : undefined} />
                     </Form.Item>
                 )}
                 <Form.Item label="本地路径">
@@ -211,7 +211,7 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                             e.stopPropagation();
                             e.preventDefault();
                             choiceLocalPath();
-                        }} />} placeholder="请输入本地路径" />
+                        }} />} placeholder="请输入本地路径" status={localPath == "" ? "error" : undefined}/>
                 </Form.Item>
                 {repoType == "remote" && (
                     <>
@@ -235,20 +235,20 @@ const AddRepoModal: React.FC<AddRepoModalProps> = (props) => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setUsername(e.target.value.trim());
-                                    }} placeholder="请输入远程Git仓库账号" />
+                                    }} placeholder="请输入远程Git仓库账号" status={username == "" ? "error" : undefined}/>
                                 </Form.Item>
                                 <Form.Item label="密码">
                                     <Input.Password value={password} onChange={e => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         setPassword(e.target.value.trim());
-                                    }} placeholder="请输入账号密码或双重认证密码" />
+                                    }} placeholder="请输入账号密码或双重认证密码" status={password == "" ? "error" : undefined}/>
                                 </Form.Item>
                             </>
                         )}
                         {authType == "sshKey" && (
                             <Form.Item label="SSH密钥">
-                                <Select value={curSshKey} onChange={key => setCurSshKey(key)}>
+                                <Select value={curSshKey} onChange={key => setCurSshKey(key)} status={curSshKey == "" ? "error" : undefined}>
                                     {sshKeyNameList.map(sshName => (
                                         <Select.Option key={sshName} value={sshName}>{sshName}</Select.Option>
                                     ))}
