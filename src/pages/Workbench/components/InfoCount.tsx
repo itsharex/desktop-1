@@ -146,7 +146,7 @@ const InfoCount = () => {
                       message.info("请先保存修改内容");
                       return;
                     }
-                    appStore.showExit = true;
+                    userStore.showLogout = true;
                     userStore.accountsModal = false;
                   }}>退出登录</a>
                 </Space>

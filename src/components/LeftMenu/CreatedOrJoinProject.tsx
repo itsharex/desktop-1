@@ -146,7 +146,7 @@ const CreatedOrJoinProject = (props: CreatedOrJoinProjectProps) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setPrjName(e.target.value.trim());
-                  }} />
+                  }} status={prjName == "" ? "error" : undefined} />
                 </Form.Item>
                 <Form.Item label="项目介绍">
                   <div className="_projectEditContext" style={{ marginTop: '-12px' }}>

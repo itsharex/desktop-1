@@ -397,7 +397,7 @@ const WorkDir = (props: WorkDirProps) => {
             loadFileEntryList();
         }
     }, [props.headBranch]);
-    
+
     return (
         <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
             headStyle={{ backgroundColor: "#eee" }}
@@ -428,18 +428,26 @@ const WorkDir = (props: WorkDirProps) => {
             } extra={
                 <Space>
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="拉取(pull)" onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setShowPullModal(true);
-                        }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} />
+                        <Button type="primary" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="拉取(pull)"
+                            style={{ borderRadius: "6px" }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowPullModal(true);
+                            }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} >
+                            Pull
+                        </Button>
                     )}
                     {props.headBranch != "" && (
-                        <Button type="link" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title="推送(push)" onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setShowPushModal(true);
-                        }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} />
+                        <Button type="primary" icon={<UploadOutlined style={{ fontSize: "20px" }} />} title="推送(push)"
+                            style={{ borderRadius: "6px" }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowPushModal(true);
+                            }} disabled={(localRepoStore.checkResult?.hasGit == false) || (props.filterList.includes("lfs")) && localRepoStore.checkResult?.hasConfigGitLfs == false} >
+                            Push
+                        </Button>
                     )}
                     <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
                         onClick={e => {
