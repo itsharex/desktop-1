@@ -481,7 +481,7 @@ const LocalRepoList = () => {
     return (
         <>
             {localRepoStore.repoExtList.length == 0 && (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请添加代码仓库"/>
             )}
             {localRepoStore.repoExtList.length > 0 && (
                 <Collapse accordion activeKey={activeKey} onChange={key => {
