@@ -25,7 +25,7 @@ const MENU_KEY_USER_LOGIN = "user.login";
 const MENU_KEY_USER_LOGOUT = "user.logout";
 const MENU_KEY_USER_CHANGE_PASSWORD = "user.changePasswd";
 const MENU_KEY_USER_CHANGE_LOGO = "user.changeLogo";
-const MENU_KEY_USER_CHANGE_NICKNAME = "user.changeNickName";
+const MENU_KEY_USER_CHANGE_RESUME = "user.changeResume";
 
 const MENU_KEY_USER_SWITCH_ORG = "user.switchOrg";
 const MENU_KEY_USER_SWITCH_PROJECT = "user.switchProject";
@@ -326,27 +326,30 @@ const ProjectQuickAccess = () => {
                         key: MENU_KEY_USER_CHANGE_PASSWORD,
                         label: "修改密码",
                     });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_CHANGE_NICKNAME,
-                        label: "修改昵称",
-                    });
+
                     userItem.children.push({
                         key: MENU_KEY_USER_CHANGE_LOGO,
                         label: "修改头像",
                     });
+                }
+                if (!(userStore.userInfo.userType == USER_TYPE_INTERNAL && userStore.userInfo.testAccount)) {
                     userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_SKILL_CENTER,
-                        label: `${userStore.userInfo.featureInfo.enable_skill_center ? "关闭" : "打开"}技能中心`,
-                    });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_PROJECT,
-                        label: `${userStore.userInfo.featureInfo.enable_project ? "关闭" : "打开"}项目特性`,
-                    });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_ORG,
-                        label: `${userStore.userInfo.featureInfo.enable_org ? "关闭" : "打开"}团队特性`,
+                        key: MENU_KEY_USER_CHANGE_RESUME,
+                        label: "修改简历",
                     });
                 }
+                userItem.children.push({
+                    key: MENU_KEY_USER_SWITCH_SKILL_CENTER,
+                    label: `${userStore.userInfo.featureInfo.enable_skill_center ? "关闭" : "打开"}技能中心`,
+                });
+                userItem.children.push({
+                    key: MENU_KEY_USER_SWITCH_PROJECT,
+                    label: `${userStore.userInfo.featureInfo.enable_project ? "关闭" : "打开"}项目特性`,
+                });
+                userItem.children.push({
+                    key: MENU_KEY_USER_SWITCH_ORG,
+                    label: `${userStore.userInfo.featureInfo.enable_org ? "关闭" : "打开"}团队特性`,
+                });
 
                 userItem.children.push({
                     key: MENU_KEY_USER_LOGOUT,
@@ -482,8 +485,8 @@ const ProjectQuickAccess = () => {
                 userStore.showChangeLogo = true;
                 userStore.accountsModal = false;
                 break;
-            case MENU_KEY_USER_CHANGE_NICKNAME:
-                userStore.showChangeNickName = true;
+            case MENU_KEY_USER_CHANGE_RESUME:
+                userStore.showChangeResume = true;
                 break;
             case MENU_KEY_ADMIN_LOGIN:
                 userStore.showAdminLogin = true;

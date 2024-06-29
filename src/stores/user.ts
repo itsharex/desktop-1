@@ -77,8 +77,8 @@ class UserStore {
   // 修改密码
   private _showChangePasswd = false;
 
-  // 修改昵称
-  private _showChangeNickName = false;
+  // 修改个人详情
+  private _showChangeResume = false;
 
   // 修改头像
   private _showChangeLogo = false;
@@ -250,13 +250,13 @@ class UserStore {
     });
   }
 
-  get showChangeNickName() {
-    return this._showChangeNickName;
+  get showChangeResume() {
+    return this._showChangeResume;
   }
 
-  set showChangeNickName(val: boolean) {
+  set showChangeResume(val: boolean) {
     runInAction(() => {
-      this._showChangeNickName = val;
+      this._showChangeResume = val;
     });
   }
 
