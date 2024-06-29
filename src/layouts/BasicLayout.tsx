@@ -164,8 +164,8 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
         {userStore.showChangePasswd && (
           <PasswordModal visible={userStore.showChangePasswd} onCancel={() => userStore.showChangePasswd = false} />
         )}
-        {userStore.showChangeNickName && (
-          <UpdateDisplayNameModal onClose={() => userStore.showChangeNickName = false} />
+        {userStore.showChangeResume && (
+          <UpdateDisplayNameModal onClose={() => userStore.showChangeResume = false} />
         )}
         {userStore.showChangeLogo == true && (
           <Profile

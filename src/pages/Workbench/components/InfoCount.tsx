@@ -16,7 +16,7 @@ import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, SKILL_CENTER_PATH } fro
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
 import { type FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
-import { PlusSquareTwoTone } from '@ant-design/icons';
+import { EditOutlined, PlusSquareTwoTone } from '@ant-design/icons';
 
 
 const InfoCount = () => {
@@ -90,18 +90,15 @@ const InfoCount = () => {
           <div className={s.content}>
             {userStore.sessionId != "" && (
               <div className={s.name}>
-                欢迎您！
-                <Popover placement='right' overlayClassName="global_help"
-                  open={appStore.showHelp && userStore.userInfo.userType == USER_TYPE_INTERNAL} content="可修改昵称">
-                  <span style={{ cursor: userStore.userInfo.userType == USER_TYPE_INTERNAL ? "pointer" : undefined }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      if (userStore.userInfo.userType == USER_TYPE_INTERNAL) {
-                        userStore.showChangeNickName = true;
-                      }
-                    }}>{userStore.userInfo.displayName}</span>
-                </Popover>
+                欢迎您！{userStore.userInfo.displayName}
+                {!(userStore.userInfo.userType == USER_TYPE_INTERNAL && userStore.userInfo.testAccount) && (
+                  <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px", height: "20px" }} 
+                  onClick={e=>{
+                    e.stopPropagation();
+                    e.preventDefault();
+                    userStore.showChangeResume = true;
+                  }}/>
+                )}
               </div>
             )}
             <div
