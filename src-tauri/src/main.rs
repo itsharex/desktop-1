@@ -11,8 +11,8 @@ use tauri::api::ipc::{format_callback, format_callback_result, CallbackFn};
 use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
-mod admin_auth_api_plugin;
 mod admin_auth_admin_api_plugin;
+mod admin_auth_api_plugin;
 mod minapp_api;
 mod org_api;
 mod project_cloud_api;
@@ -37,6 +37,8 @@ mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
 mod user_notice_api_plugin;
+mod user_resume_admin_api_plugin;
+mod user_resume_api_plugin;
 
 mod my_updater;
 
@@ -135,7 +137,7 @@ async fn conn_grpc_server(app_handle: AppHandle, _window: Window, addr: String) 
             .concurrency_limit(16)
             .buffer_size(1024 * 1024)
             .connect_lazy();
-        
+
         {
             let grpc_chan = app_handle.state::<GrpcChan>().inner();
             *grpc_chan.0.lock().await = Some(chan);
@@ -187,11 +189,11 @@ async fn conn_extern_server(addr: String) -> Result<Channel, String> {
     }
     let end_point = end_point.unwrap();
     let chan = end_point
-            .connect_timeout(Duration::from_secs(5))
-            .tcp_keepalive(Some(Duration::from_secs(30)))
-            .concurrency_limit(16)
-            .buffer_size(1024 * 1024)
-            .connect_lazy();
+        .connect_timeout(Duration::from_secs(5))
+        .tcp_keepalive(Some(Duration::from_secs(30)))
+        .concurrency_limit(16)
+        .buffer_size(1024 * 1024)
+        .connect_lazy();
     return Ok(chan);
 }
 
@@ -424,6 +426,8 @@ fn main() {
         .plugin(project_comm_api::project_member_api_plugin::ProjectMemberApiPlugin::new())
         .plugin(user_api_plugin::UserApiPlugin::new())
         .plugin(user_notice_api_plugin::UserNoticeApiPlugin::new())
+        .plugin(user_resume_api_plugin::UserResumeApiPlugin::new())
+        .plugin(user_resume_admin_api_plugin::UserResumeAdminApiPlugin::new())
         .plugin(project_comm_api::events_api_plugin::EventsApiPlugin::new())
         .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
         .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())
