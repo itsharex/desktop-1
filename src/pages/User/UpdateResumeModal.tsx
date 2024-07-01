@@ -2,7 +2,7 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import { useStores } from '@/hooks';
-import { Button, Card, DatePicker, Form, Input, List, message, Modal, Select, Space, Tabs } from 'antd';
+import { Button, Card, Checkbox, DatePicker, Form, Input, List, message, Modal, Select, Space, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react';
 import { update as update_user, USER_TYPE_INTERNAL } from '@/api/user';
@@ -110,6 +110,22 @@ const ResumeTab = () => {
     return (
         <>
             <div style={{ maxHeight: "calc(100vh - 300px)", overflowY: "scroll" }}>
+                <Form labelCol={{ span: 4 }}>
+                    <Form.Item label="访问权限">
+                        <Space>
+                            <Checkbox checked={allowProjectAccess} onChange={e => {
+                                e.stopPropagation();
+                                setAllowProjectAccess(e.target.checked);
+                                setHasChange(true);
+                            }}>项目成员可访问</Checkbox>
+                            <Checkbox checked={allowOrgAccess} onChange={e => {
+                                e.stopPropagation();
+                                setAllowOrgAccess(e.target.checked);
+                                setHasChange(true);
+                            }}>团队成员可访问</Checkbox>
+                        </Space>
+                    </Form.Item>
+                </Form>
                 <h1 style={{ fontSize: "20px", fontWeight: 700 }}>基本信息</h1>
                 {basicInfo != null && (
                     <Form labelCol={{ span: 4 }}>
@@ -370,7 +386,7 @@ const ResumeTab = () => {
                         )} />
                 </Card>
             </div>
-            <div style={{ display: "flex", flexDirection: "row-reverse", marginBottom: "10px" }}>
+            <div style={{ display: "flex", flexDirection: "row-reverse", margin: "10px 10px" }}>
                 <Button type='primary' disabled={!hasChange}
                     onClick={e => {
                         e.stopPropagation();

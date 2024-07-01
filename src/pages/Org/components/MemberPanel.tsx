@@ -13,6 +13,7 @@ import { useStores } from "@/hooks";
 import type { Tab } from "rc-tabs/lib/interface";
 import LearnRecordList from "./LearnRecordList";
 import UserContentList from "./UserContentList";
+import MemberResume from "./MemberResume";
 
 export interface MemberPanelProps {
     curMember: MemberInfo;
@@ -24,7 +25,7 @@ const MemberPanel = (props: MemberPanelProps) => {
     const orgStore = useStores("orgStore");
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [activeKey, setActiveKey] = useState<"dayReport" | "weekReport" | "okr" | "learnRecord" | "contentList" | "">("");
+    const [activeKey, setActiveKey] = useState<"dayReport" | "weekReport" | "okr" | "learnRecord" | "contentList" | "resume" | "">("");
 
     const [dayReportDataVersion, setDayReportDataVersion] = useState(0);
     const [weekReportDataVersion, setWeekReportDataVersion] = useState(0);
@@ -100,8 +101,21 @@ const MemberPanel = (props: MemberPanelProps) => {
                 </div>
             )
         });
+        if (props.curMember.has_resume) {
+            tmpList.push({
+                key: "resume",
+                label: "个人信息",
+                children: (
+                    <div style={{ height: "calc(100vh - 110px)", overflowY: "scroll", padding: "10px 10px" }}>
+                        {activeKey == "resume" && (
+                            <MemberResume memberUserId={props.curMember.member_user_id} />
+                        )}
+                    </div>
+                ),
+            });
+        }
         if (tmpList.length > 0 && tmpList.map(item => item.key).includes(activeKey) == false) {
-            setActiveKey((tmpList[0].key ?? "") as "dayReport" | "weekReport" | "okr" | "learnRecord" | "contentList");
+            setActiveKey((tmpList[0].key ?? "") as "dayReport" | "weekReport" | "okr" | "learnRecord" | "contentList" | "resume");
         }
         setTabList(tmpList);
     };
@@ -109,8 +123,8 @@ const MemberPanel = (props: MemberPanelProps) => {
     useEffect(() => {
         calcTabList();
     }, [orgStore.curOrg?.setting.enable_day_report, orgStore.curOrg?.setting.enble_week_report,
-        orgStore.curOrg?.setting.enable_okr, userStore.userInfo.featureInfo.enable_skill_center,
-        activeKey, dayReportDataVersion, weekReportDataVersion, okrDataVersion]);
+    orgStore.curOrg?.setting.enable_okr, userStore.userInfo.featureInfo.enable_skill_center,
+        activeKey, dayReportDataVersion, weekReportDataVersion, okrDataVersion, props.curMember.has_resume]);
 
     return (
         <>
