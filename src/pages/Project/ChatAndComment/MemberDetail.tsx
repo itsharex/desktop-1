@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
-import { Button, Card, Descriptions, Empty, Form, List, Select, Space, Table, Tooltip } from "antd";
+import { Button, Card, Descriptions, Form, List, Select, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import type { WebMemberInfo } from "@/stores/member";
 import UserPhoto from "@/components/Portrait/UserPhoto";
@@ -23,9 +23,6 @@ import { useHistory } from "react-router-dom";
 import { issueState } from "@/utils/constant";
 import { getStateColor } from "@/pages/Issue/components/utils";
 import { SHORT_NOTE_BUG, SHORT_NOTE_TASK } from "@/api/short_note";
-import type { LearnSummaryItem } from "@/api/skill_learn";
-import { get_learn_summary_in_project } from "@/api/skill_learn";
-import SkillSummaryTag from "@/components/Skill/SkillSummaryTag";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
 import type { UserResumeInfo } from "@/api/user_resume";
@@ -336,33 +333,19 @@ const MemberResume = (props: MemberResumeProps) => {
 const MemberDetail = () => {
     const history = useHistory();
 
-    const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
 
     const [memberInfo, setMemberInfo] = useState<WebMemberInfo | undefined>(undefined);
-    const [summaryItemList, setSummaryItemList] = useState<LearnSummaryItem[]>([]);
 
-    const loadSummaryItemList = async () => {
-        if (userStore.userInfo.featureInfo.enable_skill_center == false) {
-            return;
-        }
-        const res = await request(get_learn_summary_in_project({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            member_user_id: memberStore.showDetailMemberId,
-        }));
-        setSummaryItemList(res.summary_info.item_list);
-    };
+
 
     useEffect(() => {
         if (memberStore.showDetailMemberId == "") {
             setMemberInfo(undefined);
-            setSummaryItemList([]);
         } else {
             setMemberInfo(memberStore.getMember(memberStore.showDetailMemberId));
-            loadSummaryItemList();
         }
     }, [memberStore.showDetailMemberId]);
 
@@ -491,18 +474,6 @@ const MemberDetail = () => {
                     <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                         <MemberEventList lastEventTime={memberInfo.last_event?.event_time ?? 0} memberUserId={memberInfo.member.member_user_id} />
                     </Card>
-                    {userStore.userInfo.featureInfo.enable_skill_center && (
-                        <Card title="技能概览" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
-                            <div style={{ width: "100%" }}>
-                                {summaryItemList.length == 0 && (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                )}
-                                {summaryItemList.map(item => (
-                                    <SkillSummaryTag key={item.cate_id} summaryItem={item} width="330px" />
-                                ))}
-                            </div>
-                        </Card>
-                    )}
                     {memberInfo.member.has_resume && (
                         <Card title="个人信息" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                             <MemberResume memberUserId={memberInfo.member.member_user_id} />

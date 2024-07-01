@@ -23,7 +23,8 @@ import {
     ADMIN_PATH_ORG_DETAIL_SUFFIX,
     ADMIN_PATH_ORG_LIST_SUFFIX,
     ADMIN_PATH_PROJECT_DETAIL_SUFFIX,
-    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX, ADMIN_PATH_SECURITY_KEYWORD_SUFFIX, ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX, ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX, ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX, ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX, ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
+    ADMIN_PATH_PROJECT_LIST_SUFFIX, ADMIN_PATH_SECURITY_ADMIN_USER_SUFFIX, ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
+     ADMIN_PATH_SOFTWARE_CATE_SUFFIX, ADMIN_PATH_SOFTWARE_SUFFIX, ADMIN_PATH_USER_CREATE_SUFFIX, ADMIN_PATH_USER_DETAIL_SUFFIX,
     ADMIN_PATH_USER_LIST_SUFFIX,
     ADMIN_PATH_WIDGET_SUFFIX
 } from "@/utils/constant";
@@ -48,7 +49,6 @@ const AdminNav = () => {
     const [swStoreSelectedKeys, setSwStoreSelectedKeys] = useState<string[]>([]);
     const [widgetStoreSelectedKeys, setWidgetStoreSelectedKeys] = useState<string[]>([]);
     const [ideastoreSelectedKeys, setIdeastoreSelectedKeys] = useState<string[]>([]);
-    const [skillcenterSelectedKeys, setSkillcenterSelectedKeys] = useState<string[]>([]);
     const [dockerTemplateSelectedKeys, setDockerTemplateSelectedKeys] = useState<string[]>([]);
     const [devContainerSelectedKeys, setDevContainerSelectedKeys] = useState<string[]>([]);
 
@@ -126,19 +126,6 @@ const AdminNav = () => {
             setIdeastoreSelectedKeys(["ideastore_store"]);
         } else if (location.pathname == ADMIN_PATH_IDEA_SUFFIX) {
             setIdeastoreSelectedKeys(["ideastore_idea"]);
-        }
-    }, [location.pathname]);
-
-    useEffect(() => {
-        setSkillcenterSelectedKeys([]);
-        if (location.pathname == ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX) {
-            setSkillcenterSelectedKeys(["skillcenter_cate"]);
-        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX) {
-            setSkillcenterSelectedKeys(["skillcenter_resource"]);
-        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX) {
-            setSkillcenterSelectedKeys(["skillcenter_question"]);
-        } else if (location.pathname == ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX) {
-            setSkillcenterSelectedKeys(["skillcenter_point"]);
         }
     }, [location.pathname]);
 
@@ -388,44 +375,6 @@ const AdminNav = () => {
                         />
                     </Collapse.Panel>
                 )}
-                <Collapse.Panel header="技能点管理" key="skillcenter">
-                    <Menu selectedKeys={skillcenterSelectedKeys} items={[
-                        {
-                            label: "管理技能分类",
-                            key: "skillcenter_cate",
-                            disabled: !(permInfo?.skill_center_perm.read ?? false),
-                        },
-                        {
-                            label: "管理技能资源",
-                            key: "skillcenter_resource",
-                            disabled: !(permInfo?.skill_center_perm.read ?? false),
-                        },
-                        {
-                            label: "管理技能问答",
-                            key: "skillcenter_question",
-                            disabled: !(permInfo?.skill_center_perm.read ?? false),
-                        },
-                        {
-                            label: "管理技能点",
-                            key: "skillcenter_point",
-                            disabled: !(permInfo?.skill_center_perm.read ?? false),
-                        },
-                    ]}
-                        style={{ borderRightWidth: "0px" }}
-                        onSelect={e => {
-                            if (e.selectedKeys.length == 1) {
-                                if (e.selectedKeys[0] == "skillcenter_cate") {
-                                    history.push(ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "skillcenter_resource") {
-                                    history.push(ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX);
-                                } else if (e.selectedKeys[0] == "skillcenter_question") {
-                                    history.push(ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX);
-                                } else if (e.selectedKeys[0] == "skillcenter_point") {
-                                    history.push(ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX);
-                                }
-                            }
-                        }} />
-                </Collapse.Panel>
                 {globalServer == true && (
                     <Collapse.Panel header="Docker模板管理" key="dockerTemplate">
                         <Menu selectedKeys={dockerTemplateSelectedKeys} items={[

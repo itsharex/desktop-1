@@ -9,9 +9,9 @@ import React, { useEffect, useState } from 'react';
 import cls from './index.module.less';
 const { Sider } = Layout;
 import ProjectList from './ProjectList';
-import { ExportOutlined, GlobalOutlined, LinkOutlined, RocketOutlined } from '@ant-design/icons';
+import { ExportOutlined, GlobalOutlined, LinkOutlined } from '@ant-design/icons';
 import { useHistory, useLocation } from 'react-router-dom';
-import { APP_EXTERN_PAGE_PATH, PUB_RES_PATH, SKILL_CENTER_PATH, WORKBENCH_PATH } from '@/utils/constant';
+import { APP_EXTERN_PAGE_PATH, PUB_RES_PATH, WORKBENCH_PATH } from '@/utils/constant';
 import OrgList from './OrgList';
 import { getVersion } from '@tauri-apps/api/app';
 import { open as shell_open } from '@tauri-apps/api/shell';
@@ -95,29 +95,6 @@ const LeftMenu: React.FC = () => {
           }}>
           <GlobalOutlined />&nbsp;公共资源
         </div>
-        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_skill_center && (
-          <div className={`${cls.workbench_menu} ${location.pathname.startsWith(SKILL_CENTER_PATH) ? cls.active_menu : ""}`}
-            style={{ marginLeft: "10px", marginRight: "10px", paddingBottom: "4px", paddingLeft: "10px" }}
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (appStore.inEdit) {
-                appStore.showCheckLeave(() => {
-                  projectStore.setCurProjectId("");
-                  orgStore.setCurOrgId("");
-                  appStore.curExtraMenu = null;
-                  history.push(SKILL_CENTER_PATH);
-                });
-                return;
-              }
-              projectStore.setCurProjectId("");
-              orgStore.setCurOrgId("");
-              appStore.curExtraMenu = null;
-              history.push(SKILL_CENTER_PATH);
-            }}>
-            <RocketOutlined />&nbsp;技能中心
-          </div>
-        )}
         {(appStore.clientCfg?.item_list.filter(item => item.main_menu) ?? []).length > 0 && (
           <div style={{ borderTop: "2px dotted #333", margin: "5px 24px" }} />
         )}

@@ -10,7 +10,15 @@ import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
 import AddAdminUserModal from "./components/AddAdminUserModal";
 import { EditTextArea } from "@/components/EditCell/EditTextArea";
-import { appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcGitVpPerm, calcIdeaStorePerm, calcKeywordPerm, calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm, calcSkillCenterPerm, calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, genAppStorePermValues, genDevContainerPermValues, genDockerTemplatePermValues, genGitVpPermValues, genIdeaStorePermValues, genKeywordPermValues, genMenuPermValues, genOrgMemberPermValues, genOrgPermValues, genProjectMemberPermValues, genProjectPermValues, genSkillCenterPermValues, genSwStorePermValues, genUserPermValues, genWidgetStorePermValues, gitVpPermOptionList, ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList, projectPermOptionList, skillCenterPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList } from "./components/permUtil";
+import {
+    appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcGitVpPerm, calcIdeaStorePerm, calcKeywordPerm,
+    calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm,
+    calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, genAppStorePermValues,
+    genDevContainerPermValues, genDockerTemplatePermValues, genGitVpPermValues, genIdeaStorePermValues, genKeywordPermValues, genMenuPermValues,
+    genOrgMemberPermValues, genOrgPermValues, genProjectMemberPermValues, genProjectPermValues, genSwStorePermValues, genUserPermValues, genWidgetStorePermValues,
+    gitVpPermOptionList, ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList,
+    projectPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList
+} from "./components/permUtil";
 
 const PAGE_SIZE = 10;
 
@@ -34,7 +42,6 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
     const [ideaStorePermValues, setIdeaStorePermValues] = useState([] as string[]);
     const [widgetStorePermValues, setWidgetStorePermValues] = useState([] as string[]);
     const [swStorePermValues, setSwStorePermValues] = useState([] as string[]);
-    const [skillCenterPermValues, setSkillCenterPermValues] = useState([] as string[]);
     const [orgPermValues, setOrgPermValues] = useState([] as string[]);
     const [orgMemberPermValues, setOrgMemberPermValues] = useState([] as string[]);
     const [keywordPermValues, setKeywordPermValues] = useState([] as string[]);
@@ -51,7 +58,6 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
         setIdeaStorePermValues(genIdeaStorePermValues(props.adminUserInfo.perm_info.idea_store_perm));
         setWidgetStorePermValues(genWidgetStorePermValues(props.adminUserInfo.perm_info.widget_store_perm));
         setSwStorePermValues(genSwStorePermValues(props.adminUserInfo.perm_info.sw_store_perm));
-        setSkillCenterPermValues(genSkillCenterPermValues(props.adminUserInfo.perm_info.skill_center_perm));
         setOrgPermValues(genOrgPermValues(props.adminUserInfo.perm_info.org_perm));
         setOrgMemberPermValues(genOrgMemberPermValues(props.adminUserInfo.perm_info.org_member_perm));
         setKeywordPermValues(genKeywordPermValues(props.adminUserInfo.perm_info.keyword_perm));
@@ -74,7 +80,6 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
                 idea_store_perm: calcIdeaStorePerm(ideaStorePermValues),
                 widget_store_perm: calcWidgetStorePerm(widgetStorePermValues),
                 sw_store_perm: calcSwStorePerm(swStorePermValues),
-                skill_center_perm: calcSkillCenterPerm(skillCenterPermValues),
                 org_perm: calcOrgPerm(orgPermValues),
                 org_member_perm: calcOrgMemberPerm(orgMemberPermValues),
                 keyword_perm: calcKeywordPerm(keywordPermValues),
@@ -213,9 +218,6 @@ const AdminUserPanel = (props: AdminUserPanelProps) => {
                     </Form.Item>
                     <Form.Item label="Git项目权限">
                         <Checkbox.Group options={gitVpPermOptionList} value={gitVpPermValues} onChange={values => setGitVpPermValues(values as string[])} />
-                    </Form.Item>
-                    <Form.Item label="技能中心管理权限">
-                        <Checkbox.Group options={skillCenterPermOptionList} value={skillCenterPermValues} onChange={values => setSkillCenterPermValues(values as string[])} />
                     </Form.Item>
                     <Form.Item label="团队管理权限">
                         <Checkbox.Group options={orgPermOptionList} value={orgPermValues} onChange={values => setOrgPermValues(values as string[])} />

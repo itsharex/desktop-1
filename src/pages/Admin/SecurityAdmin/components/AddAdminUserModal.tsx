@@ -4,7 +4,13 @@
 import { Checkbox, Form, Input, Modal } from "antd";
 import React, { useState } from "react";
 import { add_user } from "@/api/admin_auth_admin";
-import { appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcGitVpPerm, calcIdeaStorePerm, calcKeywordPerm, calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm, calcSkillCenterPerm, calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, gitVpPermOptionList, ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList, projectPermOptionList, skillCenterPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList } from "./permUtil";
+import {
+    appStorePermOptionList, calcAppStorePerm, calcDevContainerPerm, calcDockerTemplatePerm, calcGitVpPerm, calcIdeaStorePerm,
+    calcKeywordPerm, calcMenuPerm, calcOrgMemberPerm, calcOrgPerm, calcProjectMemberPerm, calcProjectPerm,
+    calcSwStorePerm, calcUserPerm, calcWidgetStorePerm, devContainerPermOptionList, dockerTemplatePermOptionList, gitVpPermOptionList,
+    ideaStorePermOptionList, keywordPermOptionList, menuPermOptionList, orgMemberPermOptionList, orgPermOptionList, projectMemberPermOptionList,
+    projectPermOptionList, swStorePermOptionList, userPermOptionList, widgetStorePermOptionList
+} from "./permUtil";
 import { request } from "@/utils/request";
 import { get_admin_session } from "@/api/admin_auth";
 
@@ -28,7 +34,6 @@ const AddAdminUserModal = (props: AddAdminUserModalProps) => {
     const [ideaStorePermValues, setIdeaStorePermValues] = useState([] as string[]);
     const [widgetStorePermValues, setWidgetStorePermValues] = useState([] as string[]);
     const [swStorePermValues, setSwStorePermValues] = useState([] as string[]);
-    const [skillCenterPermValues, setSkillCenterPermValues] = useState([] as string[]);
     const [orgPermValues, setOrgPermValues] = useState([] as string[]);
     const [orgMemberPermValues, setOrgMemberPermValues] = useState([] as string[]);
     const [keywordPermValues, setKeywordPermValues] = useState([] as string[]);
@@ -52,7 +57,6 @@ const AddAdminUserModal = (props: AddAdminUserModalProps) => {
                 idea_store_perm: calcIdeaStorePerm(ideaStorePermValues),
                 widget_store_perm: calcWidgetStorePerm(widgetStorePermValues),
                 sw_store_perm: calcSwStorePerm(swStorePermValues),
-                skill_center_perm: calcSkillCenterPerm(skillCenterPermValues),
                 org_perm: calcOrgPerm(orgPermValues),
                 org_member_perm: calcOrgMemberPerm(orgMemberPermValues),
                 keyword_perm: calcKeywordPerm(keywordPermValues),
@@ -132,9 +136,6 @@ const AddAdminUserModal = (props: AddAdminUserModalProps) => {
                 </Form.Item>
                 <Form.Item label="Git项目权限">
                     <Checkbox.Group options={gitVpPermOptionList} value={gitVpPermValues} onChange={values => setGitVpPermValues(values as string[])} />
-                </Form.Item>
-                <Form.Item label="技能中心管理权限">
-                    <Checkbox.Group options={skillCenterPermOptionList} value={skillCenterPermValues} onChange={values => setSkillCenterPermValues(values as string[])} />
                 </Form.Item>
                 <Form.Item label="团队管理权限">
                     <Checkbox.Group options={orgPermOptionList} value={orgPermValues} onChange={values => setOrgPermValues(values as string[])} />
