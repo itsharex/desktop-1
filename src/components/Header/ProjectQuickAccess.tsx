@@ -335,7 +335,7 @@ const ProjectQuickAccess = () => {
                 if (!(userStore.userInfo.userType == USER_TYPE_INTERNAL && userStore.userInfo.testAccount)) {
                     userItem.children.push({
                         key: MENU_KEY_USER_CHANGE_RESUME,
-                        label: "修改简历",
+                        label: "修改个人信息",
                     });
                 }
                 userItem.children.push({

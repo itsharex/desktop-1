@@ -3,30 +3,27 @@
 
 import { invoke } from '@tauri-apps/api/tauri';
 
-export type ACCESS_SCOPE = number;
-export const ACCESS_SCOPE_NONE: ACCESS_SCOPE = 0;
-export const ACCESS_SCOPE_PROJECT: ACCESS_SCOPE = 1;
-export const ACCESS_SCOPE_ORG: ACCESS_SCOPE = 2;
-export const ACCESS_SCOPE_ALL: ACCESS_SCOPE = 3;
-
-
 export type GENDER_TYPE = number;
 export const GENDER_TYPE_UNKNOWN: GENDER_TYPE = 0;
 export const GENDER_TYPE_MALE: GENDER_TYPE = 1;
 export const GENDER_TYPE_FEMALE: GENDER_TYPE = 2;
 
 export type WorkExpItem = {
-    access_scope: ACCESS_SCOPE;
     from_time: number;
     has_from_time: boolean;
     to_time: number;
     has_to_time: boolean;
+    company: string;
     positon: string;
     work_desc: string;
 };
 
+export type WorkExpItemWithId = {
+    id: string;
+    workExpItem: WorkExpItem,
+};
+
 export type EduExpItem = {
-    access_scope: ACCESS_SCOPE;
     from_time: number;
     has_from_time: boolean;
     to_time: number;
@@ -35,30 +32,27 @@ export type EduExpItem = {
     major_name: string;
 };
 
+export type EduExpItemWithId = {
+    id: string;
+    eduExpItem: EduExpItem;
+};
+
 export type BasicInfo = {
     true_name: string;
-    true_name_access_scope: ACCESS_SCOPE;
     gender: GENDER_TYPE;
-    gender_access_scope: ACCESS_SCOPE;
     birthday: number;
     has_birth_day: boolean;
-    birthday_access_scope: ACCESS_SCOPE;
-    province: string;
-    province_access_scope: ACCESS_SCOPE;
-    city: string;
-    city_access_scope: ACCESS_SCOPE;
     mobile_phone: string;
-    mobile_phone_access_scope: ACCESS_SCOPE;
     email: string;
-    email_access_scope: ACCESS_SCOPE;
     self_intro: string;
-    self_intro_access_scope: ACCESS_SCOPE;
 };
 
 export type UserResumeInfo = {
     basic_info: BasicInfo;
     work_exp_item_list: WorkExpItem[];
     edu_exp_item_list: EduExpItem[];
+    allow_project_access: boolean;
+    allow_org_access: boolean;
 };
 
 export type SetRequest = {
