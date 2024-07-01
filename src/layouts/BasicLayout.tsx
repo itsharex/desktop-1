@@ -24,13 +24,13 @@ import { get_session } from '@/api/user';
 import { remove_info_file } from '@/api/local_api';
 import { exit } from '@tauri-apps/api/process';
 import PasswordModal from '@/components/PasswordModal';
-import UpdateDisplayNameModal from '@/pages/User/UpdateDisplayNameModal';
 import Profile from '@/components/Profile';
 import { request } from '@/utils/request';
 import * as fsApi from '@/api/fs';
 import { update as update_user } from '@/api/user';
 import { AdminLoginModal } from '@/pages/User/AdminLoginModal';
 import JoinModal from '@/pages/Workbench/components/JoinModal';
+import UpdateResumeModal from '@/pages/User/UpdateResumeModal';
 
 const { Content } = Layout;
 
@@ -164,8 +164,8 @@ const BasicLayout: React.FC<{ route: IRouteConfig }> = ({ route }) => {
         {userStore.showChangePasswd && (
           <PasswordModal visible={userStore.showChangePasswd} onCancel={() => userStore.showChangePasswd = false} />
         )}
-        {userStore.showChangeNickName && (
-          <UpdateDisplayNameModal onClose={() => userStore.showChangeNickName = false} />
+        {userStore.showChangeResume && (
+          <UpdateResumeModal onClose={() => userStore.showChangeResume = false} />
         )}
         {userStore.showChangeLogo == true && (
           <Profile

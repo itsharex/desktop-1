@@ -9,8 +9,6 @@ import { showMyShortNote } from '@/utils/short_note';
 import { WebviewWindow } from '@tauri-apps/api/window';
 import { sleep } from '@/utils/time';
 import { get_status } from "@/api/user_notice";
-import type { MyLearnStateInfo } from "@/api/skill_learn";
-import { get_my_skill_state } from "@/api/skill_learn";
 
 type UserInfo = {
   userId: string;
@@ -24,7 +22,6 @@ type UserInfo = {
   unReadNotice: number;
   totalNotice: number;
   featureInfo: FeatureInfo;
-  learnStateInfo: MyLearnStateInfo;
 };
 
 class UserStore {
@@ -54,11 +51,6 @@ class UserStore {
     featureInfo: {
       enable_project: false,
       enable_org: false,
-      enable_skill_center: false,
-    },
-    learnStateInfo: {
-      learn_point_count: 0,
-      last_learn_time: 0,
     },
   };
 
@@ -77,8 +69,8 @@ class UserStore {
   // 修改密码
   private _showChangePasswd = false;
 
-  // 修改昵称
-  private _showChangeNickName = false;
+  // 修改个人详情
+  private _showChangeResume = false;
 
   // 修改头像
   private _showChangeLogo = false;
@@ -121,11 +113,6 @@ class UserStore {
         featureInfo: {
           enable_project: false,
           enable_org: false,
-          enable_skill_center: false,
-        },
-        learnStateInfo: {
-          learn_point_count: 0,
-          last_learn_time: 0,
         },
       };
     });
@@ -176,17 +163,12 @@ class UserStore {
           enable_project: false,
           enable_org: false,
         },
-        learnStateInfo: {
-          learn_point_count: 0,
-          last_learn_time: 0,
-        },
       };
     });
     await this.rootStore.projectStore.initLoadProjectList();
     await this.rootStore.orgStore.initLoadOrgList();
     await showMyShortNote(res.session_id);
     await this.updateNoticeStatus(res.session_id);
-    await this.updateLearnState(res.session_id);
 
     sessionStorage.clear();
     sessionStorage.setItem('sessionId', res.session_id);
@@ -202,13 +184,6 @@ class UserStore {
     });
   }
 
-  async updateLearnState(sessionId: string) {
-    const res = await request(get_my_skill_state({ session_id: sessionId }));
-    runInAction(() => {
-      this.userInfo.learnStateInfo = res.state_info;
-      sessionStorage.setItem('userInfo', JSON.stringify(this.userInfo));
-    });
-  }
 
   get accountsModal() {
     return this._accountsModal;
@@ -250,13 +225,13 @@ class UserStore {
     });
   }
 
-  get showChangeNickName() {
-    return this._showChangeNickName;
+  get showChangeResume() {
+    return this._showChangeResume;
   }
 
-  set showChangeNickName(val: boolean) {
+  set showChangeResume(val: boolean) {
     runInAction(() => {
-      this._showChangeNickName = val;
+      this._showChangeResume = val;
     });
   }
 

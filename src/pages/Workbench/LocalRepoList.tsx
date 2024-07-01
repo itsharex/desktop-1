@@ -469,6 +469,7 @@ const LocalRepoList = () => {
     const urlParams = new URLSearchParams(location.search);
     const repoId = urlParams.get('repoId') ?? "";
 
+    const userStore = useStores('userStore');
     const localRepoStore = useStores("localRepoStore");
 
     const [activeKey, setActiveKey] = useState(repoId);
@@ -481,7 +482,7 @@ const LocalRepoList = () => {
     return (
         <>
             {localRepoStore.repoExtList.length == 0 && (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请添加代码仓库"/>
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="请添加代码仓库" />
             )}
             {localRepoStore.repoExtList.length > 0 && (
                 <Collapse accordion activeKey={activeKey} onChange={key => {
@@ -537,13 +538,16 @@ const LocalRepoList = () => {
                                                         }}>
                                                             刷新
                                                         </Button>
-                                                        <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            setLinkProjectRepo(repo.repoInfo);
-                                                        }}>
-                                                            关联项目
-                                                        </Button>
+                                                        {userStore.sessionId != "" && (
+                                                            <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                setLinkProjectRepo(repo.repoInfo);
+                                                            }}>
+                                                                关联项目
+                                                            </Button>
+                                                        )}
+
                                                         <Button type="link" style={{ minWidth: "0px", padding: "0px 0px" }} onClick={e => {
                                                             e.stopPropagation();
                                                             e.preventDefault();

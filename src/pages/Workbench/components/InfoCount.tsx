@@ -12,11 +12,11 @@ import { request } from '@/utils/request';
 import { get_my_todo_status } from "@/api/project_issue";
 import MyTodoListModal from './MyTodoListModal';
 import { useHistory } from 'react-router-dom';
-import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH, SKILL_CENTER_PATH } from '@/utils/constant';
+import { APP_ORG_MANAGER_PATH, APP_PROJECT_MANAGER_PATH } from '@/utils/constant';
 import { list_ssh_key_name } from '@/api/local_repo';
 import SshKeyListModal from './SshKeyListModal';
 import { type FeatureInfo, update_feature, USER_TYPE_INTERNAL } from '@/api/user';
-import { PlusSquareTwoTone } from '@ant-design/icons';
+import { EditOutlined, PlusSquareTwoTone } from '@ant-design/icons';
 
 
 const InfoCount = () => {
@@ -90,18 +90,15 @@ const InfoCount = () => {
           <div className={s.content}>
             {userStore.sessionId != "" && (
               <div className={s.name}>
-                欢迎您！
-                <Popover placement='right' overlayClassName="global_help"
-                  open={appStore.showHelp && userStore.userInfo.userType == USER_TYPE_INTERNAL} content="可修改昵称">
-                  <span style={{ cursor: userStore.userInfo.userType == USER_TYPE_INTERNAL ? "pointer" : undefined }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      if (userStore.userInfo.userType == USER_TYPE_INTERNAL) {
-                        userStore.showChangeNickName = true;
-                      }
-                    }}>{userStore.userInfo.displayName}</span>
-                </Popover>
+                欢迎您！{userStore.userInfo.displayName}
+                {!(userStore.userInfo.userType == USER_TYPE_INTERNAL && userStore.userInfo.testAccount) && (
+                  <Button type="link" icon={<EditOutlined />} style={{ minWidth: 0, padding: "0px 0px", height: "20px" }} 
+                  onClick={e=>{
+                    e.stopPropagation();
+                    e.preventDefault();
+                    userStore.showChangeResume = true;
+                  }}/>
+                )}
               </div>
             )}
             <div
@@ -201,41 +198,6 @@ const InfoCount = () => {
 
         {userStore.sessionId != "" && (
           <Popover placement='bottom' overlayClassName="global_help"
-            open={appStore.showHelp}
-            title="我掌握的技能" content="显示在技能中心点亮的技能数量">
-            <div className={s.item} style={{ backgroundColor: appStore.showHelp ? "mintcream" : undefined }}>
-              <div>我的技能点</div>
-              <div>
-                <Space>
-                  <Button type='link' style={{ minWidth: 0, padding: "0px 0px", fontSize: "20px", lineHeight: "28px" }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      history.push(SKILL_CENTER_PATH);
-                      projectStore.setCurProjectId("");
-                      orgStore.setCurOrgId("");
-                    }} disabled={!userStore.userInfo.featureInfo.enable_skill_center}>
-                    {userStore.userInfo.learnStateInfo.learn_point_count}
-                  </Button>
-                  <Switch size='small' checked={userStore.userInfo.featureInfo.enable_skill_center} onChange={value => {
-                    const feature: FeatureInfo = {
-                      enable_project: userStore.userInfo.featureInfo.enable_project,
-                      enable_org: userStore.userInfo.featureInfo.enable_org,
-                      enable_skill_center: value,
-                    };
-                    request(update_feature({
-                      session_id: userStore.sessionId,
-                      feature: feature,
-                    })).then(() => userStore.updateFeature(feature));
-                  }} />
-                </Space>
-              </div>
-            </div>
-          </Popover>
-        )}
-
-        {userStore.sessionId != "" && (
-          <Popover placement='bottom' overlayClassName="global_help"
             open={appStore.showHelp} title="我的项目" content="打开后可使用项目功能">
             <div className={s.item} style={{ backgroundColor: appStore.showHelp ? "mintcream" : undefined }}>
               <div>当前项目数</div>
@@ -253,7 +215,6 @@ const InfoCount = () => {
                     const feature: FeatureInfo = {
                       enable_project: value,
                       enable_org: userStore.userInfo.featureInfo.enable_org,
-                      enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                     };
                     request(update_feature({
                       session_id: userStore.sessionId,
@@ -285,7 +246,6 @@ const InfoCount = () => {
                     const feature: FeatureInfo = {
                       enable_project: userStore.userInfo.featureInfo.enable_project,
                       enable_org: value,
-                      enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                     };
                     request(update_feature({
                       session_id: userStore.sessionId,

@@ -2,54 +2,31 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 use crate::notice_decode::new_wrong_session_notice;
-use proto_gen_rust::skill_resource_api::skill_resource_api_client::SkillResourceApiClient;
-use proto_gen_rust::skill_resource_api::*;
+use proto_gen_rust::user_resume_api::user_resume_admin_api_client::UserResumeAdminApiClient;
+use proto_gen_rust::user_resume_api::*;
 use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
 };
 
-
-#[tauri::command]
-async fn list<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: Window<R>,
-    request: ListRequest,
-) -> Result<ListResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
-    if (&chan).is_none() {
-        return Err("no grpc conn".into());
-    }
-    let mut client = SkillResourceApiClient::new(chan.unwrap());
-    match client.list(request).await {
-        Ok(response) => {
-            let inner_resp = response.into_inner();
-            if inner_resp.code == list_response::Code::WrongSession as i32 {
-                if let Err(err) = window.emit("notice", new_wrong_session_notice("list".into())) {
-                    println!("{:?}", err);
-                }
-            }
-            return Ok(inner_resp);
-        }
-        Err(status) => Err(status.message().into()),
-    }
-}
-
 #[tauri::command]
 async fn get<R: Runtime>(
     app_handle: AppHandle<R>,
     window: Window<R>,
-    request: GetRequest,
-) -> Result<GetResponse, String> {
-    let chan = crate::get_grpc_chan(&app_handle).await;
+    request: AdminGetRequest,
+) -> Result<AdminGetResponse, String> {
+    let chan = super::get_grpc_chan(&app_handle).await;
     if (&chan).is_none() {
         return Err("no grpc conn".into());
     }
-    let mut client = SkillResourceApiClient::new(chan.unwrap());
+    let mut client = UserResumeAdminApiClient::new(chan.unwrap());
     match client.get(request).await {
         Ok(response) => {
             let inner_resp = response.into_inner();
-            if inner_resp.code == get_response::Code::WrongSession as i32 {
+            if inner_resp.code == admin_get_response::Code::WrongSession as i32
+                || inner_resp.code == admin_get_response::Code::NotAuth as i32
+            {
+                crate::admin_auth_api_plugin::logout(app_handle).await;
                 if let Err(err) = window.emit("notice", new_wrong_session_notice("get".into())) {
                     println!("{:?}", err);
                 }
@@ -60,24 +37,24 @@ async fn get<R: Runtime>(
     }
 }
 
-pub struct SkillResourceApiPlugin<R: Runtime> {
+
+pub struct UserResumeAdminApiPlugin<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync + 'static>,
 }
 
-impl<R: Runtime> SkillResourceApiPlugin<R> {
+impl<R: Runtime> UserResumeAdminApiPlugin<R> {
     pub fn new() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
-               list,
                get,
             ]),
         }
     }
 }
 
-impl<R: Runtime> Plugin<R> for SkillResourceApiPlugin<R> {
+impl<R: Runtime> Plugin<R> for UserResumeAdminApiPlugin<R> {
     fn name(&self) -> &'static str {
-        "skill_resource_api"
+        "user_resume_admin_api"
     }
     fn initialization_script(&self) -> Option<String> {
         None

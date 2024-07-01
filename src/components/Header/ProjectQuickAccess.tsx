@@ -25,11 +25,10 @@ const MENU_KEY_USER_LOGIN = "user.login";
 const MENU_KEY_USER_LOGOUT = "user.logout";
 const MENU_KEY_USER_CHANGE_PASSWORD = "user.changePasswd";
 const MENU_KEY_USER_CHANGE_LOGO = "user.changeLogo";
-const MENU_KEY_USER_CHANGE_NICKNAME = "user.changeNickName";
+const MENU_KEY_USER_CHANGE_RESUME = "user.changeResume";
 
 const MENU_KEY_USER_SWITCH_ORG = "user.switchOrg";
 const MENU_KEY_USER_SWITCH_PROJECT = "user.switchProject";
-const MENU_KEY_USER_SWITCH_SKILL_CENTER = "user.switchSkillCenter";
 
 const MENU_KEY_ADMIN_LOGIN = "admin.login";
 const MENU_KEY_EXIST_APP = "app.exit";
@@ -326,27 +325,26 @@ const ProjectQuickAccess = () => {
                         key: MENU_KEY_USER_CHANGE_PASSWORD,
                         label: "修改密码",
                     });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_CHANGE_NICKNAME,
-                        label: "修改昵称",
-                    });
+
                     userItem.children.push({
                         key: MENU_KEY_USER_CHANGE_LOGO,
                         label: "修改头像",
                     });
+                }
+                if (!(userStore.userInfo.userType == USER_TYPE_INTERNAL && userStore.userInfo.testAccount)) {
                     userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_SKILL_CENTER,
-                        label: `${userStore.userInfo.featureInfo.enable_skill_center ? "关闭" : "打开"}技能中心`,
-                    });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_PROJECT,
-                        label: `${userStore.userInfo.featureInfo.enable_project ? "关闭" : "打开"}项目特性`,
-                    });
-                    userItem.children.push({
-                        key: MENU_KEY_USER_SWITCH_ORG,
-                        label: `${userStore.userInfo.featureInfo.enable_org ? "关闭" : "打开"}团队特性`,
+                        key: MENU_KEY_USER_CHANGE_RESUME,
+                        label: "修改个人信息",
                     });
                 }
+                userItem.children.push({
+                    key: MENU_KEY_USER_SWITCH_PROJECT,
+                    label: `${userStore.userInfo.featureInfo.enable_project ? "关闭" : "打开"}项目特性`,
+                });
+                userItem.children.push({
+                    key: MENU_KEY_USER_SWITCH_ORG,
+                    label: `${userStore.userInfo.featureInfo.enable_org ? "关闭" : "打开"}团队特性`,
+                });
 
                 userItem.children.push({
                     key: MENU_KEY_USER_LOGOUT,
@@ -482,8 +480,8 @@ const ProjectQuickAccess = () => {
                 userStore.showChangeLogo = true;
                 userStore.accountsModal = false;
                 break;
-            case MENU_KEY_USER_CHANGE_NICKNAME:
-                userStore.showChangeNickName = true;
+            case MENU_KEY_USER_CHANGE_RESUME:
+                userStore.showChangeResume = true;
                 break;
             case MENU_KEY_ADMIN_LOGIN:
                 userStore.showAdminLogin = true;
@@ -502,7 +500,6 @@ const ProjectQuickAccess = () => {
                     const feature: FeatureInfo = {
                         enable_project: userStore.userInfo.featureInfo.enable_project,
                         enable_org: !userStore.userInfo.featureInfo.enable_org,
-                        enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                     };
                     request(update_feature({
                         session_id: userStore.sessionId,
@@ -515,20 +512,6 @@ const ProjectQuickAccess = () => {
                     const feature: FeatureInfo = {
                         enable_project: !userStore.userInfo.featureInfo.enable_project,
                         enable_org: userStore.userInfo.featureInfo.enable_org,
-                        enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
-                    };
-                    request(update_feature({
-                        session_id: userStore.sessionId,
-                        feature: feature,
-                    })).then(() => userStore.updateFeature(feature));
-                }
-                break;
-            case MENU_KEY_USER_SWITCH_SKILL_CENTER:
-                {
-                    const feature: FeatureInfo = {
-                        enable_project: userStore.userInfo.featureInfo.enable_project,
-                        enable_org: userStore.userInfo.featureInfo.enable_org,
-                        enable_skill_center: !userStore.userInfo.featureInfo.enable_skill_center,
                     };
                     request(update_feature({
                         session_id: userStore.sessionId,
@@ -833,7 +816,7 @@ const ProjectQuickAccess = () => {
             calcItems();
         }
     }, [projectStore.curProject?.setting, projectStore.curProjectId, memberStore.memberList, orgStore.curOrgId, appStore.clientCfg, userStore.sessionId,
-    userStore.userInfo.featureInfo.enable_org, userStore.userInfo.featureInfo.enable_project, userStore.userInfo.featureInfo.enable_skill_center]);
+    userStore.userInfo.featureInfo.enable_org, userStore.userInfo.featureInfo.enable_project]);
 
     return (
         <>

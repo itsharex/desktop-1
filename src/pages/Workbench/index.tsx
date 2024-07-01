@@ -11,7 +11,7 @@ import Card from './components/Card';
 import InfoCount from './components/InfoCount';
 import { Modal, Popover, Space, Tabs } from 'antd';
 import { observer } from 'mobx-react';
-import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, RocketOutlined, WarningOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, DoubleRightOutlined, ExportOutlined, FolderOutlined, MoreOutlined, WarningOutlined } from '@ant-design/icons';
 import Button from '@/components/Button';
 import UserAppList from './UserAppList';
 import LocalRepoList from './LocalRepoList';
@@ -23,7 +23,6 @@ import iconGitlab from '@/assets/allIcon/icon-gitlab.png';
 import AtomGitPanel from './AtomGitPanel';
 import { open as shell_open } from '@tauri-apps/api/shell';
 import GitConfigModal from './components/GitConfigModal';
-import MyLearnRecordList from './components/MyLearnRecordList';
 import DevContextList from './DevContextList';
 import type { CommandResult } from "@/pages/Devc/components/types";
 import { Command } from "@tauri-apps/api/shell";
@@ -322,16 +321,6 @@ const Workbench: React.FC = () => {
             </div>
           )}
         </Tabs.TabPane>
-
-        {userStore.sessionId != "" && userStore.userInfo.featureInfo.enable_skill_center && (
-          <Tabs.TabPane tab={<h2><RocketOutlined />学习记录</h2>} key="learnRecord">
-            {tab == "learnRecord" && (
-              <div className={s.content_wrap}>
-                <MyLearnRecordList />
-              </div>
-            )}
-          </Tabs.TabPane>
-        )}
       </Tabs>
       {showAddRepoModal == true && (
         <AddRepoModal onCancel={() => setShowAddRepoModal(false)} onOk={() => {

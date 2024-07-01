@@ -26,6 +26,7 @@ export type MemberInfo = {
     depart_ment_id_path: string[];
     display_name: string;
     logo_uri: string;
+    has_resume: boolean;
 };
 
 export type ProjectMemberInfo = {

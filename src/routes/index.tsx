@@ -42,12 +42,7 @@ import {
   ADMIN_PATH_WIDGET_SUFFIX,
   ADMIN_PATH_SOFTWARE_CATE_SUFFIX,
   ADMIN_PATH_SOFTWARE_SUFFIX,
-  ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
-  ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
-  SKILL_CENTER_PATH,
-  ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
   APP_EXTERN_PAGE_PATH,
-  ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
   ADMIN_PATH_ORG_LIST_SUFFIX,
   ADMIN_PATH_ORG_DETAIL_SUFFIX,
   ADMIN_PATH_SECURITY_KEYWORD_SUFFIX,
@@ -90,12 +85,7 @@ import OrgDetail from '@/pages/Org/OrgDetail';
 import WidgetList from '@/pages/Admin/GitWidgetAdmin/WidgetList';
 import SoftWareCateList from '@/pages/Admin/SoftWareAdmin/SoftWareCateList';
 import SoftWareList from '@/pages/Admin/SoftWareAdmin/SoftWareList';
-import SkillCateList from '@/pages/Admin/SkillCenterAdmin/SkillCateList';
-import SkillPointList from '@/pages/Admin/SkillCenterAdmin/SkillPointList';
-import SkillCenter from "@/pages/SkillCenter/SkillCenter";
-import SkillResourceList from '@/pages/Admin/SkillCenterAdmin/SkillResourceList';
 import ExternPage from '@/pages/ExternPage';
-import SkillQuestionList from '@/pages/Admin/SkillCenterAdmin/SkillQuestionList';
 import OrgList from '@/pages/Admin/OrgAdmin/OrgList';
 import AdminOrgDetail from "@/pages/Admin/OrgAdmin/OrgDetail";
 import KeywordList from '@/pages/Admin/SecurityAdmin/KeywordList';
@@ -234,12 +224,6 @@ const routesConfig: IRouteConfig[] = [
         path: APP_ORG_MANAGER_PATH,
         title: "团队管理",
         component: OrgManager,
-        exact: true,
-      },
-      {
-        path: SKILL_CENTER_PATH,
-        title: "技能中心",
-        component: SkillCenter,
         exact: true,
       },
       {
@@ -411,30 +395,6 @@ const routesConfig: IRouteConfig[] = [
         path: ADMIN_PATH_IDEA_STORE_CATE_SUFFIX,
         title: "知识库类别管理",
         component: IdeaStoreCateList,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_SKILL_CENTER_CATE_SUFFIX,
-        title: "技能类别管理",
-        component: SkillCateList,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_SKILL_CENTER_RESOURCE_SUFFIX,
-        title: "技能资源管理",
-        component: SkillResourceList,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_SKILL_CENTER_QUESTION_SUFFIX,
-        title: "技能问答管理",
-        component: SkillQuestionList,
-        exact: true,
-      },
-      {
-        path: ADMIN_PATH_SKILL_CENTER_POINT_SUFFIX,
-        title: "技能点管理",
-        component: SkillPointList,
         exact: true,
       },
       {

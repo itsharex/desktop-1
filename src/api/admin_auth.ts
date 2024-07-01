@@ -97,27 +97,6 @@ export type SwStorePerm = {
     remove_soft_ware: boolean;
 };
 
-export type SkillCenterPerm = {
-    read: boolean;
-    create_cate: boolean;
-    update_cate: boolean;
-    remove_cate: boolean;
-    create_folder: boolean;
-    update_folder: boolean;
-    remove_folder: boolean;
-    move_folder: boolean;
-    create_point: boolean;
-    update_point: boolean;
-    remove_point: boolean;
-    move_point: boolean;
-    add_resource: boolean;
-    update_resource: boolean;
-    remove_resource: boolean;
-    add_question: boolean;
-    update_question: boolean;
-    remove_question: boolean;
-};
-
 export type OrgPerm = {
     read: boolean;
     update: boolean;
@@ -153,7 +132,6 @@ export type AdminPermInfo = {
     idea_store_perm: IdeaStorePerm;
     widget_store_perm: WidgetStorePerm;
     sw_store_perm: SwStorePerm;
-    skill_center_perm: SkillCenterPerm;
     org_perm: OrgPerm;
     org_member_perm: OrgMemberPerm;
     keyword_perm: KeywordPerm;

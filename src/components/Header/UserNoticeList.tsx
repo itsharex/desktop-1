@@ -108,13 +108,11 @@ const UserNoticeList = () => {
                 feature: {
                     enable_project: true,
                     enable_org: true,
-                    enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
                 },
             }));
             userStore.updateFeature({
                 enable_project: true,
                 enable_org: true,
-                enable_skill_center: userStore.userInfo.featureInfo.enable_skill_center,
             });
             message.info("打开项目和团队功能");
             sleep(500);

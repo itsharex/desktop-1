@@ -11,8 +11,8 @@ use tauri::api::ipc::{format_callback, format_callback_result, CallbackFn};
 use tauri::async_runtime::Mutex;
 use tonic::transport::{Channel, Endpoint};
 
-mod admin_auth_api_plugin;
 mod admin_auth_admin_api_plugin;
+mod admin_auth_api_plugin;
 mod minapp_api;
 mod org_api;
 mod project_cloud_api;
@@ -21,7 +21,6 @@ mod project_content_api;
 mod project_mgr_api;
 mod project_misc_api;
 mod pubres_api;
-mod skill_api;
 
 mod client_cfg_admin_api_plugin;
 mod client_cfg_api_plugin;
@@ -37,6 +36,8 @@ mod user_admin_api_plugin;
 mod user_api_plugin;
 mod user_app_api_plugin;
 mod user_notice_api_plugin;
+mod user_resume_admin_api_plugin;
+mod user_resume_api_plugin;
 
 mod my_updater;
 
@@ -135,7 +136,7 @@ async fn conn_grpc_server(app_handle: AppHandle, _window: Window, addr: String) 
             .concurrency_limit(16)
             .buffer_size(1024 * 1024)
             .connect_lazy();
-        
+
         {
             let grpc_chan = app_handle.state::<GrpcChan>().inner();
             *grpc_chan.0.lock().await = Some(chan);
@@ -187,11 +188,11 @@ async fn conn_extern_server(addr: String) -> Result<Channel, String> {
     }
     let end_point = end_point.unwrap();
     let chan = end_point
-            .connect_timeout(Duration::from_secs(5))
-            .tcp_keepalive(Some(Duration::from_secs(30)))
-            .concurrency_limit(16)
-            .buffer_size(1024 * 1024)
-            .connect_lazy();
+        .connect_timeout(Duration::from_secs(5))
+        .tcp_keepalive(Some(Duration::from_secs(30)))
+        .concurrency_limit(16)
+        .buffer_size(1024 * 1024)
+        .connect_lazy();
     return Ok(chan);
 }
 
@@ -424,6 +425,8 @@ fn main() {
         .plugin(project_comm_api::project_member_api_plugin::ProjectMemberApiPlugin::new())
         .plugin(user_api_plugin::UserApiPlugin::new())
         .plugin(user_notice_api_plugin::UserNoticeApiPlugin::new())
+        .plugin(user_resume_api_plugin::UserResumeApiPlugin::new())
+        .plugin(user_resume_admin_api_plugin::UserResumeAdminApiPlugin::new())
         .plugin(project_comm_api::events_api_plugin::EventsApiPlugin::new())
         .plugin(project_misc_api::external_events_api_plugin::ExternalEventsApiPlugin::new())
         .plugin(project_content_api::project_sprit_api_plugin::ProjectSpritApiPlugin::new())
@@ -494,13 +497,6 @@ fn main() {
         .plugin(org_api::org_forum_api_plugin::OrgForumApiPlugin::new())
         .plugin(org_api::org_admin_api_plugin::OrgAdminApiPlugin::new())
         .plugin(org_api::org_member_admin_api_plugin::OrgMemberAdminApiPlugin::new())
-        .plugin(skill_api::skill_center_admin_api_plugin::SkillCenterAdminApiPlugin::new())
-        .plugin(skill_api::skill_center_api_plugin::SkillCenterApiPlugin::new())
-        .plugin(skill_api::skill_learn_api_plugin::SkillLearnApiPlugin::new())
-        .plugin(skill_api::skill_resource_api_plugin::SkillResourceApiPlugin::new())
-        .plugin(skill_api::skill_resource_admin_api_plugin::SkillResourceAdminApiPlugin::new())
-        .plugin(skill_api::skill_test_api_plugin::SkillTestApiPlugin::new())
-        .plugin(skill_api::skill_test_admin_api_plugin::SkillTestAdminApiPlugin::new())
         .plugin(keyword_admin_api_plugin::KeywordAdminApiPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {

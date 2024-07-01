@@ -23,7 +23,6 @@ export type BasicUserInfo = {
 export type FeatureInfo = {
   enable_project: boolean;
   enable_org: boolean;
-  enable_skill_center: boolean;
 }
 
 export type UserInfo = {

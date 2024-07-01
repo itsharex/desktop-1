@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { observer, useLocalObservable } from 'mobx-react';
-import { Button, Card, Descriptions, Empty, Select, Space, Table, Tooltip } from "antd";
+import { Button, Card, Descriptions, Form, List, Select, Space, Table, Tooltip } from "antd";
 import { useStores } from "@/hooks";
 import type { WebMemberInfo } from "@/stores/member";
 import UserPhoto from "@/components/Portrait/UserPhoto";
@@ -13,7 +13,7 @@ import EventCom from "@/components/EventCom";
 import { type PluginEvent, list_project_event } from "@/api/events";
 import { request } from "@/utils/request";
 import { EVENT_ICON_LIST } from "../Record/common";
-import { timeToDateString } from "@/utils/utils";
+import { timeToDateString, uniqId } from "@/utils/utils";
 import type { ISSUE_STATE, ISSUE_TYPE, IssueInfo } from "@/api/project_issue";
 import { ISSUE_TYPE_TASK, ISSUE_TYPE_BUG, ISSUE_STATE_PROCESS, ISSUE_STATE_CHECK, list as list_issue, SORT_TYPE_DSC, SORT_KEY_UPDATE_TIME, ASSGIN_USER_EXEC, ASSGIN_USER_CHECK } from "@/api/project_issue";
 import { LocalIssueStore } from "@/stores/local";
@@ -23,11 +23,10 @@ import { useHistory } from "react-router-dom";
 import { issueState } from "@/utils/constant";
 import { getStateColor } from "@/pages/Issue/components/utils";
 import { SHORT_NOTE_BUG, SHORT_NOTE_TASK } from "@/api/short_note";
-import type { LearnSummaryItem } from "@/api/skill_learn";
-import { get_learn_summary_in_project } from "@/api/skill_learn";
-import SkillSummaryTag from "@/components/Skill/SkillSummaryTag";
 import { listen } from '@tauri-apps/api/event';
 import type * as NoticeType from '@/api/notice_type';
+import type { UserResumeInfo } from "@/api/user_resume";
+import { GENDER_TYPE_FEMALE, GENDER_TYPE_MALE, GENDER_TYPE_UNKNOWN, get_from_project } from "@/api/user_resume";
 
 interface IssueListProps {
     memberUserId: string;
@@ -189,7 +188,7 @@ const MemberEventList = (props: MemberEventListProps) => {
             from_time: moment(props.lastEventTime).add(-3, "days").valueOf(),
             to_time: props.lastEventTime,
             offset: 0,
-            limit: 999,
+            limit: 20,
         }));
         const tmpList = res.event_list.sort((a, b) => b.event_time - a.event_time);
         setEventList(tmpList);
@@ -223,36 +222,130 @@ const MemberEventList = (props: MemberEventListProps) => {
     );
 };
 
+interface MemberResumeProps {
+    memberUserId: string;
+}
+
+const MemberResume = (props: MemberResumeProps) => {
+    const userStore = useStores('userStore');
+    const projectStore = useStores('projectStore');
+
+    const [resumeInfo, setResumeInfo] = useState<UserResumeInfo | null>(null);
+
+    const loadResumeInfo = async () => {
+        const res = await request(get_from_project({
+            session_id: userStore.sessionId,
+            project_id: projectStore.curProjectId,
+            member_user_id: props.memberUserId,
+        }));
+        setResumeInfo(res.resume_info);
+    };
+
+    useEffect(() => {
+        loadResumeInfo();
+    }, [props.memberUserId]);
+
+    return (
+        <>
+            {resumeInfo != null && (
+                <div>
+                    <h1 style={{ fontSize: "16px", fontWeight: 600 }}>基本信息</h1>
+                    <Form labelCol={{ span: 4 }}>
+                        <Form.Item label="姓名">
+                            {resumeInfo.basic_info.true_name}
+                        </Form.Item>
+                        <Form.Item label="性别">
+                            {resumeInfo.basic_info.gender == GENDER_TYPE_UNKNOWN && "保密"}
+                            {resumeInfo.basic_info.gender == GENDER_TYPE_MALE && "男性"}
+                            {resumeInfo.basic_info.gender == GENDER_TYPE_FEMALE && "女性"}
+                        </Form.Item>
+                        <Form.Item label="出生年月">
+                            {resumeInfo.basic_info.has_birth_day && moment(resumeInfo.basic_info.birthday).format("YYYY-MM-DD")}
+                        </Form.Item>
+                        <Form.Item label="手机号码">
+                            {resumeInfo.basic_info.mobile_phone}
+                        </Form.Item>
+                        <Form.Item label="邮箱">
+                            {resumeInfo.basic_info.email}
+                        </Form.Item>
+                        <Form.Item>
+                            <h2>个人简介</h2>
+                            <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                                {resumeInfo.basic_info.self_intro}
+                            </pre>
+                        </Form.Item>
+                    </Form>
+                    <h1 style={{ fontSize: "16px", fontWeight: 600 }}>工作经历</h1>
+                    <List rowKey="id" dataSource={resumeInfo.work_exp_item_list.map(item => ({
+                        id: uniqId(),
+                        workExpItem: item,
+                    }))} pagination={false} renderItem={item => (
+                        <List.Item>
+                            <Form labelCol={{ span: 4 }} style={{ width: "100%" }}>
+                                <Form.Item label="工作时间">
+                                    {item.workExpItem.has_from_time ? moment(item.workExpItem.from_time).format("YYYY-MM") : "-"}
+                                    &nbsp;至&nbsp;
+                                    {item.workExpItem.has_to_time ? moment(item.workExpItem.to_time).format("YYYY-MM") : "-"}
+                                </Form.Item>
+                                <Form.Item label="公司">
+                                    {item.workExpItem.company}
+                                </Form.Item>
+                                <Form.Item label="职位">
+                                    {item.workExpItem.positon}
+                                </Form.Item>
+                                <Form.Item>
+                                    <h2>工作简介</h2>
+                                    <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                                        {item.workExpItem.work_desc}
+                                    </pre>
+                                </Form.Item>
+                            </Form>
+                        </List.Item>
+                    )} />
+                    <h1 style={{ fontSize: "16px", fontWeight: 600 }}>教育经历</h1>
+                    <List rowKey="id" dataSource={resumeInfo.edu_exp_item_list.map(item => ({
+                        id: uniqId(),
+                        eduExpItem: item,
+                    }))} pagination={false} renderItem={item => (
+                        <List.Item>
+                            <Form labelCol={{ span: 4 }} style={{ width: "100%" }}>
+                                <Form.Item label="学习时间">
+                                    {item.eduExpItem.has_from_time ? moment(item.eduExpItem.from_time).format("YYYY-MM") : "-"}
+                                    &nbsp;至&nbsp;
+                                    {item.eduExpItem.has_to_time ? moment(item.eduExpItem.to_time).format("YYYY-MM") : "-"}
+                                </Form.Item>
+                                <Form.Item label="学校">
+                                    {item.eduExpItem.school_name}
+                                </Form.Item>
+                                <Form.Item label="专业">
+                                    {item.eduExpItem.major_name}
+                                </Form.Item>
+                            </Form>
+                        </List.Item>
+                    )} />
+                </div>
+            )}
+
+        </>
+    );
+};
+
 const MemberDetail = () => {
     const history = useHistory();
 
-    const userStore = useStores('userStore');
     const projectStore = useStores('projectStore');
     const memberStore = useStores('memberStore');
     const linkAuxStore = useStores('linkAuxStore');
 
     const [memberInfo, setMemberInfo] = useState<WebMemberInfo | undefined>(undefined);
-    const [summaryItemList, setSummaryItemList] = useState<LearnSummaryItem[]>([]);
 
-    const loadSummaryItemList = async () => {
-        if (userStore.userInfo.featureInfo.enable_skill_center == false) {
-            return;
-        }
-        const res = await request(get_learn_summary_in_project({
-            session_id: userStore.sessionId,
-            project_id: projectStore.curProjectId,
-            member_user_id: memberStore.showDetailMemberId,
-        }));
-        setSummaryItemList(res.summary_info.item_list);
-    };
+
 
     useEffect(() => {
         if (memberStore.showDetailMemberId == "") {
             setMemberInfo(undefined);
-            setSummaryItemList([]);
         } else {
             setMemberInfo(memberStore.getMember(memberStore.showDetailMemberId));
-            loadSummaryItemList();
         }
     }, [memberStore.showDetailMemberId]);
 
@@ -381,16 +474,9 @@ const MemberDetail = () => {
                     <Card title="工作记录" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
                         <MemberEventList lastEventTime={memberInfo.last_event?.event_time ?? 0} memberUserId={memberInfo.member.member_user_id} />
                     </Card>
-                    {userStore.userInfo.featureInfo.enable_skill_center && (
-                        <Card title="技能概览" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
-                            <div style={{ width: "100%" }}>
-                                {summaryItemList.length == 0 && (
-                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                                )}
-                                {summaryItemList.map(item => (
-                                    <SkillSummaryTag key={item.cate_id} summaryItem={item} width="330px" />
-                                ))}
-                            </div>
+                    {memberInfo.member.has_resume && (
+                        <Card title="个人信息" style={{ marginBottom: "10px" }} headStyle={{ backgroundColor: "#eee", fontSize: "16px", fontWeight: 700 }}>
+                            <MemberResume memberUserId={memberInfo.member.member_user_id} />
                         </Card>
                     )}
                 </>
