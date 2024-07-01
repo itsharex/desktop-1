@@ -122,7 +122,7 @@ export type MemberInfo = {
   is_cur_user: boolean;
   is_project_owner: boolean;
   can_admin: boolean;
-  // reminder_channel_id: string;
+  has_resume: boolean;
 };
 
 export type ListMemberResponse = {
@@ -142,7 +142,7 @@ export type GenOneTimeTokenRequest = {
   project_id: string;
 };
 
-export type  GenOneTimeTokenResponse = {
+export type GenOneTimeTokenResponse = {
   code: number;
   err_msg: string;
   token: string;
@@ -161,8 +161,8 @@ export type AddFromOrgResponse = {
 };
 
 export type AckJoinRequest = {
-   session_id: string;
-   project_id: string;
+  session_id: string;
+  project_id: string;
 };
 
 export type AckJoinResponse = {
