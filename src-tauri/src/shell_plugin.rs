@@ -42,6 +42,11 @@ async fn real_list() -> Vec<String> {
 
 #[tauri::command]
 async fn exec(shell_name: String, cwd: String) {
+    real_exec(shell_name, cwd).await;
+}
+
+#[cfg(target_os = "windows")]
+async fn real_exec(shell_name: String, cwd: String) {
     let cmd_path = find_executable_in_path(&shell_name);
     if cmd_path.is_none() {
         return;
@@ -55,6 +60,28 @@ async fn exec(shell_name: String, cwd: String) {
     tauri::async_runtime::spawn(async move {
         let _ = child.wait().await;
     });
+}
+
+#[cfg(target_os = "linux")]
+async fn real_exec(shell_name: String, cwd: String) {
+    let cmd_path = find_executable_in_path("gnome-terminal");
+    if cmd_path.is_none() {
+        return;
+    }
+    let cmd_path = cmd_path.unwrap();
+    let child = Command::new(cmd_path).arg("--").arg(&shell_name).current_dir(&cwd).spawn();
+    if child.is_err() {
+        return;
+    }
+    let mut child = child.unwrap();
+    tauri::async_runtime::spawn(async move {
+        let _ = child.wait().await;
+    });
+}
+
+#[cfg(target_os = "macos")]
+async fn real_exec(shell_name: String, cwd: String) {
+    //do nothing
 }
 
 pub struct ShellPlugin<R: Runtime> {
