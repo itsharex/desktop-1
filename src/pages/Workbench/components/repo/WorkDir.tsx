@@ -451,7 +451,7 @@ const WorkDir = (props: WorkDirProps) => {
                             })))
                         ]
                     }}>
-                        <Button icon={<FolderOpenOutlined style={{ fontSize: "20px" }} />} style={{ width: "40px" }} />
+                        <Button icon={<FolderOpenOutlined style={{ fontSize: "20px" }} />} style={{ width: "40px", borderRadius: "6px" }} />
                     </Dropdown>
                     {props.headBranch != "" && (
                         <Button type="primary" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="拉取(pull)"
@@ -475,12 +475,6 @@ const WorkDir = (props: WorkDirProps) => {
                             Push
                         </Button>
                     )}
-                    {/* <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            resolve(props.basePath, ...curDirList).then(path => open_dir(path));
-                        }}>在文件管理器中打开</Button> */}
                 </Space>
             }>
             <List rowKey="name" dataSource={fileEntryList} pagination={false}

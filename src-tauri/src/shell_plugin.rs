@@ -6,8 +6,10 @@ use tauri::{
     plugin::{Plugin, Result as PluginResult},
     AppHandle, Invoke, PageLoadPayload, Runtime, Window,
 };
-use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
+
+#[cfg(target_os = "macos")]
+use tokio::io::AsyncWriteExt;
 
 #[tauri::command]
 async fn list() -> Vec<String> {
