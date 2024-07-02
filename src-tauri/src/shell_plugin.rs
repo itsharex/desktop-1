@@ -36,13 +36,7 @@ async fn real_list() -> Vec<String> {
 
 #[cfg(target_os = "macos")]
 async fn real_list() -> Vec<String> {
-    let mut ret_list: Vec<String> = Vec::new();
-    if let Some(_) = find_executable_in_path("zsh") {
-        ret_list.push("zsh".into());
-    }
-    if let Some(_) = find_executable_in_path("bash") {
-        ret_list.push("bash".into());
-    }
+    let ret_list: Vec<String> = Vec::new();
     return ret_list;
 }
 
