@@ -2,9 +2,9 @@
 //SPDX-License-Identifier: GPL-3.0-only
 
 import React, { useEffect, useState } from "react";
-import { Button, Card, List, Space, Breadcrumb, Modal, Form, Select, Radio, Input, message, Progress } from "antd";
+import { Button, Card, List, Space, Breadcrumb, Modal, Form, Select, Radio, Input, message, Progress, Dropdown } from "antd";
 import { open as open_dir } from '@tauri-apps/api/shell';
-import { DownloadOutlined, FileOutlined, FolderOutlined, UploadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, FileOutlined, FolderOpenOutlined, FolderOutlined, UploadOutlined } from "@ant-design/icons";
 import { readDir, type FileEntry } from '@tauri-apps/api/fs';
 import { homeDir, resolve } from '@tauri-apps/api/path';
 import { type WidgetInfo } from "@/api/widget";
@@ -16,6 +16,7 @@ import { observer } from 'mobx-react';
 import { USER_TYPE_ATOM_GIT } from "@/api/user";
 import type { AUTH_TYPE, GitProgressItem } from "@/api/git_wrap";
 import { pull as run_pull, push as run_push, run_status, test_ssh } from "@/api/git_wrap";
+import { list as list_shell, exec as exec_shell } from "@/api/shell";
 
 interface ModalProps {
     headBranch: string;
@@ -379,6 +380,7 @@ const WorkDir = (props: WorkDirProps) => {
     const [fileEntryList, setFileEntryList] = useState([] as FileEntry[]);
     const [showPullModal, setShowPullModal] = useState(false);
     const [showPushModal, setShowPushModal] = useState(false);
+    const [shellList, setShellList] = useState([] as string[]);
 
     const loadFileEntryList = async () => {
         const path = await resolve(props.basePath, ...curDirList);
@@ -397,6 +399,10 @@ const WorkDir = (props: WorkDirProps) => {
             loadFileEntryList();
         }
     }, [props.headBranch]);
+
+    useEffect(() => {
+        list_shell().then(res => setShellList(res));
+    }, []);
 
     return (
         <Card bordered={false} bodyStyle={{ height: "calc(100vh - 440px)", overflow: "scroll", paddingTop: "2px" }}
@@ -427,6 +433,26 @@ const WorkDir = (props: WorkDirProps) => {
                 </Breadcrumb>
             } extra={
                 <Space>
+                    <Dropdown placement="bottom" menu={{
+                        items: [
+                            {
+                                key: "file",
+                                label: "文件管理器",
+                                onClick: () => {
+                                    resolve(props.basePath, ...curDirList).then(path => open_dir(path));
+                                },
+                            },
+                            ...(shellList.map(shell => ({
+                                key: shell,
+                                label: shell,
+                                onClick: () => {
+                                    resolve(props.basePath, ...curDirList).then(path => exec_shell(shell, path));
+                                },
+                            })))
+                        ]
+                    }}>
+                        <Button icon={<FolderOpenOutlined style={{ fontSize: "20px" }} />} style={{ width: "40px", borderRadius: "6px" }} />
+                    </Dropdown>
                     {props.headBranch != "" && (
                         <Button type="primary" icon={<DownloadOutlined style={{ fontSize: "20px" }} />} title="拉取(pull)"
                             style={{ borderRadius: "6px" }}
@@ -449,12 +475,6 @@ const WorkDir = (props: WorkDirProps) => {
                             Push
                         </Button>
                     )}
-                    <Button type="link" style={{ minWidth: "0px", padding: "2px 0px" }}
-                        onClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            resolve(props.basePath, ...curDirList).then(path => open_dir(path));
-                        }}>在文件管理器中打开</Button>
                 </Space>
             }>
             <List rowKey="name" dataSource={fileEntryList} pagination={false}

@@ -44,6 +44,7 @@ mod my_updater;
 mod dev_container_admin_api_plugin;
 mod dev_container_api_plugin;
 mod local_repo_plugin;
+mod shell_plugin;
 
 use std::time::Duration;
 use tauri::http::ResponseBuilder;
@@ -498,6 +499,7 @@ fn main() {
         .plugin(org_api::org_admin_api_plugin::OrgAdminApiPlugin::new())
         .plugin(org_api::org_member_admin_api_plugin::OrgMemberAdminApiPlugin::new())
         .plugin(keyword_admin_api_plugin::KeywordAdminApiPlugin::new())
+        .plugin(shell_plugin::ShellPlugin::new())
         .invoke_system(String::from(INIT_SCRIPT), window_invoke_responder)
         .register_uri_scheme_protocol("fs", move |app_handle, request| {
             match url::Url::parse(request.uri()) {
