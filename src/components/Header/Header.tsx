@@ -28,6 +28,7 @@ import EntryPopover from '@/pages/Project/Home/components/EntryPopover';
 import RemoveEntryModal from '@/pages/Project/Home/components/RemoveEntryModal';
 import ServerConnInfo from './ServerConnInfo';
 import UserNoticeList from './UserNoticeList';
+import TipsModal from './TipsModal';
 
 const { Header } = Layout;
 
@@ -48,6 +49,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
   const [hasNewVersion, setHasNewVersion] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(0);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showTipsModal, setShowTipsModal] = useState(false);
 
   const handleClick = async function handleClick(type: string) {
     switch (type) {
@@ -296,7 +298,7 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
 
           {location.pathname.startsWith("/app/") && (
             <QuestionCircleTwoTone twoToneColor={appStore.showHelp ? ["white", "orange"] : ["white", "grey"]}
-              style={{ cursor: "default", fontSize: "24px" }}
+              style={{ cursor: "pointer", fontSize: "24px" }}
               onMouseEnter={e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -306,6 +308,11 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
                 e.stopPropagation();
                 e.preventDefault();
                 appStore.showHelp = false;
+              }}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                setShowTipsModal(true);
               }} />
           )}
 
@@ -321,6 +328,9 @@ const MyHeader: React.FC<{ style?: React.CSSProperties; className?: string }> = 
             history.push(APP_PROJECT_HOME_PATH);
             setShowRemoveModal(false);
           }} />
+      )}
+      {showTipsModal == true && (
+        <TipsModal onCancel={() => setShowTipsModal(false)} />
       )}
     </div >
   );
